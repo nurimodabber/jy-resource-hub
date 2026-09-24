@@ -99,3 +99,21 @@ export interface EmpirePlayer {
   kingName?: string;
   isEliminated: boolean;
 }
+
+export interface DevotionalSong {
+  id: string;
+  title: LocalizedString;
+  theme: LocalizedString;
+  bahaiSongsUrl: string;
+  key?: string;
+}
+
+export interface DevotionalItem {
+  id: string;
+  type: 'prayer' | 'song' | 'reading' | 'reflection';
+  title: LocalizedString;
+  content: LocalizedString;
+  source?: LocalizedString;
+  songUrl?: string;
+}
+

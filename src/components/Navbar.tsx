@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, BookOpen, Clock, Layers, Bookmark, Printer, Search, Globe, X } from 'lucide-react';
+import { Compass, BookOpen, Clock, Layers, Bookmark, Printer, Search, Globe, X, Music } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -13,6 +13,7 @@ interface NavbarProps {
   favoriteCount: number;
   showOnlyFavorites: boolean;
   setShowOnlyFavorites: (val: boolean) => void;
+  onOpenBahaiSongs: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -25,6 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   favoriteCount,
   showOnlyFavorites,
   setShowOnlyFavorites,
+  onOpenBahaiSongs,
 }) => {
   const t = UI_TRANSLATIONS[language];
 
@@ -159,6 +161,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {favoriteCount}
                 </span>
               )}
+            </button>
+
+            {/* Bahá'í Songs Embed & Link Button */}
+            <button
+              onClick={onOpenBahaiSongs}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
+              title="Bahá'í Songs (bahaisongs.com)"
+            >
+              <Music className="w-3.5 h-3.5 text-emerald-700" />
+              <span className="hidden sm:inline">Songs</span>
             </button>
 
             {/* Print Button */}

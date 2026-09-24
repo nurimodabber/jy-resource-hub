@@ -4,12 +4,15 @@ import { GamesView } from './components/GamesView';
 import { QuotesView } from './components/QuotesView';
 import { SessionBuilder } from './components/SessionBuilder';
 import { ToolkitsView } from './components/ToolkitsView';
+import { BahaiSongsModal } from './components/BahaiSongsModal';
 import { Language } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
+import { ExternalLink, Music } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'games' | 'quotes' | 'planner' | 'toolkits'>('games');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);
   
   // Persistent language
   const [language, setLanguage] = useState<Language>(() => {
@@ -59,6 +62,7 @@ export const App: React.FC = () => {
         favoriteCount={favorites.length}
         showOnlyFavorites={showOnlyFavorites}
         setShowOnlyFavorites={setShowOnlyFavorites}
+        onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -84,7 +88,10 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'planner' && (
-          <SessionBuilder language={language} />
+          <SessionBuilder
+            language={language}
+            onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
+          />
         )}
 
         {activeTab === 'toolkits' && (
@@ -101,7 +108,15 @@ export const App: React.FC = () => {
             <span>{t.footerNote}</span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsBahaiSongsOpen(true)}
+              className="text-stone-600 hover:text-stone-900 font-medium inline-flex items-center gap-1 transition-colors"
+            >
+              <Music className="w-3.5 h-3.5 text-emerald-800" />
+              <span>Bahá'í Songs</span>
+            </button>
+            <span>•</span>
             <button
               onClick={() => window.print()}
               className="text-stone-500 hover:text-stone-800 transition-colors"
@@ -111,6 +126,13 @@ export const App: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Bahá'í Songs Embed Modal */}
+      <BahaiSongsModal
+        isOpen={isBahaiSongsOpen}
+        onClose={() => setIsBahaiSongsOpen(false)}
+        language={language}
+      />
     </div>
   );
 };

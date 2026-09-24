@@ -79,9 +79,11 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     allWordsHidden: 'Alle Wörter wurden gelöscht! Jetzt spricht die Gruppe komplett aus dem Kopf.',
     wordsRemaining: 'Wörter sichtbar',
 
-    // Session Planner
-    plannerHeaderTitle: 'Session-Planer',
-    plannerHeaderDesc: 'Stelle in wenigen Klicks ein stimmiges 3-Stufen-Programm zusammen, das Energizer, Zitat-Arbeit und Ausklang harmonisch verbindet.',
+    // Session Planner & Devotionals
+    plannerHeaderTitle: 'Ablauf- & Andachtsplaner',
+    plannerHeaderDesc: 'Stelle in wenigen Klicks ein Gruppenstunden-Programm oder eine stimmige Andacht mit verlinkten Liedern von bahaisongs.com zusammen.',
+    plannerTabSession: 'Gruppenstunde (Spiele & Zitate)',
+    plannerTabDevotional: 'Andacht vorbereiten',
     timeAvailableLabel: 'Verfügbare Zeit',
     focusLabel: 'Inhaltlicher Schwerpunkt',
     focusQuotes: 'Zitate & Geistesgegenwart',
@@ -93,6 +95,21 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     step1Name: '1. Einstieg & Warm-up',
     step2Name: '2. Kernphase & Vertiefung',
     step3Name: '3. Gemeinsamer Ausklang',
+
+    // Devotional Preparation
+    devotionalThemeLabel: 'Thema der Andacht',
+    devotionalOpeningPrayer: '1. Eröffnungsgebet',
+    devotionalSong1: '2. Eingangslied',
+    devotionalReading: '3. Lesungen & Zitate',
+    devotionalSong2: '4. Zentrales Lied',
+    devotionalReflection: '5. Stille Reflexion & Musik',
+    devotionalClosingSong: '6. Abschlusslied',
+    devotionalClosingPrayer: '7. Abschlussgebet',
+    openBahaiSongs: 'Bahá\'í Songs öffnen',
+    selectSongPrompt: 'Lied auswählen oder eingeben',
+    customSongPlaceholder: 'Liedtitel oder URL...',
+    copyDevotionalPlan: 'Andachtsprogramm kopieren',
+    devotionalProgramTitle: 'Andachtsprogramm',
 
     // Toolkits
     toolkitsHeaderTitle: 'Praxis-Toolkits',
@@ -201,9 +218,11 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     allWordsHidden: 'All words are now hidden! The group recites entirely from memory.',
     wordsRemaining: 'words visible',
 
-    // Session Planner
-    plannerHeaderTitle: 'Session Planner',
-    plannerHeaderDesc: 'Generate a well-balanced 3-stage program in seconds, combining warmups, quote study, and a memorable finale.',
+    // Session Planner & Devotionals
+    plannerHeaderTitle: 'Session & Devotional Planner',
+    plannerHeaderDesc: 'Generate a well-balanced session agenda or craft a devotional gathering with songs linked directly from bahaisongs.com.',
+    plannerTabSession: 'Youth Session (Games & Quotes)',
+    plannerTabDevotional: 'Prepare Devotional',
     timeAvailableLabel: 'Available Time',
     focusLabel: 'Session Focus',
     focusQuotes: 'Quotes & Deep Reflection',
@@ -215,6 +234,21 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     step1Name: '1. Arrival & Warm-up',
     step2Name: '2. Core Focus & Quotes',
     step3Name: '3. Shared Conclusion',
+
+    // Devotional Preparation
+    devotionalThemeLabel: 'Devotional Theme',
+    devotionalOpeningPrayer: '1. Opening Prayer',
+    devotionalSong1: '2. Opening Song',
+    devotionalReading: '3. Central Readings & Quotes',
+    devotionalSong2: '4. Center Song',
+    devotionalReflection: '5. Quiet Reflection & Music',
+    devotionalClosingSong: '6. Closing Song',
+    devotionalClosingPrayer: '7. Closing Prayer',
+    openBahaiSongs: 'Open Bahá\'í Songs',
+    selectSongPrompt: 'Select or enter song',
+    customSongPlaceholder: 'Song title or URL...',
+    copyDevotionalPlan: 'Copy Devotional Program',
+    devotionalProgramTitle: 'Devotional Program',
 
     // Toolkits
     toolkitsHeaderTitle: 'Field Toolkits',
