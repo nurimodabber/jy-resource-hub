@@ -7,3 +7,4 @@ dist-ssr
 *.rtfd
 rtf_converted.txt
 .vercel
+.env*
