@@ -104,8 +104,8 @@ export const App: React.FC = () => {
       <footer className="bg-[#f5f5f7] border-t border-black/[0.06] mt-16 py-8 text-xs text-[#86868b] print:hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded-md bg-[#1d1d1f] flex items-center justify-center p-0.5">
-              <Logo className="w-3.5 h-3.5" />
+            <div className="w-6 h-6 rounded-lg bg-white border border-black/[0.08] shadow-xs flex items-center justify-center p-0.5">
+              <Logo className="w-4 h-4" />
             </div>
             <span className="font-semibold text-[#1d1d1f]">{t.siteTitle}</span>
             <span className="mx-2">•</span>

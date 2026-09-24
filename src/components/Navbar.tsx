@@ -51,8 +51,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               setShowOnlyFavorites(false);
             }}
           >
-            <div className="w-9 h-9 rounded-xl bg-[#1d1d1f] flex items-center justify-center text-white shadow-apple-pill transition-transform group-hover:scale-105">
-              <Logo className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-white border border-black/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.06)] flex items-center justify-center p-1 transition-transform group-hover:scale-105">
+              <Logo className="w-7 h-7" />
             </div>
             <div>
               <span className="font-semibold text-sm sm:text-[15px] tracking-tight text-[#1d1d1f] block leading-tight">

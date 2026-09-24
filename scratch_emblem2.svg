@@ -1,0 +1,52 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- BLUE FIGURE (Community / Accompaniment) -->
+  <!-- Blue Head -->
+  <circle cx="50" cy="15" r="7.4" fill="#254e7a" />
+
+  <!-- Blue Body (Outer Circle + Embracing Arms) -->
+  <path d="
+    M 50 93.5
+    A 41.5 41.5 0 0 1 37.5 19.2
+    A 9.8 9.8 0 0 0 62.5 19.2
+    A 41.5 41.5 0 0 1 50 93.5 Z
+
+    M 50 91.8
+    A 31.8 31.8 0 0 1 42 27.8
+    A 8.5 8.5 0 0 0 58 27.8
+    A 31.8 31.8 0 0 1 50 91.8 Z
+  " fill="#254e7a" fill-rule="evenodd" />
+
+  <!-- GREEN FIGURE (Youth / Animator) -->
+  <!-- Green Head -->
+  <circle cx="50" cy="35" r="6.4" fill="#528463" />
+
+  <!-- Green Body (Concentric Arch) -->
+  <path d="
+    M 49.5 87.5
+    A 28 28 0 0 1 41 38.5
+    A 9.2 9.2 0 0 0 59 38.5
+    A 28 28 0 0 1 50.5 87.5 Z
+
+    M 49.5 86
+    A 19.5 19.5 0 0 1 43.5 46.5
+    A 6.8 6.8 0 0 0 56.5 46.5
+    A 19.5 19.5 0 0 1 50.5 86 Z
+  " fill="#528463" fill-rule="evenodd" />
+
+  <!-- YELLOW FIGURE (Junior Youth / Inner Potential) -->
+  <!-- Yellow Head -->
+  <circle cx="50" cy="53" r="5.6" fill="#e8a73b" />
+
+  <!-- Yellow Body (Dome Arch with Upright Doorway Portal) -->
+  <path d="
+    M 33 92
+    A 16.5 16.5 0 0 1 44.5 56.8
+    A 5.8 5.8 0 0 0 55.5 56.8
+    A 16.5 16.5 0 0 1 67 92
+    L 58 92
+    L 58 75.5
+    A 8 8 0 0 0 42 75.5
+    L 42 92
+    L 33 92 Z
+  " fill="#e8a73b" />
+</svg>
