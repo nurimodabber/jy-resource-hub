@@ -7,8 +7,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'breezes-love-mankind',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Botschaften aus Akka, Lawh-i-Maqsúd)',
+      en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Lawh-i-Maqsúd)'
     },
     book: {
       de: 'Brise der Bestätigung',
@@ -18,15 +18,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Liebe zur Menschheit',
       en: 'Love for Mankind'
     },
-    textDe: 'Ihr wurdet erschaffen, einander Liebe zu erzeigen und nicht Widerspenstigkeit und Groll. Seid nicht stolz auf die Liebe zu eurem eigenen Land, sondern auf die Liebe zur ganzen Menschheit.',
-    textEn: 'Ye were created to show love one to another and not perversity and rancour. Pride not yourselves on love for your own country, but upon love for all mankind.',
-    keywords: ['Brise der Bestätigung', 'Breezes of Confirmation', 'Liebe', 'Menschheit', 'Land', 'love', 'mankind', 'unity']
+    textDe: 'Ihr wurdet erschaffen, einander Liebe zu erzeigen und nicht Widerspenstigkeit und Groll. Seid nicht stolz auf die Liebe zu euch selbst, sondern auf die Liebe zur gesamten Menschheit.',
+    textEn: 'Ye were created to show love one to another and not perversity and rancour. Take pride not in love for yourselves but in love for all mankind.',
+    keywords: ['Brise der Bestätigung', 'Breezes of Confirmation', 'Liebe', 'Menschheit', 'Land', 'love', 'mankind', 'unity', 'Lawh-i-Maqsud']
   },
   {
     id: 'breezes-brother-selflessness',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Botschaften aus Akka, Worte des Paradieses)',
+      en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Words of Paradise)'
     },
     book: {
       de: 'Brise der Bestätigung, Lektion 5',
@@ -43,8 +43,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'breezes-divine-helper',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace, S. 448)',
+      en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace, p. 448)'
     },
     book: {
       de: 'Brise der Bestätigung',
@@ -54,33 +54,33 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Göttliche Bestätigung im Dienst',
       en: 'Divine Assistance in Service'
     },
-    textDe: 'Gott ist der Helfer jener Seelen, deren Ziel es ist, der Menschheit zu dienen, und deren Mühen und Bestrebungen dem Wohle und der Besserung aller Menschen gewidmet sind.',
-    textEn: 'God is the helper of those souls whose aim is to serve humanity, and whose efforts and endeavors are devoted to the good and betterment of all mankind.',
+    textDe: 'Gott ist der Helfer jener Seelen, deren Ziel es ist, der Menschheit zu dienen, und deren Bemühungen und Bestrebungen dem Wohl und der Verbesserung der gesamten Menschheit gewidmet sind.',
+    textEn: 'God is the helper of those souls whose aim is to serve humanity and whose efforts and endeavors are devoted to the good and betterment of all mankind.',
     keywords: ['Brise der Bestätigung', 'Breezes of Confirmation', 'Helfer', 'Dienst', 'Besserung', 'Menschheit', 'helper', 'serve', 'betterment']
   },
   {
     id: 'breezes-place-under-sun',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 21)',
+      en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #21)'
     },
     book: {
       de: 'Brise der Bestätigung',
       en: 'Breezes of Confirmation'
     },
     theme: {
-      de: 'Platz an der Sonne & Bemühen',
+      de: 'Platz unter der Sonne & Bemühen',
       en: 'Effort & Dazzling Light'
     },
-    textDe: 'Gib dir Mühe, damit du deinen Platz an der Sonne einnehmen und einen reichen Anteil an ihrem strahlenden Lichte empfangen mögest.',
+    textDe: 'Bemühe dich, dass du deinen Platz unter der Sonne einnimmst und einen reichen Anteil ihres blendenden Lichtes empfängst.',
     textEn: 'Make thou an effort that thou mayest take thy place under the sun and receive an abundant share of its dazzling light.',
     keywords: ['Brise der Bestätigung', 'Breezes of Confirmation', 'Mühe', 'Sonne', 'Licht', 'effort', 'sun', 'light']
   },
   {
     id: 'breezes-trees-fruits',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Verborgene Worte, Persisch Nr. 80)',
+      en: 'Bahá\'u\'lláh (The Hidden Words, Persian #80)'
     },
     book: {
       de: 'Brise der Bestätigung',
@@ -90,7 +90,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Gute Früchte tragen',
       en: 'Bearing Goodly Fruits'
     },
-    textDe: 'O Meine Diener! Ihr seid die Bäume Meines Gartens; ihr müsst gute und wundervolle Früchte tragen, auf dass ihr selbst und andere Nutzen daraus ziehen mögen.',
+    textDe: 'O Meine Diener! Ihr seid die Bäume Meines Gartens; ihr müsst gute, köstliche Früchte tragen, auf dass ihr selbst und andere Nutzen davon haben.',
     textEn: 'O My servants! Ye are the trees of My garden; ye must give forth goodly and wondrous fruits, that ye yourselves and others may profit therefrom.',
     keywords: ['Brise der Bestätigung', 'Breezes of Confirmation', 'Bäume', 'Garten', 'Früchte', 'trees', 'garden', 'fruits']
   },
@@ -101,8 +101,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'straightpath-vigilance',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Botschaften aus Akka, Worte des Paradieses)',
+      en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Words of Paradise)'
     },
     book: {
       de: 'Den geraden Pfad beschreiten, Lektion 1',
@@ -119,8 +119,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'straightpath-faultfinding',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 27)',
+      en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #27)'
     },
     book: {
       de: 'Den geraden Pfad beschreiten, Lektion 2',
@@ -130,15 +130,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Keine Sünden anderer erwähnen',
       en: 'Refraining from Faultfinding'
     },
-    textDe: 'O Sohn des Menschen! Sprich nicht über die Sünden anderer, solange du selbst ein Sünder bist.',
+    textDe: 'O Sohn des Menschen! Erwähne nicht die Sünden anderer, solange du selbst ein Sünder bist.',
     textEn: 'O Son of Man! Breathe not the sins of others so long as thou art thyself a sinner.',
     keywords: ['Den geraden Pfad beschreiten', 'Walking the Straight Path', 'Sünden', 'Fehler', 'sins', 'sinner', 'faults']
   },
   {
     id: 'straightpath-own-faults',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 26)',
+      en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #26)'
     },
     book: {
       de: 'Den geraden Pfad beschreiten',
@@ -155,8 +155,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'straightpath-kindly-tongue',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Botschaften aus Akka, Tarazát)',
+      en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Tarázát)'
     },
     book: {
       de: 'Den geraden Pfad beschreiten',
@@ -173,26 +173,26 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'straightpath-loving-kindness',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 1)',
+      en: '\'Abdu\'l-Bahá (Paris Talks, #1)'
     },
     book: {
       de: 'Den geraden Pfad beschreiten',
       en: 'Walking the Straight Path'
     },
     theme: {
-      de: 'Liebevolle Freundlichkeit',
+      de: 'Liebevolle Freundlichkeit in Taten',
       en: 'Loving Kindness in Deeds'
     },
-    textDe: 'Begnügt euch nicht damit, durch Worte Freundschaft zu erzeigen, lasst eure Herzen in liebevoller Freundlichkeit für alle erglühen, die eure Wege kreuzen.',
+    textDe: 'Begnügt euch nicht damit, Freundschaft in Worten allein zu bezeugen, lasst euer Herz in liebevoller Güte für alle entbrennen, die euren Weg kreuzen.',
     textEn: 'Do not be content with showing friendship in words alone, let your heart burn with loving kindness for all who may cross your path.',
     keywords: ['Den geraden Pfad beschreiten', 'Walking the Straight Path', 'Freundschaft', 'Herzen', 'Freundlichkeit', 'friendship', 'loving kindness', 'heart']
   },
   {
     id: 'straightpath-two-wings',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 40)',
+      en: '\'Abdu\'l-Bahá (Paris Talks, #40)'
     },
     book: {
       de: 'Den geraden Pfad beschreiten',
@@ -202,7 +202,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Gleichwertigkeit & Zwei Schwingen',
       en: 'Two Wings of Humanity'
     },
-    textDe: 'Die Welt der Menschheit hat zwei Schwingen: die Frauen und die Männer. Erst wenn beide Schwingen gleichmäßig entwickelt sind, kann der Vogel fliegen.',
+    textDe: 'Die Menschenwelt hat zwei Flügel: die Frauen und die Männer. Erst wenn beide Flügel gleich stark entwickelt sind, kann der Vogel fliegen.',
     textEn: 'The world of humanity has two wings—one is women and the other men. Not until both wings are equally developed can the bird fly.',
     keywords: ['Den geraden Pfad beschreiten', 'Walking the Straight Path', 'Schwingen', 'Frauen', 'Männer', 'Gleichberechtigung', 'wings', 'women', 'men', 'equality']
   },
@@ -213,8 +213,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'powerword-king-of-words',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Botschaften aus Akka)',
+      en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh)'
     },
     book: {
       de: 'Die Kraft des Wortes nutzen',
@@ -231,8 +231,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'powerword-deeds-not-words',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Ährenlese CXXXVI / Verborgene Worte)',
+      en: 'Bahá\'u\'lláh (Gleanings CXXXVI / The Hidden Words)'
     },
     book: {
       de: 'Die Kraft des Wortes nutzen',
@@ -249,8 +249,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'powerword-spirit-of-word',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Botschaften aus Akka, Lawh-i-Maqsúd)',
+      en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Lawh-i-Maqsúd)'
     },
     book: {
       de: 'Die Kraft des Wortes nutzen',
@@ -267,8 +267,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'powerword-ocean-of-words',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Kitáb-i-Aqdas, K182)',
+      en: 'Bahá\'u\'lláh (The Kitáb-i-Aqdas, K182)'
     },
     book: {
       de: 'Die Kraft des Wortes nutzen',
@@ -278,7 +278,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Ozean der göttlichen Worte',
       en: 'Ocean of Divine Words'
     },
-    textDe: 'Tauchet ein in den Ozean Meiner Worte, auf dass ihr seine Geheimnisse ergründet und all die Perlen der Weisheit entdeckt, die in seinen Tiefen verborgen liegen.',
+    textDe: 'Tauchet ein in das Meer Meiner Worte, auf dass ihr seine Geheimnisse ergründet und alle Perlen der Weisheit entdeckt, die in seinen Tiefen verborgen liegen.',
     textEn: 'Immerse yourselves in the ocean of My words, that ye may unravel its secrets, and discover all the pearls of wisdom that lie hid in its depths.',
     keywords: ['Die Kraft des Wortes nutzen', 'Drawing on the Power of the Word', 'Ozean', 'Perlen', 'Weisheit', 'ocean', 'words', 'wisdom', 'pearls']
   },
@@ -289,8 +289,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'excellence-shining-lamp',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
+      en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
     },
     book: {
       de: 'Nach Vortrefflichkeit streben',
@@ -307,8 +307,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'excellence-purity-lifestyle',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 105)',
+      en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #105)'
     },
     book: {
       de: 'Nach Vortrefflichkeit streben',
@@ -318,15 +318,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Reinheit & Unabhängigkeit',
       en: 'Purity & Independence of Spirit'
     },
-    textDe: 'Am Anfang der Lebensweise eines Menschen müssen Reinheit stehen, dann Frische, Sauberkeit und Unabhängigkeit des Geistes.',
+    textDe: 'Das Erste im Lebenswandel eines Menschen muss Reinheit sein, dann Frische, Sauberkeit und Unabhängigkeit des Geistes.',
     textEn: 'First in a human being\'s way of life must be purity, then freshness, cleanliness, and independence of spirit.',
     keywords: ['Nach Vortrefflichkeit streben', 'Learning About Excellence', 'Reinheit', 'Frische', 'Sauberkeit', 'Geist', 'purity', 'cleanliness', 'spirit']
   },
   {
     id: 'excellence-highest-degree',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 114)',
+      en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #114)'
     },
     book: {
       de: 'Nach Vortrefflichkeit streben',
@@ -343,8 +343,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'excellence-virtues-honor',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Das Geheimnis göttlicher Kultur)',
+      en: '\'Abdu\'l-Bahá (The Secret of Divine Civilization)'
     },
     book: {
       de: 'Nach Vortrefflichkeit streben',
@@ -365,8 +365,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'glimmerings-peace-thought',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 7)',
+      en: '\'Abdu\'l-Bahá (Paris Talks, #7)'
     },
     book: {
       de: 'Hoffnungsschimmer',
@@ -376,15 +376,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Gedanken des Friedens',
       en: 'Thoughts of Peace Over War'
     },
-    textDe: 'Wenn ein Kriegsgedanke kommt, so widersteht ihm mit einem stärkeren Gedanken des Friedens. Ein Hassgedanke muss durch einen mächtigeren Gedanken der Liebe vernichtet werden.',
+    textDe: 'Wenn ein Kriegsgedanke kommt, widersteht ihm mit einem stärkeren Gedanken des Friedens. Ein Hassgedanke muss durch einen mächtigeren Gedanken der Liebe zerstört werden.',
     textEn: 'When a thought of war comes, oppose it by a stronger thought of peace. A thought of hatred must be destroyed by a more powerful thought of love.',
     keywords: ['Hoffnungsschimmer', 'Glimmerings of Hope', 'Krieg', 'Frieden', 'Hass', 'Liebe', 'war', 'peace', 'hatred', 'love']
   },
   {
     id: 'glimmerings-light-unity',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Ährenlese CXIV)',
+      en: 'Bahá\'u\'lláh (Gleanings CXIV)'
     },
     book: {
       de: 'Hoffnungsschimmer',
@@ -394,15 +394,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Licht der Einheit',
       en: 'Light of Unity'
     },
-    textDe: 'So machtvoll ist das Licht der Einheit, dass es die ganze Erde erleuchten kann.',
+    textDe: 'So mächtig ist das Licht der Einheit, dass es die ganze Erde erleuchten kann.',
     textEn: 'So powerful is the light of unity that it can illuminate the whole earth.',
     keywords: ['Hoffnungsschimmer', 'Glimmerings of Hope', 'Licht', 'Einheit', 'Erde', 'unity', 'light', 'earth']
   },
   {
     id: 'glimmerings-sight-forgiveness',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
+      en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
     },
     book: {
       de: 'Hoffnungsschimmer',
@@ -419,8 +419,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'glimmerings-strife-damage',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Schriften Bahá\'u\'lláhs)',
+      en: 'Bahá\'u\'lláh (Writings of Bahá\'u\'lláh)'
     },
     book: {
       de: 'Hoffnungsschimmer',
@@ -441,8 +441,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'spiritfaith-assisted-spirit',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Beantwortete Fragen, Kap. 36)',
+      en: '\'Abdu\'l-Bahá (Some Answered Questions, Ch. 36)'
     },
     book: {
       de: 'Geist des Glaubens, Lektion 2',
@@ -459,8 +459,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'spiritfaith-soul-gem',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Ährenlese LXXXII)',
+      en: 'Bahá\'u\'lláh (Gleanings LXXXII)'
     },
     book: {
       de: 'Geist des Glaubens',
@@ -477,8 +477,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'spiritfaith-noble-created',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 22)',
+      en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #22)'
     },
     book: {
       de: 'Geist des Glaubens',
@@ -488,15 +488,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Erhebe dich zu deiner Würde',
       en: 'Rise to Thy Noble Station'
     },
-    textDe: 'O Sohn des Geistes! Edel habe Ich dich erschaffen, warum erniedrigst du dich? Erhebe dich zu dem, wozu du geschaffen wurdest.',
+    textDe: 'O Sohn des Geistes! Edel habe Ich dich erschaffen, warum erniedrigst du dich? So erhebe dich zu dem, wozu du geschaffen wurdest.',
     textEn: 'O Son of Spirit! Noble have I created thee, yet thou hast abased thyself. Rise then unto that for which thou wast created.',
     keywords: ['Geist des Glaubens', 'Spirit of Faith', 'Edel', 'erschaffen', 'Würde', 'noble', 'created', 'rise']
   },
   {
     id: 'spiritfaith-soul-progress',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Ährenlese LXXXI)',
+      en: 'Bahá\'u\'lláh (Gleanings LXXXI)'
     },
     book: {
       de: 'Geist des Glaubens',
@@ -517,8 +517,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'wellspring-joy-wings',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 34)',
+      en: '\'Abdu\'l-Bahá (Paris Talks, #34)'
     },
     book: {
       de: 'Quelle der Freude',
@@ -528,15 +528,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Freude verleiht Flügel',
       en: 'Joy Gives Us Wings'
     },
-    textDe: 'Freude verleiht uns Flügel! In Zeiten der Freude ist unsere Kraft lebendiger, unser Verstand schärfer und unser Begreifen weniger getrübt.',
+    textDe: 'Freude gibt uns Flügel! In Zeiten der Freude ist unsere Kraft lebendiger, unser Verstand schärfer und unser Begreifen weniger getrübt.',
     textEn: 'Joy gives us wings! In times of joy our strength is more vital, our intellect keener, and our understanding less clouded.',
     keywords: ['Quelle der Freude', 'Wellspring of Joy', 'Freude', 'Flügel', 'Kraft', 'Verstand', 'joy', 'wings', 'strength', 'intellect']
   },
   {
     id: 'wellspring-be-happy',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Ansprachen in Paris)',
+      en: '\'Abdu\'l-Bahá (Paris Talks)'
     },
     book: {
       de: 'Quelle der Freude',
@@ -553,8 +553,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'wellspring-all-times-happy',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
+      en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
     },
     book: {
       de: 'Quelle der Freude',
@@ -575,8 +575,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'observation-nature-embodiment',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Botschaften aus Akka, Lawh-i-Hikmat)',
+      en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Lawh-i-Hikmat)'
     },
     book: {
       de: 'Beobachtung und Erkenntnis',
@@ -593,8 +593,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'observation-eye-reflection',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Botschaften aus Akka, Lawh-i-Hikmat)',
+      en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Lawh-i-Hikmat)'
     },
     book: {
       de: 'Beobachtung und Erkenntnis',
@@ -611,8 +611,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'observation-intellect-gift',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
+      en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
     },
     book: {
       de: 'Beobachtung und Erkenntnis',
@@ -633,8 +633,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'numbers-justice-beloved',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 2)',
+      en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #2)'
     },
     book: {
       de: 'Über Zahlen nachdenken',
@@ -644,15 +644,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Gerechtigkeit als beliebteste Gabe',
       en: 'Justice as Best Beloved'
     },
-    textDe: 'O Sohn des Geistes! Die beliebteste aller Gaben vor Meinem Angesicht ist die Gerechtigkeit; wende dich nicht von ihr ab, wenn du nach Mir verlangst.',
+    textDe: 'O Sohn des Geistes! Das Geliebteste von allem in Meinen Augen ist die Gerechtigkeit. Wende dich nicht von ihr ab, wenn du nach Mir verlangst.',
     textEn: 'O Son of Spirit! The best beloved of all things in My sight is Justice; turn not away therefrom if thou desirest Me.',
     keywords: ['Über Zahlen nachdenken', 'Thinking About Numbers', 'Gerechtigkeit', 'Gaben', 'justice', 'beloved']
   },
   {
     id: 'numbers-orderly-thoughts',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
+      en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
     },
     book: {
       de: 'Über Zahlen nachdenken',
@@ -673,8 +673,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'honor-mine-gems',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Ährenlese CXXII)',
+      en: 'Bahá\'u\'lláh (Gleanings CXXII)'
     },
     book: {
       de: 'Die Würde des Menschen',
@@ -684,15 +684,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Der Mensch als reichhaltiges Bergwerk',
       en: 'Man as a Rich Mine'
     },
-    textDe: 'Der Mensch ist wie ein Bergwerk, reich an Edelsteinen von unschätzbarem Wert. Nur die Erziehung kann seine Schätze enthüllen und der Menschheit ermöglichen, daraus Nutzen zu ziehen.',
+    textDe: 'Betrachtet den Menschen als ein Bergwerk, reich an Edelsteinen von unschätzbarem Wert. Nur die Erziehung kann seine Schätze enthüllen und der Menschheit ermöglichen, daraus Nutzen zu ziehen.',
     textEn: 'Regard man as a mine rich in gems of inestimable value. Education can, alone, cause it to reveal its treasures, and enable mankind to benefit therefrom.',
     keywords: ['Die Würde des Menschen', 'Human Honor', 'Bergwerk', 'Edelsteine', 'Erziehung', 'Schätze', 'mine', 'gems', 'education', 'treasures']
   },
   {
     id: 'honor-pure-radiant-heart',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 1)',
+      en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #1)'
     },
     book: {
       de: 'Die Würde des Menschen',
@@ -702,15 +702,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Reines & strahlendes Herz',
       en: 'Pure & Radiant Heart'
     },
-    textDe: 'O Sohn des Geistes! Mein erstes Gebot ist dies: Besitze ein reines, gütiges, strahlendes Herz, auf dass dir eine Herrschaft zuteilwerde, die ewig, unvergänglich und unendlich ist.',
+    textDe: 'O Sohn des Geistes! Mein erster Rat ist dieser: Besitze ein reines, gütiges und strahlendes Herz, auf dass dir eine Herrschaft zuteilwerde, die uralt, unvergänglich und ewig ist.',
     textEn: 'O Son of Spirit! My first counsel is this: Possess a pure, kindly and radiant heart, that thine may be a sovereignty ancient, imperishable and everlasting.',
     keywords: ['Die Würde des Menschen', 'Human Honor', 'Herz', 'rein', 'gütig', 'strahlend', 'heart', 'radiant', 'pure']
   },
   {
     id: 'honor-chaste-eye-hand',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Ährenlese CLVI)',
+      en: 'Bahá\'u\'lláh (Gleanings CLVI)'
     },
     book: {
       de: 'Die Würde des Menschen',
@@ -720,7 +720,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Keusches Auge & treue Hand',
       en: 'Chaste Eye & Faithful Hand'
     },
-    textDe: 'Lasst euer Auge keusch, eure Hand getreu, eure Zunge wahr und euer Herz licht sein.',
+    textDe: 'Lass dein Auge keusch sein, deine Hand getreu, deine Zunge wahr und dein Herz lauter.',
     textEn: 'Let thine eye be chaste, thy hand faithful, thy tongue truthful and thy heart pure.',
     keywords: ['Die Würde des Menschen', 'Human Honor', 'Auge', 'Hand', 'Zunge', 'Herz', 'chaste', 'faithful', 'truthful', 'pure']
   },
@@ -731,8 +731,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'waves-fruits-one-tree',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Ährenlese CXXXII)',
+      en: 'Bahá\'u\'lláh (Gleanings CXXXII)'
     },
     book: {
       de: 'Wellen eines Meeres',
@@ -749,8 +749,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'waves-earth-one-country',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Ährenlese CXVII)',
+      en: 'Bahá\'u\'lláh (Gleanings CXVII)'
     },
     book: {
       de: 'Wellen eines Meeres',
@@ -767,8 +767,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'waves-diversity-garden',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 15)',
+      en: '\'Abdu\'l-Bahá (Paris Talks, #15)'
     },
     book: {
       de: 'Wellen eines Meeres',
@@ -789,8 +789,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'ruhi5-truthfulness-foundation',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 110)',
+      en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #110)'
     },
     book: {
       de: 'Ruhi Buch 5 / Grundlagentexte',
@@ -807,8 +807,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'ruhi5-progress-soul',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 110)',
+      en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #110)'
     },
     book: {
       de: 'Ruhi Buch 5 / Grundlagentexte',
@@ -818,15 +818,15 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Fortschritt der Seele',
       en: 'Progress of the Soul'
     },
-    textDe: 'Ohne Wahrhaftigkeit ist in allen Gotteswelten weder Fortschritt noch Erfolg für die Seele möglich.',
+    textDe: 'Ohne Wahrhaftigkeit ist in allen Gotteswelten weder Fortschritt noch Erfolg für irgendeine Seele möglich.',
     textEn: 'Without truthfulness, progress and success, in all of the worlds of God, are impossible for any soul.',
     keywords: ['Ruhi Buch 5', 'Fortschritt', 'Seele', 'Erfolg', 'progress', 'soul']
   },
   {
     id: 'ruhi5-tongue-honesty',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Briefe und Erklärungen)',
+      en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá)'
     },
     book: {
       de: 'Ruhi Buch 5 / Grundlagentexte',
@@ -843,8 +843,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'ruhi5-backbiting-heart',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Kitáb-i-Íqán, §214)',
+      en: 'Bahá\'u\'lláh (Kitáb-i-Íqán, §214)'
     },
     book: {
       de: 'Ruhi Buch 5 / Grundlagentexte',
@@ -861,8 +861,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'ruhi5-speak-no-evil',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Verborgene Worte, Persisch Nr. 44)',
+      en: 'Bahá\'u\'lláh (The Hidden Words, Persian #44)'
     },
     book: {
       de: 'Ruhi Buch 5 / Grundlagentexte',
@@ -872,8 +872,8 @@ export const QUOTES_DATA: QuoteItem[] = [
       de: 'Nichts Schlechtes sprechen',
       en: 'Speak No Evil'
     },
-    textDe: 'Sprich nichts Schlechtes, auf dass du nichts Schlechtes hörest, und vergrößere die Fehler anderer nicht, damit deine eigenen Fehler nicht groß erscheinen.',
-    textEn: 'Speak no evil, that thou mayest not hear it spoken unto thee, and magnify not the faults of others that thine own faults may not appear great.',
+    textDe: 'O Sohn des Seins! Sprich nichts Schlechtes, auf dass du nichts Schlechtes hörest, und vergrößere die Fehler anderer nicht, damit deine eigenen Fehler nicht groß erscheinen.',
+    textEn: 'O Son of Being! Speak no evil, that thou mayest not hear it spoken unto thee, and magnify not the faults of others that thine own faults may not appear great.',
     keywords: ['Ruhi Buch 5', 'Schlechtes', 'Fehler', 'hören', 'speak no evil', 'faults']
   },
 
@@ -883,8 +883,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'prayer-fledglings-wings',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Bahá\'í-Gebete, Gebete für die Jugend)',
+      en: '\'Abdu\'l-Bahá (Bahá\'í Prayers, Prayers for Youth)'
     },
     book: {
       de: 'Gebete für die Jugend',
@@ -901,8 +901,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'prayer-pure-heart',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Bahá\'í-Gebete)',
+      en: 'Bahá\'u\'lláh (Bahá\'í Prayers)'
     },
     book: {
       de: 'Gebete für die Jugend',
@@ -919,8 +919,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'prayer-blessed-spot',
     source: {
-      de: 'Bahá\'u\'lláh',
-      en: 'Bahá\'u\'lláh'
+      de: 'Bahá\'u\'lláh (Bahá\'í-Gebete)',
+      en: 'Bahá\'u\'lláh (Bahá\'í Prayers)'
     },
     book: {
       de: 'Gebete & Andacht',
@@ -937,8 +937,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'prayer-god-sufficeth',
     source: {
-      de: 'Der Báb',
-      en: 'The Báb'
+      de: 'Der Báb (Bahá\'í-Gebete)',
+      en: 'The Báb (Bahá\'í Prayers)'
     },
     book: {
       de: 'Gebete & Andacht',
@@ -955,8 +955,8 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     id: 'prayer-free-heart-attachment',
     source: {
-      de: '\'Abdu\'l-Bahá',
-      en: '\'Abdu\'l-Bahá'
+      de: '\'Abdu\'l-Bahá (Bahá\'í-Gebete)',
+      en: '\'Abdu\'l-Bahá (Bahá\'í Prayers)'
     },
     book: {
       de: 'Gebete für die Jugend',
