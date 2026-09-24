@@ -36,7 +36,28 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
   const [centerSong, setCenterSong] = useState<DevotionalSong>(DEVOTIONAL_SONGS_DATA[3]); // Love is the light
   const [closingSong, setClosingSong] = useState<DevotionalSong>(DEVOTIONAL_SONGS_DATA[0]); // Remover of difficulties
   const [selectedReading, setSelectedReading] = useState<QuoteItem>(QUOTES_DATA[0]);
+  const [readingBookFilter, setReadingBookFilter] = useState<string>('all');
   const [copiedDevotional, setCopiedDevotional] = useState(false);
+
+  const uniqueReadingBooks = React.useMemo(() => {
+    const booksMap = new Map<string, { de: string; en: string; count: number }>();
+    QUOTES_DATA.forEach(q => {
+      const deMain = q.book.de.split(',')[0].trim();
+      const enMain = q.book.en.split(',')[0].trim();
+      const existing = booksMap.get(deMain);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        booksMap.set(deMain, { de: deMain, en: enMain, count: 1 });
+      }
+    });
+    return Array.from(booksMap.values());
+  }, []);
+
+  const filteredReadings = React.useMemo(() => {
+    if (readingBookFilter === 'all') return QUOTES_DATA;
+    return QUOTES_DATA.filter(q => q.book.de.split(',')[0].trim() === readingBookFilter);
+  }, [readingBookFilter]);
 
   const t = UI_TRANSLATIONS[language];
 
@@ -588,11 +609,34 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
 
             {/* Reading Selector */}
             <div className="space-y-2 pt-3 border-t border-black/[0.05]">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] block">
-                {t.devotionalReading}:
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {QUOTES_DATA.map(q => (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
+                  {t.devotionalReading}:
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-[#86868b]">{t.filterBookPrompt}</span>
+                  <select
+                    value={readingBookFilter}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setReadingBookFilter(next);
+                      const match = QUOTES_DATA.find(q => next === 'all' || q.book.de.split(',')[0].trim() === next);
+                      if (match) setSelectedReading(match);
+                    }}
+                    className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-2.5 py-1 rounded-full border border-black/[0.06] outline-hidden cursor-pointer"
+                  >
+                    <option value="all">{t.allBooks} ({QUOTES_DATA.length})</option>
+                    {uniqueReadingBooks.map(b => (
+                      <option key={b.de} value={b.de}>
+                        {b[language]} ({b.count})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto custom-scrollbar">
+                {filteredReadings.map(q => (
                   <button
                     key={q.id}
                     onClick={() => setSelectedReading(q)}

@@ -49,6 +49,38 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   const [selectedQuote, setSelectedQuote] = useState<QuoteItem>(QUOTES_DATA[0]);
   const [copiedQuoteId, setCopiedQuoteId] = useState<string | null>(null);
 
+  // Book filter states
+  const [quotesBookFilter, setQuotesBookFilter] = useState<string>('all');
+  const [studioBookFilter, setStudioBookFilter] = useState<string>('all');
+  const [expandedLangQuoteIds, setExpandedLangQuoteIds] = useState<string[]>([]);
+
+  // Unique books list for filtering
+  const uniqueBooks = useMemo(() => {
+    const booksMap = new Map<string, { de: string; en: string; count: number }>();
+    QUOTES_DATA.forEach(q => {
+      const deMain = q.book.de.split(',')[0].trim();
+      const enMain = q.book.en.split(',')[0].trim();
+      const existing = booksMap.get(deMain);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        booksMap.set(deMain, { de: deMain, en: enMain, count: 1 });
+      }
+    });
+    return Array.from(booksMap.values());
+  }, []);
+
+  const studioQuotesList = useMemo(() => {
+    if (studioBookFilter === 'all') return QUOTES_DATA;
+    return QUOTES_DATA.filter(q => q.book.de.split(',')[0].trim() === studioBookFilter);
+  }, [studioBookFilter]);
+
+  const toggleDualLang = (id: string) => {
+    setExpandedLangQuoteIds(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
   // Interactive Disappearing Board State
   const quoteText = language === 'de' ? selectedQuote.textDe : selectedQuote.textEn;
   const words = useMemo(() => quoteText.split(/\s+/), [quoteText]);
@@ -116,14 +148,29 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   }, [searchQuery, language, selectedPhase, selectedModality, showOnlyFavorites, favorites]);
 
   const filteredQuotes = useMemo(() => {
-    if (!searchQuery.trim()) return QUOTES_DATA;
-    const q = searchQuery.toLowerCase();
-    return QUOTES_DATA.filter(item => 
-      (language === 'de' ? item.textDe : item.textEn).toLowerCase().includes(q) ||
-      item.theme[language].toLowerCase().includes(q) ||
-      item.source[language].toLowerCase().includes(q)
-    );
-  }, [searchQuery, language]);
+    return QUOTES_DATA.filter((item) => {
+      if (quotesBookFilter !== 'all') {
+        const mainBook = item.book.de.split(',')[0].trim();
+        if (mainBook !== quotesBookFilter) return false;
+      }
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesDe = item.textDe.toLowerCase().includes(q);
+        const matchesEn = item.textEn.toLowerCase().includes(q);
+        const matchesTheme = item.theme[language].toLowerCase().includes(q);
+        const matchesSource = item.source[language].toLowerCase().includes(q);
+        const matchesBook = item.book[language].toLowerCase().includes(q);
+        const matchesKeywords = item.keywords.some((k) => k.toLowerCase().includes(q));
+
+        if (!matchesDe && !matchesEn && !matchesTheme && !matchesSource && !matchesBook && !matchesKeywords) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [searchQuery, language, quotesBookFilter]);
 
   const handleCopyQuote = (item: QuoteItem) => {
     const text = language === 'de' ? item.textDe : item.textEn;
@@ -214,13 +261,53 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             </div>
           </div>
 
-          {/* Quote Selection Chips & Copy Button */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white rounded-2xl border border-black/[0.06] shadow-2xs">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs font-semibold text-[#86868b] mr-1">
-                {t.practiceQuoteTitle}
-              </span>
-              {QUOTES_DATA.map((q) => (
+          {/* Quote Selection Bar with Book Filter */}
+          <div className="p-4 bg-white rounded-2xl border border-black/[0.06] shadow-2xs space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/[0.04] pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
+                  {t.filterBookPrompt}
+                </span>
+                <select
+                  value={studioBookFilter}
+                  onChange={(e) => {
+                    const nextBook = e.target.value;
+                    setStudioBookFilter(nextBook);
+                    const match = QUOTES_DATA.find(q => nextBook === 'all' || q.book.de.split(',')[0].trim() === nextBook);
+                    if (match) setSelectedQuote(match);
+                  }}
+                  className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer"
+                >
+                  <option value="all">{t.allBooks} ({QUOTES_DATA.length})</option>
+                  {uniqueBooks.map(b => (
+                    <option key={b.de} value={b.de}>
+                      {b[language]} ({b.count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <span className="text-[11px] text-[#86868b] font-medium hidden sm:inline">
+                  {selectedQuote.book[language]}
+                </span>
+                <button
+                  onClick={() => handleCopyQuote(selectedQuote)}
+                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.08] hover:bg-black/[0.04] text-[#1d1d1f] transition-colors"
+                >
+                  {copiedQuoteId === selectedQuote.id ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5 text-[#86868b]" />
+                  )}
+                  <span>{copiedQuoteId === selectedQuote.id ? t.copiedSuccess : t.copyQuote}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quote Chips for selected book */}
+            <div className="flex flex-wrap items-center gap-1.5 max-h-36 overflow-y-auto custom-scrollbar">
+              {studioQuotesList.map((q) => (
                 <button
                   key={q.id}
                   onClick={() => setSelectedQuote(q)}
@@ -234,18 +321,6 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 </button>
               ))}
             </div>
-
-            <button
-              onClick={() => handleCopyQuote(selectedQuote)}
-              className="self-start sm:self-auto flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full border border-black/[0.08] hover:bg-black/[0.04] text-[#1d1d1f] transition-colors"
-            >
-              {copiedQuoteId === selectedQuote.id ? (
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
-              ) : (
-                <Copy className="w-3.5 h-3.5 text-[#86868b]" />
-              )}
-              <span>{copiedQuoteId === selectedQuote.id ? t.copiedSuccess : t.copyQuote}</span>
-            </button>
           </div>
 
           {/* TOOL 1: DISAPPEARING CHALKBOARD */}
@@ -546,75 +621,131 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
       {/* VIEW 3: QUOTE LIBRARY (ZITATESAMMLUNG) */}
       {viewMode === 'quotes' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          {filteredQuotes.map((q) => (
-            <div
-              key={q.id}
-              className="bg-white rounded-2xl border border-black/[0.06] p-6 shadow-apple-card flex flex-col justify-between space-y-5"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-black/[0.04] text-[#1d1d1f]">
-                    {q.theme[language]}
-                  </span>
-                  <span className="text-[11px] text-[#86868b] font-medium">
-                    {q.book[language]}
-                  </span>
-                </div>
-
-                <blockquote className="font-serif text-base sm:text-lg text-[#1d1d1f] leading-relaxed italic">
-                  „{language === 'de' ? q.textDe : q.textEn}“
-                </blockquote>
-
-                <p className="text-xs text-[#86868b] font-medium">
-                  — {q.source[language]}
-                </p>
-              </div>
-
-              {/* Bottom Actions with Direct Studio Simulator Launcher */}
-              <div className="pt-3 border-t border-black/[0.04] flex flex-wrap items-center justify-between gap-2">
+        <div className="space-y-6">
+          {/* Book Filter Pills & Count */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="overflow-x-auto pb-1 custom-scrollbar">
+              <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
                 <button
-                  onClick={() => handleCopyQuote(q)}
-                  className="inline-flex items-center gap-1.5 text-xs text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
+                  onClick={() => setQuotesBookFilter('all')}
+                  className={`px-3 py-1 text-xs rounded-full font-medium transition-all ${
+                    quotesBookFilter === 'all'
+                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
+                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                  }`}
                 >
-                  {copiedQuoteId === q.id ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5 text-[#86868b]" />
-                  )}
-                  <span>{copiedQuoteId === q.id ? t.copiedSuccess : t.copyQuote}</span>
+                  {t.allBooks} ({QUOTES_DATA.length})
                 </button>
-
-                <div className="flex items-center gap-1.5">
+                {uniqueBooks.map((b) => (
                   <button
-                    onClick={() => launchStudioWithQuote(q, 'chalkboard')}
-                    className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
-                    title={t.toolChalkboard}
+                    key={b.de}
+                    onClick={() => setQuotesBookFilter(b.de)}
+                    className={`px-3 py-1 text-xs rounded-full font-medium transition-all ${
+                      quotesBookFilter === b.de
+                        ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
+                        : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                    }`}
                   >
-                    <Eraser className="w-3 h-3 text-[#0071e3]" />
-                    <span>Tafel</span>
+                    {b[language]} ({b.count})
                   </button>
-
-                  <button
-                    onClick={() => launchStudioWithQuote(q, 'wordPuzzle')}
-                    className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
-                    title={t.toolWordPuzzle}
-                  >
-                    <Puzzle className="w-3 h-3 text-emerald-600" />
-                    <span>Puzzle</span>
-                  </button>
-
-                  <button
-                    onClick={() => launchStudioWithQuote(q, 'firstLetter')}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#0071e3] hover:underline ml-1"
-                  >
-                    <span>{t.openInSimulator}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
-          ))}
+
+            <span className="text-xs text-[#86868b] font-medium shrink-0 self-end sm:self-auto">
+              {filteredQuotes.length} {filteredQuotes.length === 1 ? t.quoteFound : t.quotesFound}
+            </span>
+          </div>
+
+          {/* Quotes Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+            {filteredQuotes.map((q) => {
+              const isDualOpen = expandedLangQuoteIds.includes(q.id);
+              return (
+                <div
+                  key={q.id}
+                  className="bg-white rounded-2xl border border-black/[0.06] p-6 shadow-apple-card flex flex-col justify-between space-y-5"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-black/[0.04] text-[#1d1d1f]">
+                        {q.theme[language]}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-[#86868b] font-medium">
+                          {q.book[language]}
+                        </span>
+                        <button
+                          onClick={() => toggleDualLang(q.id)}
+                          className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-black/[0.05] hover:bg-black/[0.1] text-[#0071e3] transition-colors"
+                          title={language === 'de' ? 'Englische Übersetzung anzeigen' : 'Show German translation'}
+                        >
+                          {isDualOpen ? 'DE/EN ▲' : 'DE/EN ▼'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <blockquote className="font-serif text-base sm:text-lg text-[#1d1d1f] leading-relaxed italic">
+                      „{language === 'de' ? q.textDe : q.textEn}“
+                    </blockquote>
+
+                    {isDualOpen && (
+                      <div className="p-3 bg-black/[0.02] border-l-2 border-[#0071e3] rounded-r-xl text-xs sm:text-sm font-serif italic text-[#515154] leading-relaxed">
+                        „{language === 'de' ? q.textEn : q.textDe}“
+                      </div>
+                    )}
+
+                    <p className="text-xs text-[#86868b] font-medium">
+                      — {q.source[language]}
+                    </p>
+                  </div>
+
+                  {/* Bottom Actions with Direct Studio Simulator Launcher */}
+                  <div className="pt-3 border-t border-black/[0.04] flex flex-wrap items-center justify-between gap-2">
+                    <button
+                      onClick={() => handleCopyQuote(q)}
+                      className="inline-flex items-center gap-1.5 text-xs text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
+                    >
+                      {copiedQuoteId === q.id ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5 text-[#86868b]" />
+                      )}
+                      <span>{copiedQuoteId === q.id ? t.copiedSuccess : t.copyQuote}</span>
+                    </button>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => launchStudioWithQuote(q, 'chalkboard')}
+                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
+                        title={t.toolChalkboard}
+                      >
+                        <Eraser className="w-3 h-3 text-[#0071e3]" />
+                        <span>Tafel</span>
+                      </button>
+
+                      <button
+                        onClick={() => launchStudioWithQuote(q, 'wordPuzzle')}
+                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
+                        title={t.toolWordPuzzle}
+                      >
+                        <Puzzle className="w-3 h-3 text-emerald-600" />
+                        <span>Puzzle</span>
+                      </button>
+
+                      <button
+                        onClick={() => launchStudioWithQuote(q, 'firstLetter')}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#0071e3] hover:underline ml-1"
+                      >
+                        <span>{t.openInSimulator}</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
