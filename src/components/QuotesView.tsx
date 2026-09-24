@@ -1,9 +1,21 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { BookOpen, Copy, Check, ChevronDown, ChevronUp, Bookmark, Eraser, RotateCcw, ArrowRight, Sparkles } from 'lucide-react';
+import { 
+  BookOpen, Copy, Check, ChevronDown, ChevronUp, Bookmark, 
+  Eraser, RotateCcw, ArrowRight, Sparkles, Type, Puzzle, 
+  Search, Activity, HandMetal, Timer 
+} from 'lucide-react';
 import { QuoteMethod, QuotePhase, QuoteItem, Language } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { QUOTES_DATA } from '../data/quotes';
 import { UI_TRANSLATIONS } from '../data/translations';
+
+// Interactive Practice Studio Components
+import { FirstLetterBoard } from './quotes/FirstLetterBoard';
+import { WordPuzzle } from './quotes/WordPuzzle';
+import { ImposterDetector } from './quotes/ImposterDetector';
+import { MetronomePacer } from './quotes/MetronomePacer';
+import { CodeClicker } from './quotes/CodeClicker';
+import { SpeedRunTimer } from './quotes/SpeedRunTimer';
 
 interface QuotesViewProps {
   searchQuery: string;
@@ -13,6 +25,8 @@ interface QuotesViewProps {
   showOnlyFavorites: boolean;
 }
 
+type StudioTool = 'chalkboard' | 'firstLetter' | 'wordPuzzle' | 'imposter' | 'metronome' | 'codeClicker' | 'speedRun';
+
 export const QuotesView: React.FC<QuotesViewProps> = ({
   searchQuery,
   language,
@@ -20,12 +34,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   onToggleFavorite,
   showOnlyFavorites,
 }) => {
-  // Apple Segmented Sub-view: Simulator, Methods, or Quotes Library
-  const [viewMode, setViewMode] = useState<'simulator' | 'methods' | 'quotes'>('simulator');
+  // Apple Segmented Sub-view: Studio, Methods, or Quotes Library
+  const [viewMode, setViewMode] = useState<'studio' | 'methods' | 'quotes'>('studio');
   
-  // Phase filter for methods view
+  // Active Interactive Tool inside the Studio
+  const [activeTool, setActiveTool] = useState<StudioTool>('chalkboard');
+
+  // Phase & Modality filter for methods view
   const [selectedPhase, setSelectedPhase] = useState<QuotePhase | 'all'>('all');
-  const [expandedMethodId, setExpandedMethodId] = useState<string | null>('verschwindende-tafel');
+  const [selectedModality, setSelectedModality] = useState<string>('all');
+  const [expandedMethodId, setExpandedMethodId] = useState<string | null>('wort-mind');
   
   // Selected practice quote
   const [selectedQuote, setSelectedQuote] = useState<QuoteItem>(QUOTES_DATA[0]);
@@ -42,6 +60,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   }, [selectedQuote, language]);
 
   const t = UI_TRANSLATIONS[language];
+
+  const tools = [
+    { id: 'chalkboard' as const, label: t.toolChalkboard, icon: Eraser },
+    { id: 'firstLetter' as const, label: t.toolFirstLetter, icon: Type },
+    { id: 'wordPuzzle' as const, label: t.toolWordPuzzle, icon: Puzzle },
+    { id: 'imposter' as const, label: t.toolImposter, icon: Search },
+    { id: 'metronome' as const, label: t.toolMetronome, icon: Activity },
+    { id: 'codeClicker' as const, label: t.toolCodeClicker, icon: HandMetal },
+    { id: 'speedRun' as const, label: t.toolSpeedRun, icon: Timer },
+  ];
 
   const handleEraseNext = () => {
     const unhidden = words.map((_, i) => i).filter(i => !hiddenWordIndices.includes(i));
@@ -79,9 +107,13 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         return false;
       }
 
+      if (selectedModality !== 'all' && method.modality !== selectedModality) {
+        return false;
+      }
+
       return true;
     });
-  }, [searchQuery, language, selectedPhase, showOnlyFavorites, favorites]);
+  }, [searchQuery, language, selectedPhase, selectedModality, showOnlyFavorites, favorites]);
 
   const filteredQuotes = useMemo(() => {
     if (!searchQuery.trim()) return QUOTES_DATA;
@@ -100,15 +132,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     setTimeout(() => setCopiedQuoteId(null), 2000);
   };
 
-  const openInSimulator = (item: QuoteItem) => {
+  const launchStudioWithQuote = (item: QuoteItem, tool: StudioTool = 'chalkboard') => {
     setSelectedQuote(item);
-    setViewMode('simulator');
+    setActiveTool(tool);
+    setViewMode('studio');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Editorial Header */}
+      {/* Editorial Header & 3-Mode Segmented Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-black/[0.06] pb-5">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1d1d1f]">
@@ -122,14 +155,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         {/* Apple Segmented View Switcher */}
         <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] self-start sm:self-auto">
           <button
-            onClick={() => setViewMode('simulator')}
+            onClick={() => setViewMode('studio')}
             className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-              viewMode === 'simulator'
+              viewMode === 'studio'
                 ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
                 : 'text-[#6e6e73] hover:text-[#1d1d1f]'
             }`}
           >
-            {t.subtabSimulator}
+            {t.subtabStudio}
           </button>
           <button
             onClick={() => setViewMode('methods')}
@@ -154,155 +187,249 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         </div>
       </div>
 
-      {/* VIEW 1: INTERACTIVE DISAPPEARING BOARD SIMULATOR */}
-      {viewMode === 'simulator' && (
+      {/* VIEW 1: INTERACTIVE PRACTICE STUDIO (7 SIMULATORS) */}
+      {viewMode === 'studio' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-black/[0.06] p-6 sm:p-8 shadow-apple-card space-y-6">
-            {/* Top Toolbar: Topic Chips & Copy */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/[0.05] pb-4">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-xs font-semibold text-[#86868b] mr-1">
-                  {t.practiceQuoteTitle}
-                </span>
-                {QUOTES_DATA.map((q) => (
+          {/* Studio Tool Selection Pills */}
+          <div className="overflow-x-auto pb-1 custom-scrollbar">
+            <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
+              {tools.map((tool) => {
+                const Icon = tool.icon;
+                const isSelected = activeTool === tool.id;
+                return (
                   <button
-                    key={q.id}
-                    onClick={() => setSelectedQuote(q)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                      selectedQuote.id === q.id
-                        ? 'bg-[#1d1d1f] text-white font-semibold shadow-apple-pill'
-                        : 'bg-black/[0.04] text-[#6e6e73] hover:bg-black/[0.08]'
+                    key={tool.id}
+                    onClick={() => setActiveTool(tool.id)}
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
+                      isSelected
+                        ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
+                        : 'text-[#6e6e73] hover:text-[#1d1d1f]'
                     }`}
                   >
-                    {q.theme[language]}
+                    <Icon className="w-3.5 h-3.5 text-[#0071e3]" />
+                    <span>{tool.label}</span>
                   </button>
-                ))}
-              </div>
+                );
+              })}
+            </div>
+          </div>
 
-              <button
-                onClick={() => handleCopyQuote(selectedQuote)}
-                className="self-start sm:self-auto flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full border border-black/[0.08] hover:bg-black/[0.04] text-[#1d1d1f] transition-colors"
-              >
-                {copiedQuoteId === selectedQuote.id ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5 text-[#86868b]" />
-                )}
-                <span>{copiedQuoteId === selectedQuote.id ? t.copiedSuccess : t.copyQuote}</span>
-              </button>
+          {/* Quote Selection Chips & Copy Button */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-white rounded-2xl border border-black/[0.06] shadow-2xs">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-semibold text-[#86868b] mr-1">
+                {t.practiceQuoteTitle}
+              </span>
+              {QUOTES_DATA.map((q) => (
+                <button
+                  key={q.id}
+                  onClick={() => setSelectedQuote(q)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                    selectedQuote.id === q.id
+                      ? 'bg-[#1d1d1f] text-white font-semibold shadow-apple-pill'
+                      : 'bg-black/[0.04] text-[#6e6e73] hover:bg-black/[0.08]'
+                  }`}
+                >
+                  {q.theme[language]}
+                </button>
+              ))}
             </div>
 
-            {/* Apple Blackboard Canvas */}
-            <div className="bg-[#1d1d1f] text-white rounded-2xl p-8 sm:p-12 shadow-inner border border-black/40 space-y-6 text-center">
-              <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed tracking-wide min-h-[140px]">
-                {words.map((word, idx) => {
-                  const isHidden = hiddenWordIndices.includes(idx);
-                  return (
-                    <span
-                      key={idx}
-                      onClick={() => handleToggleWord(idx)}
-                      className={`cursor-pointer transition-all duration-200 select-none ${
-                        isHidden
-                          ? 'text-neutral-500 border-b border-neutral-700 px-2 py-0.5'
-                          : 'hover:text-emerald-400'
-                      }`}
-                      title={isHidden ? 'Klicken zum Einblenden' : 'Klicken zum Ausblenden'}
-                    >
-                      {isHidden ? '_____' : word}
-                    </span>
-                  );
-                })}
-              </div>
+            <button
+              onClick={() => handleCopyQuote(selectedQuote)}
+              className="self-start sm:self-auto flex items-center gap-1.5 text-xs font-medium px-3.5 py-1.5 rounded-full border border-black/[0.08] hover:bg-black/[0.04] text-[#1d1d1f] transition-colors"
+            >
+              {copiedQuoteId === selectedQuote.id ? (
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 text-[#86868b]" />
+              )}
+              <span>{copiedQuoteId === selectedQuote.id ? t.copiedSuccess : t.copyQuote}</span>
+            </button>
+          </div>
 
-              <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-400">
-                <span className="font-serif italic">— {selectedQuote.source[language]} ({selectedQuote.book[language]})</span>
-                <span className="font-mono text-[11px] bg-white/10 px-2.5 py-1 rounded-full">
+          {/* TOOL 1: DISAPPEARING CHALKBOARD */}
+          {activeTool === 'chalkboard' && (
+            <div className="bg-white rounded-3xl border border-black/[0.06] p-6 sm:p-8 shadow-apple-card space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#86868b]">
+                <p>{t.boardSubtitle}</p>
+                <span className="font-mono text-[11px] bg-black/[0.04] px-3 py-1 rounded-full text-[#1d1d1f] self-start sm:self-auto shrink-0">
                   {words.length - hiddenWordIndices.length} / {words.length} {t.wordsRemaining}
                 </span>
               </div>
-            </div>
 
-            {/* Controls Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleEraseNext}
-                  disabled={hiddenWordIndices.length === words.length}
-                  className="flex items-center gap-1.5 px-5 py-2.5 bg-[#0071e3] text-white text-xs font-semibold rounded-full hover:bg-[#0077ed] disabled:opacity-40 transition-all shadow-apple-pill"
-                >
-                  <Eraser className="w-3.5 h-3.5" />
-                  <span>{t.eraseNextWord}</span>
-                </button>
-                <button
-                  onClick={() => setHiddenWordIndices([])}
-                  disabled={hiddenWordIndices.length === 0}
-                  className="flex items-center gap-1.5 px-4 py-2.5 border border-black/[0.08] text-[#1d1d1f] text-xs font-medium rounded-full hover:bg-black/[0.04] disabled:opacity-40 transition-colors"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>{t.resetBoard}</span>
-                </button>
+              {/* Apple Blackboard Canvas */}
+              <div className="bg-[#1d1d1f] text-white rounded-2xl p-8 sm:p-12 shadow-inner border border-black/40 space-y-6 text-center">
+                <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed tracking-wide min-h-[140px]">
+                  {words.map((word, idx) => {
+                    const isHidden = hiddenWordIndices.includes(idx);
+                    return (
+                      <span
+                        key={idx}
+                        onClick={() => handleToggleWord(idx)}
+                        className={`cursor-pointer transition-all duration-200 select-none ${
+                          isHidden
+                            ? 'text-neutral-500 border-b border-neutral-700 px-2 py-0.5'
+                            : 'hover:text-emerald-400'
+                        }`}
+                        title={isHidden ? 'Klicken zum Einblenden' : 'Klicken zum Ausblenden'}
+                      >
+                        {isHidden ? '_____' : word}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-400">
+                  <span className="font-serif italic">— {selectedQuote.source[language]} ({selectedQuote.book[language]})</span>
+                  <span className="text-[11px] text-neutral-400">
+                    {t.tapWordHint}
+                  </span>
+                </div>
               </div>
 
-              {hiddenWordIndices.length === words.length && (
-                <p className="text-xs font-semibold text-emerald-600 animate-in fade-in">
-                  {t.allWordsHidden}
-                </p>
-              )}
+              {/* Controls Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleEraseNext}
+                    disabled={hiddenWordIndices.length === words.length}
+                    className="flex items-center gap-1.5 px-5 py-2.5 bg-[#0071e3] text-white text-xs font-semibold rounded-full hover:bg-[#0077ed] disabled:opacity-40 transition-all shadow-apple-pill"
+                  >
+                    <Eraser className="w-3.5 h-3.5" />
+                    <span>{t.eraseNextWord}</span>
+                  </button>
+                  <button
+                    onClick={() => setHiddenWordIndices([])}
+                    disabled={hiddenWordIndices.length === 0}
+                    className="flex items-center gap-1.5 px-4 py-2.5 border border-black/[0.08] text-[#1d1d1f] text-xs font-medium rounded-full hover:bg-black/[0.04] disabled:opacity-40 transition-colors"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>{t.resetBoard}</span>
+                  </button>
+                </div>
+
+                {hiddenWordIndices.length === words.length && (
+                  <p className="text-xs font-semibold text-emerald-600 animate-in fade-in">
+                    {t.allWordsHidden}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* TOOL 2: FIRST-LETTER ANCHORS */}
+          {activeTool === 'firstLetter' && (
+            <FirstLetterBoard quote={selectedQuote} language={language} />
+          )}
+
+          {/* TOOL 3: INTERACTIVE WORD PUZZLE */}
+          {activeTool === 'wordPuzzle' && (
+            <WordPuzzle quote={selectedQuote} language={language} />
+          )}
+
+          {/* TOOL 4: IMPOSTER DETECTOR */}
+          {activeTool === 'imposter' && (
+            <ImposterDetector quote={selectedQuote} language={language} />
+          )}
+
+          {/* TOOL 5: METRONOME CADENCE PACER */}
+          {activeTool === 'metronome' && (
+            <MetronomePacer quote={selectedQuote} language={language} />
+          )}
+
+          {/* TOOL 6: CODE CLICKER */}
+          {activeTool === 'codeClicker' && (
+            <CodeClicker quote={selectedQuote} language={language} />
+          )}
+
+          {/* TOOL 7: SPEED RUN TIMER */}
+          {activeTool === 'speedRun' && (
+            <SpeedRunTimer quote={selectedQuote} language={language} />
+          )}
         </div>
       )}
 
-      {/* VIEW 2: 3-PHASE PROGRESSION & METHODS */}
+      {/* VIEW 2: 50 COOPERATIVE MEMORIZATION METHODS CATALOG */}
       {viewMode === 'methods' && (
         <div className="space-y-6">
-          {/* Phase Segmented Filter */}
-          <div className="overflow-x-auto pb-1 custom-scrollbar">
-            <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
-              <button
-                onClick={() => setSelectedPhase('all')}
-                className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                  selectedPhase === 'all'
-                    ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                }`}
-              >
-                {t.allPhases}
-              </button>
-              <button
-                onClick={() => setSelectedPhase(1)}
-                className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                  selectedPhase === 1
-                    ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                }`}
-              >
-                {t.phase1Title}
-              </button>
-              <button
-                onClick={() => setSelectedPhase(2)}
-                className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                  selectedPhase === 2
-                    ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                }`}
-              >
-                {t.phase2Title}
-              </button>
-              <button
-                onClick={() => setSelectedPhase(3)}
-                className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                  selectedPhase === 3
-                    ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                }`}
-              >
-                {t.phase3Title}
-              </button>
+          {/* Phase & Modality Filter Bar */}
+          <div className="flex flex-col gap-3">
+            {/* Phase Segmented Filter */}
+            <div className="overflow-x-auto pb-1 custom-scrollbar">
+              <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
+                <button
+                  onClick={() => setSelectedPhase('all')}
+                  className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
+                    selectedPhase === 'all'
+                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
+                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  {t.allPhases} (50)
+                </button>
+                <button
+                  onClick={() => setSelectedPhase(1)}
+                  className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
+                    selectedPhase === 1
+                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
+                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  {t.phase1Title} (16)
+                </button>
+                <button
+                  onClick={() => setSelectedPhase(2)}
+                  className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
+                    selectedPhase === 2
+                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
+                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  {t.phase2Title} (17)
+                </button>
+                <button
+                  onClick={() => setSelectedPhase(3)}
+                  className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
+                    selectedPhase === 3
+                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
+                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  {t.phase3Title} (17)
+                </button>
+              </div>
+            </div>
+
+            {/* Modality Filter Chips */}
+            <div className="flex flex-wrap items-center gap-1.5 text-xs text-[#86868b]">
+              <span>Modus:</span>
+              {[
+                { id: 'all', label: language === 'de' ? 'Alle Modi' : 'All Modes' },
+                { id: 'rhythm', label: t.modalityRhythm },
+                { id: 'movement', label: t.modalityMovement },
+                { id: 'visual', label: t.modalityVisual },
+                { id: 'focus', label: t.modalityFocus },
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setSelectedModality(m.id)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
+                    selectedModality === m.id
+                      ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-apple-pill'
+                      : 'bg-white text-[#6e6e73] border-black/[0.06] hover:text-[#1d1d1f]'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              ))}
+              <span className="ml-auto font-mono text-[11px] text-[#86868b]">
+                {filteredMethods.length} {language === 'de' ? 'Methoden' : 'methods'}
+              </span>
             </div>
           </div>
 
-          {/* Methods Cards */}
+          {/* Methods Cards List */}
           <div className="space-y-3">
             {filteredMethods.map((method) => {
               const isExpanded = expandedMethodId === method.id;
@@ -389,6 +516,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                         </div>
                       </div>
 
+                      {/* Reset Condition if available */}
+                      {method.resetRule && (
+                        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-950 font-normal">
+                          <strong className="font-semibold block mb-0.5">{t.resetRuleTitle}:</strong>
+                          <p>{method.resetRule[language]}</p>
+                        </div>
+                      )}
+
                       {/* Facilitator tip */}
                       {method.animatorTips[language].length > 0 && (
                         <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-950 font-normal">
@@ -436,7 +571,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-black/[0.04] flex items-center justify-between">
+              {/* Bottom Actions with Direct Studio Simulator Launcher */}
+              <div className="pt-3 border-t border-black/[0.04] flex flex-wrap items-center justify-between gap-2">
                 <button
                   onClick={() => handleCopyQuote(q)}
                   className="inline-flex items-center gap-1.5 text-xs text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
@@ -449,13 +585,33 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   <span>{copiedQuoteId === q.id ? t.copiedSuccess : t.copyQuote}</span>
                 </button>
 
-                <button
-                  onClick={() => openInSimulator(q)}
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#0071e3] hover:underline"
-                >
-                  <span>{t.openInSimulator}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => launchStudioWithQuote(q, 'chalkboard')}
+                    className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
+                    title={t.toolChalkboard}
+                  >
+                    <Eraser className="w-3 h-3 text-[#0071e3]" />
+                    <span>Tafel</span>
+                  </button>
+
+                  <button
+                    onClick={() => launchStudioWithQuote(q, 'wordPuzzle')}
+                    className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
+                    title={t.toolWordPuzzle}
+                  >
+                    <Puzzle className="w-3 h-3 text-emerald-600" />
+                    <span>Puzzle</span>
+                  </button>
+
+                  <button
+                    onClick={() => launchStudioWithQuote(q, 'firstLetter')}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#0071e3] hover:underline ml-1"
+                  >
+                    <span>{t.openInSimulator}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

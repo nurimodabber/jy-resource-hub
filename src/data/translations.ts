@@ -50,11 +50,12 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Quotes Section
     quotesHeaderTitle: 'Methoden zum Zitate-Lernen',
     quotesHeaderDesc: 'Vom ersten Sprachrhythmus über kinetische Bewegungsspiele bis zur vollständigen Verankerung im Gedächtnis.',
+    subtabStudio: 'Interaktives Studio',
     subtabSimulator: 'Tafel-Simulator',
-    subtabMethods: 'Lernmethoden',
+    subtabMethods: 'Lernmethoden (50)',
     subtabQuotes: 'Zitatesammlung',
     quickFilterInstant: 'Ohne Material',
-    openInSimulator: 'Im Simulator üben',
+    openInSimulator: 'Im Studio üben',
     practiceQuoteTitle: 'Aktuelles Zitat:',
     toggleLangQuote: 'Sprache wechseln',
     copyQuote: 'Zitat kopieren',
@@ -76,13 +77,63 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     tipsPracticeTitle: 'Praxistipp',
     allPhases: 'Alle Phasen anzeigen',
 
-    // Interactive Disappearing Board (Verschwindende Tafel Simulator)
+    // Interactive Practice Studio Tools
+    toolChalkboard: 'Verschwindende Tafel',
+    toolFirstLetter: 'Erstbuchstaben',
+    toolWordPuzzle: 'Wort-Puzzle',
+    toolImposter: 'Fehler-Detektor',
+    toolMetronome: 'Rhythmus-Pacer',
+    toolCodeClicker: 'Code-Klicker',
+    toolSpeedRun: 'Speed-Run',
+
+    // 1. Chalkboard
     boardTitle: 'Interaktive Tafel (Verschwindende Wörter)',
     boardSubtitle: 'Nutze diesen interaktiven Modus direkt auf dem Tablet, Laptop oder Beamer, um gemeinsam mit der Gruppe schrittweise Wörter verschwinden zu lassen.',
     eraseNextWord: 'Nächste Wörter ausblenden',
     resetBoard: 'Tafel zurücksetzen',
     allWordsHidden: 'Alle Wörter wurden gelöscht! Jetzt spricht die Gruppe komplett aus dem Kopf.',
     wordsRemaining: 'Wörter sichtbar',
+
+    // 2. First-Letter
+    firstLetterSubtitle: 'Wörter werden bis auf die Anfangsbuchstaben reduziert. Trainiert das Gehirn, die Wortgestalt aktiv aus dem Gedächtnis abzurufen.',
+    eraseInitialsBtn: 'Buchstaben schrittweise löschen',
+    resetInitials: 'Initialen wiederherstellen',
+    tapWordHint: 'Klicke auf ein Wort, um es aufzudecken oder zu verbergen.',
+    allInitialsHidden: 'Alle Anfangsbuchstaben gelöscht – nur noch Bindestriche als Taktmaß!',
+
+    // 3. Word Puzzle
+    wordPuzzleSubtitle: 'Setze das Zitat Wort für Wort zusammen. Ideal für Einzel- oder Gruppen-Tablets am Beamer.',
+    puzzleCompleted: 'Ausgezeichnet! Das Zitat ist vollständig. Jetzt laut im Chor rezitieren!',
+    clickTilePrompt: 'Verfügbare Wort-Bausteine (Klicken zum Anfügen):',
+    resetPuzzle: 'Neu mischen',
+    undoWord: 'Rückgängig',
+
+    // 4. Imposter / Fehler-Detektor
+    imposterSubtitle: 'Ein heimlicher Fehler hat sich in den Text eingeschlichen! Findet das falsche Wort und klickt darauf.',
+    imposterFound: 'Volltreffer! Du hast den Fehler entlarvt und das Original-Wort wiederhergestellt.',
+    imposterWrong: 'Dieses Wort ist originalgetreu. Suche weiter!',
+    nextImposter: 'Neuen Fehler erzeugen',
+
+    // 5. Metronome Pacer
+    metronomeSubtitle: 'Ein gleichmäßiger 4/4-Puls synchronisiert die Atmung und Sprechgeschwindigkeit der gesamten Gruppe.',
+    bpmLabel: 'Geschwindigkeit (BPM)',
+    startMetronome: 'Pacer starten',
+    stopMetronome: 'Pacer anhalten',
+    soundToggle: 'Audio-Klick',
+
+    // 6. Code Clicker
+    codeClickerSubtitle: 'Aktionswörter dürfen nicht gesprochen werden, sondern müssen durch gleichzeitiges Klatschen (👏) oder Schnipsen (🫰) ersetzt werden!',
+    codeWordsLabel: 'Signalwörter (Schweigen & Klatschen):',
+    newCodeWords: 'Zufällige Wörter wählen',
+
+    // 7. Speed Run
+    speedRunSubtitle: 'Stoppt die Zeit für den fehlerfreien Durchlauf im Kreis. Schafft ihr einen neuen Gruppenrekord?',
+    targetTimeLabel: 'Zielzeit',
+    currentRecord: 'Bestzeit',
+    startTimer: 'Start',
+    stopTimer: 'Stopp',
+    resetTimer: 'Zurücksetzen',
+    recordBeaten: 'Neuer Gruppenrekord aufgestellt! 🎉',
 
     // Session Planner & Devotionals
     plannerHeaderTitle: 'Ablauf- & Andachtsplaner',
@@ -194,11 +245,12 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Quotes Section
     quotesHeaderTitle: 'Quote Memorization Methods',
     quotesHeaderDesc: 'From establishing rhythm and melody to kinetic movement and deep cognitive retention.',
+    subtabStudio: 'Interactive Studio',
     subtabSimulator: 'Board Simulator',
-    subtabMethods: 'Learning Methods',
+    subtabMethods: 'Learning Methods (50)',
     subtabQuotes: 'Quote Library',
     quickFilterInstant: 'No Props Needed',
-    openInSimulator: 'Practice in Simulator',
+    openInSimulator: 'Practice in Studio',
     practiceQuoteTitle: 'Practice Quote:',
     toggleLangQuote: 'Switch Language',
     copyQuote: 'Copy Quote',
@@ -220,13 +272,63 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     tipsPracticeTitle: 'Facilitator Tip',
     allPhases: 'Show All Phases',
 
-    // Interactive Disappearing Board
+    // Interactive Practice Studio Tools
+    toolChalkboard: 'Disappearing Board',
+    toolFirstLetter: 'First-Letter Anchors',
+    toolWordPuzzle: 'Word Puzzle',
+    toolImposter: 'Imposter Spotter',
+    toolMetronome: 'Rhythm Metronome',
+    toolCodeClicker: 'Code Clicker',
+    toolSpeedRun: 'Speed Challenge',
+
+    // 1. Chalkboard
     boardTitle: 'Interactive Disappearing Chalkboard',
     boardSubtitle: 'Use this interactive board on a tablet, laptop, or projector to progressively blank out words with your group.',
     eraseNextWord: 'Blank Out Next Words',
     resetBoard: 'Reset Board',
     allWordsHidden: 'All words are now hidden! The group recites entirely from memory.',
     wordsRemaining: 'words visible',
+
+    // 2. First-Letter
+    firstLetterSubtitle: 'Words are reduced to their initial letters and underscores. Trains the brain to reconstruct words actively from memory.',
+    eraseInitialsBtn: 'Progressively erase initials',
+    resetInitials: 'Restore initials',
+    tapWordHint: 'Tap any word to reveal or hide it.',
+    allInitialsHidden: 'All initial letters cleared – only dash placeholders remain!',
+
+    // 3. Word Puzzle
+    wordPuzzleSubtitle: 'Assemble the scrambled word tiles in the correct sequence. Ideal for projector or group tablets.',
+    puzzleCompleted: 'Outstanding! The passage is fully assembled. Recite it together in unison!',
+    clickTilePrompt: 'Available Word Tiles (Tap to append):',
+    resetPuzzle: 'Reshuffle',
+    undoWord: 'Undo',
+
+    // 4. Imposter / Fehler-Detektor
+    imposterSubtitle: 'A sneaky decoy has been slipped into the text! Spot the fake word and tap it.',
+    imposterFound: 'Bullseye! You spotted the imposter and restored the authentic word.',
+    imposterWrong: 'This word is authentic to the original text. Keep searching!',
+    nextImposter: 'Generate new imposter',
+
+    // 5. Metronome Pacer
+    metronomeSubtitle: 'A steady 4/4 cadence synchronizes collective breathing and speech rate across the entire group.',
+    bpmLabel: 'Cadence (BPM)',
+    startMetronome: 'Start Pacer',
+    stopMetronome: 'Stop Pacer',
+    soundToggle: 'Audio Tick',
+
+    // 6. Code Clicker
+    codeClickerSubtitle: 'Trigger words must not be spoken aloud, but replaced with simultaneous clapping (👏) or snapping (🫰)!',
+    codeWordsLabel: 'Signal Words (Silence & Action):',
+    newCodeWords: 'Pick random words',
+
+    // 7. Speed Run
+    speedRunSubtitle: 'Time the group speaking the passage in a circle without stumbling. Can you beat the group record?',
+    targetTimeLabel: 'Target Time',
+    currentRecord: 'Best Record',
+    startTimer: 'Start',
+    stopTimer: 'Stop',
+    resetTimer: 'Reset',
+    recordBeaten: 'New group record established! 🎉',
 
     // Session Planner & Devotionals
     plannerHeaderTitle: 'Session & Devotional Planner',
