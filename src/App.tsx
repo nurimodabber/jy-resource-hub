@@ -8,6 +8,7 @@ import { BahaiSongsModal } from './components/BahaiSongsModal';
 import { Language } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
 import { ExternalLink, Music } from 'lucide-react';
+import { Logo } from './components/Logo';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'games' | 'quotes' | 'planner' | 'toolkits'>('games');
@@ -102,7 +103,10 @@ export const App: React.FC = () => {
       {/* Footer */}
       <footer className="bg-[#f5f5f7] border-t border-black/[0.06] mt-16 py-8 text-xs text-[#86868b] print:hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-md bg-[#1d1d1f] flex items-center justify-center p-0.5">
+              <Logo className="w-3.5 h-3.5" />
+            </div>
             <span className="font-semibold text-[#1d1d1f]">{t.siteTitle}</span>
             <span className="mx-2">•</span>
             <span>{t.footerNote}</span>

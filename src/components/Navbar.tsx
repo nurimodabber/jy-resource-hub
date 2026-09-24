@@ -1,5 +1,6 @@
 import React from 'react';
 import { Compass, BookOpen, Clock, Layers, Bookmark, Printer, Search, X, Music } from 'lucide-react';
+import { Logo } from './Logo';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -50,8 +51,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               setShowOnlyFavorites(false);
             }}
           >
-            <div className="w-8 h-8 rounded-xl bg-[#1d1d1f] flex items-center justify-center text-white shadow-apple-pill transition-transform group-hover:scale-105">
-              <Compass className="w-4 h-4 text-emerald-400" />
+            <div className="w-9 h-9 rounded-xl bg-[#1d1d1f] flex items-center justify-center text-white shadow-apple-pill transition-transform group-hover:scale-105">
+              <Logo className="w-5 h-5" />
             </div>
             <div>
               <span className="font-semibold text-sm sm:text-[15px] tracking-tight text-[#1d1d1f] block leading-tight">
