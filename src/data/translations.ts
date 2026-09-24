@@ -50,6 +50,11 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Quotes Section
     quotesHeaderTitle: 'Methoden zum Zitate-Lernen',
     quotesHeaderDesc: 'Vom ersten Sprachrhythmus über kinetische Bewegungsspiele bis zur vollständigen Verankerung im Gedächtnis.',
+    subtabSimulator: 'Tafel-Simulator',
+    subtabMethods: 'Lernmethoden',
+    subtabQuotes: 'Zitatesammlung',
+    quickFilterInstant: 'Ohne Material',
+    openInSimulator: 'Im Simulator üben',
     practiceQuoteTitle: 'Aktuelles Zitat:',
     toggleLangQuote: 'Sprache wechseln',
     copyQuote: 'Zitat kopieren',
@@ -189,6 +194,11 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Quotes Section
     quotesHeaderTitle: 'Quote Memorization Methods',
     quotesHeaderDesc: 'From establishing rhythm and melody to kinetic movement and deep cognitive retention.',
+    subtabSimulator: 'Board Simulator',
+    subtabMethods: 'Learning Methods',
+    subtabQuotes: 'Quote Library',
+    quickFilterInstant: 'No Props Needed',
+    openInSimulator: 'Practice in Simulator',
     practiceQuoteTitle: 'Practice Quote:',
     toggleLangQuote: 'Switch Language',
     copyQuote: 'Copy Quote',

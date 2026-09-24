@@ -50,7 +50,7 @@ export const App: React.FC = () => {
   const t = UI_TRANSLATIONS[language];
 
   return (
-    <div className="min-h-screen flex flex-col bg-stone-50 text-stone-900 selection:bg-stone-200">
+    <div className="min-h-screen flex flex-col bg-[#f5f5f7] text-[#1d1d1f] selection:bg-[#0071e3]/20">
       {/* Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -66,7 +66,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {activeTab === 'games' && (
           <GamesView
             searchQuery={searchQuery}
@@ -100,10 +100,10 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-stone-200 mt-16 py-8 text-xs text-stone-500 print:hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="bg-[#f5f5f7] border-t border-black/[0.06] mt-16 py-8 text-xs text-[#86868b] print:hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <span className="font-semibold text-stone-800">{t.siteTitle}</span>
+            <span className="font-semibold text-[#1d1d1f]">{t.siteTitle}</span>
             <span className="mx-2">•</span>
             <span>{t.footerNote}</span>
           </div>
@@ -111,15 +111,15 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsBahaiSongsOpen(true)}
-              className="text-stone-600 hover:text-stone-900 font-medium inline-flex items-center gap-1 transition-colors"
+              className="text-[#6e6e73] hover:text-[#1d1d1f] font-medium inline-flex items-center gap-1.5 transition-colors"
             >
-              <Music className="w-3.5 h-3.5 text-emerald-800" />
+              <Music className="w-3.5 h-3.5 text-emerald-600" />
               <span>Bahá'í Songs</span>
             </button>
             <span>•</span>
             <button
               onClick={() => window.print()}
-              className="text-stone-500 hover:text-stone-800 transition-colors"
+              className="text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
             >
               {t.printHandout}
             </button>

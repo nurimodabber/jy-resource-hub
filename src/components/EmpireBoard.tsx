@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Dices, Plus, Trash2, RotateCcw, Copy, Check, Users, Crown, Shield, Maximize2 } from 'lucide-react';
-import { Language, EmpirePromptCategory } from '../types';
+import { Dices, Plus, Trash2, RotateCcw, Copy, Check, Crown } from 'lucide-react';
+import { Language } from '../types';
 import { EMPIRE_PROMPTS } from '../data/toolkits';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -117,14 +117,14 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
 
   return (
     <div className="space-y-6">
-      {/* Category Generator Banner */}
-      <div className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-3">
+      {/* Category Generator Card */}
+      <div className="bg-white rounded-3xl border border-black/[0.06] p-6 sm:p-7 shadow-apple-card space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/[0.05] pb-4">
           <div className="space-y-0.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
               {t.empireCategoryTitle}
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-semibold text-[#1d1d1f] tracking-tight">
               „{currentCategory.title[language]}“
             </h2>
           </div>
@@ -133,7 +133,7 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
             <button
               onClick={handleShuffle}
               disabled={isShuffling}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-900 text-white rounded-lg text-xs font-semibold hover:bg-stone-800 transition-colors shadow-2xs"
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#0071e3] text-white rounded-full text-xs font-semibold hover:bg-[#0077ed] transition-all shadow-apple-pill"
             >
               <Dices className={`w-3.5 h-3.5 ${isShuffling ? 'animate-spin' : ''}`} />
               <span>{t.randomCategoryBtn}</span>
@@ -141,7 +141,7 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
 
             <button
               onClick={handleCopyCategory}
-              className="p-1.5 border border-stone-200 rounded-lg text-stone-500 hover:text-stone-800 hover:bg-stone-50 transition-colors"
+              className="p-2 border border-black/[0.08] rounded-full text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/[0.04] transition-colors"
               title="Kopieren"
             >
               {copiedPrompt ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -149,18 +149,18 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
           </div>
         </div>
 
-        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+        <p className="text-xs sm:text-sm text-[#6e6e73] leading-relaxed font-normal">
           {currentCategory.description[language]}
         </p>
 
         {/* Inspiration Answers */}
-        <div className="pt-2 space-y-1.5">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">
+        <div className="pt-2 space-y-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] block">
             {t.examplesPrompt}
           </span>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {currentCategory.exampleAnswers[language].map((ex, idx) => (
-              <div key={idx} className="bg-stone-50 border border-stone-200/70 p-2.5 rounded-lg text-xs text-stone-700 italic">
+              <div key={idx} className="bg-[#f5f5f7] border border-black/[0.03] p-3 rounded-xl text-xs text-[#1d1d1f] italic">
                 {ex}
               </div>
             ))}
@@ -169,21 +169,21 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
       </div>
 
       {/* Interactive Empire Board */}
-      <div className="bg-white rounded-xl border border-stone-200 p-5 sm:p-6 shadow-2xs space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-3">
+      <div className="bg-white rounded-3xl border border-black/[0.06] p-6 sm:p-7 shadow-apple-card space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-black/[0.05] pb-4">
           <div>
-            <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-              <Crown className="w-4 h-4 text-amber-700" />
+            <h3 className="text-base font-semibold text-[#1d1d1f] flex items-center gap-2">
+              <Crown className="w-4 h-4 text-amber-600" />
               <span>{t.empireBoardTitle}</span>
             </h3>
-            <p className="text-xs text-stone-500 mt-0.5">{t.empireBoardDesc}</p>
+            <p className="text-xs text-[#86868b] mt-0.5">{t.empireBoardDesc}</p>
           </div>
 
           <div className="flex items-center gap-2">
             {empires.length === 0 && (
               <button
                 onClick={handleLoadDemoAliases}
-                className="px-2.5 py-1 text-xs font-medium text-stone-600 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors"
+                className="px-3.5 py-1.5 text-xs font-medium text-[#1d1d1f] bg-black/[0.04] hover:bg-black/[0.08] rounded-full transition-colors"
               >
                 {language === 'de' ? 'Beispiel-Gruppe laden' : 'Load sample group'}
               </button>
@@ -191,7 +191,7 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
             {empires.length > 0 && (
               <button
                 onClick={handleResetBoard}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-stone-600 hover:text-stone-900 bg-stone-100 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-[#86868b] hover:text-[#1d1d1f] bg-black/[0.04] rounded-full transition-colors"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>{t.resetGame}</span>
@@ -207,11 +207,11 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
             value={inputAlias}
             onChange={(e) => setInputAlias(e.target.value)}
             placeholder={t.addAliasPlaceholder}
-            className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all placeholder:text-stone-400"
+            className="flex-1 px-4 py-2.5 text-xs rounded-full border border-black/[0.08] bg-black/[0.03] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0071e3]/20 focus:border-[#0071e3] transition-all text-[#1d1d1f] placeholder:text-[#86868b]"
           />
           <button
             type="submit"
-            className="flex items-center gap-1.5 px-4 py-2 bg-stone-900 text-white rounded-xl text-xs font-semibold hover:bg-stone-800 transition-colors shadow-2xs shrink-0"
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-[#1d1d1f] text-white rounded-full text-xs font-semibold hover:bg-black transition-all shadow-apple-pill shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{t.addBtn}</span>
@@ -220,9 +220,9 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
 
         {/* Merge Control Banner (shown when a card is selected) */}
         {selectedEntityId && (
-          <div className="p-3.5 bg-amber-50/90 border border-amber-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs text-amber-950 animate-in fade-in">
+          <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs text-amber-950 animate-in fade-in">
             <div className="flex items-center gap-2">
-              <Crown className="w-4 h-4 text-amber-700" />
+              <Crown className="w-4 h-4 text-amber-600" />
               <span>
                 <strong>{empires.find(e => e.id === selectedEntityId)?.alias}</strong> {language === 'de' ? 'wurde erraten? Wähle unten das Königreich, das ihn übernimmt:' : 'was correctly guessed? Click the kingdom that absorbed them:'}
               </span>
@@ -232,7 +232,7 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
               {mergeTargetId && (
                 <button
                   onClick={handleMerge}
-                  className="px-3 py-1 bg-amber-800 text-white font-bold rounded-lg hover:bg-amber-900 transition-colors"
+                  className="px-3.5 py-1.5 bg-amber-600 text-white font-semibold rounded-full hover:bg-amber-700 transition-colors shadow-apple-pill"
                 >
                   {language === 'de' ? 'Eingliedern bestätigen' : 'Confirm Merge'}
                 </button>
@@ -242,7 +242,7 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
                   setSelectedEntityId(null);
                   setMergeTargetId(null);
                 }}
-                className="text-stone-500 hover:text-stone-800 font-medium"
+                className="text-[#86868b] hover:text-[#1d1d1f] font-medium"
               >
                 {language === 'de' ? 'Abbrechen' : 'Cancel'}
               </button>
@@ -253,9 +253,9 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
         {/* Active Empires Grid */}
         {empires.length > 0 ? (
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs text-stone-500 font-medium">
+            <div className="flex items-center justify-between text-xs text-[#86868b] font-medium">
               <span>{t.activeAliases} ({empires.length})</span>
-              <span className="text-[11px] text-stone-400">
+              <span className="text-[11px] text-[#aeaeb2]">
                 {language === 'de' ? 'Klicke auf einen Namen, um ihn bei einem Treffer zu übergeben' : 'Click a name to transfer it when guessed'}
               </span>
             </div>
@@ -279,46 +279,46 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
                         setMergeTargetId(entity.id);
                       }
                     }}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer relative flex flex-col justify-between ${
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
                       isSelected
-                        ? 'bg-amber-100/70 border-amber-500 ring-2 ring-amber-500/20'
+                        ? 'bg-amber-500/15 border-amber-500 ring-2 ring-amber-500/20'
                         : isTarget
-                        ? 'bg-emerald-100/70 border-emerald-600 ring-2 ring-emerald-600/20'
+                        ? 'bg-emerald-500/15 border-emerald-600 ring-2 ring-emerald-600/20'
                         : isExpandedKingdom
-                        ? 'bg-stone-50 border-stone-300'
-                        : 'bg-white border-stone-200/90 hover:border-stone-400'
+                        ? 'bg-[#f5f5f7] border-black/[0.08]'
+                        : 'bg-white border-black/[0.06] hover:border-black/[0.15] shadow-apple-card'
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                          isExpandedKingdom ? 'bg-amber-200 text-amber-900 font-bold' : 'bg-stone-100 text-stone-600'
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                          isExpandedKingdom ? 'bg-amber-500/15 text-amber-900 font-semibold' : 'bg-black/[0.04] text-[#6e6e73]'
                         }`}>
                           {isExpandedKingdom ? `Königreich (${entity.members.length})` : 'Frei'}
                         </span>
 
                         <button
                           onClick={(e) => handleDeleteEntity(entity.id, e)}
-                          className="text-stone-300 hover:text-rose-600 p-0.5"
+                          className="text-[#aeaeb2] hover:text-rose-600 p-0.5"
                           title="Löschen"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
-                      <h4 className="text-sm font-bold text-stone-900 leading-snug">
+                      <h4 className="text-sm font-semibold text-[#1d1d1f] leading-snug">
                         {entity.alias}
                       </h4>
                     </div>
 
                     {isExpandedKingdom && (
-                      <div className="mt-3 pt-2.5 border-t border-stone-200/70 text-[11px] text-stone-600 space-y-1">
-                        <span className="font-semibold text-stone-500 block">
+                      <div className="mt-3 pt-2.5 border-t border-black/[0.05] text-[11px] text-[#6e6e73] space-y-1">
+                        <span className="font-medium text-[#86868b] block text-[10px] uppercase tracking-wider">
                           {language === 'de' ? 'Gefolge:' : 'Followers:'}
                         </span>
                         <div className="flex flex-wrap gap-1">
                           {entity.members.filter(m => m !== entity.alias).map((m, idx) => (
-                            <span key={idx} className="bg-white border border-stone-200 px-1.5 py-0.5 rounded text-[10px] text-stone-700">
+                            <span key={idx} className="bg-white border border-black/[0.06] px-2 py-0.5 rounded-full text-[10px] text-[#1d1d1f]">
                               {m}
                             </span>
                           ))}
@@ -331,7 +331,7 @@ export const EmpireBoard: React.FC<EmpireBoardProps> = ({ language }) => {
             </div>
           </div>
         ) : (
-          <div className="text-center py-10 bg-stone-50 rounded-xl border border-dashed border-stone-200 text-stone-500 text-xs">
+          <div className="text-center py-12 bg-[#f5f5f7] rounded-2xl border border-dashed border-black/[0.06] text-[#86868b] text-xs">
             <p>{t.noAliasesYet}</p>
           </div>
         )}

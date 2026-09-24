@@ -32,45 +32,45 @@ export const GameModal: React.FC<GameModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div 
-        className="bg-white w-full max-w-2xl max-h-[90vh] rounded-2xl shadow-xl flex flex-col overflow-hidden border border-stone-200"
+        className="bg-white w-full max-w-2xl max-h-[88vh] rounded-3xl shadow-apple-modal flex flex-col overflow-hidden border border-black/[0.08]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-5 sm:p-6 border-b border-stone-200 bg-stone-50/70 flex items-start justify-between gap-4">
+        <div className="p-6 border-b border-black/[0.05] bg-[#fafafc] flex items-start justify-between gap-4">
           <div className="space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-200/80 text-stone-700">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-black/[0.05] text-[#1d1d1f]">
                 {game.category === 'cooperative' && t.filterCooperative}
                 {game.category === 'competitive' && t.filterCompetitive}
                 {game.category === 'social_deduction' && t.filterSocialDeduction}
                 {game.category === 'energizer' && t.filterEnergizer}
               </span>
-              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-md ${
-                game.energyLevel === 'high' ? 'bg-amber-100 text-amber-900' :
-                game.energyLevel === 'calm' ? 'bg-indigo-100 text-indigo-900' :
-                'bg-stone-200 text-stone-800'
+              <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${
+                game.energyLevel === 'high' ? 'bg-amber-500/10 text-amber-800' :
+                game.energyLevel === 'calm' ? 'bg-blue-500/10 text-blue-800' :
+                'bg-black/[0.04] text-[#6e6e73]'
               }`}>
                 {game.energyLevel === 'high' && t.filterHighEnergy}
                 {game.energyLevel === 'medium' && t.filterMediumEnergy}
                 {game.energyLevel === 'calm' && t.filterCalmEnergy}
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-semibold text-[#1d1d1f] tracking-tight">
               {game.title[language]}
             </h2>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={(e) => onToggleFavorite(game.id, e)}
-              className={`p-2 rounded-xl transition-colors ${
+              className={`p-2 rounded-full transition-colors ${
                 isFavorite
-                  ? 'text-amber-600 bg-amber-50'
-                  : 'text-stone-400 hover:text-stone-700 hover:bg-stone-200/60'
+                  ? 'text-amber-500 bg-amber-500/10'
+                  : 'text-[#aeaeb2] hover:text-[#1d1d1f] hover:bg-black/[0.05]'
               }`}
               title={t.savedItems}
             >
@@ -78,7 +78,7 @@ export const GameModal: React.FC<GameModalProps> = ({
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 rounded-xl transition-colors"
+              className="p-2 text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/[0.05] rounded-full transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -86,48 +86,48 @@ export const GameModal: React.FC<GameModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-6 custom-scrollbar text-stone-700 text-xs sm:text-sm">
+        <div className="p-6 overflow-y-auto space-y-6 custom-scrollbar text-[#1d1d1f] text-xs sm:text-sm">
           
           {/* Quick Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-stone-50 rounded-xl border border-stone-200/70 text-xs">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-stone-500 shrink-0" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-[#f5f5f7] rounded-2xl border border-black/[0.03] text-xs">
+            <div className="flex items-center gap-2.5">
+              <Users className="w-4 h-4 text-[#86868b] shrink-0" />
               <div>
-                <p className="text-stone-400 font-medium">{t.groupLabel}</p>
-                <p className="font-semibold text-stone-800">{game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}</p>
+                <p className="text-[#86868b] text-[11px] font-medium">{t.groupLabel}</p>
+                <p className="font-semibold text-[#1d1d1f]">{game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-stone-500 shrink-0" />
+            <div className="flex items-center gap-2.5">
+              <Clock className="w-4 h-4 text-[#86868b] shrink-0" />
               <div>
-                <p className="text-stone-400 font-medium">{t.durationLabel}</p>
-                <p className="font-semibold text-stone-800">{game.durationMinutes}</p>
+                <p className="text-[#86868b] text-[11px] font-medium">{t.durationLabel}</p>
+                <p className="font-semibold text-[#1d1d1f]">{game.durationMinutes}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-stone-500 shrink-0" />
+            <div className="flex items-center gap-2.5">
+              <Info className="w-4 h-4 text-[#86868b] shrink-0" />
               <div>
-                <p className="text-stone-400 font-medium">{t.prepLabel}</p>
-                <p className="font-semibold text-stone-800">
+                <p className="text-[#86868b] text-[11px] font-medium">{t.prepLabel}</p>
+                <p className="font-semibold text-[#1d1d1f]">
                   {game.prepLevel === 'instant' ? t.filterInstantPrep : t.filterMaterialPrep}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-stone-500 shrink-0" />
+            <div className="flex items-center gap-2.5">
+              <MapPin className="w-4 h-4 text-[#86868b] shrink-0" />
               <div>
-                <p className="text-stone-400 font-medium">{t.spaceLabel}</p>
-                <p className="font-semibold text-stone-800">{game.space[language]}</p>
+                <p className="text-[#86868b] text-[11px] font-medium">{t.spaceLabel}</p>
+                <p className="font-semibold text-[#1d1d1f]">{game.space[language]}</p>
               </div>
             </div>
           </div>
 
           {/* Core Idea */}
           <div className="space-y-1.5">
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
               {t.ideaTitle}
             </h3>
-            <p className="text-stone-900 font-medium bg-stone-50 border border-stone-200/70 p-3.5 rounded-xl leading-relaxed">
+            <p className="text-[#1d1d1f] bg-[#f5f5f7] border border-black/[0.03] p-4 rounded-2xl leading-relaxed font-normal">
               {game.idea[language]}
             </p>
           </div>
@@ -135,12 +135,12 @@ export const GameModal: React.FC<GameModalProps> = ({
           {/* Materials */}
           {game.materials[language].length > 0 && game.materials[language][0] !== 'Keine' && game.materials[language][0] !== 'None' && (
             <div className="space-y-1.5">
-              <h3 className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
                 {t.materialsTitle}
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {game.materials[language].map((mat, i) => (
-                  <span key={i} className="text-xs font-medium bg-stone-100 text-stone-800 px-2.5 py-1 rounded-lg border border-stone-200">
+                  <span key={i} className="text-xs font-medium bg-[#f5f5f7] text-[#1d1d1f] px-3 py-1 rounded-full border border-black/[0.04]">
                     {mat}
                   </span>
                 ))}
@@ -150,16 +150,16 @@ export const GameModal: React.FC<GameModalProps> = ({
 
           {/* Rules Step by Step */}
           <div className="space-y-2">
-            <h3 className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
               {t.rulesTitle}
             </h3>
             <div className="space-y-2">
               {game.rules[language].map((rule, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-stone-50 border border-stone-200/60">
-                  <span className="w-5 h-5 rounded-full bg-stone-800 text-white font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                <div key={idx} className="flex items-start gap-3 p-3.5 rounded-2xl bg-[#f5f5f7] border border-black/[0.03]">
+                  <span className="w-5 h-5 rounded-full bg-[#1d1d1f] text-white font-medium text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                     {idx + 1}
                   </span>
-                  <p className="text-stone-800 leading-relaxed text-xs sm:text-sm">{rule}</p>
+                  <p className="text-[#1d1d1f] leading-relaxed text-xs sm:text-sm font-normal">{rule}</p>
                 </div>
               ))}
             </div>
@@ -167,12 +167,12 @@ export const GameModal: React.FC<GameModalProps> = ({
 
           {/* Animator Tips */}
           {game.animatorTips[language].length > 0 && (
-            <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-4 space-y-2">
-              <div className="flex items-center gap-2 text-amber-900 font-bold text-xs uppercase tracking-wide">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 space-y-2">
+              <div className="flex items-center gap-2 text-amber-900 font-semibold text-xs uppercase tracking-wide">
                 <AlertCircle className="w-3.5 h-3.5 text-amber-700" />
                 <span>{t.tipsTitle}</span>
               </div>
-              <ul className="space-y-1.5 text-xs text-amber-950">
+              <ul className="space-y-1.5 text-xs text-amber-950 font-normal">
                 {game.animatorTips[language].map((tip, i) => (
                   <li key={i} className="flex items-start gap-2">
                     <span className="text-amber-600 font-bold">•</span>
@@ -186,17 +186,17 @@ export const GameModal: React.FC<GameModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-stone-50 border-t border-stone-200 flex items-center justify-between">
+        <div className="p-4 sm:p-5 bg-[#fafafc] border-t border-black/[0.05] flex items-center justify-between">
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl text-stone-700 bg-white border border-stone-200 hover:bg-stone-100 transition-colors shadow-2xs"
+            className="flex items-center gap-1.5 text-xs font-medium px-4 py-2 rounded-full text-[#1d1d1f] bg-white border border-black/[0.08] hover:bg-black/[0.03] transition-colors shadow-2xs"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-stone-400" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#86868b]" />}
             <span>{copied ? t.copiedSuccess : t.copyRules}</span>
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-stone-800 transition-colors"
+            className="px-5 py-2 bg-[#1d1d1f] text-white text-xs font-semibold rounded-full hover:bg-black transition-colors shadow-apple-pill"
           >
             {t.close}
           </button>
