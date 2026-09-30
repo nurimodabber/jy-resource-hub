@@ -6,6 +6,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'breezes-love-mankind',
+    mainBook: {
+      de: 'Brise der Bestätigung',
+      en: 'Breezes of Confirmation'
+    },
+    section: {
+      de: 'Lektion 1',
+      en: 'Lesson 1'
+    },
+    generalTopic: 'einheit',
     source: {
       de: 'Bahá\'u\'lláh (Botschaften aus Akka, Lawh-i-Maqsúd)',
       en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Lawh-i-Maqsúd)'
@@ -24,6 +33,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'breezes-brother-selflessness',
+    mainBook: {
+      de: 'Brise der Bestätigung',
+      en: 'Breezes of Confirmation'
+    },
+    section: {
+      de: 'Lektion 5',
+      en: 'Lesson 5'
+    },
+    generalTopic: 'dienst',
     source: {
       de: 'Bahá\'u\'lláh (Botschaften aus Akka, Worte des Paradieses)',
       en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Words of Paradise)'
@@ -42,6 +60,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'breezes-divine-helper',
+    mainBook: {
+      de: 'Brise der Bestätigung',
+      en: 'Breezes of Confirmation'
+    },
+    section: {
+      de: 'Lektion 8',
+      en: 'Lesson 8'
+    },
+    generalTopic: 'dienst',
     source: {
       de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace, S. 448)',
       en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace, p. 448)'
@@ -60,6 +87,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'breezes-place-under-sun',
+    mainBook: {
+      de: 'Brise der Bestätigung',
+      en: 'Breezes of Confirmation'
+    },
+    section: {
+      de: 'Lektion 11',
+      en: 'Lesson 11'
+    },
+    generalTopic: 'dienst',
     source: {
       de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 21)',
       en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #21)'
@@ -78,6 +114,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'breezes-trees-fruits',
+    mainBook: {
+      de: 'Brise der Bestätigung',
+      en: 'Breezes of Confirmation'
+    },
+    section: {
+      de: 'Lektion 14',
+      en: 'Lesson 14'
+    },
+    generalTopic: 'dienst',
     source: {
       de: 'Bahá\'u\'lláh (Verborgene Worte, Persisch Nr. 80)',
       en: 'Bahá\'u\'lláh (The Hidden Words, Persian #80)'
@@ -100,6 +145,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'straightpath-vigilance',
+    mainBook: {
+      de: 'Den geraden Pfad beschreiten',
+      en: 'Walking the Straight Path'
+    },
+    section: {
+      de: 'Lektion 1',
+      en: 'Lesson 1'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: 'Bahá\'u\'lláh (Botschaften aus Akka, Worte des Paradieses)',
       en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Words of Paradise)'
@@ -118,6 +172,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'straightpath-faultfinding',
+    mainBook: {
+      de: 'Den geraden Pfad beschreiten',
+      en: 'Walking the Straight Path'
+    },
+    section: {
+      de: 'Lektion 2',
+      en: 'Lesson 2'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 27)',
       en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #27)'
@@ -136,6 +199,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'straightpath-own-faults',
+    mainBook: {
+      de: 'Den geraden Pfad beschreiten',
+      en: 'Walking the Straight Path'
+    },
+    section: {
+      de: 'Lektion 5',
+      en: 'Lesson 5'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 26)',
       en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #26)'
@@ -154,6 +226,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'straightpath-kindly-tongue',
+    mainBook: {
+      de: 'Den geraden Pfad beschreiten',
+      en: 'Walking the Straight Path'
+    },
+    section: {
+      de: 'Lektion 8',
+      en: 'Lesson 8'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: 'Bahá\'u\'lláh (Botschaften aus Akka, Tarazát)',
       en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Tarázát)'
@@ -172,6 +253,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'straightpath-loving-kindness',
+    mainBook: {
+      de: 'Den geraden Pfad beschreiten',
+      en: 'Walking the Straight Path'
+    },
+    section: {
+      de: 'Lektion 13',
+      en: 'Lesson 13'
+    },
+    generalTopic: 'einheit',
     source: {
       de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 1)',
       en: '\'Abdu\'l-Bahá (Paris Talks, #1)'
@@ -190,6 +280,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'straightpath-two-wings',
+    mainBook: {
+      de: 'Den geraden Pfad beschreiten',
+      en: 'Walking the Straight Path'
+    },
+    section: {
+      de: 'Lektion 17',
+      en: 'Lesson 17'
+    },
+    generalTopic: 'gerechtigkeit',
     source: {
       de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 40)',
       en: '\'Abdu\'l-Bahá (Paris Talks, #40)'
@@ -212,6 +311,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'powerword-king-of-words',
+    mainBook: {
+      de: 'Die Kraft des Wortes nutzen',
+      en: 'Drawing on the Power of the Word'
+    },
+    section: {
+      de: 'Lektion 1',
+      en: 'Lesson 1'
+    },
+    generalTopic: 'verstand',
     source: {
       de: 'Bahá\'u\'lláh (Botschaften aus Akka)',
       en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh)'
@@ -230,6 +338,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'powerword-deeds-not-words',
+    mainBook: {
+      de: 'Die Kraft des Wortes nutzen',
+      en: 'Drawing on the Power of the Word'
+    },
+    section: {
+      de: 'Lektion 4',
+      en: 'Lesson 4'
+    },
+    generalTopic: 'dienst',
     source: {
       de: 'Bahá\'u\'lláh (Ährenlese CXXXVI / Verborgene Worte)',
       en: 'Bahá\'u\'lláh (Gleanings CXXXVI / The Hidden Words)'
@@ -248,6 +365,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'powerword-spirit-of-word',
+    mainBook: {
+      de: 'Die Kraft des Wortes nutzen',
+      en: 'Drawing on the Power of the Word'
+    },
+    section: {
+      de: 'Lektion 9',
+      en: 'Lesson 9'
+    },
+    generalTopic: 'verstand',
     source: {
       de: 'Bahá\'u\'lláh (Botschaften aus Akka, Lawh-i-Maqsúd)',
       en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Lawh-i-Maqsúd)'
@@ -266,6 +392,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'powerword-ocean-of-words',
+    mainBook: {
+      de: 'Die Kraft des Wortes nutzen',
+      en: 'Drawing on the Power of the Word'
+    },
+    section: {
+      de: 'Lektion 15',
+      en: 'Lesson 15'
+    },
+    generalTopic: 'verstand',
     source: {
       de: 'Bahá\'u\'lláh (Kitáb-i-Aqdas, K182)',
       en: 'Bahá\'u\'lláh (The Kitáb-i-Aqdas, K182)'
@@ -288,6 +423,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'excellence-shining-lamp',
+    mainBook: {
+      de: 'Nach Vortrefflichkeit streben',
+      en: 'Learning About Excellence'
+    },
+    section: {
+      de: 'Lektion 1',
+      en: 'Lesson 1'
+    },
+    generalTopic: 'seele',
     source: {
       de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
       en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
@@ -306,6 +450,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'excellence-purity-lifestyle',
+    mainBook: {
+      de: 'Nach Vortrefflichkeit streben',
+      en: 'Learning About Excellence'
+    },
+    section: {
+      de: 'Lektion 5',
+      en: 'Lesson 5'
+    },
+    generalTopic: 'seele',
     source: {
       de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 105)',
       en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #105)'
@@ -324,6 +477,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'excellence-highest-degree',
+    mainBook: {
+      de: 'Nach Vortrefflichkeit streben',
+      en: 'Learning About Excellence'
+    },
+    section: {
+      de: 'Lektion 9',
+      en: 'Lesson 9'
+    },
+    generalTopic: 'dienst',
     source: {
       de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 114)',
       en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #114)'
@@ -342,6 +504,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'excellence-virtues-honor',
+    mainBook: {
+      de: 'Nach Vortrefflichkeit streben',
+      en: 'Learning About Excellence'
+    },
+    section: {
+      de: 'Lektion 12',
+      en: 'Lesson 12'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: '\'Abdu\'l-Bahá (Das Geheimnis göttlicher Kultur)',
       en: '\'Abdu\'l-Bahá (The Secret of Divine Civilization)'
@@ -364,6 +535,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'glimmerings-peace-thought',
+    mainBook: {
+      de: 'Hoffnungsschimmer',
+      en: 'Glimmerings of Hope'
+    },
+    section: {
+      de: 'Lektion 2',
+      en: 'Lesson 2'
+    },
+    generalTopic: 'freude',
     source: {
       de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 7)',
       en: '\'Abdu\'l-Bahá (Paris Talks, #7)'
@@ -382,6 +562,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'glimmerings-light-unity',
+    mainBook: {
+      de: 'Hoffnungsschimmer',
+      en: 'Glimmerings of Hope'
+    },
+    section: {
+      de: 'Lektion 6',
+      en: 'Lesson 6'
+    },
+    generalTopic: 'einheit',
     source: {
       de: 'Bahá\'u\'lláh (Ährenlese CXIV)',
       en: 'Bahá\'u\'lláh (Gleanings CXIV)'
@@ -400,6 +589,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'glimmerings-sight-forgiveness',
+    mainBook: {
+      de: 'Hoffnungsschimmer',
+      en: 'Glimmerings of Hope'
+    },
+    section: {
+      de: 'Lektion 9',
+      en: 'Lesson 9'
+    },
+    generalTopic: 'einheit',
     source: {
       de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
       en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
@@ -418,6 +616,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'glimmerings-strife-damage',
+    mainBook: {
+      de: 'Hoffnungsschimmer',
+      en: 'Glimmerings of Hope'
+    },
+    section: {
+      de: 'Lektion 13',
+      en: 'Lesson 13'
+    },
+    generalTopic: 'freude',
     source: {
       de: 'Bahá\'u\'lláh (Schriften Bahá\'u\'lláhs)',
       en: 'Bahá\'u\'lláh (Writings of Bahá\'u\'lláh)'
@@ -440,6 +647,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'spiritfaith-assisted-spirit',
+    mainBook: {
+      de: 'Geist des Glaubens',
+      en: 'Spirit of Faith'
+    },
+    section: {
+      de: 'Lektion 2',
+      en: 'Lesson 2'
+    },
+    generalTopic: 'seele',
     source: {
       de: '\'Abdu\'l-Bahá (Beantwortete Fragen, Kap. 36)',
       en: '\'Abdu\'l-Bahá (Some Answered Questions, Ch. 36)'
@@ -458,6 +674,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'spiritfaith-soul-gem',
+    mainBook: {
+      de: 'Geist des Glaubens',
+      en: 'Spirit of Faith'
+    },
+    section: {
+      de: 'Lektion 4',
+      en: 'Lesson 4'
+    },
+    generalTopic: 'seele',
     source: {
       de: 'Bahá\'u\'lláh (Ährenlese LXXXII)',
       en: 'Bahá\'u\'lláh (Gleanings LXXXII)'
@@ -476,6 +701,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'spiritfaith-noble-created',
+    mainBook: {
+      de: 'Geist des Glaubens',
+      en: 'Spirit of Faith'
+    },
+    section: {
+      de: 'Lektion 7',
+      en: 'Lesson 7'
+    },
+    generalTopic: 'seele',
     source: {
       de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 22)',
       en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #22)'
@@ -494,6 +728,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'spiritfaith-soul-progress',
+    mainBook: {
+      de: 'Geist des Glaubens',
+      en: 'Spirit of Faith'
+    },
+    section: {
+      de: 'Lektion 11',
+      en: 'Lesson 11'
+    },
+    generalTopic: 'seele',
     source: {
       de: 'Bahá\'u\'lláh (Ährenlese LXXXI)',
       en: 'Bahá\'u\'lláh (Gleanings LXXXI)'
@@ -516,6 +759,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'wellspring-joy-wings',
+    mainBook: {
+      de: 'Quelle der Freude',
+      en: 'Wellspring of Joy'
+    },
+    section: {
+      de: 'Lektion 1',
+      en: 'Lesson 1'
+    },
+    generalTopic: 'freude',
     source: {
       de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 34)',
       en: '\'Abdu\'l-Bahá (Paris Talks, #34)'
@@ -534,6 +786,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'wellspring-be-happy',
+    mainBook: {
+      de: 'Quelle der Freude',
+      en: 'Wellspring of Joy'
+    },
+    section: {
+      de: 'Lektion 4',
+      en: 'Lesson 4'
+    },
+    generalTopic: 'freude',
     source: {
       de: '\'Abdu\'l-Bahá (Ansprachen in Paris)',
       en: '\'Abdu\'l-Bahá (Paris Talks)'
@@ -552,6 +813,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'wellspring-all-times-happy',
+    mainBook: {
+      de: 'Quelle der Freude',
+      en: 'Wellspring of Joy'
+    },
+    section: {
+      de: 'Lektion 7',
+      en: 'Lesson 7'
+    },
+    generalTopic: 'freude',
     source: {
       de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
       en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
@@ -574,6 +844,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'observation-nature-embodiment',
+    mainBook: {
+      de: 'Beobachtung und Erkenntnis',
+      en: 'Observation and Insight'
+    },
+    section: {
+      de: 'Lektion 2',
+      en: 'Lesson 2'
+    },
+    generalTopic: 'verstand',
     source: {
       de: 'Bahá\'u\'lláh (Botschaften aus Akka, Lawh-i-Hikmat)',
       en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Lawh-i-Hikmat)'
@@ -592,6 +871,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'observation-eye-reflection',
+    mainBook: {
+      de: 'Beobachtung und Erkenntnis',
+      en: 'Observation and Insight'
+    },
+    section: {
+      de: 'Lektion 6',
+      en: 'Lesson 6'
+    },
+    generalTopic: 'verstand',
     source: {
       de: 'Bahá\'u\'lláh (Botschaften aus Akka, Lawh-i-Hikmat)',
       en: 'Bahá\'u\'lláh (Tablets of Bahá\'u\'lláh, Lawh-i-Hikmat)'
@@ -610,6 +898,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'observation-intellect-gift',
+    mainBook: {
+      de: 'Beobachtung und Erkenntnis',
+      en: 'Observation and Insight'
+    },
+    section: {
+      de: 'Lektion 10',
+      en: 'Lesson 10'
+    },
+    generalTopic: 'verstand',
     source: {
       de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
       en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
@@ -632,6 +929,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'numbers-justice-beloved',
+    mainBook: {
+      de: 'Über Zahlen nachdenken',
+      en: 'Thinking About Numbers'
+    },
+    section: {
+      de: 'Lektion 1',
+      en: 'Lesson 1'
+    },
+    generalTopic: 'gerechtigkeit',
     source: {
       de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 2)',
       en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #2)'
@@ -650,6 +956,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'numbers-orderly-thoughts',
+    mainBook: {
+      de: 'Über Zahlen nachdenken',
+      en: 'Thinking About Numbers'
+    },
+    section: {
+      de: 'Lektion 7',
+      en: 'Lesson 7'
+    },
+    generalTopic: 'verstand',
     source: {
       de: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)',
       en: '\'Abdu\'l-Bahá (The Promulgation of Universal Peace)'
@@ -672,6 +987,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'honor-mine-gems',
+    mainBook: {
+      de: 'Die Würde des Menschen',
+      en: 'Human Honor'
+    },
+    section: {
+      de: 'Lektion 1',
+      en: 'Lesson 1'
+    },
+    generalTopic: 'seele',
     source: {
       de: 'Bahá\'u\'lláh (Ährenlese CXXII)',
       en: 'Bahá\'u\'lláh (Gleanings CXXII)'
@@ -690,6 +1014,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'honor-pure-radiant-heart',
+    mainBook: {
+      de: 'Die Würde des Menschen',
+      en: 'Human Honor'
+    },
+    section: {
+      de: 'Lektion 4',
+      en: 'Lesson 4'
+    },
+    generalTopic: 'seele',
     source: {
       de: 'Bahá\'u\'lláh (Verborgene Worte, Arabisch Nr. 1)',
       en: 'Bahá\'u\'lláh (The Hidden Words, Arabic #1)'
@@ -708,6 +1041,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'honor-chaste-eye-hand',
+    mainBook: {
+      de: 'Die Würde des Menschen',
+      en: 'Human Honor'
+    },
+    section: {
+      de: 'Lektion 8',
+      en: 'Lesson 8'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: 'Bahá\'u\'lláh (Ährenlese CLVI)',
       en: 'Bahá\'u\'lláh (Gleanings CLVI)'
@@ -730,6 +1072,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'waves-fruits-one-tree',
+    mainBook: {
+      de: 'Wellen eines Meeres',
+      en: 'Waves of One Sea'
+    },
+    section: {
+      de: 'Lektion 1',
+      en: 'Lesson 1'
+    },
+    generalTopic: 'einheit',
     source: {
       de: 'Bahá\'u\'lláh (Ährenlese CXXXII)',
       en: 'Bahá\'u\'lláh (Gleanings CXXXII)'
@@ -748,6 +1099,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'waves-earth-one-country',
+    mainBook: {
+      de: 'Wellen eines Meeres',
+      en: 'Waves of One Sea'
+    },
+    section: {
+      de: 'Lektion 5',
+      en: 'Lesson 5'
+    },
+    generalTopic: 'einheit',
     source: {
       de: 'Bahá\'u\'lláh (Ährenlese CXVII)',
       en: 'Bahá\'u\'lláh (Gleanings CXVII)'
@@ -766,6 +1126,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'waves-diversity-garden',
+    mainBook: {
+      de: 'Wellen eines Meeres',
+      en: 'Waves of One Sea'
+    },
+    section: {
+      de: 'Lektion 9',
+      en: 'Lesson 9'
+    },
+    generalTopic: 'einheit',
     source: {
       de: '\'Abdu\'l-Bahá (Ansprachen in Paris, Kap. 15)',
       en: '\'Abdu\'l-Bahá (Paris Talks, #15)'
@@ -788,6 +1157,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'ruhi5-truthfulness-foundation',
+    mainBook: {
+      de: 'Ruhi Buch 5 / Grundlagentexte',
+      en: 'Ruhi Book 5 / Core Texts'
+    },
+    section: {
+      de: 'Einheit 1',
+      en: 'Unit 1'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 110)',
       en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #110)'
@@ -806,6 +1184,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'ruhi5-progress-soul',
+    mainBook: {
+      de: 'Ruhi Buch 5 / Grundlagentexte',
+      en: 'Ruhi Book 5 / Core Texts'
+    },
+    section: {
+      de: 'Einheit 1',
+      en: 'Unit 1'
+    },
+    generalTopic: 'seele',
     source: {
       de: '\'Abdu\'l-Bahá (Briefe und Erklärungen, Nr. 110)',
       en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá, #110)'
@@ -824,6 +1211,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'ruhi5-tongue-honesty',
+    mainBook: {
+      de: 'Ruhi Buch 5 / Grundlagentexte',
+      en: 'Ruhi Book 5 / Core Texts'
+    },
+    section: {
+      de: 'Einheit 2',
+      en: 'Unit 2'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: '\'Abdu\'l-Bahá (Briefe und Erklärungen)',
       en: '\'Abdu\'l-Bahá (Selections from the Writings of \'Abdu\'l-Bahá)'
@@ -842,6 +1238,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'ruhi5-backbiting-heart',
+    mainBook: {
+      de: 'Ruhi Buch 5 / Grundlagentexte',
+      en: 'Ruhi Book 5 / Core Texts'
+    },
+    section: {
+      de: 'Einheit 2',
+      en: 'Unit 2'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: 'Bahá\'u\'lláh (Kitáb-i-Íqán, §214)',
       en: 'Bahá\'u\'lláh (Kitáb-i-Íqán, §214)'
@@ -860,6 +1265,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'ruhi5-speak-no-evil',
+    mainBook: {
+      de: 'Ruhi Buch 5 / Grundlagentexte',
+      en: 'Ruhi Book 5 / Core Texts'
+    },
+    section: {
+      de: 'Einheit 2',
+      en: 'Unit 2'
+    },
+    generalTopic: 'wahrhaftigkeit',
     source: {
       de: 'Bahá\'u\'lláh (Verborgene Worte, Persisch Nr. 44)',
       en: 'Bahá\'u\'lláh (The Hidden Words, Persian #44)'
@@ -882,6 +1296,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================
   {
     id: 'prayer-fledglings-wings',
+    mainBook: {
+      de: 'Gebete & Andacht',
+      en: 'Prayers & Devotions'
+    },
+    section: {
+      de: 'Gebet 1',
+      en: 'Prayer 1'
+    },
+    generalTopic: 'gebet',
     source: {
       de: '\'Abdu\'l-Bahá (Bahá\'í-Gebete, Gebete für die Jugend)',
       en: '\'Abdu\'l-Bahá (Bahá\'í Prayers, Prayers for Youth)'
@@ -900,6 +1323,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'prayer-pure-heart',
+    mainBook: {
+      de: 'Gebete & Andacht',
+      en: 'Prayers & Devotions'
+    },
+    section: {
+      de: 'Gebet 2',
+      en: 'Prayer 2'
+    },
+    generalTopic: 'gebet',
     source: {
       de: 'Bahá\'u\'lláh (Bahá\'í-Gebete)',
       en: 'Bahá\'u\'lláh (Bahá\'í Prayers)'
@@ -918,6 +1350,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'prayer-blessed-spot',
+    mainBook: {
+      de: 'Gebete & Andacht',
+      en: 'Prayers & Devotions'
+    },
+    section: {
+      de: 'Gebet 3',
+      en: 'Prayer 3'
+    },
+    generalTopic: 'gebet',
     source: {
       de: 'Bahá\'u\'lláh (Bahá\'í-Gebete)',
       en: 'Bahá\'u\'lláh (Bahá\'í Prayers)'
@@ -936,6 +1377,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'prayer-god-sufficeth',
+    mainBook: {
+      de: 'Gebete & Andacht',
+      en: 'Prayers & Devotions'
+    },
+    section: {
+      de: 'Gebet 4',
+      en: 'Prayer 4'
+    },
+    generalTopic: 'gebet',
     source: {
       de: 'Der Báb (Bahá\'í-Gebete)',
       en: 'The Báb (Bahá\'í Prayers)'
@@ -954,6 +1404,15 @@ export const QUOTES_DATA: QuoteItem[] = [
   },
   {
     id: 'prayer-free-heart-attachment',
+    mainBook: {
+      de: 'Gebete & Andacht',
+      en: 'Prayers & Devotions'
+    },
+    section: {
+      de: 'Gebet 5',
+      en: 'Prayer 5'
+    },
+    generalTopic: 'gebet',
     source: {
       de: '\'Abdu\'l-Bahá (Bahá\'í-Gebete)',
       en: '\'Abdu\'l-Bahá (Bahá\'í Prayers)'

@@ -59,10 +59,23 @@ export interface QuoteMethod {
   animatorTips: LocalizedArray;
 }
 
+export type QuoteGeneralTopic = 
+  | 'einheit' 
+  | 'wahrhaftigkeit' 
+  | 'dienst' 
+  | 'gerechtigkeit' 
+  | 'verstand' 
+  | 'seele' 
+  | 'freude' 
+  | 'gebet';
+
 export interface QuoteItem {
   id: string;
   source: LocalizedString;
   book: LocalizedString;
+  mainBook?: LocalizedString;
+  section?: LocalizedString;
+  generalTopic?: QuoteGeneralTopic;
   theme: LocalizedString;
   textDe: string;
   textEn: string;

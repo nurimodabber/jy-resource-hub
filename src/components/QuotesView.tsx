@@ -34,6 +34,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   onToggleFavorite,
   showOnlyFavorites,
 }) => {
+  const t = UI_TRANSLATIONS[language];
+
   // Apple Segmented Sub-view: Studio, Methods, or Quotes Library
   const [viewMode, setViewMode] = useState<'studio' | 'methods' | 'quotes'>('studio');
   
@@ -49,17 +51,23 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   const [selectedQuote, setSelectedQuote] = useState<QuoteItem>(QUOTES_DATA[0]);
   const [copiedQuoteId, setCopiedQuoteId] = useState<string | null>(null);
 
-  // Book filter states
-  const [quotesBookFilter, setQuotesBookFilter] = useState<string>('all');
-  const [studioBookFilter, setStudioBookFilter] = useState<string>('all');
+  // Hierarchical Quote Filter States: 1. Book -> 2. Section/Lesson -> 3. Generalized Topic
+  const [selectedBook, setSelectedBook] = useState<string>('all');
+  const [selectedSection, setSelectedSection] = useState<string>('all');
+  const [selectedTopic, setSelectedTopic] = useState<string>('all');
   const [expandedLangQuoteIds, setExpandedLangQuoteIds] = useState<string[]>([]);
+
+  const handleSelectBook = (book: string) => {
+    setSelectedBook(book);
+    setSelectedSection('all');
+  };
 
   // Unique books list for filtering
   const uniqueBooks = useMemo(() => {
     const booksMap = new Map<string, { de: string; en: string; count: number }>();
     QUOTES_DATA.forEach(q => {
-      const deMain = q.book.de.split(',')[0].trim();
-      const enMain = q.book.en.split(',')[0].trim();
+      const deMain = q.mainBook ? q.mainBook.de : q.book.de.split(',')[0].trim();
+      const enMain = q.mainBook ? q.mainBook.en : q.book.en.split(',')[0].trim();
       const existing = booksMap.get(deMain);
       if (existing) {
         existing.count += 1;
@@ -70,10 +78,48 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     return Array.from(booksMap.values());
   }, []);
 
-  const studioQuotesList = useMemo(() => {
-    if (studioBookFilter === 'all') return QUOTES_DATA;
-    return QUOTES_DATA.filter(q => q.book.de.split(',')[0].trim() === studioBookFilter);
-  }, [studioBookFilter]);
+  // Available sections (lessons) based on selectedBook
+  const availableSections = useMemo(() => {
+    const sectionsMap = new Map<string, { de: string; en: string; count: number }>();
+    QUOTES_DATA.forEach(q => {
+      const deMain = q.mainBook ? q.mainBook.de : q.book.de.split(',')[0].trim();
+      if (selectedBook !== 'all' && deMain !== selectedBook) return;
+      if (q.section) {
+        const existing = sectionsMap.get(q.section.de);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          sectionsMap.set(q.section.de, { de: q.section.de, en: q.section.en, count: 1 });
+        }
+      }
+    });
+    return Array.from(sectionsMap.values()).sort((a, b) => {
+      const numA = parseInt(a.de.replace(/\D/g, '')) || 0;
+      const numB = parseInt(b.de.replace(/\D/g, '')) || 0;
+      return numA - numB;
+    });
+  }, [selectedBook]);
+
+  // Generalized topics list
+  const generalTopicsList = useMemo(() => [
+    { id: 'all', label: t.allTopics },
+    { id: 'einheit', label: t.topicEinheit },
+    { id: 'wahrhaftigkeit', label: t.topicWahrhaftigkeit },
+    { id: 'dienst', label: t.topicDienst },
+    { id: 'gerechtigkeit', label: t.topicGerechtigkeit },
+    { id: 'verstand', label: t.topicVerstand },
+    { id: 'seele', label: t.topicSeele },
+    { id: 'freude', label: t.topicFreude },
+    { id: 'gebet', label: t.topicGebet },
+  ], [t]);
+
+  const hasActiveQuoteFilters = selectedBook !== 'all' || selectedSection !== 'all' || selectedTopic !== 'all';
+
+  const handleResetQuoteFilters = () => {
+    setSelectedBook('all');
+    setSelectedSection('all');
+    setSelectedTopic('all');
+  };
 
   const toggleDualLang = (id: string) => {
     setExpandedLangQuoteIds(prev => 
@@ -90,8 +136,6 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   useEffect(() => {
     setHiddenWordIndices([]);
   }, [selectedQuote, language]);
-
-  const t = UI_TRANSLATIONS[language];
 
   const tools = [
     { id: 'chalkboard' as const, label: t.toolChalkboard, icon: Eraser },
@@ -149,9 +193,17 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
   const filteredQuotes = useMemo(() => {
     return QUOTES_DATA.filter((item) => {
-      if (quotesBookFilter !== 'all') {
-        const mainBook = item.book.de.split(',')[0].trim();
-        if (mainBook !== quotesBookFilter) return false;
+      const mainBookDe = item.mainBook ? item.mainBook.de : item.book.de.split(',')[0].trim();
+      if (selectedBook !== 'all' && mainBookDe !== selectedBook) {
+        return false;
+      }
+
+      if (selectedSection !== 'all' && item.section?.de !== selectedSection) {
+        return false;
+      }
+
+      if (selectedTopic !== 'all' && item.generalTopic !== selectedTopic) {
+        return false;
       }
 
       if (searchQuery.trim()) {
@@ -170,7 +222,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
       return true;
     });
-  }, [searchQuery, language, quotesBookFilter]);
+  }, [searchQuery, language, selectedBook, selectedSection, selectedTopic]);
+
+  // Keep selectedQuote in sync with filtered list
+  useEffect(() => {
+    if (filteredQuotes.length > 0 && !filteredQuotes.some(q => q.id === selectedQuote.id)) {
+      setSelectedQuote(filteredQuotes[0]);
+    }
+  }, [filteredQuotes, selectedQuote]);
 
   const handleCopyQuote = (item: QuoteItem) => {
     const text = language === 'de' ? item.textDe : item.textEn;
@@ -261,35 +320,66 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             </div>
           </div>
 
-          {/* Quote Selection Bar with Book Filter */}
-          <div className="p-4 bg-white rounded-2xl border border-black/[0.06] shadow-2xs space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/[0.04] pb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
-                  {t.filterBookPrompt}
-                </span>
-                <select
-                  value={studioBookFilter}
-                  onChange={(e) => {
-                    const nextBook = e.target.value;
-                    setStudioBookFilter(nextBook);
-                    const match = QUOTES_DATA.find(q => nextBook === 'all' || q.book.de.split(',')[0].trim() === nextBook);
-                    if (match) setSelectedQuote(match);
-                  }}
-                  className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer"
-                >
-                  <option value="all">{t.allBooks} ({QUOTES_DATA.length})</option>
-                  {uniqueBooks.map(b => (
-                    <option key={b.de} value={b.de}>
-                      {b[language]} ({b.count})
-                    </option>
-                  ))}
-                </select>
+          {/* Quote Selection Bar: 3-Tier Hierarchical Filter */}
+          <div className="p-4 sm:p-5 bg-white rounded-2xl border border-black/[0.06] shadow-2xs space-y-4">
+            {/* Tier 1 & Tier 2: Book & Section dropdowns + Citation & Copy */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-black/[0.04] pb-3.5">
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* 1. Book Filter */}
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] shrink-0">
+                    {t.filterBookLabel}:
+                  </label>
+                  <select
+                    value={selectedBook}
+                    onChange={(e) => handleSelectBook(e.target.value)}
+                    className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer transition-colors"
+                  >
+                    <option value="all">{t.allBooks} ({QUOTES_DATA.length})</option>
+                    {uniqueBooks.map(b => (
+                      <option key={b.de} value={b.de}>
+                        {b[language]} ({b.count})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. Section / Lesson Filter */}
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] shrink-0">
+                    {t.filterSectionLabel}:
+                  </label>
+                  <select
+                    value={selectedSection}
+                    onChange={(e) => setSelectedSection(e.target.value)}
+                    disabled={availableSections.length === 0}
+                    className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <option value="all">{t.allSections} ({availableSections.reduce((acc, s) => acc + s.count, 0)})</option>
+                    {availableSections.map(s => (
+                      <option key={s.de} value={s.de}>
+                        {s[language]} ({s.count})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Reset Filters */}
+                {hasActiveQuoteFilters && (
+                  <button
+                    onClick={handleResetQuoteFilters}
+                    className="flex items-center gap-1 text-[11px] font-medium text-[#0071e3] hover:underline px-2 py-1"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>{t.resetFilters}</span>
+                  </button>
+                )}
               </div>
 
-              <div className="flex items-center gap-2 self-end sm:self-auto">
-                <span className="text-[11px] text-[#86868b] font-medium hidden sm:inline">
-                  {selectedQuote.book[language]}
+              {/* Active Quote Citation and Copy */}
+              <div className="flex items-center gap-2 self-start lg:self-auto shrink-0">
+                <span className="text-[11px] text-[#86868b] font-medium max-w-[220px] truncate" title={selectedQuote.source[language]}>
+                  {selectedQuote.source[language]}
                 </span>
                 <button
                   onClick={() => handleCopyQuote(selectedQuote)}
@@ -305,21 +395,84 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               </div>
             </div>
 
-            {/* Quote Chips for selected book */}
-            <div className="flex flex-wrap items-center gap-1.5 max-h-36 overflow-y-auto custom-scrollbar">
-              {studioQuotesList.map((q) => (
-                <button
-                  key={q.id}
-                  onClick={() => setSelectedQuote(q)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                    selectedQuote.id === q.id
-                      ? 'bg-[#1d1d1f] text-white font-semibold shadow-apple-pill'
-                      : 'bg-black/[0.04] text-[#6e6e73] hover:bg-black/[0.08]'
-                  }`}
-                >
-                  {q.theme[language]}
-                </button>
-              ))}
+            {/* Tier 3: Generalized Topic Filter Pills */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
+                  {t.filterTopicLabel}:
+                </span>
+                <span className="text-[11px] text-[#86868b]">
+                  {filteredQuotes.length} {filteredQuotes.length === 1 ? t.quoteFound : t.quotesFound}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
+                {generalTopicsList.map(topic => {
+                  const isSelected = selectedTopic === topic.id;
+                  return (
+                    <button
+                      key={topic.id}
+                      onClick={() => setSelectedTopic(topic.id)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 transition-all ${
+                        isSelected
+                          ? 'bg-[#1d1d1f] text-white font-semibold shadow-apple-pill'
+                          : 'bg-black/[0.04] text-[#6e6e73] hover:bg-black/[0.08]'
+                      }`}
+                    >
+                      {topic.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Matching Quotes Selector (Selectable Mini-Cards) */}
+            <div className="pt-2 border-t border-black/[0.04]">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] mb-2">
+                {t.matchingQuotes} ({filteredQuotes.length}):
+              </div>
+              {filteredQuotes.length === 0 ? (
+                <div className="py-6 text-center text-xs text-[#86868b] bg-black/[0.02] rounded-xl border border-dashed border-black/[0.08]">
+                  <p>{t.noQuotesMatch}</p>
+                  <button
+                    onClick={handleResetQuoteFilters}
+                    className="mt-2 text-[#0071e3] font-medium hover:underline text-xs"
+                  >
+                    {t.resetFilters}
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+                  {filteredQuotes.map((q) => {
+                    const isSelected = selectedQuote.id === q.id;
+                    const textPreview = language === 'de' ? q.textDe : q.textEn;
+                    return (
+                      <button
+                        key={q.id}
+                        onClick={() => setSelectedQuote(q)}
+                        className={`p-2.5 rounded-xl text-left border transition-all flex flex-col justify-between gap-1.5 ${
+                          isSelected
+                            ? 'bg-blue-50/70 border-[#0071e3] ring-1 ring-[#0071e3]/30 shadow-xs'
+                            : 'bg-white hover:bg-black/[0.02] border-black/[0.06]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2 w-full">
+                          <span className="text-xs font-semibold text-[#1d1d1f] truncate">
+                            {q.theme[language]}
+                          </span>
+                          {q.section && (
+                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-black/[0.05] text-[#86868b] shrink-0">
+                              {q.section[language]}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-[#6e6e73] font-serif italic line-clamp-1">
+                          „{textPreview}“
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
@@ -622,40 +775,105 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       {/* VIEW 3: QUOTE LIBRARY (ZITATESAMMLUNG) */}
       {viewMode === 'quotes' && (
         <div className="space-y-6">
-          {/* Book Filter Pills & Count */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="overflow-x-auto pb-1 custom-scrollbar">
-              <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
-                <button
-                  onClick={() => setQuotesBookFilter('all')}
-                  className={`px-3 py-1 text-xs rounded-full font-medium transition-all ${
-                    quotesBookFilter === 'all'
-                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                  }`}
-                >
-                  {t.allBooks} ({QUOTES_DATA.length})
-                </button>
-                {uniqueBooks.map((b) => (
-                  <button
-                    key={b.de}
-                    onClick={() => setQuotesBookFilter(b.de)}
-                    className={`px-3 py-1 text-xs rounded-full font-medium transition-all ${
-                      quotesBookFilter === b.de
-                        ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                        : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                    }`}
+          {/* Hierarchical Filter Bar: Book, Section & Topic */}
+          <div className="p-4 sm:p-5 bg-white rounded-2xl border border-black/[0.06] shadow-2xs space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-black/[0.04] pb-3.5">
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* 1. Book Filter */}
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] shrink-0">
+                    {t.filterBookLabel}:
+                  </label>
+                  <select
+                    value={selectedBook}
+                    onChange={(e) => handleSelectBook(e.target.value)}
+                    className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer transition-colors"
                   >
-                    {b[language]} ({b.count})
+                    <option value="all">{t.allBooks} ({QUOTES_DATA.length})</option>
+                    {uniqueBooks.map(b => (
+                      <option key={b.de} value={b.de}>
+                        {b[language]} ({b.count})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. Section / Lesson Filter */}
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] shrink-0">
+                    {t.filterSectionLabel}:
+                  </label>
+                  <select
+                    value={selectedSection}
+                    onChange={(e) => setSelectedSection(e.target.value)}
+                    disabled={availableSections.length === 0}
+                    className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <option value="all">{t.allSections} ({availableSections.reduce((acc, s) => acc + s.count, 0)})</option>
+                    {availableSections.map(s => (
+                      <option key={s.de} value={s.de}>
+                        {s[language]} ({s.count})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Reset Filters */}
+                {hasActiveQuoteFilters && (
+                  <button
+                    onClick={handleResetQuoteFilters}
+                    className="flex items-center gap-1 text-[11px] font-medium text-[#0071e3] hover:underline px-2 py-1"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>{t.resetFilters}</span>
                   </button>
-                ))}
+                )}
               </div>
+
+              <span className="text-xs text-[#86868b] font-medium shrink-0 self-end lg:self-auto">
+                {filteredQuotes.length} {filteredQuotes.length === 1 ? t.quoteFound : t.quotesFound}
+              </span>
             </div>
 
-            <span className="text-xs text-[#86868b] font-medium shrink-0 self-end sm:self-auto">
-              {filteredQuotes.length} {filteredQuotes.length === 1 ? t.quoteFound : t.quotesFound}
-            </span>
+            {/* Tier 3: Generalized Topic Filter Pills */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
+                {t.filterTopicLabel}:
+              </span>
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
+                {generalTopicsList.map(topic => {
+                  const isSelected = selectedTopic === topic.id;
+                  return (
+                    <button
+                      key={topic.id}
+                      onClick={() => setSelectedTopic(topic.id)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 transition-all ${
+                        isSelected
+                          ? 'bg-[#1d1d1f] text-white font-semibold shadow-apple-pill'
+                          : 'bg-black/[0.04] text-[#6e6e73] hover:bg-black/[0.08]'
+                      }`}
+                    >
+                      {topic.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
+
+          {/* Empty state if no quotes match */}
+          {filteredQuotes.length === 0 && (
+            <div className="py-12 text-center text-sm text-[#86868b] bg-white rounded-2xl border border-black/[0.06] p-8 space-y-3">
+              <p>{t.noQuotesMatch}</p>
+              <button
+                onClick={handleResetQuoteFilters}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>{t.resetFilters}</span>
+              </button>
+            </div>
+          )}
 
           {/* Quotes Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
@@ -668,9 +886,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-black/[0.04] text-[#1d1d1f]">
-                        {q.theme[language]}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-black/[0.04] text-[#1d1d1f]">
+                          {q.theme[language]}
+                        </span>
+                        {q.section && (
+                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-[#0071e3] border border-blue-100">
+                            {q.section[language]}
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         <span className="text-[11px] text-[#86868b] font-medium">
                           {q.book[language]}
