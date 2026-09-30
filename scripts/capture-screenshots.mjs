@@ -10,9 +10,9 @@ const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 900 }
 ];
 
-const TABS = ['games', 'quotes', 'planner', 'service-arts', 'tools'];
+const TABS = ['home', 'games', 'quotes', 'planner', 'service-arts', 'tools'];
 
-const targetDir = process.argv[2] || 'screenshots/baseline';
+const targetDir = process.argv[2] || 'screenshots/phase-2-3';
 if (!fs.existsSync(targetDir)) {
   fs.mkdirSync(targetDir, { recursive: true });
 }
@@ -31,12 +31,16 @@ async function run() {
     const page = await context.newPage();
 
     for (const tab of TABS) {
-      const url = `http://localhost:3000/#/${tab}`;
+      const url = tab === 'home' ? 'http://localhost:3000/' : `http://localhost:3000/${tab}`;
       console.log(`Capturing ${vp.name} (${vp.width}x${vp.height}) - ${tab}...`);
-      await page.goto(url, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(600); // allow layout & fonts to settle
-      const filename = path.join(targetDir, `${tab}_${vp.name}.png`);
-      await page.screenshot({ path: filename, fullPage: false });
+      try {
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+        await page.waitForTimeout(500); // allow layout & fonts to settle
+        const filename = path.join(targetDir, `${tab}_${vp.name}.png`);
+        await page.screenshot({ path: filename, fullPage: false, timeout: 8000 });
+      } catch (err) {
+        console.warn(`Warning capturing ${tab} on ${vp.name}:`, err.message);
+      }
     }
 
     await context.close();

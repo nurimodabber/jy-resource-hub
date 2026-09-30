@@ -13,6 +13,8 @@ interface GamesViewProps {
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
   showOnlyFavorites: boolean;
   onClearShowOnlyFavorites?: () => void;
+  selectedGameId?: string | null;
+  onSelectGame?: (game: Game | null) => void;
 }
 
 export const GamesView: React.FC<GamesViewProps> = ({
@@ -22,11 +24,28 @@ export const GamesView: React.FC<GamesViewProps> = ({
   onToggleFavorite,
   showOnlyFavorites,
   onClearShowOnlyFavorites,
+  selectedGameId,
+  onSelectGame,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<GameCategory | 'all'>('all');
   const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel | 'all'>('all');
   const [onlyInstantPrep, setOnlyInstantPrep] = useState(false);
-  const [activeGame, setActiveGame] = useState<Game | null>(null);
+  const [activeGame, setActiveGame] = useState<Game | null>(() => {
+    if (selectedGameId) {
+      return GAMES_DATA.find((g) => g.id === selectedGameId) || null;
+    }
+    return null;
+  });
+
+  // Sync with selectedGameId prop if it changes externally (e.g. back button or deep link)
+  React.useEffect(() => {
+    if (selectedGameId) {
+      const match = GAMES_DATA.find((g) => g.id === selectedGameId);
+      if (match) setActiveGame(match);
+    } else {
+      setActiveGame(null);
+    }
+  }, [selectedGameId]);
 
   const t = UI_TRANSLATIONS[language];
 
@@ -232,7 +251,10 @@ export const GamesView: React.FC<GamesViewProps> = ({
             <GameCard
               key={game.id}
               game={game}
-              onSelect={setActiveGame}
+              onSelect={(g) => {
+                setActiveGame(g);
+                onSelectGame?.(g);
+              }}
               language={language}
               isFavorite={favorites.includes(game.id)}
               onToggleFavorite={onToggleFavorite}
@@ -268,7 +290,10 @@ export const GamesView: React.FC<GamesViewProps> = ({
       {activeGame && (
         <GameModal
           game={activeGame}
-          onClose={() => setActiveGame(null)}
+          onClose={() => {
+            setActiveGame(null);
+            onSelectGame?.(null);
+          }}
           language={language}
           isFavorite={favorites.includes(activeGame.id)}
           onToggleFavorite={onToggleFavorite}

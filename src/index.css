@@ -132,3 +132,18 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(140, 140, 140, 0.45);
 }
+
+/* Phone Landscape Mode (<500px viewport height) */
+@media (max-height: 500px) {
+  .short-nav-rail {
+    display: flex !important;
+  }
+  .short-content-pad {
+    padding-left: 4.5rem !important;
+  }
+}
+@media (min-height: 501px) {
+  .short-nav-rail {
+    display: none !important;
+  }
+}

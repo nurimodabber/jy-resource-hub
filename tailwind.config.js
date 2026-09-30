@@ -99,6 +99,10 @@ export default {
         'apple-pill': '0 2px 8px rgba(0, 0, 0, 0.08)',
         'apple-modal': '0 24px 60px rgba(0, 0, 0, 0.25)',
       },
+      zIndex: {
+        '60': '60',
+        '70': '70',
+      },
     },
   },
   plugins: [],

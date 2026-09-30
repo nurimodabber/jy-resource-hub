@@ -12,8 +12,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
+          vendor: ['react', 'react-dom', 'react-router-dom'],
           lucide: ['lucide-react'],
+          data: [
+            './src/data/games.ts',
+            './src/data/quotes.ts',
+            './src/data/quoteMethods.ts',
+            './src/data/translations.ts',
+          ],
         },
       },
     },

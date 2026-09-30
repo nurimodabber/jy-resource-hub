@@ -19,11 +19,17 @@ Before committing: `npm run check` and `npm run build` must pass.
 
 ## Architecture
 - React 18 + TypeScript + Vite 6 + Tailwind CSS v3 (`tailwind.config.js`, PostCSS), icons from `lucide-react`.
-- Single deploy target: Vercel (`base: '/'` in `vite.config.ts`).
-- Hash-based deep link routing in `src/App.tsx` (`#/games`, `#/quotes`, `#/planner`, `#/service-arts`, `#/tools`), planned migration to React Router in Phase 3.
+- Single deploy target: Vercel (`base: '/'` in `vite.config.ts`, `vercel.json` rewrites for SPA routing).
+- React Router (`react-router-dom`) with clean URLs (`/`, `/games/:id`, `/quotes/:id`, `/planner`, `/service-arts`, `/tools`, `/impressum`, `/datenschutz`) and legacy hash redirection (`#/games` → `/games`).
+- Responsive Shell Architecture:
+  - Phone portrait: fixed `BottomTabBar` (56px + safe-area) with 5 primary destinations (Home, Games, Quotes, Planner, More) and `MoreSheet` for secondary tools, settings and legal pages.
+  - Phone landscape (`short:` / `<500px` height): slim 56px `LeftNavigationRail` + auto-collapsing compact header, providing >320px of vertical space and a 2-column game modal layout.
+  - Desktop & Tablet: top segmented navigation bar + global Command Palette (`⌘K` fuzzy search across games, quotes, methods, service, arts, songs).
+- Calm Home View ("Was brauchst du heute?"): 3-tap Quick Pick (group size, time, energy, no materials) with instant matches, "Surprise me", daily featured quote/method, and community stats.
+- Design System: Dark mode (`ThemeContext` with light/dark/system), semantic CSS tokens (`--bg`, `--surface`, `--accent`), 12px absolute minimum typography floor, 44px coarse touch targets, and accessible primitives (`src/components/ui/` Dialog, Sheet, Button, IconButton, Chip, Badge, Card, etc.).
+- Legal & Privacy: `ImpressumView` and `DatenschutzView` (GDPR compliant, zero cookies, zero external trackers, strict child safeguarding clause).
 - Language (`jy_lang`) and favorites (`jy_favorites`) persist in localStorage; initial favorites start at `[]`. `<html lang>` dynamically updates on language toggle.
-- Views in `src/components/`: `GamesView` (+ `GameCard`, `GameModal`, `EmpireBoard`), `QuotesView`
-  (+ interactive simulators in `components/quotes/`), `SessionBuilder`, `ServiceArtsView`, `ToolkitsView`, `BahaiSongsModal`, `Navbar`, `Logo`.
+- Views in `src/components/`: `HomeView`, `GamesView` (+ `GameCard`, `GameModal`, `EmpireBoard`), `QuotesView` (+ interactive simulators in `components/quotes/`), `SessionBuilder`, `ServiceArtsView`, `ToolkitsView`, `ImpressumView`, `DatenschutzView`, `BahaiSongsModal`, `Navbar`, `BottomTabBar`, `LeftNavigationRail`, `MoreSheet`, `CommandPalette`.
 - **All content lives in typed data files** `src/data/*.ts`; shapes in `src/types.ts`. Bilingual fields are
   `{de, en}` objects (`L`) or `{de: [], en: []}` (`LA`):
   - `quotes.ts` → `QUOTES_DATA: QuoteItem[]` (~51, grouped by JY text, lessons, and 8 general spiritual topics)
@@ -31,10 +37,9 @@ Before committing: `npm run check` and `npm run build` must pass.
   - `games.ts` → `GAMES_DATA` · `songs.ts` → `DEVOTIONAL_SONGS_DATA`
   - `serviceProjects.ts` → `SERVICE_PROJECTS_DATA` · `artsPrompts.ts` → `ARTS_PROMPTS_DATA`
   - `toolkits.ts` → `EMPIRE_PROMPTS`, `DISCUSSION_CARDS`, `CAMP_BEST_PRACTICES`
-  - `translations.ts` → `UI_TRANSLATIONS.de/en` (UI strings; add both languages, keep key parity)
+  - `translations.ts` → `UI_TRANSLATIONS.de/en` (UI strings; 100% key parity required)
 - Counts are derived dynamically from data arrays (no hard-coded resource counts in views).
-- Design: Apple-style tokens in `tailwind.config.js` (`apple.*`: bg `#f5f5f7`, text `#1d1d1f`, blue `#0071e3`),
-  SF system stack + Playfair Display (Google Fonts).
+- Code splitting: manualChunks splits `vendor` (`react`, `react-dom`, `react-router-dom`), `lucide`, and `data`, keeping the initial entry chunk under 80 KB gzipped.
 
 ## Content rules
 - Quotes: **100% DE/EN parity**, canonical wording from official translations (commit `53afb90`).

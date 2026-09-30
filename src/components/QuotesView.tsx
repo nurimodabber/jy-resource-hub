@@ -23,6 +23,8 @@ interface QuotesViewProps {
   favorites: string[];
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
   showOnlyFavorites: boolean;
+  selectedQuoteId?: string | null;
+  onSelectQuote?: (quote: QuoteItem) => void;
 }
 
 type StudioTool = 'chalkboard' | 'firstLetter' | 'wordPuzzle' | 'imposter' | 'metronome' | 'codeClicker' | 'speedRun';
@@ -33,6 +35,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   favorites,
   onToggleFavorite,
   showOnlyFavorites,
+  selectedQuoteId,
+  onSelectQuote,
 }) => {
   const t = UI_TRANSLATIONS[language];
 
@@ -42,13 +46,38 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   // Active Interactive Tool inside the Studio
   const [activeTool, setActiveTool] = useState<StudioTool>('chalkboard');
 
+  // Selected practice quote
+  const [selectedQuote, setSelectedQuote] = useState<QuoteItem>(() => {
+    if (selectedQuoteId) {
+      const match = QUOTES_DATA.find((q) => q.id === selectedQuoteId);
+      if (match) return match;
+    }
+    return QUOTES_DATA[0];
+  });
+
+  // Sync when selectedQuoteId changes externally
+  useEffect(() => {
+    if (selectedQuoteId) {
+      const match = QUOTES_DATA.find((q) => q.id === selectedQuoteId);
+      if (match) {
+        setSelectedQuote(match);
+        setViewMode('studio');
+      }
+    }
+  }, [selectedQuoteId]);
+
+  // Notify parent of selected quote change
+  useEffect(() => {
+    if (selectedQuote && onSelectQuote) {
+      onSelectQuote(selectedQuote);
+    }
+  }, [selectedQuote, onSelectQuote]);
+
   // Phase & Modality filter for methods view
   const [selectedPhase, setSelectedPhase] = useState<QuotePhase | 'all'>('all');
   const [selectedModality, setSelectedModality] = useState<string>('all');
   const [expandedMethodId, setExpandedMethodId] = useState<string | null>('wort-mind');
   
-  // Selected practice quote
-  const [selectedQuote, setSelectedQuote] = useState<QuoteItem>(QUOTES_DATA[0]);
   const [copiedQuoteId, setCopiedQuoteId] = useState<string | null>(null);
 
   // Hierarchical Quote Filter States: 1. Book -> 2. Section/Lesson -> 3. Generalized Topic
