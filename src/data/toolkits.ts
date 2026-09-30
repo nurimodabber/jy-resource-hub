@@ -265,6 +265,192 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       de: 'Initiative & Mut',
       en: 'Courage & Agency'
     }
+  },
+  {
+    id: 'digital-media-focus',
+    title: {
+      de: 'Digitale Welt & geistige Wachsamkeit',
+      en: 'Digital Life & Moral Focus'
+    },
+    quoteSnippet: {
+      de: '„Macht eure Augen zu Wächtern eures Geistes, damit nicht die Bilder der Vergänglichkeit euer inneres Sehvermögen trüben.“',
+      en: '"Guard your inner vision against the endless torrent of fleeting illusions that scatter moral focus."'
+    },
+    coreQuestion: {
+      de: 'Wann bereichert Technologie unser Leben und wo raubt sie uns heimlich Zeit, Ruhe und echte Verbindung?',
+      en: 'Where does digital technology genuinely enrich our growth, and where does it stealthily steal our attention and deep peace?'
+    },
+    deepeningQuestions: {
+      de: [
+        'Wie fühlt sich dein Geist nach zwei Stunden endlosem Scrollen auf Social Media an – erfrischt oder leer?',
+        'Wie können wir bewusste Grenzen setzen, um Herr über unsere Zeit zu bleiben statt ihr Gefangener?',
+        'Wie können wir soziale Medien kreativ nutzen, um Positives und Geistiges zu teilen?'
+      ],
+      en: [
+        'How does your mind truly feel after two continuous hours of social media feeds—uplifted or depleted?',
+        'What disciplined habits help us remain conscious masters of our digital tools rather than their passive captives?',
+        'How could our youth group leverage media to broadcast light, encouragement, and unity?'
+      ]
+    },
+    theme: {
+      de: 'Medien & Klarheit',
+      en: 'Digital Clarity'
+    }
+  },
+  {
+    id: 'true-friendship-cliques',
+    title: {
+      de: 'Wahre Freundschaft vs. Grüppchenbildung',
+      en: 'Noble Friendship vs. Exclusive Cliques'
+    },
+    quoteSnippet: {
+      de: '„Ein wahrer Freund ist wie ein leuchtender Spiegel, der das Gute in deiner Seele widerspiegelt.“',
+      en: '"A faithful friend is a strong defense: and he that hath found such a one hath found a treasure."'
+    },
+    coreQuestion: {
+      de: 'Woran erkennt man einen wahren Freund, der dich geistig aufrichtet, im Gegensatz zu bloßen Zweckbündnissen?',
+      en: 'What distinguishes a noble companion who elevates your character from superficial alliances built on convenience?'
+    },
+    deepeningQuestions: {
+      de: [
+        'Warum neigen Cliquen in der Schule dazu, andere abzuwerten, um sich selbst stark zu fühlen?',
+        'Wie können wir in unserer Gruppe eine Kultur leben, in der JEDER neue Gast sofort bedingungslos willkommen ist?',
+        'Was tust du, wenn ein Freund dich zu etwas drängt, das gegen dein Gewissen spricht?'
+      ],
+      en: [
+        'Why do school cliques often belittle outsiders to artificially manufacture belonging?',
+        'How can our circle nurture an open-hearted culture where any newcomer feels warmly and instantly embraced?',
+        'How do you respond when a companion pressures you into choices that violate your conscience?'
+      ]
+    },
+    theme: {
+      de: 'Freundschaft & Einheit',
+      en: 'Noble Friendship'
+    }
+  },
+  {
+    id: 'constructive-speech',
+    title: {
+      de: 'Die Kraft der Zunge: Aufbauen statt Lästern',
+      en: 'The Power of the Tongue: Building vs. Tearing Down'
+    },
+    quoteSnippet: {
+      de: '„Die Zunge ist ein loderndes Feuer, und Mangel an Beherrschung ist wie tödliches Gift.“',
+      en: '"The tongue is a smoldering fire, and an excess of speech a deadly poison."'
+    },
+    coreQuestion: {
+      de: 'Warum ist Lästern (Hinterrücksreden) so ansteckend und wie vergiftet es das Vertrauen in einer Gruppe?',
+      en: 'Why is gossip so casually contagious, and how does it silently corrode mutual trust within a community?'
+    },
+    deepeningQuestions: {
+      de: [
+        'Was bewirkt es in dir, wenn jemand in deiner Gegenwart schlecht über einen Abwesenden spricht?',
+        'Welche sanften, aber klaren Sätze können wir sagen, um ein Gespräch sofort in eine positive Richtung zu lenken?',
+        'Wie fühlt es sich an, zu wissen, dass die eigenen Freunde in Abwesenheit immer gut über einen sprechen?'
+      ],
+      en: [
+        'What shifts in your gut when someone begins dismantling an absent peer\'s character in your presence?',
+        'What gracious yet firm pivot phrases can we deploy to steer conversations back into clean air?',
+        'How does it feel to know with absolute certainty that your group will defend your honor whenever you are absent?'
+      ]
+    },
+    theme: {
+      de: 'Wahrhaftigkeit & Sprache',
+      en: 'Pure Speech'
+    }
+  },
+  {
+    id: 'overcoming-prejudice',
+    title: {
+      de: 'Schönheit der Vielfalt & Abbau von Vorurteilen',
+      en: 'Harmony of Diversity & Overcoming Prejudice'
+    },
+    quoteSnippet: {
+      de: '„Ihr seid die Früchte eines Baumes und die Blätter eines Zweiges. Verhaltet euch zueinander in größter Liebe und Eintracht.“',
+      en: '"Ye are the fruits of one tree, and the leaves of one branch. Deal ye one with another with the utmost love and harmony."'
+    },
+    coreQuestion: {
+      de: 'Wie bereichert die Vielfalt an Herkunft, Persönlichkeiten und Gaben unsere Gruppe, statt Trennung zu erzeugen?',
+      en: 'How does rich diversity of culture, temperaments, and backgrounds beautify a community rather than creating friction?'
+    },
+    deepeningQuestions: {
+      de: [
+        'Wo begegnen uns im Schulalltag subtile Vorurteile oder Stereotypen?',
+        'Warum ist ein Garten mit verschiedenfarbigen Blumen schöner als ein Beet mit nur einer einzigen Blume?',
+        'Wie können wir aktiv voneinander lernen und Brücken zwischen verschiedenen Welten bauen?'
+      ],
+      en: [
+        'Where do subtle stereotypes or assumptions crop up in hallway chatter and social expectations?',
+        'Why is a garden filled with vibrant, contrasting blossoms far more breathtaking than a monochrome lawn?',
+        'How can we proactively inquire into one another\'s stories to dissolve invisible walls?'
+      ]
+    },
+    theme: {
+      de: 'Einheit der Menschheit',
+      en: 'Unity in Diversity'
+    }
+  },
+  {
+    id: 'courage-peer-pressure',
+    title: {
+      de: 'Mut zur Integrität bei Gruppenzwang',
+      en: 'Moral Courage Against Peer Pressure'
+    },
+    quoteSnippet: {
+      de: '„Sei ein Licht für jene, die im Dunkeln wandeln, eine Freude für die Betrübten, ein Meer für die Dürstenden.“',
+      en: '"Be an ornament to the countenance of truth, a crown to the brow of fidelity, a pillar of the temple of righteousness."'
+    },
+    coreQuestion: {
+      de: 'Warum erfordert es oft Heldenmut, ruhig „Nein“ zu sagen, wenn alle anderen etwas Falsches tun?',
+      en: 'Why does speaking a calm, unyielding "No" require supreme heroism when an entire crowd is surging backward?'
+    },
+    deepeningQuestions: {
+      de: [
+        'Welche Situationen fallen dir ein, in denen man Angst hat, uncool oder ein Außenseiter zu wirken?',
+        'Wie können wir diese Angst vor Ablehnung überwinden und inneren Halt finden?',
+        'Wie können wir andere ermutigen, die gerade alleine gegen den Strom schwimmen?'
+      ],
+      en: [
+        'What social scenarios trigger the paralyzing anxiety of being labeled uncool or an outcast?',
+        'How do we anchor our inner sense of worth in transcendent principles rather than fickle peer approval?',
+        'How can we stand visibly alongside someone who is swimming alone against the tide?'
+      ]
+    },
+    theme: {
+      de: 'Mut & Integrität',
+      en: 'Courage & Integrity'
+    }
+  },
+  {
+    id: 'service-joy-fountain',
+    title: {
+      de: 'Die Quelle echter Freude im Dienen',
+      en: 'The Fountain of Joy in Service'
+    },
+    quoteSnippet: {
+      de: '„Erfreut euch daran, den Kummer anderer zu lindern und Freude in die Herzen der Menschen zu bringen.“',
+      en: '"Let your heart burn with loving kindness for all who may cross your path."'
+    },
+    coreQuestion: {
+      de: 'Warum erzeugt das uneigennützige Dienen an anderen eine tiefere und nachhaltigere Freude als reiner Konsum?',
+      en: 'Why does selfless service to others generate a luminous, abiding joy that mere entertainment or consumption can never replicate?'
+    },
+    deepeningQuestions: {
+      de: [
+        'Erinnerst du dich an einen Moment, in dem du völlig vergessen hast, was du selbst wolltest, weil du jemandem geholfen hast?',
+        'Wie verändert das gemeinsame Anpacken für andere die Freundschaft innerhalb unserer Gruppe?',
+        'Welche kleinen Dienste können wir schon morgen früh im Alltag unbemerkt tun?'
+      ],
+      en: [
+        'Can you recall an instance where self-centered anxieties vanished because you were fully absorbed in lifting another?',
+        'How does sweating shoulder-to-shoulder in service forge an unbreakable bond within our youth group?',
+        'What unseen acts of service could each of us sprinkle quietly across our homes tomorrow morning?'
+      ]
+    },
+    theme: {
+      de: 'Dienst & Freude',
+      en: 'Service & Joy'
+    }
   }
 ];
 

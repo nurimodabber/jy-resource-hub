@@ -3,18 +3,33 @@ import { Navbar } from './components/Navbar';
 import { GamesView } from './components/GamesView';
 import { QuotesView } from './components/QuotesView';
 import { SessionBuilder } from './components/SessionBuilder';
+import { ServiceArtsView } from './components/ServiceArtsView';
 import { ToolkitsView } from './components/ToolkitsView';
 import { BahaiSongsModal } from './components/BahaiSongsModal';
-import { Language } from './types';
+import { Language, NavTab, SessionSlot } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
-import { ExternalLink, Music } from 'lucide-react';
+import { Music } from 'lucide-react';
 import { Logo } from './components/Logo';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'games' | 'quotes' | 'planner' | 'toolkits'>('games');
+  // Hash-based deep link routing initialization
+  const [activeTab, setActiveTab] = useState<NavTab>(() => {
+    try {
+      const hash = window.location.hash.replace('#/', '').replace('#', '');
+      const validTabs: NavTab[] = ['games', 'quotes', 'planner', 'service-arts', 'tools'];
+      if (validTabs.includes(hash as NavTab)) {
+        return hash as NavTab;
+      }
+    } catch {
+      // Fallback
+    }
+    return 'games';
+  });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);
-  
+  const [slotToAddToPlanner, setSlotToAddToPlanner] = useState<SessionSlot | null>(null);
+
   // Persistent language
   const [language, setLanguage] = useState<Language>(() => {
     const saved = localStorage.getItem('jy_lang');
@@ -33,7 +48,28 @@ export const App: React.FC = () => {
 
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
 
+  // Update hash when activeTab changes
   useEffect(() => {
+    window.location.hash = `#/${activeTab}`;
+  }, [activeTab]);
+
+  // Listen to external hash changes (e.g. browser back/forward)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#/', '').replace('#', '');
+      const validTabs: NavTab[] = ['games', 'quotes', 'planner', 'service-arts', 'tools'];
+      if (validTabs.includes(hash as NavTab)) {
+        setActiveTab(hash as NavTab);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Sync html lang attribute
+  useEffect(() => {
+    document.documentElement.lang = language;
     localStorage.setItem('jy_lang', language);
   }, [language]);
 
@@ -46,6 +82,12 @@ export const App: React.FC = () => {
     setFavorites(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
+  };
+
+  const handleAddToPlanner = (slot: SessionSlot) => {
+    setSlotToAddToPlanner(slot);
+    setActiveTab('planner');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const t = UI_TRANSLATIONS[language];
@@ -93,10 +135,20 @@ export const App: React.FC = () => {
           <SessionBuilder
             language={language}
             onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
+            externalSlotToAdd={slotToAddToPlanner}
+            onClearExternalSlot={() => setSlotToAddToPlanner(null)}
           />
         )}
 
-        {activeTab === 'toolkits' && (
+        {activeTab === 'service-arts' && (
+          <ServiceArtsView
+            language={language}
+            searchQuery={searchQuery}
+            onAddToPlanner={handleAddToPlanner}
+          />
+        )}
+
+        {activeTab === 'tools' && (
           <ToolkitsView language={language} />
         )}
       </main>

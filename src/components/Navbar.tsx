@@ -1,12 +1,15 @@
-import React from 'react';
-import { Compass, BookOpen, Clock, Layers, Bookmark, Printer, Search, X, Music } from 'lucide-react';
+import React, { useState } from 'react';
+import { 
+  Compass, BookOpen, Clock, Sparkles, Layers, Bookmark, 
+  Printer, Search, X, Music 
+} from 'lucide-react';
 import { Logo } from './Logo';
-import { Language } from '../types';
+import { Language, NavTab } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
 interface NavbarProps {
-  activeTab: 'games' | 'quotes' | 'planner' | 'toolkits';
-  setActiveTab: (tab: 'games' | 'quotes' | 'planner' | 'toolkits') => void;
+  activeTab: NavTab;
+  setActiveTab: (tab: NavTab) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   language: Language;
@@ -29,19 +32,21 @@ export const Navbar: React.FC<NavbarProps> = ({
   setShowOnlyFavorites,
   onOpenBahaiSongs,
 }) => {
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const t = UI_TRANSLATIONS[language];
 
-  const navItems = [
-    { id: 'games' as const, label: t.tabGames, icon: Compass },
-    { id: 'quotes' as const, label: t.tabQuotes, icon: BookOpen },
-    { id: 'planner' as const, label: t.tabPlanner, icon: Clock },
-    { id: 'toolkits' as const, label: t.tabToolkits, icon: Layers },
+  const navItems: { id: NavTab; label: string; icon: React.FC<{ className?: string }> }[] = [
+    { id: 'games', label: t.tabGames, icon: Compass },
+    { id: 'quotes', label: t.tabQuotes, icon: BookOpen },
+    { id: 'planner', label: t.tabPlanner, icon: Clock },
+    { id: 'service-arts', label: t.tabServiceArts, icon: Sparkles },
+    { id: 'tools', label: t.tabTools, icon: Layers },
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-[#f5f5f7]/80 backdrop-blur-xl border-b border-black/[0.06] transition-all print:hidden">
+    <header className="sticky top-0 z-50 bg-[#f5f5f7]/85 backdrop-blur-xl border-b border-black/[0.06] transition-all print:hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-14 gap-3">
+        <div className="flex items-center justify-between h-14 gap-2 sm:gap-3">
           
           {/* Brand */}
           <div 
@@ -51,18 +56,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               setShowOnlyFavorites(false);
             }}
           >
-            <div className="w-9 h-9 rounded-xl bg-white border border-black/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.06)] flex items-center justify-center p-1 transition-transform group-hover:scale-105">
-              <Logo className="w-7 h-7" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white border border-black/[0.08] shadow-[0_1px_2px_rgba(0,0,0,0.06)] flex items-center justify-center p-1 transition-transform group-hover:scale-105">
+              <Logo className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
-              <span className="font-semibold text-sm sm:text-[15px] tracking-tight text-[#1d1d1f] block leading-tight">
+              <span className="font-semibold text-xs sm:text-[15px] tracking-tight text-[#1d1d1f] block leading-tight">
                 {t.siteTitle}
               </span>
             </div>
           </div>
 
-          {/* Segmented Navigation Control (Desktop & Tablet) */}
-          <nav className="hidden md:flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03]">
+          {/* Segmented Navigation Control (Desktop & Large Tablet) */}
+          <nav className="hidden lg:flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03]">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id && !showOnlyFavorites;
@@ -73,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setActiveTab(item.id);
                     setShowOnlyFavorites(false);
                   }}
-                  className={`flex items-center gap-1.5 px-3.5 py-1 text-xs rounded-full font-medium transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-full font-medium transition-all ${
                     isActive
                       ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
                       : 'text-[#6e6e73] hover:text-[#1d1d1f]'
@@ -87,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Search Bar (Desktop) */}
-          <div className="flex-1 max-w-[200px] lg:max-w-xs hidden lg:block">
+          <div className="flex-1 max-w-[180px] xl:max-w-xs hidden md:block">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-[#86868b] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
@@ -109,12 +114,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Right Utilities: Bahá'í Songs, Saved, Language, Print */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Right Utilities: Mobile Search Toggle, Songs, Saved, Language, Print */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {/* Mobile Search Toggle */}
+            <button
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              className="p-1.5 text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-black/[0.05] rounded-full transition-colors md:hidden"
+              aria-label="Search"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
             {/* Bahá'í Songs Pill */}
             <button
               onClick={onOpenBahaiSongs}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] transition-colors"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-medium rounded-full bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] transition-colors"
               title="Bahá'í Songs (bahaisongs.com)"
             >
               <Music className="w-3.5 h-3.5 text-emerald-600" />
@@ -177,9 +191,34 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         </div>
 
-        {/* Mobile Navigation Segmented Control */}
-        <div className="flex md:hidden items-center justify-between pb-2.5 pt-1">
-          <nav className="flex items-center p-1 bg-black/[0.05] rounded-full w-full justify-between">
+        {/* Mobile Search Overlay Bar */}
+        {isMobileSearchOpen && (
+          <div className="pb-2.5 pt-1 md:hidden animate-in fade-in duration-150">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-[#86868b] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t.searchPlaceholder}
+                autoFocus
+                className="w-full pl-8 pr-7 py-2 text-xs rounded-full bg-white border border-black/[0.1] focus:outline-none focus:ring-2 focus:ring-[#0071e3]/20 transition-all text-[#1d1d1f] placeholder:text-[#86868b]"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#86868b] hover:text-[#1d1d1f]"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Mobile & Tablet Navigation Segmented Control */}
+        <div className="flex lg:hidden items-center pb-2.5 pt-1 overflow-x-auto custom-scrollbar">
+          <nav className="flex items-center p-1 bg-black/[0.05] rounded-full w-full justify-between min-w-max">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id && !showOnlyFavorites;
@@ -190,7 +229,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setActiveTab(item.id);
                     setShowOnlyFavorites(false);
                   }}
-                  className={`flex-1 flex items-center justify-center gap-1 py-1 text-xs rounded-full font-medium transition-all ${
+                  className={`flex items-center justify-center gap-1.5 px-3 py-1 text-xs rounded-full font-medium transition-all ${
                     isActive
                       ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
                       : 'text-[#6e6e73]'

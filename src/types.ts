@@ -100,6 +100,8 @@ export interface EmpirePlayer {
   isEliminated: boolean;
 }
 
+export type NavTab = 'games' | 'quotes' | 'planner' | 'service-arts' | 'tools';
+
 export interface DevotionalSong {
   id: string;
   title: LocalizedString;
@@ -115,5 +117,64 @@ export interface DevotionalItem {
   content: LocalizedString;
   source?: LocalizedString;
   songUrl?: string;
+}
+
+export type ServiceProjectCategory = 
+  | 'neighborhood' 
+  | 'environmental' 
+  | 'intergenerational' 
+  | 'children' 
+  | 'institutional' 
+  | 'creative';
+
+export type ServiceProjectScope = 'quick' | 'medium' | 'deep';
+
+export interface ServiceProject {
+  id: string;
+  title: LocalizedString;
+  category: ServiceProjectCategory;
+  scope: ServiceProjectScope;
+  duration: LocalizedString;
+  materials: LocalizedArray;
+  objective: LocalizedString;
+  steps: LocalizedArray;
+  reflectionQuestions: LocalizedArray;
+  animatorTips: LocalizedArray;
+}
+
+export type ArtForm = 'drama' | 'music_poetry' | 'visual_arts' | 'collaborative_mural';
+
+export interface ArtsPrompt {
+  id: string;
+  title: LocalizedString;
+  book: LocalizedString;
+  artForm: ArtForm;
+  theme: LocalizedString;
+  description: LocalizedString;
+  materials: LocalizedArray;
+  guidingSteps: LocalizedArray;
+  reflectionPrompts: LocalizedArray;
+}
+
+export type SessionSlotType = 'warmup' | 'devotional' | 'study' | 'arts_discussion' | 'service' | 'closing';
+
+export interface SessionSlot {
+  id: string;
+  type: SessionSlotType;
+  title: LocalizedString;
+  durationMinutes: number;
+  description: LocalizedString;
+  materials?: LocalizedArray;
+  tips?: LocalizedString;
+  referenceId?: string;
+  referenceType?: 'game' | 'quote' | 'method' | 'song' | 'service' | 'art';
+}
+
+export interface SessionPreset {
+  id: string;
+  title: LocalizedString;
+  focus: LocalizedString;
+  totalDuration: number;
+  slots: SessionSlot[];
 }
 
