@@ -1,515 +1,9 @@
 import { Game } from '../types';
 
 export const GAMES_DATA: Game[] = [
-  // 1. Wer bin ich
-  {
-    id: 'wer-bin-ich',
-    title: {
-      de: 'Wer bin ich?',
-      en: 'Who Am I?'
-    },
-    category: 'social_deduction',
-    energyLevel: 'calm',
-    groupSize: { min: 4, max: 25 },
-    prepLevel: 'low_prep',
-    materials: {
-      de: ['Haftnotizen (Post-its)', 'Stifte'],
-      en: ['Sticky notes', 'Pens']
-    },
-    durationMinutes: '15–25 Min',
-    space: {
-      de: 'Sitzkreis',
-      en: 'Seated circle'
-    },
-    summary: {
-      de: 'Jeder trägt den Namen einer bekannten Persönlichkeit oder eines Begriffs auf der Stirn und muss durch geschickte Ja/Nein-Fragen die eigene Identität erraten.',
-      en: 'Each person wears the name of a character or object on their forehead, deducing their identity using strictly yes/no questions.'
-    },
-    idea: {
-      de: 'Klassisches Deduktionsspiel, das logisches Ausschließen und präzises Fragen schult.',
-      en: 'Classic deduction game training logical elimination and precise questioning.'
-    },
-    rules: {
-      de: [
-        'Jeder schreibt geheim eine bekannte Persönlichkeit, Figur oder einen Gegenstand auf einen Klebezettel und klebt ihn seinem Nachbarn auf die Stirn.',
-        'Niemand darf den Zettel auf der eigenen Stirn vorher sehen.',
-        'Reihum stellt jeder genau eine Frage, die die Gruppe nur mit „Ja“ oder „Nein“ beantworten darf (z. B. „Lebe ich noch?“, „Bin ich ein Mensch?“).',
-        'Lautet die Antwort „Ja“, darf man sofort eine weitere Frage stellen. Bei „Nein“ wechselt der Zug im Uhrzeigersinn.',
-        'Wer seine Identität errät, darf den Zettel abnehmen und hilft den anderen beim Raten.'
-      ],
-      en: [
-        'Each player secretly writes a well-known figure, character, or object on a sticky note and attaches it to their neighbor’s forehead.',
-        'No one may look at the note on their own forehead.',
-        'Taking turns, each player asks one question that the group can only answer with "Yes" or "No" (e.g. "Am I alive?", "Am I fictional?").',
-        'If the answer is "Yes", the player may ask one more question. On "No", the turn passes clockwise.',
-        'Once a player deduces their identity, they remove their note and assist remaining players.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Für Jugendgruppen funktioniert es am besten mit historischen Persönlichkeiten, Tugenden oder Figuren aus Geschichten.',
-        'Ermutigt die Jugendlichen, von groben Kategorien (z. B. lebendig/fiktiv) zu spezifischen Merkmalen zu fragen.'
-      ],
-      en: [
-        'Works exceptionally well when themed around historical figures, virtues, or storybook characters.',
-        'Encourage youth to start with broad binary categories before guessing specific names.'
-      ]
-    }
-  },
-
-  // 2. Werwolf
-  {
-    id: 'werwolf',
-    title: {
-      de: 'Die Werwölfe vom Düsterwald',
-      en: 'Werewolf'
-    },
-    category: 'social_deduction',
-    energyLevel: 'medium',
-    groupSize: { min: 8, max: 25 },
-    prepLevel: 'low_prep',
-    materials: {
-      de: ['Werwolf-Karten oder beschriftete Zettel'],
-      en: ['Role cards or written slips']
-    },
-    durationMinutes: '25–45 Min',
-    space: {
-      de: 'Ruhiger Raum mit Sitzkreis',
-      en: 'Quiet room with seated circle'
-    },
-    summary: {
-      de: 'Dorfbewohner versuchen heimliche Werwölfe in ihren Reihen zu entlarven, bevor das Dorf überrannt wird.',
-      en: 'Villagers work to deduce and eliminate secret werewolves lurking among them before it is too late.'
-    },
-    idea: {
-      de: 'Fördert überzeugende Gesprächsführung, aufmerksames Beobachten und argumentative Standhaftigkeit.',
-      en: 'Develops persuasive argumentation, keen observation, and debate discipline.'
-    },
-    rules: {
-      de: [
-        'Jeder erhält geheim eine Rollenkarte (z. B. Dorfbewohner, Werwolf, Seherin, Hexe).',
-        'Nachtphase: Alle schließen die Augen. Der Spielleiter ruft nacheinander die Sonderrollen auf. Die Werwölfe einigen sich stumm auf ein Opfer.',
-        'Tagphase: Das Dorf erwacht. Der Spielleiter berichtet vom nächtlichen Vorfall.',
-        'Die Gruppe diskutiert und stimmt demokratisch ab, wer verdächtigt und aus dem Dorf verbannt wird.',
-        'Die Dorfbewohner gewinnen, wenn alle Wölfe enttarnt sind; die Wölfe gewinnen bei Parität.'
-      ],
-      en: [
-        'Each participant secretly draws a role card (e.g. Villager, Werewolf, Seer, Witch).',
-        'Night Phase: Everyone closes their eyes. The narrator wakes special roles in sequence. The werewolves silently pick a victim.',
-        'Day Phase: The village awakens. The narrator describes the event.',
-        'The village engages in open debate and holds a vote to eliminate one suspected player.',
-        'Villagers win when all wolves are eliminated; wolves win if they reach parity with villagers.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Schafft eine stimmungsvolle Atmosphäre mit gedämpftem Licht und ruhiger Moderation.',
-        'Ausgeschiedene Spieler agieren als stumme Geister, um keine Hinweise zu verraten.'
-      ],
-      en: [
-        'Create atmosphere with ambient lighting and immersive narration.',
-        'Remind eliminated players to remain completely silent observers so mystery remains intact.'
-      ]
-    },
-    isFavoriteDefault: true
-  },
-
-  // 3. Spion
-  {
-    id: 'spion',
-    title: {
-      de: 'Spion (Spyfall)',
-      en: 'Spyfall'
-    },
-    category: 'social_deduction',
-    energyLevel: 'medium',
-    groupSize: { min: 5, max: 12 },
-    prepLevel: 'low_prep',
-    materials: {
-      de: ['Zettel mit Ort für jeden Mitspieler, einer davon als „Spion“ markiert'],
-      en: ['Location slips for everyone, one marked "Spy"']
-    },
-    durationMinutes: '15–20 Min',
-    space: {
-      de: 'Sitzkreis',
-      en: 'Seated circle'
-    },
-    summary: {
-      de: 'Alle kennen den geheimen Ort (z. B. Bibliothek, U-Boot, Flughafen) – außer dem Spion! Durch clevere Fragen muss er enttarnt werden.',
-      en: 'Everyone knows the secret location (e.g. library, submarine, airport)—except the spy, who must bluff and deduce the location.'
-    },
-    idea: {
-      de: 'Trainiert sprachliche Genauigkeit, schnelles Mitdenken und subtiles Nachfragen ohne direkte Verratshinweise.',
-      en: 'Cultivates linguistic precision, deductive reasoning, and subtle questioning.'
-    },
-    rules: {
-      de: [
-        'Jeder zieht verdeckt eine Karte. Alle zeigen denselben Ort, nur eine einzige sagt „SPION“.',
-        'Reihum stellt ein Spieler einem anderen eine freie Frage (z. B. „Trägt man an diesem Ort spezielle Kleidung?“).',
-        'Die Antwort muss so gewählt sein, dass Eingeweihte den Ort erkennen, der Spion ihn aber nicht errät.',
-        'Nach 8 Minuten stimmt die Runde ab, wer der Spion ist. Erkennt der Spion vorher den Ort, siegt er sofort.'
-      ],
-      en: [
-        'Each player secretly receives a card. All cards have the same location; one card reads "SPY".',
-        'In turn, a player asks another player a question (e.g. "Do people wear uniforms here?").',
-        'Answers must be subtle enough that insiders confirm knowledge without tipping off the spy.',
-        'After 8 minutes, the group votes on the spy’s identity. If the spy deduces the location first, they win instantly.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Hervorragend für Jugendliche, weil niemand vorzeitig ausscheidet und alle durchgehend mitdenken.',
-        'Wählt Orte aus dem Alltag der Jugendlichen oder thematisch passend zum Camp.'
-      ],
-      en: [
-        'Great for teenagers because no one is eliminated early and everyone remains mentally engaged.',
-        'Choose relatable everyday locations or themes connected to your camp setting.'
-      ]
-    }
-  },
-
-  // 4. Psychiater
-  {
-    id: 'psychiater',
-    title: {
-      de: 'Der Psychiater',
-      en: 'The Psychiatrist'
-    },
-    category: 'social_deduction',
-    energyLevel: 'calm',
-    groupSize: { min: 6, max: 20 },
-    prepLevel: 'instant',
-    materials: {
-      de: ['Keine'],
-      en: ['None']
-    },
-    durationMinutes: '15–25 Min',
-    space: {
-      de: 'Sitzkreis',
-      en: 'Seated circle'
-    },
-    summary: {
-      de: 'Ein Ermittler verlässt den Raum. Die Gruppe vereinbart ein gemeinsames Antwortmuster, das durch geschickte Fragen durchschaut werden muss.',
-      en: 'An investigator leaves the room. The group agrees on a shared behavioral code that must be diagnosed through questioning.'
-    },
-    idea: {
-      de: 'Ein humorvolles Denkspiel, das logische Mustererkennung und Beobachtungsgabe fördert.',
-      en: 'A witty deduction activity enhancing pattern recognition and social observation.'
-    },
-    rules: {
-      de: [
-        'Ein Freiwilliger verlässt den Raum, sodass er nichts hört.',
-        'Die Gruppe vereinbart ein klares Muster (z. B. „Jeder antwortet so, als wäre er sein linker Sitznachbar“).',
-        'Der Ermittler kommt zurück und stellt beliebige persönliche Fragen in die Runde.',
-        'Fällt einem Mitspieler auf, dass sein Nachbar falsch geantwortet hat, ruft er „PSYCHIATER!“ – woraufhin alle panisch die Plätze tauschen.',
-        'Ziel ist es, das dahinterliegende System zu benennen.'
-      ],
-      en: [
-        'One volunteer steps completely out of earshot.',
-        'The group agrees on a consistent answer rule (e.g. "Answer as if you are the person to your left").',
-        'The investigator returns and poses questions around the circle.',
-        'If a participant notices someone answered incorrectly on their behalf, they shout "PSYCHIATRIST!", triggering a seat scramble.',
-        'The goal is to accurately diagnose the hidden answering pattern.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Die Regel „Ich antworte für meinen linken Nachbarn“ ist der beste und bewährteste Einstieg.',
-        'Niemand wird bloßgestellt, da alle als Team das Muster aufrechterhalten.'
-      ],
-      en: [
-        'Answering as the person to one’s left is the most reliable and humorous starting variation.',
-        'No participant feels singled out, as the entire room upholds the code together.'
-      ]
-    }
-  },
-
-  // 5. Empire
-  {
-    id: 'empire',
-    title: {
-      de: 'Empire (Das geheime Königreich)',
-      en: 'Empire (The Secret Kingdom)'
-    },
-    category: 'social_deduction',
-    energyLevel: 'medium',
-    groupSize: { min: 8, max: 30 },
-    prepLevel: 'low_prep',
-    materials: {
-      de: ['Kleine Zettel', 'Stifte', 'Optional: Empire-Board im Toolkit'],
-      en: ['Paper slips', 'Pens', 'Optional: In-app Empire Board']
-    },
-    durationMinutes: '20–40 Min',
-    space: {
-      de: 'Sitzkreis in einem Raum',
-      en: 'Indoor seated circle'
-    },
-    summary: {
-      de: 'Jeder schreibt geheim einen Begriff oder Namen zu einem Thema auf. Wer die Identitäten errät, gliedert die Spieler in das eigene Reich ein.',
-      en: 'Each person writes down a secret identity or phrase. Players guess who submitted what, absorbing members into expanding empires.'
-    },
-    idea: {
-      de: 'Verbindet Beobachtungsgabe, Gedächtnis und Humor. Lässt sich durch jugendrelevante Themenkarten exzellent anpassen.',
-      en: 'Combines deduction, memory, and group wit. Enhanced by modern teen-relevant category prompts.'
-    },
-    rules: {
-      de: [
-        'Jeder erhält einen Zettel und notiert verdeckt einen Begriff zu einer gewählten Kategorie (z. B. „Schlechteste Ausreden“).',
-        'Die Spielleitung sammelt alle Zettel ein und liest alle genannten Begriffe zweimal deutlich vor.',
-        'Reihum fragt ein Spieler einen anderen: „Bist du [Begriff]?“.',
-        'Bei einem Treffer schließt sich die erratene Person dem Team des Fragenden an. Der Fragende darf weiterraten.',
-        'Liegt man falsch, ist der nächste Spieler im Kreis an der Reihe.',
-        'Wird der König eines Reiches erraten, wechselt dessen gesamtes Gefolge zum neuen Besitzer über.'
-      ],
-      en: [
-        'Everyone receives a slip and privately writes a concept from the chosen category (e.g. "Terrible Excuses").',
-        'The host collects all slips and reads the complete list twice clearly to the room.',
-        'Taking turns around the circle, Player A asks Player B: "Are you [Alias]?".',
-        'If correct, Player B joins Player A’s kingdom. Player A continues guessing.',
-        'If incorrect, the turn passes to the next person in the circle.',
-        'If a reigning King is correctly identified, their entire empire joins the guesser’s kingdom.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Nutzt das interaktive Empire-Board im Reiter „Praxis-Toolkits“ – so muss die Liste nicht ständig wiederholt werden.',
-        'Die Mitglieder eines Reiches dürfen ihren König leise beraten, aber nur der König spricht die Vermutung laut aus.'
-      ],
-      en: [
-        'Use the interactive Empire Board in the "Field Toolkits" tab to display names on screen without constant interruptions.',
-        'Empire subjects may quietly consult their king, but only the king states the official guess.'
-      ]
-    },
-    isFavoriteDefault: true
-  },
-
-  // 6. Schere Stein Papier Showdown
-  {
-    id: 'ssp-showdown',
-    title: {
-      de: 'Schere-Stein-Papier Fankurve',
-      en: 'Rock Paper Scissors Cheering Train'
-    },
-    category: 'competitive',
-    energyLevel: 'high',
-    groupSize: { min: 10, max: 80 },
-    prepLevel: 'instant',
-    materials: {
-      de: ['Keine'],
-      en: ['None']
-    },
-    durationMinutes: '7–12 Min',
-    space: {
-      de: 'Überall möglich',
-      en: 'Any open space'
-    },
-    summary: {
-      de: 'Jeder Verlierer eines Duells schließt sich sofort als Fan hinter dem Gewinner an, bis zwei riesige Fangruppen im Finale aufeinandertreffen.',
-      en: 'Every player who loses a duel joins as a fan behind the winner, building massive cheering trains that collide in a dramatic finale.'
-    },
-    idea: {
-      de: 'Verwandelt ein simples Duellspiel in ein mitreißendes Gemeinschaftserlebnis, bei dem niemand ausscheidet.',
-      en: 'Turns a basic duel into an electrifying group experience where nobody feels left out.'
-    },
-    rules: {
-      de: [
-        'Jeder sucht sich einen Partner und spielt eine Runde Schere-Stein-Papier.',
-        'Die unterlegene Person stellt sich sofort hinter den Sieger und feuert ihn mit Namen an.',
-        'Der Sieger (nun mit Gefolge) fordert einen anderen Spieler heraus, der ebenfalls Fans hinter sich hat.',
-        'Die Schlangen wachsen bei jedem Duell, bis sich im großen Finale zwei Chöre gegenüberstehen.'
-      ],
-      en: [
-        'Pair up with anyone nearby and play a single round of Rock-Paper-Scissors.',
-        'The player who does not win immediately steps behind the winner, cheering their name.',
-        'The winner (now leading a chain) challenges another leader who also has a cheering squad.',
-        'Chains merge and grow with every duel, culminating in an epic two-sided championship clash.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Ermutigt die Jugendlichen, lautstark den Namen ihres Champions zu rufen.',
-        'Hervorragend geeignet als Wachmacher nach langen Sitzphasen oder zu Beginn eines Camps.'
-      ],
-      en: [
-        'Encourage youth to chant the name of their champion with genuine volume.',
-        'Ideal as a wake-up activity after quiet reflection or opening a camp day.'
-      ]
-    },
-    isFavoriteDefault: true
-  },
-
-  // 7. Schnick Schnack Schnuck Evolution
-  {
-    id: 'ssp-evolution',
-    title: {
-      de: 'Schnick-Schnack-Schnuck Evolution',
-      en: 'Rock Paper Scissors Evolution'
-    },
-    category: 'energizer',
-    energyLevel: 'high',
-    groupSize: { min: 8, max: 60 },
-    prepLevel: 'instant',
-    materials: {
-      de: ['Keine'],
-      en: ['None']
-    },
-    durationMinutes: '5–10 Min',
-    space: {
-      de: 'Freie Fläche (drinnen oder draußen)',
-      en: 'Open space (indoor or outdoor)'
-    },
-    summary: {
-      de: 'Alle beginnen auf Stufe 1 am Boden und steigen durch gewonnene Duelle über Huhn und Affe bis zum aufrechten Menschen auf.',
-      en: 'Everyone begins crouching on level 1, advancing through duels from egg to chicken, ape, and upright human.'
-    },
-    idea: {
-      de: 'Ein schneller Bewegungseisbrecher, der alle sofort in Interaktion bringt und jegliche Hemmungen abbaut.',
-      en: 'A rapid movement icebreaker that immediately gets everyone moving and breaks social hesitation.'
-    },
-    rules: {
-      de: [
-        'Alle starten auf Stufe 1 als „Ei“ (in der Hocke watschelnd).',
-        'Man sucht sich ein anderes Ei und spielt eine Runde Schere-Stein-Papier.',
-        'Wer gewinnt, steigt eine Entwicklungsstufe auf: Ei ➔ Huhn (mit den Armen gackernd) ➔ Affe (hüpfend) ➔ Mensch (aufrecht, gibt die Hand).',
-        'Wer verliert, bleibt auf der Stufe und sucht sofort einen neuen Spielpartner auf gleicher Stufe.',
-        'Wer als Mensch das Duell gewinnt, hat die Evolution gemeistert und feuert die anderen an.'
-      ],
-      en: [
-        'Everyone starts at level 1 as an "Egg" (waddling in a low crouch).',
-        'Find another egg and play one round of Rock-Paper-Scissors.',
-        'The winner advances one stage: Egg ➔ Chicken (flapping elbows) ➔ Ape (hopping) ➔ Human (standing tall, shaking hands).',
-        'The player who does not win stays on their current stage and immediately looks for another player at the same level.',
-        'Humans who win their duel have completed the evolution and step to the side to cheer.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Gruppenleiter sollten die Haltungen und Laute selbst mit Humor vormachen – das nimmt den Jugendlichen sofort die Befangenheit.',
-        'Darauf achten, dass immer nur Spieler auf derselben Stufe gegeneinander antreten.'
-      ],
-      en: [
-        'Facilitators should enthusiastically demonstrate the movement styles—this immediately relieves self-consciousness.',
-        'Ensure participants only challenge peers on the exact same developmental stage.'
-      ]
-    },
-    isFavoriteDefault: true
-  },
-
-  // 8. Salad Bowl
-  {
-    id: 'salad-bowl',
-    title: {
-      de: 'Salad Bowl (Wörter-Staffel)',
-      en: 'Salad Bowl (Three-Round Catchphrase)'
-    },
-    category: 'competitive',
-    energyLevel: 'high',
-    groupSize: { min: 6, max: 24 },
-    prepLevel: 'low_prep',
-    materials: {
-      de: ['Eine Schüssel', 'Zettel & Stifte', 'Timer'],
-      en: ['Bowl', 'Paper slips & pens', 'Timer']
-    },
-    durationMinutes: '25–40 Min',
-    space: {
-      de: 'Sitzgelegenheiten für zwei Teams',
-      en: 'Seating for two teams'
-    },
-    summary: {
-      de: 'Dieselbe Sammlung von Begriffen wird über drei Runden erraten: Erst normale Erklärung, dann nur 1 einziges Wort, dann reine Pantomime.',
-      en: 'The exact same pool of concepts is guessed across three escalating rounds: full verbal clues, a single word, and pure pantomime.'
-    },
-    idea: {
-      de: 'Weil die Begriffe in den späteren Runden bereits bekannt sind, steigt das Spieltempo und der Wiedererkennungswert rasant an.',
-      en: 'Because the vocabulary is familiar from round 1, rounds 2 and 3 produce lightning-fast associations and shared laughter.'
-    },
-    rules: {
-      de: [
-        'Jeder schreibt 3 Begriffe auf Zettel und wirft sie in die Schüssel.',
-        'Zwei Teams spielen abwechselnd mit 60 Sekunden Zeit pro Durchgang.',
-        'Runde 1: Freie sprachliche Umschreibung (ohne Wortteile zu nennen).',
-        'Runde 2: Alle Zettel kommen zurück. Der Erklärer darf nur genau EIN einziges Wort sagen.',
-        'Runde 3: Alle Zettel kommen erneut zurück. Reines Pantomimespiel ohne Sprache oder Geräusche.',
-        'Das Team mit den meisten Gesamtpunkten gewinnt.'
-      ],
-      en: [
-        'Each player contributes 3 concepts onto slips and places them in the bowl.',
-        'Two teams take alternating 60-second turns to guess as many slips as possible.',
-        'Round 1: Open verbal description (no rhyming or root words).',
-        'Round 2: All slips return to the bowl. The clue-giver may only speak ONE single word.',
-        'Round 3: All slips return again. Pure pantomime with absolute silence.',
-        'The team with the highest cumulative total across three rounds wins.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Ermutigt die Jugendlichen, auch gemeinsame Camp-Erlebnisse oder Insider-Begriffe aufzuschreiben.',
-        'Ein klarer Timer auf dem Smartphone sorgt für Transparenz und Spannung.'
-      ],
-      en: [
-        'Encourage youth to include shared camp memories or inside jokes on their slips.',
-        'Display a visible smartphone countdown timer for fair competition.'
-      ]
-    },
-    isFavoriteDefault: true
-  },
-
-  // 9. Schlafmütze (Mörder in der Runde)
-  {
-    id: 'schlafmuetze-moerder',
-    title: {
-      de: 'Mörder in der Runde (Zwinkerspiel)',
-      en: 'Wink Murder'
-    },
-    category: 'social_deduction',
-    energyLevel: 'calm',
-    groupSize: { min: 8, max: 25 },
-    prepLevel: 'low_prep',
-    materials: {
-      de: ['Spielkarten oder Zettel zur Rollenvergabe'],
-      en: ['Playing cards or secret slips for role distribution']
-    },
-    durationMinutes: '15–20 Min',
-    space: {
-      de: 'Sitzkreis mit gutem Blickkontakt',
-      en: 'Seated circle with clear sightlines'
-    },
-    summary: {
-      de: 'Ein geheimer Täter schaltet Mitspieler durch unauffälliges Zuzwinkern aus. Ein Detektiv (oder die Gruppe) muss ihn überführen.',
-      en: 'A secret culprit eliminates players by discreetly winking at them while a detective tries to catch them.'
-    },
-    idea: {
-      de: 'Schult intensive Blickkontakte, Körpersprache und ruhige Beobachtung im Raum.',
-      en: 'Develops visual acuity, subtle body language observation, and quiet tension in the room.'
-    },
-    rules: {
-      de: [
-        'Alle ziehen verdeckt eine Karte. Eine Person zieht das As (Täter), alle anderen sind Zivilisten.',
-        'Variante mit Detektiv: Ein Detektiv steht in der Mitte des Kreises.',
-        'Alle Spieler schauen sich im Kreis in die Augen. Der Täter versucht, Personen unbemerkt zuzuzwinkern.',
-        'Wem zugezwinkert wurde, zählt innerlich bis drei und scheidet dann dramatisch aus.',
-        'Der Detektiv hat 3 Versuche, den Täter zu entlarven. Schafft der Täter es, die Mehrheit auszuschalten, gewinnt er.'
-      ],
-      en: [
-        'Each player draws a secret card. One card is the Ace (Culprit), all others are civilians.',
-        'Detective variation: One detective stands in the center of the circle.',
-        'Everyone makes continuous eye contact around the circle. The culprit tries to wink at players without getting caught.',
-        'When winked at, a player waits three seconds before dramatically collapsing or stepping out.',
-        'The detective has 3 guesses to identify the winker before too many players fall.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Wichtig: Die Spieler dürfen nicht sofort nach dem Zwinkern umfallen, sondern müssen 2–3 Sekunden verzögern, um es spannend zu halten.',
-        'Toll als entspannter Einstieg oder zur Konzentrationssammlung.'
-      ],
-      en: [
-        'Crucial rule: Victims must delay their reaction by 2–3 seconds so the culprit’s identity is not immediately obvious.',
-        'Great as a low-energy bridge activity to regain shared focus.'
-      ]
-    }
-  },
-
+  // =========================================================================
+  // 1. KOOPERATIVE SPIELE (TEAMBUILDING, VERTRAUEN & ZUSAMMENARBEIT) - 17 SPIELE
+  // =========================================================================
   // 10. Menschlicher Knoten
   {
     id: 'menschlicher-knoten',
@@ -562,116 +56,6 @@ export const GAMES_DATA: Game[] = [
       en: [
         'Emphasize gentle coordination: avoid pulling or twisting violently.',
         'If hopelessly tangled, the facilitator may perform one "surgical cut", temporarily disconnecting and reconnecting a single grip.'
-      ]
-    }
-  },
-
-  // 11. Hi Ha Ho
-  {
-    id: 'hi-ha-ho',
-    title: {
-      de: 'Hi – Ha – Ho (Rhythmus-Duell)',
-      en: 'Hi – Ha – Ho'
-    },
-    category: 'competitive',
-    energyLevel: 'high',
-    groupSize: { min: 6, max: 20 },
-    prepLevel: 'instant',
-    materials: {
-      de: ['Keine'],
-      en: ['None']
-    },
-    durationMinutes: '10–15 Min',
-    space: {
-      de: 'Fester Stehkreis',
-      en: 'Standing circle'
-    },
-    summary: {
-      de: 'Hochenergetisches Reaktionsspiel im Kreis mit festen Lauten und Schnitten. Trainiert blitzschnelle Wachheit.',
-      en: 'Fast-paced rhythmic reaction game in a circle using rapid sword-like poses and acoustic calls.'
-    },
-    idea: {
-      de: 'Stresst das Kurzzeitgedächtnis positiv und bringt schlagartig maximale Wachheit in den Raum.',
-      en: 'Engages short-term memory and sharp reflexes, instantly lifting group alertness.'
-    },
-    rules: {
-      de: [
-        'Alle stehen im Kreis. Person A faltet die Hände über dem Kopf, schlägt in Richtung Person B und ruft laut „HI!“.',
-        'Person B hebt sofort die Arme über den Kopf in Abwehrhaltung. Die beiden direkten Nachbarn von B müssen blitzschnell einen Schnitt auf Bs Bauch ausführen und laut „HA!“ rufen.',
-        'Person B schlägt nun sofort wieder auf eine andere Person im Kreis mit „HO!“.',
-        'Wer zögert, das falsche Wort ruft oder seinen Einsatz verpasst, scheidet aus oder macht eine kurze sportliche Revanche.'
-      ],
-      en: [
-        'Stand in a circle. Player A raises hands overhead and slashes toward Player B shouting "HI!".',
-        'Player B immediately raises their hands in defense. Both immediate neighbors of B must execute horizontal slashes toward B shouting "HA!".',
-        'Player B immediately redirects energy toward a new player shouting "HO!".',
-        'Anyone who hesitates, calls the wrong syllable, or misses their cue steps out or performs a quick exercise.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Startet in moderatem Tempo und zieht nach 2 Minuten das Tempo radikal an.',
-        'Die Jugendlichen lieben die dynamischen Posen und die hohe Lautstärke.'
-      ],
-      en: [
-        'Start at a moderate pace to establish familiarity, then dramatically accelerate after 2 minutes.',
-        'Youth love the dynamic movement stances and the room’s rising volume.'
-      ]
-    }
-  },
-
-  // 12. Ninja
-  {
-    id: 'ninja',
-    title: {
-      de: 'Ninja',
-      en: 'Ninja'
-    },
-    category: 'competitive',
-    energyLevel: 'high',
-    groupSize: { min: 4, max: 18 },
-    prepLevel: 'instant',
-    materials: {
-      de: ['Keine'],
-      en: ['None']
-    },
-    durationMinutes: '10–15 Min',
-    space: {
-      de: 'Ausreichend Bewegungsradius',
-      en: 'Open space with ample movement room'
-    },
-    summary: {
-      de: 'Rundenbasiertes Reaktionsspiel im Kreis mit festen Posen. Versuche in einer fließenden Bewegung die Hand deines Nachbarn abzuschlagen.',
-      en: 'Turn-based reaction game in a circle with frozen stances. In one fluid motion, strike toward an opponent’s hand.'
-    },
-    idea: {
-      de: 'Ein Klassiker bei Freizeiten: Null Materialaufwand und hoher Aufforderungscharakter durch theatralische Posen.',
-      en: 'A camp classic: zero prep, highly engaging, and memorable physical coordination.'
-    },
-    rules: {
-      de: [
-        'Alle stehen im Kreis. Auf das Signal „3, 2, 1, NINJA!“ springen alle zurück in eine Kampfpose.',
-        'Reihum darf jeder genau eine fließende Bewegung ausführen (einen Angriff auf eine Hand oder eine Positionsänderung).',
-        'Der Angegriffene darf in derselben Sekunde mit einer einzigen Ausweichbewegung reagieren.',
-        'Nach der Bewegung verharrt man wie eingefroren in der neuen Haltung.',
-        'Wird eine Hand berührt, wandert der Arm hinter den Rücken. Wer beide Hände verliert, scheidet als Schiedsrichter aus.'
-      ],
-      en: [
-        'All players stand in a circle. On the count "3, 2, 1, NINJA!", everyone jumps back into a frozen stance.',
-        'Taking turns clockwise, each player makes exactly one fluid motion (a strike at someone’s hand or repositioning).',
-        'The defender may make one dodging motion in direct reaction.',
-        'Once the motion finishes, both players freeze in their resulting postures.',
-        'If a hand is tapped, that arm moves behind the player’s back. Losing both hands transitions the player to referee.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Auf klare, sanfte Berührungen achten – es geht um Präzision, nicht um Kraft.',
-        'Schiedsrichter-Aufgabe für Ausgeschiedene sorgt dafür, dass alle eingebunden bleiben.'
-      ],
-      en: [
-        'Emphasize light, precise taps—the focus is agility and balance, not force.',
-        'Assign eliminated players to act as line judges to keep them actively involved.'
       ]
     }
   },
@@ -1400,62 +784,6 @@ export const GAMES_DATA: Game[] = [
     }
   },
 
-  // 26. Das synchronisierte Klatschen (Impuls-Kreis)
-  {
-    id: 'impuls-kreis',
-    title: {
-      de: 'Der Impuls-Kreis (Synchron-Klatschen)',
-      en: 'Synchronized Clapping Circle'
-    },
-    category: 'energizer',
-    energyLevel: 'high',
-    groupSize: { min: 6, max: 30 },
-    prepLevel: 'instant',
-    materials: {
-      de: ['Keine'],
-      en: ['None']
-    },
-    durationMinutes: '5–10 Min',
-    space: {
-      de: 'Kreis',
-      en: 'Circle'
-    },
-    summary: {
-      de: 'Ein Klatsch-Impuls wandert blitzschnell im Kreis, indem zwei benachbarte Personen immer absolut synchron in die Hände klatschen.',
-      en: 'A clapping impulse travels around the circle: two neighbors make direct eye contact and clap simultaneously.'
-    },
-    idea: {
-      de: 'Schult rhythmische Präzision, Blickkontakt und nonverbalen Reaktionsfluss im Bruchteil einer Sekunde.',
-      en: 'Cultivates split-second timing, eye contact, and continuous acoustic flow.'
-    },
-    rules: {
-      de: [
-        'Alle stehen im geschlossenen Kreis.',
-        'Person A dreht sich zu Person B; beide schauen sich in die Augen und klatschen exakt im selben Augenblick synchron in die Hände.',
-        'Sofort dreht sich B zu C um und klatscht synchron mit C.',
-        'Ziel: Der Impuls wandert ohne Stocken flüssig um den gesamten Kreis.',
-        'Variante: Tempo steigern, Richtung wechseln oder zwei Impulse gleichzeitig starten.'
-      ],
-      en: [
-        'Stand in a closed circle.',
-        'Player A turns to Player B; making firm eye contact, both clap simultaneously in the exact same microsecond.',
-        'Player B immediately turns to Player C and claps in unison with C.',
-        'Objective: Send the clapping wave around the circle without hesitation or pause.',
-        'Variations: accelerate speed, reverse direction, or launch two opposing impulses.'
-      ]
-    },
-    animatorTips: {
-      de: [
-        'Stoppt die Rundenzeit: Schafft die Gruppe die Runde unter 5 Sekunden?',
-        'Hervorragend als 3-Minuten-Wachmacher.'
-      ],
-      en: [
-        'Time the round: can the group complete a full circuit in under 5 seconds?',
-        'Superb 3-minute energizer between sitting periods.'
-      ]
-    }
-  },
-
   // 27. Säuresee
   {
     id: 'saeuresee',
@@ -1623,5 +951,689 @@ export const GAMES_DATA: Game[] = [
         'Quickly creates a warm, connected atmosphere in the group.'
       ]
     }
-  }
+  },
+
+  // =========================================================================
+  // 2. ENERGIZER & DYNAMISCHES AUFWÄRMEN - 2 SPIELE
+  // =========================================================================
+  // 7. Schnick Schnack Schnuck Evolution
+  {
+    id: 'ssp-evolution',
+    title: {
+      de: 'Schnick-Schnack-Schnuck Evolution',
+      en: 'Rock Paper Scissors Evolution'
+    },
+    category: 'energizer',
+    energyLevel: 'high',
+    groupSize: { min: 8, max: 60 },
+    prepLevel: 'instant',
+    materials: {
+      de: ['Keine'],
+      en: ['None']
+    },
+    durationMinutes: '5–10 Min',
+    space: {
+      de: 'Freie Fläche (drinnen oder draußen)',
+      en: 'Open space (indoor or outdoor)'
+    },
+    summary: {
+      de: 'Alle beginnen auf Stufe 1 am Boden und steigen durch gewonnene Duelle über Huhn und Affe bis zum aufrechten Menschen auf.',
+      en: 'Everyone begins crouching on level 1, advancing through duels from egg to chicken, ape, and upright human.'
+    },
+    idea: {
+      de: 'Ein schneller Bewegungseisbrecher, der alle sofort in Interaktion bringt und jegliche Hemmungen abbaut.',
+      en: 'A rapid movement icebreaker that immediately gets everyone moving and breaks social hesitation.'
+    },
+    rules: {
+      de: [
+        'Alle starten auf Stufe 1 als „Ei“ (in der Hocke watschelnd).',
+        'Man sucht sich ein anderes Ei und spielt eine Runde Schere-Stein-Papier.',
+        'Wer gewinnt, steigt eine Entwicklungsstufe auf: Ei ➔ Huhn (mit den Armen gackernd) ➔ Affe (hüpfend) ➔ Mensch (aufrecht, gibt die Hand).',
+        'Wer verliert, bleibt auf der Stufe und sucht sofort einen neuen Spielpartner auf gleicher Stufe.',
+        'Wer als Mensch das Duell gewinnt, hat die Evolution gemeistert und feuert die anderen an.'
+      ],
+      en: [
+        'Everyone starts at level 1 as an "Egg" (waddling in a low crouch).',
+        'Find another egg and play one round of Rock-Paper-Scissors.',
+        'The winner advances one stage: Egg ➔ Chicken (flapping elbows) ➔ Ape (hopping) ➔ Human (standing tall, shaking hands).',
+        'The player who does not win stays on their current stage and immediately looks for another player at the same level.',
+        'Humans who win their duel have completed the evolution and step to the side to cheer.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Gruppenleiter sollten die Haltungen und Laute selbst mit Humor vormachen – das nimmt den Jugendlichen sofort die Befangenheit.',
+        'Darauf achten, dass immer nur Spieler auf derselben Stufe gegeneinander antreten.'
+      ],
+      en: [
+        'Facilitators should enthusiastically demonstrate the movement styles—this immediately relieves self-consciousness.',
+        'Ensure participants only challenge peers on the exact same developmental stage.'
+      ]
+    },
+    isFavoriteDefault: true
+  },
+
+  // 26. Das synchronisierte Klatschen (Impuls-Kreis)
+  {
+    id: 'impuls-kreis',
+    title: {
+      de: 'Der Impuls-Kreis (Synchron-Klatschen)',
+      en: 'Synchronized Clapping Circle'
+    },
+    category: 'energizer',
+    energyLevel: 'high',
+    groupSize: { min: 6, max: 30 },
+    prepLevel: 'instant',
+    materials: {
+      de: ['Keine'],
+      en: ['None']
+    },
+    durationMinutes: '5–10 Min',
+    space: {
+      de: 'Kreis',
+      en: 'Circle'
+    },
+    summary: {
+      de: 'Ein Klatsch-Impuls wandert blitzschnell im Kreis, indem zwei benachbarte Personen immer absolut synchron in die Hände klatschen.',
+      en: 'A clapping impulse travels around the circle: two neighbors make direct eye contact and clap simultaneously.'
+    },
+    idea: {
+      de: 'Schult rhythmische Präzision, Blickkontakt und nonverbalen Reaktionsfluss im Bruchteil einer Sekunde.',
+      en: 'Cultivates split-second timing, eye contact, and continuous acoustic flow.'
+    },
+    rules: {
+      de: [
+        'Alle stehen im geschlossenen Kreis.',
+        'Person A dreht sich zu Person B; beide schauen sich in die Augen und klatschen exakt im selben Augenblick synchron in die Hände.',
+        'Sofort dreht sich B zu C um und klatscht synchron mit C.',
+        'Ziel: Der Impuls wandert ohne Stocken flüssig um den gesamten Kreis.',
+        'Variante: Tempo steigern, Richtung wechseln oder zwei Impulse gleichzeitig starten.'
+      ],
+      en: [
+        'Stand in a closed circle.',
+        'Player A turns to Player B; making firm eye contact, both clap simultaneously in the exact same microsecond.',
+        'Player B immediately turns to Player C and claps in unison with C.',
+        'Objective: Send the clapping wave around the circle without hesitation or pause.',
+        'Variations: accelerate speed, reverse direction, or launch two opposing impulses.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Stoppt die Rundenzeit: Schafft die Gruppe die Runde unter 5 Sekunden?',
+        'Hervorragend als 3-Minuten-Wachmacher.'
+      ],
+      en: [
+        'Time the round: can the group complete a full circuit in under 5 seconds?',
+        'Superb 3-minute energizer between sitting periods.'
+      ]
+    }
+  },
+
+  // =========================================================================
+  // 3. ROLLEN, TÄUSCHUNG & SOCIAL DEDUCTION - 6 SPIELE
+  // =========================================================================
+  // 1. Wer bin ich
+  {
+    id: 'wer-bin-ich',
+    title: {
+      de: 'Wer bin ich?',
+      en: 'Who Am I?'
+    },
+    category: 'social_deduction',
+    energyLevel: 'calm',
+    groupSize: { min: 4, max: 25 },
+    prepLevel: 'low_prep',
+    materials: {
+      de: ['Haftnotizen (Post-its)', 'Stifte'],
+      en: ['Sticky notes', 'Pens']
+    },
+    durationMinutes: '15–25 Min',
+    space: {
+      de: 'Sitzkreis',
+      en: 'Seated circle'
+    },
+    summary: {
+      de: 'Jeder trägt den Namen einer bekannten Persönlichkeit oder eines Begriffs auf der Stirn und muss durch geschickte Ja/Nein-Fragen die eigene Identität erraten.',
+      en: 'Each person wears the name of a character or object on their forehead, deducing their identity using strictly yes/no questions.'
+    },
+    idea: {
+      de: 'Klassisches Deduktionsspiel, das logisches Ausschließen und präzises Fragen schult.',
+      en: 'Classic deduction game training logical elimination and precise questioning.'
+    },
+    rules: {
+      de: [
+        'Jeder schreibt geheim eine bekannte Persönlichkeit, Figur oder einen Gegenstand auf einen Klebezettel und klebt ihn seinem Nachbarn auf die Stirn.',
+        'Niemand darf den Zettel auf der eigenen Stirn vorher sehen.',
+        'Reihum stellt jeder genau eine Frage, die die Gruppe nur mit „Ja“ oder „Nein“ beantworten darf (z. B. „Lebe ich noch?“, „Bin ich ein Mensch?“).',
+        'Lautet die Antwort „Ja“, darf man sofort eine weitere Frage stellen. Bei „Nein“ wechselt der Zug im Uhrzeigersinn.',
+        'Wer seine Identität errät, darf den Zettel abnehmen und hilft den anderen beim Raten.'
+      ],
+      en: [
+        'Each player secretly writes a well-known figure, character, or object on a sticky note and attaches it to their neighbor’s forehead.',
+        'No one may look at the note on their own forehead.',
+        'Taking turns, each player asks one question that the group can only answer with "Yes" or "No" (e.g. "Am I alive?", "Am I fictional?").',
+        'If the answer is "Yes", the player may ask one more question. On "No", the turn passes clockwise.',
+        'Once a player deduces their identity, they remove their note and assist remaining players.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Für Jugendgruppen funktioniert es am besten mit historischen Persönlichkeiten, Tugenden oder Figuren aus Geschichten.',
+        'Ermutigt die Jugendlichen, von groben Kategorien (z. B. lebendig/fiktiv) zu spezifischen Merkmalen zu fragen.'
+      ],
+      en: [
+        'Works exceptionally well when themed around historical figures, virtues, or storybook characters.',
+        'Encourage youth to start with broad binary categories before guessing specific names.'
+      ]
+    }
+  },
+
+  // 2. Werwolf
+  {
+    id: 'werwolf',
+    title: {
+      de: 'Die Werwölfe vom Düsterwald',
+      en: 'Werewolf'
+    },
+    category: 'social_deduction',
+    energyLevel: 'medium',
+    groupSize: { min: 8, max: 25 },
+    prepLevel: 'low_prep',
+    materials: {
+      de: ['Werwolf-Karten oder beschriftete Zettel'],
+      en: ['Role cards or written slips']
+    },
+    durationMinutes: '25–45 Min',
+    space: {
+      de: 'Ruhiger Raum mit Sitzkreis',
+      en: 'Quiet room with seated circle'
+    },
+    summary: {
+      de: 'Dorfbewohner versuchen heimliche Werwölfe in ihren Reihen zu entlarven, bevor das Dorf überrannt wird.',
+      en: 'Villagers work to deduce and eliminate secret werewolves lurking among them before it is too late.'
+    },
+    idea: {
+      de: 'Fördert überzeugende Gesprächsführung, aufmerksames Beobachten und argumentative Standhaftigkeit.',
+      en: 'Develops persuasive argumentation, keen observation, and debate discipline.'
+    },
+    rules: {
+      de: [
+        'Jeder erhält geheim eine Rollenkarte (z. B. Dorfbewohner, Werwolf, Seherin, Hexe).',
+        'Nachtphase: Alle schließen die Augen. Der Spielleiter ruft nacheinander die Sonderrollen auf. Die Werwölfe einigen sich stumm auf ein Opfer.',
+        'Tagphase: Das Dorf erwacht. Der Spielleiter berichtet vom nächtlichen Vorfall.',
+        'Die Gruppe diskutiert und stimmt demokratisch ab, wer verdächtigt und aus dem Dorf verbannt wird.',
+        'Die Dorfbewohner gewinnen, wenn alle Wölfe enttarnt sind; die Wölfe gewinnen bei Parität.'
+      ],
+      en: [
+        'Each participant secretly draws a role card (e.g. Villager, Werewolf, Seer, Witch).',
+        'Night Phase: Everyone closes their eyes. The narrator wakes special roles in sequence. The werewolves silently pick a victim.',
+        'Day Phase: The village awakens. The narrator describes the event.',
+        'The village engages in open debate and holds a vote to eliminate one suspected player.',
+        'Villagers win when all wolves are eliminated; wolves win if they reach parity with villagers.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Schafft eine stimmungsvolle Atmosphäre mit gedämpftem Licht und ruhiger Moderation.',
+        'Ausgeschiedene Spieler agieren als stumme Geister, um keine Hinweise zu verraten.'
+      ],
+      en: [
+        'Create atmosphere with ambient lighting and immersive narration.',
+        'Remind eliminated players to remain completely silent observers so mystery remains intact.'
+      ]
+    },
+    isFavoriteDefault: true
+  },
+
+  // 3. Spion
+  {
+    id: 'spion',
+    title: {
+      de: 'Spion (Spyfall)',
+      en: 'Spyfall'
+    },
+    category: 'social_deduction',
+    energyLevel: 'medium',
+    groupSize: { min: 5, max: 12 },
+    prepLevel: 'low_prep',
+    materials: {
+      de: ['Zettel mit Ort für jeden Mitspieler, einer davon als „Spion“ markiert'],
+      en: ['Location slips for everyone, one marked "Spy"']
+    },
+    durationMinutes: '15–20 Min',
+    space: {
+      de: 'Sitzkreis',
+      en: 'Seated circle'
+    },
+    summary: {
+      de: 'Alle kennen den geheimen Ort (z. B. Bibliothek, U-Boot, Flughafen) – außer dem Spion! Durch clevere Fragen muss er enttarnt werden.',
+      en: 'Everyone knows the secret location (e.g. library, submarine, airport)—except the spy, who must bluff and deduce the location.'
+    },
+    idea: {
+      de: 'Trainiert sprachliche Genauigkeit, schnelles Mitdenken und subtiles Nachfragen ohne direkte Verratshinweise.',
+      en: 'Cultivates linguistic precision, deductive reasoning, and subtle questioning.'
+    },
+    rules: {
+      de: [
+        'Jeder zieht verdeckt eine Karte. Alle zeigen denselben Ort, nur eine einzige sagt „SPION“.',
+        'Reihum stellt ein Spieler einem anderen eine freie Frage (z. B. „Trägt man an diesem Ort spezielle Kleidung?“).',
+        'Die Antwort muss so gewählt sein, dass Eingeweihte den Ort erkennen, der Spion ihn aber nicht errät.',
+        'Nach 8 Minuten stimmt die Runde ab, wer der Spion ist. Erkennt der Spion vorher den Ort, siegt er sofort.'
+      ],
+      en: [
+        'Each player secretly receives a card. All cards have the same location; one card reads "SPY".',
+        'In turn, a player asks another player a question (e.g. "Do people wear uniforms here?").',
+        'Answers must be subtle enough that insiders confirm knowledge without tipping off the spy.',
+        'After 8 minutes, the group votes on the spy’s identity. If the spy deduces the location first, they win instantly.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Hervorragend für Jugendliche, weil niemand vorzeitig ausscheidet und alle durchgehend mitdenken.',
+        'Wählt Orte aus dem Alltag der Jugendlichen oder thematisch passend zum Camp.'
+      ],
+      en: [
+        'Great for teenagers because no one is eliminated early and everyone remains mentally engaged.',
+        'Choose relatable everyday locations or themes connected to your camp setting.'
+      ]
+    }
+  },
+
+  // 4. Psychiater
+  {
+    id: 'psychiater',
+    title: {
+      de: 'Der Psychiater',
+      en: 'The Psychiatrist'
+    },
+    category: 'social_deduction',
+    energyLevel: 'calm',
+    groupSize: { min: 6, max: 20 },
+    prepLevel: 'instant',
+    materials: {
+      de: ['Keine'],
+      en: ['None']
+    },
+    durationMinutes: '15–25 Min',
+    space: {
+      de: 'Sitzkreis',
+      en: 'Seated circle'
+    },
+    summary: {
+      de: 'Ein Ermittler verlässt den Raum. Die Gruppe vereinbart ein gemeinsames Antwortmuster, das durch geschickte Fragen durchschaut werden muss.',
+      en: 'An investigator leaves the room. The group agrees on a shared behavioral code that must be diagnosed through questioning.'
+    },
+    idea: {
+      de: 'Ein humorvolles Denkspiel, das logische Mustererkennung und Beobachtungsgabe fördert.',
+      en: 'A witty deduction activity enhancing pattern recognition and social observation.'
+    },
+    rules: {
+      de: [
+        'Ein Freiwilliger verlässt den Raum, sodass er nichts hört.',
+        'Die Gruppe vereinbart ein klares Muster (z. B. „Jeder antwortet so, als wäre er sein linker Sitznachbar“).',
+        'Der Ermittler kommt zurück und stellt beliebige persönliche Fragen in die Runde.',
+        'Fällt einem Mitspieler auf, dass sein Nachbar falsch geantwortet hat, ruft er „PSYCHIATER!“ – woraufhin alle panisch die Plätze tauschen.',
+        'Ziel ist es, das dahinterliegende System zu benennen.'
+      ],
+      en: [
+        'One volunteer steps completely out of earshot.',
+        'The group agrees on a consistent answer rule (e.g. "Answer as if you are the person to your left").',
+        'The investigator returns and poses questions around the circle.',
+        'If a participant notices someone answered incorrectly on their behalf, they shout "PSYCHIATRIST!", triggering a seat scramble.',
+        'The goal is to accurately diagnose the hidden answering pattern.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Die Regel „Ich antworte für meinen linken Nachbarn“ ist der beste und bewährteste Einstieg.',
+        'Niemand wird bloßgestellt, da alle als Team das Muster aufrechterhalten.'
+      ],
+      en: [
+        'Answering as the person to one’s left is the most reliable and humorous starting variation.',
+        'No participant feels singled out, as the entire room upholds the code together.'
+      ]
+    }
+  },
+
+  // 5. Empire
+  {
+    id: 'empire',
+    title: {
+      de: 'Empire (Das geheime Königreich)',
+      en: 'Empire (The Secret Kingdom)'
+    },
+    category: 'social_deduction',
+    energyLevel: 'medium',
+    groupSize: { min: 8, max: 30 },
+    prepLevel: 'low_prep',
+    materials: {
+      de: ['Kleine Zettel', 'Stifte', 'Optional: Empire-Board im Toolkit'],
+      en: ['Paper slips', 'Pens', 'Optional: In-app Empire Board']
+    },
+    durationMinutes: '20–40 Min',
+    space: {
+      de: 'Sitzkreis in einem Raum',
+      en: 'Indoor seated circle'
+    },
+    summary: {
+      de: 'Jeder schreibt geheim einen Begriff oder Namen zu einem Thema auf. Wer die Identitäten errät, gliedert die Spieler in das eigene Reich ein.',
+      en: 'Each person writes down a secret identity or phrase. Players guess who submitted what, absorbing members into expanding empires.'
+    },
+    idea: {
+      de: 'Verbindet Beobachtungsgabe, Gedächtnis und Humor. Lässt sich durch jugendrelevante Themenkarten exzellent anpassen.',
+      en: 'Combines deduction, memory, and group wit. Enhanced by modern teen-relevant category prompts.'
+    },
+    rules: {
+      de: [
+        'Jeder erhält einen Zettel und notiert verdeckt einen Begriff zu einer gewählten Kategorie (z. B. „Schlechteste Ausreden“).',
+        'Die Spielleitung sammelt alle Zettel ein und liest alle genannten Begriffe zweimal deutlich vor.',
+        'Reihum fragt ein Spieler einen anderen: „Bist du [Begriff]?“.',
+        'Bei einem Treffer schließt sich die erratene Person dem Team des Fragenden an. Der Fragende darf weiterraten.',
+        'Liegt man falsch, ist der nächste Spieler im Kreis an der Reihe.',
+        'Wird der König eines Reiches erraten, wechselt dessen gesamtes Gefolge zum neuen Besitzer über.'
+      ],
+      en: [
+        'Everyone receives a slip and privately writes a concept from the chosen category (e.g. "Terrible Excuses").',
+        'The host collects all slips and reads the complete list twice clearly to the room.',
+        'Taking turns around the circle, Player A asks Player B: "Are you [Alias]?".',
+        'If correct, Player B joins Player A’s kingdom. Player A continues guessing.',
+        'If incorrect, the turn passes to the next person in the circle.',
+        'If a reigning King is correctly identified, their entire empire joins the guesser’s kingdom.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Nutzt das interaktive Empire-Board im Reiter „Praxis-Toolkits“ – so muss die Liste nicht ständig wiederholt werden.',
+        'Die Mitglieder eines Reiches dürfen ihren König leise beraten, aber nur der König spricht die Vermutung laut aus.'
+      ],
+      en: [
+        'Use the interactive Empire Board in the "Field Toolkits" tab to display names on screen without constant interruptions.',
+        'Empire subjects may quietly consult their king, but only the king states the official guess.'
+      ]
+    },
+    isFavoriteDefault: true
+  },
+
+  // 9. Schlafmütze (Mörder in der Runde)
+  {
+    id: 'schlafmuetze-moerder',
+    title: {
+      de: 'Mörder in der Runde (Zwinkerspiel)',
+      en: 'Wink Murder'
+    },
+    category: 'social_deduction',
+    energyLevel: 'calm',
+    groupSize: { min: 8, max: 25 },
+    prepLevel: 'low_prep',
+    materials: {
+      de: ['Spielkarten oder Zettel zur Rollenvergabe'],
+      en: ['Playing cards or secret slips for role distribution']
+    },
+    durationMinutes: '15–20 Min',
+    space: {
+      de: 'Sitzkreis mit gutem Blickkontakt',
+      en: 'Seated circle with clear sightlines'
+    },
+    summary: {
+      de: 'Ein geheimer Täter schaltet Mitspieler durch unauffälliges Zuzwinkern aus. Ein Detektiv (oder die Gruppe) muss ihn überführen.',
+      en: 'A secret culprit eliminates players by discreetly winking at them while a detective tries to catch them.'
+    },
+    idea: {
+      de: 'Schult intensive Blickkontakte, Körpersprache und ruhige Beobachtung im Raum.',
+      en: 'Develops visual acuity, subtle body language observation, and quiet tension in the room.'
+    },
+    rules: {
+      de: [
+        'Alle ziehen verdeckt eine Karte. Eine Person zieht das As (Täter), alle anderen sind Zivilisten.',
+        'Variante mit Detektiv: Ein Detektiv steht in der Mitte des Kreises.',
+        'Alle Spieler schauen sich im Kreis in die Augen. Der Täter versucht, Personen unbemerkt zuzuzwinkern.',
+        'Wem zugezwinkert wurde, zählt innerlich bis drei und scheidet dann dramatisch aus.',
+        'Der Detektiv hat 3 Versuche, den Täter zu entlarven. Schafft der Täter es, die Mehrheit auszuschalten, gewinnt er.'
+      ],
+      en: [
+        'Each player draws a secret card. One card is the Ace (Culprit), all others are civilians.',
+        'Detective variation: One detective stands in the center of the circle.',
+        'Everyone makes continuous eye contact around the circle. The culprit tries to wink at players without getting caught.',
+        'When winked at, a player waits three seconds before dramatically collapsing or stepping out.',
+        'The detective has 3 guesses to identify the winker before too many players fall.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Wichtig: Die Spieler dürfen nicht sofort nach dem Zwinkern umfallen, sondern müssen 2–3 Sekunden verzögern, um es spannend zu halten.',
+        'Toll als entspannter Einstieg oder zur Konzentrationssammlung.'
+      ],
+      en: [
+        'Crucial rule: Victims must delay their reaction by 2–3 seconds so the culprit’s identity is not immediately obvious.',
+        'Great as a low-energy bridge activity to regain shared focus.'
+      ]
+    }
+  },
+
+  // =========================================================================
+  // 4. WETTKAMPF & DUELLE (REAKTION, LAUTSTÄRKE & FUN) - 4 SPIELE
+  // =========================================================================
+  // 6. Schere Stein Papier Showdown
+  {
+    id: 'ssp-showdown',
+    title: {
+      de: 'Schere-Stein-Papier Fankurve',
+      en: 'Rock Paper Scissors Cheering Train'
+    },
+    category: 'competitive',
+    energyLevel: 'high',
+    groupSize: { min: 10, max: 80 },
+    prepLevel: 'instant',
+    materials: {
+      de: ['Keine'],
+      en: ['None']
+    },
+    durationMinutes: '7–12 Min',
+    space: {
+      de: 'Überall möglich',
+      en: 'Any open space'
+    },
+    summary: {
+      de: 'Jeder Verlierer eines Duells schließt sich sofort als Fan hinter dem Gewinner an, bis zwei riesige Fangruppen im Finale aufeinandertreffen.',
+      en: 'Every player who loses a duel joins as a fan behind the winner, building massive cheering trains that collide in a dramatic finale.'
+    },
+    idea: {
+      de: 'Verwandelt ein simples Duellspiel in ein mitreißendes Gemeinschaftserlebnis, bei dem niemand ausscheidet.',
+      en: 'Turns a basic duel into an electrifying group experience where nobody feels left out.'
+    },
+    rules: {
+      de: [
+        'Jeder sucht sich einen Partner und spielt eine Runde Schere-Stein-Papier.',
+        'Die unterlegene Person stellt sich sofort hinter den Sieger und feuert ihn mit Namen an.',
+        'Der Sieger (nun mit Gefolge) fordert einen anderen Spieler heraus, der ebenfalls Fans hinter sich hat.',
+        'Die Schlangen wachsen bei jedem Duell, bis sich im großen Finale zwei Chöre gegenüberstehen.'
+      ],
+      en: [
+        'Pair up with anyone nearby and play a single round of Rock-Paper-Scissors.',
+        'The player who does not win immediately steps behind the winner, cheering their name.',
+        'The winner (now leading a chain) challenges another leader who also has a cheering squad.',
+        'Chains merge and grow with every duel, culminating in an epic two-sided championship clash.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Ermutigt die Jugendlichen, lautstark den Namen ihres Champions zu rufen.',
+        'Hervorragend geeignet als Wachmacher nach langen Sitzphasen oder zu Beginn eines Camps.'
+      ],
+      en: [
+        'Encourage youth to chant the name of their champion with genuine volume.',
+        'Ideal as a wake-up activity after quiet reflection or opening a camp day.'
+      ]
+    },
+    isFavoriteDefault: true
+  },
+
+  // 8. Salad Bowl
+  {
+    id: 'salad-bowl',
+    title: {
+      de: 'Salad Bowl (Wörter-Staffel)',
+      en: 'Salad Bowl (Three-Round Catchphrase)'
+    },
+    category: 'competitive',
+    energyLevel: 'high',
+    groupSize: { min: 6, max: 24 },
+    prepLevel: 'low_prep',
+    materials: {
+      de: ['Eine Schüssel', 'Zettel & Stifte', 'Timer'],
+      en: ['Bowl', 'Paper slips & pens', 'Timer']
+    },
+    durationMinutes: '25–40 Min',
+    space: {
+      de: 'Sitzgelegenheiten für zwei Teams',
+      en: 'Seating for two teams'
+    },
+    summary: {
+      de: 'Dieselbe Sammlung von Begriffen wird über drei Runden erraten: Erst normale Erklärung, dann nur 1 einziges Wort, dann reine Pantomime.',
+      en: 'The exact same pool of concepts is guessed across three escalating rounds: full verbal clues, a single word, and pure pantomime.'
+    },
+    idea: {
+      de: 'Weil die Begriffe in den späteren Runden bereits bekannt sind, steigt das Spieltempo und der Wiedererkennungswert rasant an.',
+      en: 'Because the vocabulary is familiar from round 1, rounds 2 and 3 produce lightning-fast associations and shared laughter.'
+    },
+    rules: {
+      de: [
+        'Jeder schreibt 3 Begriffe auf Zettel und wirft sie in die Schüssel.',
+        'Zwei Teams spielen abwechselnd mit 60 Sekunden Zeit pro Durchgang.',
+        'Runde 1: Freie sprachliche Umschreibung (ohne Wortteile zu nennen).',
+        'Runde 2: Alle Zettel kommen zurück. Der Erklärer darf nur genau EIN einziges Wort sagen.',
+        'Runde 3: Alle Zettel kommen erneut zurück. Reines Pantomimespiel ohne Sprache oder Geräusche.',
+        'Das Team mit den meisten Gesamtpunkten gewinnt.'
+      ],
+      en: [
+        'Each player contributes 3 concepts onto slips and places them in the bowl.',
+        'Two teams take alternating 60-second turns to guess as many slips as possible.',
+        'Round 1: Open verbal description (no rhyming or root words).',
+        'Round 2: All slips return to the bowl. The clue-giver may only speak ONE single word.',
+        'Round 3: All slips return again. Pure pantomime with absolute silence.',
+        'The team with the highest cumulative total across three rounds wins.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Ermutigt die Jugendlichen, auch gemeinsame Camp-Erlebnisse oder Insider-Begriffe aufzuschreiben.',
+        'Ein klarer Timer auf dem Smartphone sorgt für Transparenz und Spannung.'
+      ],
+      en: [
+        'Encourage youth to include shared camp memories or inside jokes on their slips.',
+        'Display a visible smartphone countdown timer for fair competition.'
+      ]
+    },
+    isFavoriteDefault: true
+  },
+
+  // 11. Hi Ha Ho
+  {
+    id: 'hi-ha-ho',
+    title: {
+      de: 'Hi – Ha – Ho (Rhythmus-Duell)',
+      en: 'Hi – Ha – Ho'
+    },
+    category: 'competitive',
+    energyLevel: 'high',
+    groupSize: { min: 6, max: 20 },
+    prepLevel: 'instant',
+    materials: {
+      de: ['Keine'],
+      en: ['None']
+    },
+    durationMinutes: '10–15 Min',
+    space: {
+      de: 'Fester Stehkreis',
+      en: 'Standing circle'
+    },
+    summary: {
+      de: 'Hochenergetisches Reaktionsspiel im Kreis mit festen Lauten und Schnitten. Trainiert blitzschnelle Wachheit.',
+      en: 'Fast-paced rhythmic reaction game in a circle using rapid sword-like poses and acoustic calls.'
+    },
+    idea: {
+      de: 'Stresst das Kurzzeitgedächtnis positiv und bringt schlagartig maximale Wachheit in den Raum.',
+      en: 'Engages short-term memory and sharp reflexes, instantly lifting group alertness.'
+    },
+    rules: {
+      de: [
+        'Alle stehen im Kreis. Person A faltet die Hände über dem Kopf, schlägt in Richtung Person B und ruft laut „HI!“.',
+        'Person B hebt sofort die Arme über den Kopf in Abwehrhaltung. Die beiden direkten Nachbarn von B müssen blitzschnell einen Schnitt auf Bs Bauch ausführen und laut „HA!“ rufen.',
+        'Person B schlägt nun sofort wieder auf eine andere Person im Kreis mit „HO!“.',
+        'Wer zögert, das falsche Wort ruft oder seinen Einsatz verpasst, scheidet aus oder macht eine kurze sportliche Revanche.'
+      ],
+      en: [
+        'Stand in a circle. Player A raises hands overhead and slashes toward Player B shouting "HI!".',
+        'Player B immediately raises their hands in defense. Both immediate neighbors of B must execute horizontal slashes toward B shouting "HA!".',
+        'Player B immediately redirects energy toward a new player shouting "HO!".',
+        'Anyone who hesitates, calls the wrong syllable, or misses their cue steps out or performs a quick exercise.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Startet in moderatem Tempo und zieht nach 2 Minuten das Tempo radikal an.',
+        'Die Jugendlichen lieben die dynamischen Posen und die hohe Lautstärke.'
+      ],
+      en: [
+        'Start at a moderate pace to establish familiarity, then dramatically accelerate after 2 minutes.',
+        'Youth love the dynamic movement stances and the room’s rising volume.'
+      ]
+    }
+  },
+
+  // 12. Ninja
+  {
+    id: 'ninja',
+    title: {
+      de: 'Ninja',
+      en: 'Ninja'
+    },
+    category: 'competitive',
+    energyLevel: 'high',
+    groupSize: { min: 4, max: 18 },
+    prepLevel: 'instant',
+    materials: {
+      de: ['Keine'],
+      en: ['None']
+    },
+    durationMinutes: '10–15 Min',
+    space: {
+      de: 'Ausreichend Bewegungsradius',
+      en: 'Open space with ample movement room'
+    },
+    summary: {
+      de: 'Rundenbasiertes Reaktionsspiel im Kreis mit festen Posen. Versuche in einer fließenden Bewegung die Hand deines Nachbarn abzuschlagen.',
+      en: 'Turn-based reaction game in a circle with frozen stances. In one fluid motion, strike toward an opponent’s hand.'
+    },
+    idea: {
+      de: 'Ein Klassiker bei Freizeiten: Null Materialaufwand und hoher Aufforderungscharakter durch theatralische Posen.',
+      en: 'A camp classic: zero prep, highly engaging, and memorable physical coordination.'
+    },
+    rules: {
+      de: [
+        'Alle stehen im Kreis. Auf das Signal „3, 2, 1, NINJA!“ springen alle zurück in eine Kampfpose.',
+        'Reihum darf jeder genau eine fließende Bewegung ausführen (einen Angriff auf eine Hand oder eine Positionsänderung).',
+        'Der Angegriffene darf in derselben Sekunde mit einer einzigen Ausweichbewegung reagieren.',
+        'Nach der Bewegung verharrt man wie eingefroren in der neuen Haltung.',
+        'Wird eine Hand berührt, wandert der Arm hinter den Rücken. Wer beide Hände verliert, scheidet als Schiedsrichter aus.'
+      ],
+      en: [
+        'All players stand in a circle. On the count "3, 2, 1, NINJA!", everyone jumps back into a frozen stance.',
+        'Taking turns clockwise, each player makes exactly one fluid motion (a strike at someone’s hand or repositioning).',
+        'The defender may make one dodging motion in direct reaction.',
+        'Once the motion finishes, both players freeze in their resulting postures.',
+        'If a hand is tapped, that arm moves behind the player’s back. Losing both hands transitions the player to referee.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Auf klare, sanfte Berührungen achten – es geht um Präzision, nicht um Kraft.',
+        'Schiedsrichter-Aufgabe für Ausgeschiedene sorgt dafür, dass alle eingebunden bleiben.'
+      ],
+      en: [
+        'Emphasize light, precise taps—the focus is agility and balance, not force.',
+        'Assign eliminated players to act as line judges to keep them actively involved.'
+      ]
+    }
+  },
 ];

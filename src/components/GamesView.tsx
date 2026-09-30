@@ -12,6 +12,7 @@ interface GamesViewProps {
   favorites: string[];
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
   showOnlyFavorites: boolean;
+  onClearShowOnlyFavorites?: () => void;
 }
 
 export const GamesView: React.FC<GamesViewProps> = ({
@@ -20,6 +21,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
   favorites,
   onToggleFavorite,
   showOnlyFavorites,
+  onClearShowOnlyFavorites,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<GameCategory | 'all'>('all');
   const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel | 'all'>('all');
@@ -28,12 +30,26 @@ export const GamesView: React.FC<GamesViewProps> = ({
 
   const t = UI_TRANSLATIONS[language];
 
-  const categories: { id: GameCategory | 'all'; label: string }[] = [
-    { id: 'all', label: t.filterAll },
-    { id: 'cooperative', label: t.filterCooperative },
-    { id: 'competitive', label: t.filterCompetitive },
-    { id: 'social_deduction', label: t.filterSocialDeduction },
-    { id: 'energizer', label: t.filterEnergizer },
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: GAMES_DATA.length,
+      cooperative: 0,
+      social_deduction: 0,
+      competitive: 0,
+      energizer: 0,
+    };
+    GAMES_DATA.forEach((g) => {
+      counts[g.category] = (counts[g.category] || 0) + 1;
+    });
+    return counts;
+  }, []);
+
+  const categories: { id: GameCategory | 'all'; label: string; count: number }[] = [
+    { id: 'all', label: t.filterAll, count: categoryCounts.all },
+    { id: 'cooperative', label: t.filterCooperative, count: categoryCounts.cooperative },
+    { id: 'social_deduction', label: t.filterSocialDeduction, count: categoryCounts.social_deduction },
+    { id: 'competitive', label: t.filterCompetitive, count: categoryCounts.competitive },
+    { id: 'energizer', label: t.filterEnergizer, count: categoryCounts.energizer },
   ];
 
   const filteredGames = useMemo(() => {
@@ -108,6 +124,30 @@ export const GamesView: React.FC<GamesViewProps> = ({
         </div>
       </div>
 
+      {/* Active Favorites Notification Banner */}
+      {showOnlyFavorites && (
+        <div className="flex items-center justify-between p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-xs text-amber-900">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">
+              {language === 'de' ? 'Favoriten-Filter aktiv:' : 'Favorites filter active:'}
+            </span>
+            <span>
+              {language === 'de' 
+                ? 'Es werden nur deine gemerkten Spiele angezeigt.' 
+                : 'Showing only your bookmarked games.'}
+            </span>
+          </div>
+          {onClearShowOnlyFavorites && (
+            <button
+              onClick={onClearShowOnlyFavorites}
+              className="font-semibold text-[#0071e3] hover:underline shrink-0 ml-3"
+            >
+              {language === 'de' ? 'Alle 29 Spiele anzeigen' : 'Show all 29 games'}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Streamlined Apple Filter Bar */}
       <div className="flex flex-col gap-3">
         {/* Primary Category Segmented Control */}
@@ -117,13 +157,24 @@ export const GamesView: React.FC<GamesViewProps> = ({
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
+                className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all inline-flex items-center gap-1.5 ${
                   selectedCategory === cat.id
                     ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
                     : 'text-[#6e6e73] hover:text-[#1d1d1f]'
                 }`}
               >
-                {cat.label}
+                <span>{cat.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                    selectedCategory === cat.id
+                      ? cat.id === 'cooperative'
+                        ? 'bg-emerald-100 text-emerald-800 font-semibold'
+                        : 'bg-black/[0.08] text-[#1d1d1f]'
+                      : 'bg-black/[0.04] text-[#86868b]'
+                  }`}
+                >
+                  {cat.count}
+                </span>
               </button>
             ))}
           </div>

@@ -25,9 +25,9 @@ export const App: React.FC = () => {
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('jy_favorites');
-      return saved ? JSON.parse(saved) : ['ssp-evolution', 'empire', 'verschwindende-tafel'];
+      return saved ? JSON.parse(saved) : ['gemeinsam-zaehlen', 'helium-stick', 'ssp-evolution', 'empire', 'verschwindende-tafel'];
     } catch {
-      return ['ssp-evolution', 'empire', 'verschwindende-tafel'];
+      return ['gemeinsam-zaehlen', 'helium-stick', 'ssp-evolution', 'empire', 'verschwindende-tafel'];
     }
   });
 
@@ -75,6 +75,7 @@ export const App: React.FC = () => {
             favorites={favorites}
             onToggleFavorite={handleToggleFavorite}
             showOnlyFavorites={showOnlyFavorites}
+            onClearShowOnlyFavorites={() => setShowOnlyFavorites(false)}
           />
         )}
 

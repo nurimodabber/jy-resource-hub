@@ -29,6 +29,19 @@ export const GameCard: React.FC<GameCardProps> = ({
     }
   };
 
+  const getCategoryColor = () => {
+    switch (game.category) {
+      case 'cooperative':
+        return 'bg-emerald-50 text-emerald-800 border border-emerald-200/60 font-semibold';
+      case 'social_deduction':
+        return 'bg-indigo-50 text-indigo-800 border border-indigo-200/60';
+      case 'competitive':
+        return 'bg-amber-50 text-amber-800 border border-amber-200/60';
+      case 'energizer':
+        return 'bg-purple-50 text-purple-800 border border-purple-200/60';
+    }
+  };
+
   const getEnergyColor = () => {
     switch (game.energyLevel) {
       case 'high':
@@ -57,7 +70,7 @@ export const GameCard: React.FC<GameCardProps> = ({
         {/* Top Meta Badges & Bookmark */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-black/[0.04] text-[#1d1d1f]">
+            <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${getCategoryColor()}`}>
               {getCategoryLabel()}
             </span>
             <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${getEnergyColor()}`}>
