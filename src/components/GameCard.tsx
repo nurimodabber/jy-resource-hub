@@ -1,7 +1,9 @@
 import React from 'react';
-import { Users, Clock, ChevronRight, Bookmark } from 'lucide-react';
+import { Users, Clock, ChevronRight, Bookmark, Sparkles } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { Badge, BadgeCategory } from './ui/Badge';
+import { IconButton } from './ui/IconButton';
 
 interface GameCardProps {
   game: Game;
@@ -20,36 +22,21 @@ export const GameCard: React.FC<GameCardProps> = ({
 }) => {
   const t = UI_TRANSLATIONS[language];
 
+  const getCategory = (): BadgeCategory => {
+    switch (game.category) {
+      case 'cooperative': return 'cooperative';
+      case 'competitive': return 'competitive';
+      case 'social_deduction': return 'social';
+      case 'energizer': return 'energizer';
+    }
+  };
+
   const getCategoryLabel = () => {
     switch (game.category) {
       case 'cooperative': return t.filterCooperative;
       case 'competitive': return t.filterCompetitive;
       case 'social_deduction': return t.filterSocialDeduction;
       case 'energizer': return t.filterEnergizer;
-    }
-  };
-
-  const getCategoryColor = () => {
-    switch (game.category) {
-      case 'cooperative':
-        return 'bg-emerald-50 text-emerald-800 border border-emerald-200/60 font-semibold';
-      case 'social_deduction':
-        return 'bg-indigo-50 text-indigo-800 border border-indigo-200/60';
-      case 'competitive':
-        return 'bg-amber-50 text-amber-800 border border-amber-200/60';
-      case 'energizer':
-        return 'bg-purple-50 text-purple-800 border border-purple-200/60';
-    }
-  };
-
-  const getEnergyColor = () => {
-    switch (game.energyLevel) {
-      case 'high':
-        return 'bg-amber-500/10 text-amber-800';
-      case 'calm':
-        return 'bg-blue-500/10 text-blue-800';
-      default:
-        return 'bg-black/[0.04] text-[#6e6e73]';
     }
   };
 
@@ -61,71 +48,85 @@ export const GameCard: React.FC<GameCardProps> = ({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onSelect(game);
+    }
+  };
+
   return (
-    <div 
+    <article
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect(game)}
-      className="group bg-white rounded-2xl border border-black/[0.06] p-5 shadow-apple-card hover:shadow-apple-card-hover hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col justify-between"
+      onKeyDown={handleKeyDown}
+      className="group relative bg-surface rounded-2xl border border-border-subtle p-5 sm:p-6 shadow-apple-card hover:shadow-apple-card-hover hover:border-border hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+      aria-label={`${game.title[language]} (${getCategoryLabel()})`}
     >
       <div>
         {/* Top Meta Badges & Bookmark */}
-        <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center justify-between gap-2 mb-3.5">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${getCategoryColor()}`}>
+            <Badge category={getCategory()} size="md">
               {getCategoryLabel()}
-            </span>
-            <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full ${getEnergyColor()}`}>
+            </Badge>
+            <Badge category="neutral" size="md">
               {getEnergyLabel()}
-            </span>
+            </Badge>
           </div>
 
-          <button
+          <IconButton
+            label={isFavorite ? t.savedItems : `${t.savedItems} (hinzufügen)`}
             onClick={(e) => onToggleFavorite(game.id, e)}
-            className={`p-1.5 rounded-full transition-colors ${
+            size="sm"
+            className={
               isFavorite
-                ? 'text-amber-500 bg-amber-500/10 hover:bg-amber-500/20'
-                : 'text-[#aeaeb2] hover:text-[#1d1d1f] hover:bg-black/[0.04]'
-            }`}
-            title={t.savedItems}
-            aria-label={t.savedItems}
+                ? 'text-accent bg-accent/10 hover:bg-accent/20'
+                : 'text-text-tertiary hover:text-text'
+            }
           >
-            <Bookmark className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
-          </button>
+            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+          </IconButton>
         </div>
 
         {/* Title */}
-        <h3 className="text-[16px] font-semibold text-[#1d1d1f] group-hover:text-[#0071e3] transition-colors mb-1.5 leading-snug">
+        <h3 className="text-base sm:text-lg font-semibold text-text group-hover:text-accent transition-colors mb-2 leading-snug">
           {game.title[language]}
         </h3>
 
         {/* Summary */}
-        <p className="text-xs text-[#6e6e73] line-clamp-2 leading-relaxed mb-4">
+        <p className="text-sm text-text-secondary line-clamp-2 leading-relaxed mb-5">
           {game.summary[language]}
         </p>
       </div>
 
-      {/* Bottom Info & Action */}
-      <div className="pt-3 border-t border-black/[0.04] flex items-center justify-between">
-        <div className="flex items-center gap-3 text-xs text-[#86868b]">
-          <span className="flex items-center gap-1 font-medium">
-            <Users className="w-3.5 h-3.5 text-[#aeaeb2]" />
-            {game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}
+      {/* Bottom Info & Action - Single Row Without Line Breaks */}
+      <div className="pt-3.5 border-t border-border-subtle flex items-center justify-between gap-2 text-xs text-text-secondary">
+        <div className="flex items-center gap-3 truncate">
+          <span className="inline-flex items-center gap-1 font-medium shrink-0" title={`${game.groupSize.min}–${game.groupSize.max} ${t.peopleSuffix}`}>
+            <Users className="w-3.5 h-3.5 text-text-tertiary" />
+            <span>{game.groupSize.min}–{game.groupSize.max}</span>
           </span>
-          <span className="flex items-center gap-1 font-medium">
-            <Clock className="w-3.5 h-3.5 text-[#aeaeb2]" />
-            {game.durationMinutes}
+
+          <span className="inline-flex items-center gap-1 font-medium shrink-0" title={`${game.durationMinutes} Minuten`}>
+            <Clock className="w-3.5 h-3.5 text-text-tertiary" />
+            <span>{game.durationMinutes}′</span>
           </span>
+
           {game.prepLevel === 'instant' && (
-            <span className="flex items-center gap-1 font-medium text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-full text-[10px]">
-              0 Min
+            <span className="hidden xs:inline-flex items-center gap-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
+              <Sparkles className="w-3 h-3" />
+              <span>0′ Prep</span>
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-0.5 text-xs font-semibold text-[#0071e3] group-hover:translate-x-0.5 transition-transform">
-          <span>{t.viewDetails}</span>
-          <ChevronRight className="w-3.5 h-3.5" />
+        <div className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:translate-x-0.5 transition-transform shrink-0">
+          <span className="hidden sm:inline">{t.viewDetails}</span>
+          <ChevronRight className="w-4 h-4" />
         </div>
       </div>
-    </div>
+    </article>
   );
 };
