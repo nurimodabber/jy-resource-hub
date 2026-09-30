@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Eraser, RotateCcw, Eye, Sparkles } from 'lucide-react';
+import { Eraser, RotateCcw, Sparkles } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
 

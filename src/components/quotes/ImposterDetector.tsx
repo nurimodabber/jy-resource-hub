@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Sparkles, CheckCircle2, RotateCcw, AlertTriangle } from 'lucide-react';
+import { Search, CheckCircle2, RotateCcw } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
 

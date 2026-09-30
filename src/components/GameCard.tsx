@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Clock, ChevronRight, Bookmark, Zap } from 'lucide-react';
+import { Users, Clock, ChevronRight, Bookmark } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 

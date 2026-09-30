@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  BookOpen, Copy, Check, ChevronDown, ChevronUp, Bookmark, 
-  Eraser, RotateCcw, ArrowRight, Sparkles, Type, Puzzle, 
+  Copy, Check, ChevronDown, ChevronUp, Bookmark, 
+  Eraser, RotateCcw, ArrowRight, Type, Puzzle, 
   Search, Activity, HandMetal, Timer 
 } from 'lucide-react';
-import { QuoteMethod, QuotePhase, QuoteItem, Language } from '../types';
+import { QuotePhase, QuoteItem, Language } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { QUOTES_DATA } from '../data/quotes';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -278,7 +278,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 : 'text-[#6e6e73] hover:text-[#1d1d1f]'
             }`}
           >
-            {t.subtabMethods}
+            {t.subtabMethods} ({QUOTE_METHODS_DATA.length})
           </button>
           <button
             onClick={() => setViewMode('quotes')}
@@ -288,7 +288,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 : 'text-[#6e6e73] hover:text-[#1d1d1f]'
             }`}
           >
-            {t.subtabQuotes}
+            {t.subtabQuotes} ({QUOTES_DATA.length})
           </button>
         </div>
       </div>

@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Clock, BookOpen, Copy, Check, Printer, Music, ExternalLink, 
-  Sparkles, Heart, Palette, Plus, Trash2, ArrowUp, ArrowDown, 
-  RotateCcw, Edit3, Compass, CheckCircle2, ChevronRight, X 
+  Clock, BookOpen, Copy, Check, Printer, Music, 
+  Plus, Trash2, ArrowUp, ArrowDown, 
+  RotateCcw, ChevronRight, X 
 } from 'lucide-react';
 import { 
-  Language, SessionSlot, SessionSlotType, Game, QuoteItem, 
-  QuoteMethod, DevotionalSong, ServiceProject, ArtsPrompt 
+  Language, SessionSlot, SessionSlotType 
 } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { GAMES_DATA } from '../data/games';
@@ -62,7 +61,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
           title: { de: 'Zitate-Studium & Die verschwindende Tafel', en: 'Scripture Study & Disappearing Board' },
           durationMinutes: 25,
           description: { de: 'Kollektives Einprägen eines Verses durch schrittweises Löschen von Wörtern.', en: 'Collective memorization of a scripture verse through progressive word erasure.' },
-          referenceId: 'verschwindende-tafel',
+          referenceId: 'die-verschwindende-tafel',
           referenceType: 'method'
         },
         {
@@ -722,7 +721,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
               ].map(f => (
                 <button
                   key={f.id}
-                  onClick={() => setPickerFilter(f.id as any)}
+                  onClick={() => setPickerFilter(f.id as typeof pickerFilter)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                     pickerFilter === f.id
                       ? 'bg-[#1d1d1f] text-white shadow-apple-pill font-semibold'

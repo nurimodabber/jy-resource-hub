@@ -40,9 +40,9 @@ export const App: React.FC = () => {
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('jy_favorites');
-      return saved ? JSON.parse(saved) : ['gemeinsam-zaehlen', 'helium-stick', 'ssp-evolution', 'empire', 'verschwindende-tafel'];
+      return saved ? JSON.parse(saved) : [];
     } catch {
-      return ['gemeinsam-zaehlen', 'helium-stick', 'ssp-evolution', 'empire', 'verschwindende-tafel'];
+      return [];
     }
   });
 

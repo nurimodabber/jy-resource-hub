@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { RotateCcw, Undo2, CheckCircle2, Sparkles } from 'lucide-react';
+import { RotateCcw, Undo2, CheckCircle2 } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
 

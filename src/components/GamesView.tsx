@@ -142,7 +142,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
               onClick={onClearShowOnlyFavorites}
               className="font-semibold text-[#0071e3] hover:underline shrink-0 ml-3"
             >
-              {language === 'de' ? 'Alle 29 Spiele anzeigen' : 'Show all 29 games'}
+              {language === 'de' ? `Alle ${GAMES_DATA.length} Spiele anzeigen` : `Show all ${GAMES_DATA.length} games`}
             </button>
           )}
         </div>

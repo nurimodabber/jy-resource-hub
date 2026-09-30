@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  Sparkles, Palette, Heart, Check, Copy, ChevronDown, ChevronUp, 
-  Clock, Plus, Bookmark, ArrowRight, ShieldCheck, Compass, Music, BookOpen 
+  Palette, Heart, Check, Copy, ChevronDown, ChevronUp, 
+  Clock, Plus 
 } from 'lucide-react';
 import { 
   Language, ServiceProject, ArtsPrompt, ServiceProjectCategory, 
@@ -31,7 +31,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   
   // Arts filters
   const [selectedArtForm, setSelectedArtForm] = useState<ArtForm | 'all'>('all');
-  const [expandedArtId, setExpandedArtId] = useState<string | null>(ARTS_PROMPTS_DATA[0].id);
+  const [_expandedArtId, _setExpandedArtId] = useState<string | null>(ARTS_PROMPTS_DATA[0].id);
 
   // Copy notification states
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -421,7 +421,6 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
           {/* Arts Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             {filteredArts.map((art) => {
-              const isExpanded = expandedArtId === art.id;
               const isCopied = copiedId === art.id;
               const isAdded = addedId === art.id;
 

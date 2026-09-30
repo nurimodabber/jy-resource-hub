@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Users, Timer, Dices, MessageSquareQuote, HeartHandshake, 
-  Play, Pause, RotateCcw, Volume2, VolumeX, Copy, Check, Plus, 
-  Shuffle, ArrowRight, Sparkles, AlertCircle 
+  Play, Pause, RotateCcw, Volume2, VolumeX, Copy, Check, 
+  Shuffle 
 } from 'lucide-react';
 import { Language } from '../types';
 import { DISCUSSION_CARDS, CAMP_BEST_PRACTICES } from '../data/toolkits';
@@ -83,7 +83,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language }) => {
   const playChime = () => {
     if (!soundEnabled) return;
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
       
