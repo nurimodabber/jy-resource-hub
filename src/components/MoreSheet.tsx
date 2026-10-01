@@ -269,9 +269,10 @@ export const MoreSheet: React.FC<MoreSheetProps> = ({
     </div>
   );
 
-  return (
-    <>
-      {/* 1. Desktop & Tablet Anchor Dropdown Panel (≥ 1024px) */}
+  const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
+
+  if (isDesktop) {
+    return (
       <div className="hidden lg:block">
         {/* Transparent backdrop for outside dismiss */}
         <div 
@@ -301,40 +302,41 @@ export const MoreSheet: React.FC<MoreSheetProps> = ({
           {content}
         </div>
       </div>
+    );
+  }
 
-      {/* 2. Mobile Bottom Sheet (< 1024px) */}
-      <div className="lg:hidden">
-        <div
-          className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs transition-opacity"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-        <div
-          ref={mobileSheetRef}
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-x-0 bottom-0 z-70 bg-surface rounded-t-3xl border-t border-border shadow-apple-modal p-5 max-h-[85vh] overflow-y-auto custom-scrollbar animate-in slide-in-from-bottom duration-250 outline-hidden safe-bottom"
-        >
-          {/* Drag Handle */}
-          <div className="w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto mb-4 shrink-0" />
+  return (
+    <div className="lg:hidden">
+      <div
+        className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs transition-opacity"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      <div
+        ref={mobileSheetRef}
+        role="dialog"
+        aria-modal="true"
+        className="fixed inset-x-0 bottom-0 z-70 bg-surface rounded-t-3xl border-t border-border shadow-apple-modal p-5 max-h-[85vh] overflow-y-auto custom-scrollbar animate-in slide-in-from-bottom duration-250 outline-hidden safe-bottom"
+      >
+        {/* Drag Handle */}
+        <div className="w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto mb-4 shrink-0" />
 
-          <div className="flex items-center justify-between pb-3 mb-4 border-b border-border">
-            <h3 className="text-sm font-bold text-text">
-              {t.moreSheetTitle || 'Menü & Einstellungen'}
-            </h3>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1 rounded-lg text-text-tertiary hover:text-text cursor-pointer"
-              aria-label="Schließen"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {content}
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-border">
+          <h3 className="text-sm font-bold text-text">
+            {t.moreSheetTitle || 'Menü & Einstellungen'}
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded-lg text-text-tertiary hover:text-text cursor-pointer"
+            aria-label="Schließen"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
+
+        {content}
       </div>
-    </>
+    </div>
   );
 };
