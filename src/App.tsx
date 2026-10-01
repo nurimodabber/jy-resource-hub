@@ -11,7 +11,7 @@ import { ToastProvider } from './context/ToastContext';
 import { PlannerProvider } from './context/PlannerContext';
 import { Language, NavTab, SessionSlot, Game, QuoteItem, QuoteMethod } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
-import { Music, FileText, ShieldCheck, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Logo } from './components/Logo';
 
 // Lazy-loaded routes for code-splitting
@@ -364,49 +364,47 @@ export const AppContent: React.FC = () => {
         onNavigate={handleCommandPaletteNavigate}
       />
 
-      {/* Footer (Desktop & Tablet) */}
-      <footer className="bg-surface/60 border-t border-border-subtle mt-16 py-8 text-xs text-text-secondary print:hidden safe-bottom hidden md:block">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-surface border border-border-subtle shadow-xs flex items-center justify-center p-0.5">
-              <Logo className="w-4 h-4" />
+      {/* Footer: Clean Minimal Two Rows */}
+      <footer className="bg-surface/70 border-t border-border mt-10 py-6 text-xs text-text-secondary print:hidden safe-bottom mb-16 md:mb-0">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-4">
+          {/* Row 1: Logo + Junior Youth Hub + one-line description */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 text-center sm:text-left">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-surface-2 border border-border flex items-center justify-center p-0.5 shrink-0">
+                <Logo className="w-4 h-4" />
+              </div>
+              <span className="font-bold text-text tracking-tight text-sm whitespace-nowrap">
+                {t.siteTitle}
+              </span>
             </div>
-            <span className="font-semibold text-text">{t.siteTitle}</span>
-            <span className="mx-2 text-text-tertiary">•</span>
-            <span>{t.footerNote}</span>
+            <p className="text-2xs sm:text-xs text-text-tertiary">
+              {t.footerNote}
+            </p>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setIsBahaiSongsOpen(true)}
-              className="text-text-secondary hover:text-text font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <Music className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Bahá'í Songs</span>
-            </button>
-            <span className="text-text-tertiary">•</span>
-            <button
-              onClick={() => handleTabChange('impressum')}
-              className="text-text-secondary hover:text-text transition-colors inline-flex items-center gap-1 cursor-pointer"
-            >
-              <FileText className="w-3.5 h-3.5 text-text-tertiary" />
-              <span>{t.impressumTitle || 'Impressum'}</span>
-            </button>
-            <span className="text-text-tertiary">•</span>
-            <button
-              onClick={() => handleTabChange('datenschutz')}
-              className="text-text-secondary hover:text-text transition-colors inline-flex items-center gap-1 cursor-pointer"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-text-tertiary" />
-              <span>{t.datenschutzTitle || 'Datenschutz'}</span>
-            </button>
-            <span className="text-text-tertiary">•</span>
-            <button
-              onClick={() => window.print()}
-              className="text-text-secondary hover:text-text transition-colors cursor-pointer"
-            >
-              {t.printHandout}
-            </button>
+          {/* Row 2: Impressum · Datenschutz on left, Copyright on right */}
+          <div className="pt-3 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-2xs text-text-tertiary text-center sm:text-left">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => handleTabChange('impressum')}
+                className="hover:text-brand font-medium transition-colors cursor-pointer whitespace-nowrap"
+              >
+                {t.impressumTitle || 'Impressum'}
+              </button>
+              <span>·</span>
+              <button
+                type="button"
+                onClick={() => handleTabChange('datenschutz')}
+                className="hover:text-brand font-medium transition-colors cursor-pointer whitespace-nowrap"
+              >
+                {t.datenschutzTitle || 'Datenschutzerklärung'}
+              </button>
+            </div>
+
+            <div className="whitespace-nowrap">
+              <span>© 2026 Junior Youth Hub</span>
+            </div>
           </div>
         </div>
       </footer>
