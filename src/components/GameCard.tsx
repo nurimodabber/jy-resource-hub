@@ -57,7 +57,7 @@ export const GameCard: React.FC<GameCardProps> = ({
     }
   };
 
-  // Compact View Layout
+  // Compact View Layout (Real dense list: title, tags, group, time, bookmark)
   if (compact) {
     return (
       <article
@@ -65,14 +65,19 @@ export const GameCard: React.FC<GameCardProps> = ({
         tabIndex={0}
         onClick={() => onSelect(game)}
         onKeyDown={handleKeyDown}
-        className="group relative bg-surface rounded-xl border border-border p-3 sm:p-3.5 shadow-xs hover:border-accent/40 hover:bg-surface-2 transition-all duration-150 cursor-pointer flex items-center justify-between gap-3 outline-hidden focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
+        className="group relative bg-surface rounded-xl border border-border p-3 sm:px-4 sm:py-2.5 shadow-xs hover:border-brand/40 hover:bg-surface-2 transition-all duration-150 cursor-pointer flex items-center justify-between gap-3 outline-hidden focus-visible:ring-2 focus-visible:ring-brand min-h-[48px]"
         aria-label={`${game.title[language]} (${getCategoryLabel()})`}
       >
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <Badge category={getCategory()} size="sm">
             {getCategoryLabel()}
           </Badge>
-          <h3 className="text-xs sm:text-sm font-bold text-text group-hover:text-accent transition-colors truncate">
+          {game.prepLevel === 'instant' && (
+            <span className="hidden xs:inline-flex text-2xs font-bold text-sage bg-sage-subtle px-2 py-0.5 rounded-full shrink-0">
+              0′
+            </span>
+          )}
+          <h3 className="text-xs sm:text-sm font-bold text-text group-hover:text-brand transition-colors truncate">
             {game.title[language]}
           </h3>
         </div>
@@ -94,37 +99,43 @@ export const GameCard: React.FC<GameCardProps> = ({
             size="sm"
             className={
               isFavorite
-                ? 'text-accent bg-accent-subtle hover:bg-accent/20'
+                ? 'text-accent-contrast bg-accent hover:bg-accent-hover'
                 : 'text-text-tertiary hover:text-text'
             }
           >
-            <Bookmark className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current text-accent' : ''}`} />
+            <Bookmark className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
           </IconButton>
         </div>
       </article>
     );
   }
 
-  // Standard Card Layout
+  // Standard Card Layout (Compact: 1 tag row, title max 2 lines, summary max 2 lines, meta row)
   return (
     <article
       role="button"
       tabIndex={0}
       onClick={() => onSelect(game)}
       onKeyDown={handleKeyDown}
-      className="group relative bg-surface rounded-2xl border border-border p-5 sm:p-6 shadow-xs hover:shadow-apple-card hover:border-accent/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+      className="group relative bg-surface rounded-2xl border border-border p-4 sm:p-4.5 shadow-xs hover:shadow-apple-card-hover hover:border-brand/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
       aria-label={`${game.title[language]} (${getCategoryLabel()})`}
     >
       <div>
-        {/* Top Meta Badges & Bookmark */}
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex flex-wrap items-center gap-1.5">
+        {/* Top Tag Row: Category + Intensity + "0′ Prep" Badge + Bookmark */}
+        <div className="flex items-center justify-between gap-2 mb-2.5">
+          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
             <Badge category={getCategory()} size="sm">
               {getCategoryLabel()}
             </Badge>
             <Badge category="neutral" size="sm">
               {getEnergyLabel()}
             </Badge>
+            {game.prepLevel === 'instant' && (
+              <span className="inline-flex items-center gap-0.5 text-2xs font-bold text-sage bg-sage-subtle px-2 py-0.5 rounded-full shrink-0">
+                <Sparkles className="w-3 h-3" />
+                <span>0′ Prep</span>
+              </span>
+            )}
           </div>
 
           <IconButton
@@ -133,27 +144,27 @@ export const GameCard: React.FC<GameCardProps> = ({
             size="sm"
             className={
               isFavorite
-                ? 'text-accent bg-accent-subtle hover:bg-accent/20'
+                ? 'text-accent-contrast bg-accent hover:bg-accent-hover'
                 : 'text-text-tertiary hover:text-text'
             }
           >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current text-accent' : ''}`} />
+            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
           </IconButton>
         </div>
 
-        {/* Title */}
-        <h3 className="text-base sm:text-lg font-bold text-text group-hover:text-accent transition-colors mb-2 leading-snug">
+        {/* Title (max 2 lines) */}
+        <h3 className="text-sm sm:text-base font-bold text-text group-hover:text-brand transition-colors mb-1.5 line-clamp-2 leading-snug">
           {game.title[language]}
         </h3>
 
-        {/* Summary */}
-        <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed mb-4">
+        {/* Summary (max 2 lines) */}
+        <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed mb-3">
           {game.summary[language]}
         </p>
       </div>
 
-      {/* Bottom Info Row - Fix clipping: flex-wrap, no inner overflow truncation */}
-      <div className="pt-3.5 border-t border-border flex items-center justify-between gap-2 text-xs text-text-secondary">
+      {/* Bottom Compact Meta Row: Group size + Duration */}
+      <div className="pt-2.5 border-t border-border flex items-center justify-between gap-2 text-2xs sm:text-xs text-text-secondary">
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1 font-medium shrink-0" title={`${game.groupSize.min}–${game.groupSize.max} ${t.peopleSuffix}`}>
             <Users className="w-3.5 h-3.5 text-text-tertiary" />
@@ -164,19 +175,9 @@ export const GameCard: React.FC<GameCardProps> = ({
             <Clock className="w-3.5 h-3.5 text-text-tertiary" />
             <span>{game.durationMinutes}′</span>
           </span>
-
-          {game.prepLevel === 'instant' && (
-            <span className="hidden xs:inline-flex items-center gap-0.5 text-2xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">
-              <Sparkles className="w-3 h-3" />
-              <span>0′ Prep</span>
-            </span>
-          )}
         </div>
 
-        <div className="inline-flex items-center gap-1 text-xs font-semibold text-accent-text group-hover:translate-x-0.5 transition-transform shrink-0">
-          <span className="hidden sm:inline">{t.viewDetails}</span>
-          <ChevronRight className="w-4 h-4" />
-        </div>
+        <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-brand group-hover:translate-x-0.5 transition-all shrink-0" />
       </div>
     </article>
   );

@@ -401,8 +401,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         )}
       </div>
 
-      {/* 2. Quotes List Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* 2. Quotes List Grid (3 columns on wide screens) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 sm:gap-4">
         {filteredQuotes.map((quote) => (
           <article
             key={quote.id}
@@ -415,11 +415,12 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 handleSelectQuoteItem(quote);
               }
             }}
-            className="group relative bg-surface rounded-2xl border border-border p-5 shadow-xs hover:border-accent/40 hover:shadow-apple-card transition-all cursor-pointer flex flex-col justify-between"
+            className="group relative bg-surface rounded-2xl border border-border p-4 sm:p-5 shadow-xs hover:border-brand/40 hover:shadow-apple-card-hover hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col justify-between outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+            aria-label={`${quote.theme[language]}: „${language === 'de' ? quote.textDe.slice(0, 40) : quote.textEn.slice(0, 40)}...“`}
           >
             <div>
               {/* Badges & Bookmark */}
-              <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center justify-between gap-2 mb-2.5">
                 <Badge category="study" size="sm">
                   {quote.theme[language]}
                 </Badge>
@@ -427,31 +428,28 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 <button
                   type="button"
                   onClick={(e) => onToggleFavorite(quote.id, e)}
-                  className={`p-1.5 rounded-full text-text-tertiary hover:text-text transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center ${
-                    favorites.includes(quote.id) ? 'text-accent fill-current' : ''
+                  className={`p-1.5 rounded-full text-text-tertiary hover:text-text transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer ${
+                    favorites.includes(quote.id) ? 'text-accent-contrast bg-accent hover:bg-accent-hover' : ''
                   }`}
                   aria-label="Lesezeichen"
                 >
-                  <Bookmark className={`w-4 h-4 ${favorites.includes(quote.id) ? 'fill-current text-accent' : ''}`} />
+                  <Bookmark className={`w-3.5 h-3.5 ${favorites.includes(quote.id) ? 'fill-current' : ''}`} />
                 </button>
               </div>
 
-              {/* Quote Excerpt in Serif */}
-              <blockquote className="font-serif italic text-base sm:text-lg text-text leading-relaxed line-clamp-3 mb-3">
+              {/* Quote Excerpt clamped to 3 lines in Lora serif */}
+              <blockquote className="font-serif italic text-sm sm:text-base text-text leading-relaxed line-clamp-3 mb-2.5">
                 „{language === 'de' ? quote.textDe : quote.textEn}“
               </blockquote>
             </div>
 
-            {/* Unclipped Source Line & Action */}
-            <div className="pt-3 border-t border-border flex items-center justify-between gap-2 text-xs text-text-secondary">
-              <span className="font-serif text-text-tertiary leading-snug line-clamp-2">
+            {/* Compact Source Line */}
+            <div className="pt-2.5 border-t border-border flex items-center justify-between gap-2 text-2xs text-text-secondary">
+              <span className="font-serif text-text-tertiary leading-snug truncate">
                 — {quote.source[language]} ({quote.book[language]})
               </span>
 
-              <span className="inline-flex items-center gap-1 font-semibold text-accent-text group-hover:translate-x-1 transition-transform shrink-0">
-                <span>{language === 'de' ? 'Lesen & Üben' : 'Read & Practice'}</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
+              <ChevronRight className="w-3.5 h-3.5 text-text-tertiary group-hover:text-brand group-hover:translate-x-0.5 transition-all shrink-0" />
             </div>
           </article>
         ))}
