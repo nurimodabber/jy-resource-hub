@@ -67,8 +67,8 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack }
           </h2>
           <p>
             {language === 'de'
-              ? 'Diese Web-App ist ein nicht-kommerzielles, ehrenamtliches Praxis-Werkzeug für Animatoren und Gruppenleiter von Bahá\'í-Juniorjugendgruppen und Sommercamps. Sie dient dem Erfahrungsaustausch und der Unterstützung bei der Vorbereitung von Stunden.'
-              : 'This web application is a non-commercial, voluntary educational toolkit for animators and facilitators of Bahá\'í junior youth groups and summer camps. It serves pedagogical preparation and experience sharing.'}
+              ? 'Diese Web-App ist ein nicht-kommerzielles, ehrenamtliches Praxis-Werkzeug für Animatoren von Bahá\'í-Juniorjugendgruppen und Sommercamps. Sie dient dem Erfahrungsaustausch und der Unterstützung bei der Vorbereitung von Stunden.'
+              : 'This web application is a non-commercial, voluntary educational toolkit for animators of Bahá\'í junior youth groups and summer camps. It serves pedagogical preparation and experience sharing.'}
           </p>
         </section>
 

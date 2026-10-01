@@ -1,21 +1,27 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
-  Users, Timer, Dices, MessageSquareQuote, HeartHandshake, 
+  Users, Timer, Dices, MessageSquareQuote, 
   Play, Pause, RotateCcw, Volume2, VolumeX, Copy, Check, 
-  Shuffle 
+  ChevronRight, ArrowLeft, Crown, Shuffle 
 } from 'lucide-react';
 import { Language } from '../types';
-import { DISCUSSION_CARDS, CAMP_BEST_PRACTICES } from '../data/toolkits';
+import { DISCUSSION_CARDS } from '../data/toolkits';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { EmpireBoard } from './EmpireBoard';
 
 interface ToolkitsViewProps {
   language: Language;
+  toolId?: string | null;
 }
 
-export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language }) => {
-  const [activeTab, setActiveTab] = useState<'teams' | 'timer' | 'empire' | 'discussion' | 'playbook'>('teams');
+type ToolKey = 'teams' | 'timer' | 'cards' | 'empire';
+
+export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: propToolId }) => {
+  const { toolId: routeToolId } = useParams<{ toolId?: string }>();
+  const toolId = propToolId ?? routeToolId;
   const t = UI_TRANSLATIONS[language];
+  const navigate = useNavigate();
 
   // -------------------------
   // 1. TEAM SPLITTER STATE
@@ -30,12 +36,11 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language }) => {
   const handleShuffleTeams = () => {
     const rawNames = namesText
       .split(/[\n,]+/)
-      .map(n => n.trim())
-      .filter(n => n.length > 0);
+      .map((n) => n.trim())
+      .filter((n) => n.length > 0);
 
     if (rawNames.length === 0) return;
 
-    // Shuffle array (Fisher-Yates)
     const shuffled = [...rawNames];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -45,7 +50,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language }) => {
     const count = isPairsMode ? Math.max(1, Math.ceil(shuffled.length / 2)) : teamCount;
     const teams: { id: number; members: string[] }[] = Array.from({ length: count }, (_, i) => ({
       id: i + 1,
-      members: []
+      members: [],
     }));
 
     shuffled.forEach((name, index) => {
@@ -57,37 +62,31 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language }) => {
 
   const handleCopyTeams = () => {
     if (generatedTeams.length === 0) return;
-    const lines = generatedTeams.map(team => {
+    const lines = generatedTeams.map((team) => {
       const title = isPairsMode ? `👥 Tandem ${team.id}` : `🏆 ${t.teamLabel} ${team.id}`;
-      return `${title}:\n${team.members.map(m => `  • ${m}`).join('\n')}`;
+      return `${title}:\n${team.members.map((m) => `  • ${m}`).join('\n')}`;
     });
     navigator.clipboard.writeText(lines.join('\n\n'));
     setCopiedTeams(true);
     setTimeout(() => setCopiedTeams(false), 2000);
   };
 
-  const handleLoadDemoNames = () => {
-    setNamesText(defaultNames);
-  };
-
   // -------------------------
   // 2. COUNTDOWN TIMER STATE
   // -------------------------
-  const [totalSeconds, setTotalSeconds] = useState(300); // Default 5 min
+  const [totalSeconds, setTotalSeconds] = useState(300); // 5 min
   const [secondsRemaining, setSecondsRemaining] = useState(300);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const timerRef = useRef<number | null>(null);
 
-  // Synthesize Web Audio chime (no external mp3 file needed, 100% offline!)
-  const playChime = () => {
+  const playChime = useCallback(() => {
     if (!soundEnabled) return;
     try {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (!AudioCtx) return;
       const ctx = new AudioCtx();
-      
-      const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 chime chord
+      const freqs = [523.25, 659.25, 783.99, 1046.50];
       freqs.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -101,16 +100,15 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language }) => {
         osc.stop(ctx.currentTime + 1.5 + idx * 0.2);
       });
     } catch {
-      // AudioContext policy fallback
+      // AudioContext may be blocked before first user gesture
     }
-  };
+  }, [soundEnabled]);
 
   useEffect(() => {
     if (isTimerRunning) {
       timerRef.current = window.setInterval(() => {
-        setSecondsRemaining(prev => {
+        setSecondsRemaining((prev) => {
           if (prev <= 1) {
-            clearInterval(timerRef.current!);
             setIsTimerRunning(false);
             playChime();
             return 0;
@@ -121,411 +119,423 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language }) => {
     } else if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isTimerRunning, soundEnabled]);
+  }, [isTimerRunning, playChime]);
 
-  const handleSetTimer = (seconds: number) => {
+  const handleStartPauseTimer = () => {
+    if (secondsRemaining === 0) {
+      setSecondsRemaining(totalSeconds);
+      setIsTimerRunning(true);
+    } else {
+      setIsTimerRunning(!isTimerRunning);
+    }
+  };
+
+  const handleResetTimer = () => {
     setIsTimerRunning(false);
-    setTotalSeconds(seconds);
-    setSecondsRemaining(seconds);
+    setSecondsRemaining(totalSeconds);
   };
 
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  const handlePresetTime = (sec: number) => {
+    setIsTimerRunning(false);
+    setTotalSeconds(sec);
+    setSecondsRemaining(sec);
   };
 
-  const progressPercent = totalSeconds > 0 
-    ? ((totalSeconds - secondsRemaining) / totalSeconds) * 100 
-    : 0;
+  const formatTimerDigits = (sec: number) => {
+    const mins = Math.floor(sec / 60);
+    const secs = sec % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  // -------------------------
+  // 3. DISCUSSION CARDS STATE
+  // -------------------------
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const activeDiscussionCard = DISCUSSION_CARDS[currentCardIndex];
+
+  const handleDrawNextCard = () => {
+    const nextIdx = (currentCardIndex + 1 + Math.floor(Math.random() * (DISCUSSION_CARDS.length - 1))) % DISCUSSION_CARDS.length;
+    setCurrentCardIndex(nextIdx);
+  };
+
+  // Overview 4 Tools Definitions
+  const toolsList: { id: ToolKey; titleDe: string; titleEn: string; descDe: string; descEn: string; icon: React.FC<{ className?: string }> }[] = [
+    {
+      id: 'teams',
+      titleDe: 'Gruppenteiler & Tandems',
+      titleEn: 'Team & Tandem Splitter',
+      descDe: 'Faire, zufällige Team- und Tandem-Aufteilung ohne Ausgrenzung.',
+      descEn: 'Fair, balanced random team generator and partnership splitter.',
+      icon: Users,
+    },
+    {
+      id: 'timer',
+      titleDe: 'Countdown-Timer',
+      titleEn: 'Countdown Timer',
+      descDe: 'Große, klare Zeitanzeige mit Glockenschlag für Spiele und Andachten.',
+      descEn: 'Large visual timer with acoustic chime for games and group focus.',
+      icon: Timer,
+    },
+    {
+      id: 'cards',
+      titleDe: 'Reflexions- & Beratungskarten',
+      titleEn: 'Reflection & Discussion Cards',
+      descDe: 'Inspirierende Fragen und Zitate zur Vertiefung von Gruppengesprächen.',
+      descEn: 'Consultation prompts and deepening questions for junior youth circles.',
+      icon: MessageSquareQuote,
+    },
+    {
+      id: 'empire',
+      titleDe: 'Empire-Spielleitung',
+      titleEn: 'Empire Game Assistant',
+      descDe: 'Kategorien-Generator und digitaler Spielleiter für das beliebte Geländespiel.',
+      descEn: 'Category generator and board tracker for the classic Empire game.',
+      icon: Crown,
+    },
+  ];
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* Editorial Header & 5-Segment Tool Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-black/[0.06] pb-5">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1d1d1f]">
-            {t.toolsHeaderTitle}
-          </h1>
-          <p className="text-xs sm:text-sm text-[#86868b] mt-1 max-w-xl font-normal leading-relaxed">
-            {t.toolsHeaderDesc}
-          </p>
-        </div>
+    <div className="space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in duration-200">
+      
+      {/* If toolId is not specified, show 4 Cards Section Page */}
+      {!toolId ? (
+        <div className="space-y-6">
+          <div className="bg-surface rounded-3xl border border-border p-5 sm:p-7 shadow-xs">
+            <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
+              {t.tabTools}
+            </h1>
+            <p className="text-xs sm:text-sm text-text-secondary mt-1">
+              {language === 'de' 
+                ? '4 interaktive Werkzeuge zur Begleitung von Gruppen und Camps.' 
+                : '4 practical utilities for running junior youth groups and camps.'}
+            </p>
+          </div>
 
-        {/* Apple Segmented Control */}
-        <div className="overflow-x-auto pb-1 custom-scrollbar">
-          <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
-            <button
-              onClick={() => setActiveTab('teams')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full font-medium transition-all ${
-                activeTab === 'teams'
-                  ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                  : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>{t.tabTeamSplitter}</span>
-            </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {toolsList.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <div
+                  key={tool.id}
+                  onClick={() => navigate(`/tools/${tool.id}`)}
+                  className="bg-surface rounded-3xl border border-border p-6 shadow-xs hover:border-accent/40 hover:shadow-apple-card transition-all cursor-pointer flex flex-col justify-between group"
+                >
+                  <div className="space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-accent-subtle text-accent-text flex items-center justify-center">
+                      <Icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-base sm:text-lg font-bold text-text group-hover:text-accent transition-colors">
+                        {language === 'de' ? tool.titleDe : tool.titleEn}
+                      </h2>
+                      <p className="text-xs sm:text-sm text-text-secondary mt-1 leading-relaxed">
+                        {language === 'de' ? tool.descDe : tool.descEn}
+                      </p>
+                    </div>
+                  </div>
 
-            <button
-              onClick={() => setActiveTab('timer')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full font-medium transition-all ${
-                activeTab === 'timer'
-                  ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                  : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-              }`}
-            >
-              <Timer className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{t.tabCountdownTimer}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('empire')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full font-medium transition-all ${
-                activeTab === 'empire'
-                  ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                  : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-              }`}
-            >
-              <Dices className="w-3.5 h-3.5 text-amber-600" />
-              <span>{t.tabEmpireTool}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('discussion')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full font-medium transition-all ${
-                activeTab === 'discussion'
-                  ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                  : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-              }`}
-            >
-              <MessageSquareQuote className="w-3.5 h-3.5" />
-              <span>{t.tabDiscussionTool} ({DISCUSSION_CARDS.length})</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('playbook')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full font-medium transition-all ${
-                activeTab === 'playbook'
-                  ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                  : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-              }`}
-            >
-              <HeartHandshake className="w-3.5 h-3.5" />
-              <span>{t.tabPlaybookTool}</span>
-            </button>
+                  <div className="pt-4 mt-2 border-t border-border flex items-center justify-between text-xs font-semibold text-accent-text">
+                    <span>{language === 'de' ? 'Werkzeug öffnen' : 'Open Tool'}</span>
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
-      </div>
-
-      {/* 1. FAIR TEAM SPLITTER */}
-      {activeTab === 'teams' && (
-        <div className="bg-white rounded-3xl border border-black/[0.06] p-6 sm:p-8 shadow-apple-card space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-black/[0.05] pb-4">
-            <div>
-              <h2 className="text-lg font-semibold text-[#1d1d1f] flex items-center gap-2">
-                <Users className="w-4 h-4 text-[#0071e3]" />
-                <span>{t.teamSplitterTitle}</span>
-              </h2>
-              <p className="text-xs text-[#86868b] mt-0.5">
-                {t.teamSplitterDesc}
-              </p>
-            </div>
-
+      ) : (
+        /* Full-Width Tool View */
+        <div className="space-y-6">
+          {/* Back Navigation Bar */}
+          <div className="flex items-center justify-between">
             <button
-              onClick={handleLoadDemoNames}
-              className="px-3.5 py-1.5 text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors self-start sm:self-auto"
+              type="button"
+              onClick={() => navigate('/tools')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[36px]"
             >
-              {language === 'de' ? 'Beispiel-Gruppe einfügen' : 'Insert sample roster'}
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>{language === 'de' ? 'Alle Werkzeuge' : 'All Tools'}</span>
             </button>
           </div>
 
-          {/* Names Input Area */}
-          <div className="space-y-2">
-            <textarea
-              value={namesText}
-              onChange={(e) => setNamesText(e.target.value)}
-              placeholder={t.namesInputPlaceholder}
-              rows={3}
-              className="w-full text-xs sm:text-sm p-4 rounded-2xl bg-black/[0.03] border border-black/[0.08] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0071e3]/20 focus:border-[#0071e3] transition-all text-[#1d1d1f] placeholder:text-[#86868b]"
-            />
-          </div>
-
-          {/* Controls: Mode & Count & Shuffle */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-[#86868b] font-medium">{t.teamCountLabel}</span>
-              <div className="inline-flex items-center p-0.5 bg-black/[0.05] rounded-full border border-black/[0.03]">
-                {[2, 3, 4, 5, 6].map(num => (
-                  <button
-                    key={num}
-                    onClick={() => {
-                      setIsPairsMode(false);
-                      setTeamCount(num);
-                    }}
-                    className={`w-7 h-7 rounded-full text-xs font-semibold transition-all ${
-                      teamCount === num && !isPairsMode
-                        ? 'bg-white text-[#1d1d1f] shadow-apple-pill'
-                        : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                    }`}
-                  >
-                    {num}
-                  </button>
-                ))}
+          {/* Tool 1: Gruppenteiler */}
+          {toolId === 'teams' && (
+            <div className="bg-surface rounded-3xl border border-border p-5 sm:p-8 shadow-xs space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold text-text">
+                  {language === 'de' ? 'Gruppenteiler & Tandems' : 'Team & Tandem Splitter'}
+                </h1>
+                <p className="text-xs sm:text-sm text-text-secondary mt-1">
+                  {language === 'de' ? 'Namen eingeben und in faire, zufällige Gruppen einteilen.' : 'Enter names and generate fair random groups.'}
+                </p>
               </div>
 
-              <button
-                onClick={() => setIsPairsMode(!isPairsMode)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
-                  isPairsMode
-                    ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-apple-pill'
-                    : 'bg-white text-[#6e6e73] border-black/[0.06] hover:text-[#1d1d1f]'
-                }`}
-              >
-                {t.pairsModeBtn}
-              </button>
-            </div>
+              {/* Names Input Area */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-text-secondary">
+                  <span>{t.enterNamesLabel}</span>
+                  <button
+                    type="button"
+                    onClick={() => setNamesText(defaultNames)}
+                    className="text-accent-text hover:underline font-semibold"
+                  >
+                    {t.loadDemoNames}
+                  </button>
+                </div>
+                <textarea
+                  value={namesText}
+                  onChange={(e) => setNamesText(e.target.value)}
+                  placeholder="Amin, Leyla, Jonas, Maya..."
+                  rows={3}
+                  className="w-full p-3.5 text-xs sm:text-sm rounded-2xl bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent"
+                />
+              </div>
 
-            <button
-              onClick={handleShuffleTeams}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold rounded-full shadow-apple-pill transition-all"
-            >
-              <Shuffle className="w-3.5 h-3.5" />
-              <span>{t.shuffleTeamsBtn}</span>
-            </button>
-          </div>
+              {/* Controls: Mode & Count */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-surface-2 rounded-2xl border border-border text-xs">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsPairsMode(false)}
+                    className={`px-3 py-1.5 rounded-xl font-medium transition-colors ${
+                      !isPairsMode ? 'bg-surface text-text shadow-xs font-bold' : 'text-text-secondary hover:text-text'
+                    }`}
+                  >
+                    {language === 'de' ? 'Teams' : 'Teams'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsPairsMode(true)}
+                    className={`px-3 py-1.5 rounded-xl font-medium transition-colors ${
+                      isPairsMode ? 'bg-surface text-text shadow-xs font-bold' : 'text-text-secondary hover:text-text'
+                    }`}
+                  >
+                    {language === 'de' ? 'Zweier-Tandems' : 'Pairs'}
+                  </button>
+                </div>
 
-          {/* Results: Team Cards */}
-          {generatedTeams.length > 0 && (
-            <div className="space-y-4 pt-4 border-t border-black/[0.05]">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#86868b]">
-                  {isPairsMode ? `${generatedTeams.length} Tandems` : `${generatedTeams.length} Teams`}
-                </span>
+                {!isPairsMode && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-text-secondary">{language === 'de' ? 'Anzahl Teams:' : 'Number of teams:'}</span>
+                    {[2, 3, 4, 5].map((cnt) => (
+                      <button
+                        key={cnt}
+                        type="button"
+                        onClick={() => setTeamCount(cnt)}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs transition-colors ${
+                          teamCount === cnt ? 'bg-accent text-accent-contrast shadow-xs' : 'bg-surface border border-border text-text'
+                        }`}
+                      >
+                        {cnt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
+              {/* Single Primary Action: Teams auslosen */}
+              <div>
                 <button
-                  onClick={handleCopyTeams}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0071e3] hover:underline"
+                  type="button"
+                  onClick={handleShuffleTeams}
+                  disabled={!namesText.trim()}
+                  className="w-full py-3.5 px-4 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-bold text-sm shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-40 min-h-[44px]"
                 >
-                  {copiedTeams ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedTeams ? t.teamsCopied : t.copyTeamsBtn}</span>
+                  <Shuffle className="w-4 h-4" />
+                  <span>{language === 'de' ? 'Teams jetzt auslosen' : 'Shuffle Teams Now'}</span>
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {generatedTeams.map(team => (
-                  <div
-                    key={team.id}
-                    className="p-4 bg-[#f5f5f7] border border-black/[0.04] rounded-2xl space-y-2 shadow-2xs"
-                  >
-                    <div className="flex items-center justify-between border-b border-black/[0.05] pb-2">
-                      <span className="font-semibold text-xs text-[#1d1d1f]">
-                        {isPairsMode ? `👥 Tandem ${team.id}` : `🏆 ${t.teamLabel} ${team.id}`}
-                      </span>
-                      <span className="text-[11px] font-mono text-[#86868b]">
-                        {team.members.length} {language === 'de' ? 'Pers.' : 'youth'}
-                      </span>
-                    </div>
-
-                    <ul className="space-y-1 text-xs text-[#1d1d1f]">
-                      {team.members.map((member, i) => (
-                        <li key={i} className="flex items-center gap-1.5 font-medium">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#0071e3]" />
-                          <span>{member}</span>
-                        </li>
-                      ))}
-                    </ul>
+              {/* Generated Teams Grid */}
+              {generatedTeams.length > 0 && (
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-text">
+                      {language === 'de' ? 'Ausgeloste Teams' : 'Generated Teams'} ({generatedTeams.length})
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={handleCopyTeams}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-xs font-medium text-text transition-colors cursor-pointer"
+                    >
+                      {copiedTeams ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedTeams ? (language === 'de' ? 'Kopiert!' : 'Copied!') : (language === 'de' ? 'Teams kopieren' : 'Copy Teams')}</span>
+                    </button>
                   </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {generatedTeams.map((team) => (
+                      <div key={team.id} className="p-4 rounded-2xl bg-surface-2 border border-border space-y-2">
+                        <span className="text-xs font-bold text-accent-text block">
+                          {isPairsMode ? `👥 Tandem ${team.id}` : `🏆 Team ${team.id}`} ({team.members.length})
+                        </span>
+                        <ul className="text-xs sm:text-sm text-text space-y-1">
+                          {team.members.map((m, idx) => (
+                            <li key={idx} className="flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                              <span>{m}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tool 2: Countdown Timer */}
+          {toolId === 'timer' && (
+            <div className="bg-surface rounded-3xl border border-border p-6 sm:p-12 shadow-xs text-center space-y-8">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-text">
+                  {language === 'de' ? 'Countdown-Timer' : 'Countdown Timer'}
+                </h1>
+                <p className="text-xs sm:text-sm text-text-secondary mt-1">
+                  {language === 'de' ? 'Präziser Gruppen-Timer mit akustischem Glockensignal.' : 'Visual countdown with acoustic chime.'}
+                </p>
+              </div>
+
+              {/* Big Digital Display */}
+              <div className="py-4">
+                <div className="text-6xl sm:text-8xl font-mono font-extrabold text-accent-text tracking-tighter select-none">
+                  {formatTimerDigits(secondsRemaining)}
+                </div>
+              </div>
+
+              {/* Single Primary Action: Timer starten */}
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleStartPauseTimer}
+                  className="px-8 py-3.5 rounded-2xl bg-accent text-accent-contrast hover:bg-accent-hover font-bold text-base flex items-center gap-2 shadow-xs transition-colors cursor-pointer min-h-[48px]"
+                >
+                  {isTimerRunning ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+                  <span>{isTimerRunning ? (language === 'de' ? 'Timer anhalten' : 'Pause Timer') : (language === 'de' ? 'Timer starten' : 'Start Timer')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResetTimer}
+                  className="p-3.5 rounded-2xl bg-surface-2 hover:bg-surface-raised border border-border text-text transition-colors cursor-pointer min-h-[48px] min-w-[48px] flex items-center justify-center"
+                  aria-label="Zurücksetzen"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  className={`p-3.5 rounded-2xl border transition-colors cursor-pointer min-h-[48px] min-w-[48px] flex items-center justify-center ${
+                    soundEnabled ? 'bg-surface-2 border-border text-text' : 'border-border text-text-tertiary'
+                  }`}
+                  aria-label="Ton an/aus"
+                >
+                  {soundEnabled ? <Volume2 className="w-5 h-5 text-accent-text" /> : <VolumeX className="w-5 h-5" />}
+                </button>
+              </div>
+
+              {/* Preset Buttons */}
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-border">
+                {[60, 180, 300, 600, 900].map((sec) => (
+                  <button
+                    key={sec}
+                    type="button"
+                    onClick={() => handlePresetTime(sec)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                      totalSeconds === sec && !isTimerRunning
+                        ? 'bg-accent text-accent-contrast'
+                        : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+                    }`}
+                  >
+                    {sec / 60} Min.
+                  </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Tool 3: Reflexionskarten */}
+          {toolId === 'cards' && (
+            <div className="bg-surface rounded-3xl border border-border p-6 sm:p-10 shadow-xs space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold text-text">
+                  {language === 'de' ? 'Reflexions- & Beratungskarten' : 'Reflection & Discussion Cards'}
+                </h1>
+                <p className="text-xs sm:text-sm text-text-secondary mt-1">
+                  {language === 'de' ? 'Inspirierende Impulse für Gruppenberatung und Vertiefung.' : 'Thought-provoking prompts for group consultation.'}
+                </p>
+              </div>
+
+              {/* Active Discussion Card */}
+              {activeDiscussionCard && (
+                <div className="p-6 sm:p-8 rounded-3xl bg-surface-2 border border-border space-y-5 text-center">
+                  <span className="text-2xs font-semibold uppercase tracking-wider text-accent-text block">
+                    {activeDiscussionCard.theme[language]}
+                  </span>
+
+                  <h2 className="text-xl sm:text-3xl font-bold text-text leading-snug">
+                    „{activeDiscussionCard.coreQuestion[language]}“
+                  </h2>
+
+                  <blockquote className="font-serif italic text-xs sm:text-sm text-text-secondary max-w-lg mx-auto">
+                    „{activeDiscussionCard.quoteSnippet[language]}“
+                  </blockquote>
+
+                  {activeDiscussionCard.deepeningQuestions[language].length > 0 && (
+                    <div className="pt-4 border-t border-border max-w-md mx-auto text-left space-y-2">
+                      <span className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary block">
+                        {language === 'de' ? 'Vertiefungsfragen:' : 'Deepening Questions:'}
+                      </span>
+                      <ul className="text-xs text-text-secondary space-y-1">
+                        {activeDiscussionCard.deepeningQuestions[language].map((q, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-accent font-bold">•</span>
+                            <span>{q}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Single Primary Action: Nächste Karte ziehen */}
+              <div>
+                <button
+                  type="button"
+                  onClick={handleDrawNextCard}
+                  className="w-full py-3.5 px-4 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-bold text-sm shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px]"
+                >
+                  <Dices className="w-4 h-4" />
+                  <span>{language === 'de' ? 'Nächste Karte ziehen' : 'Draw Next Card'}</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Tool 4: Empire Board Assistant */}
+          {toolId === 'empire' && (
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold text-text">
+                  {language === 'de' ? 'Empire-Spielleitung' : 'Empire Game Assistant'}
+                </h1>
+                <p className="text-xs sm:text-sm text-text-secondary mt-1">
+                  {language === 'de' ? 'Kategorien-Generator und digitaler Spielleiter für das Empire-Spiel.' : 'Category generator and board tracker for the Empire game.'}
+                </p>
+              </div>
+
+              <EmpireBoard language={language} />
             </div>
           )}
         </div>
       )}
 
-      {/* 2. ACTIVITY & REFLECTION COUNTDOWN TIMER */}
-      {activeTab === 'timer' && (
-        <div className="bg-white rounded-3xl border border-black/[0.06] p-8 sm:p-12 shadow-apple-card space-y-8 text-center max-w-2xl mx-auto">
-          <div>
-            <h2 className="text-xl font-semibold text-[#1d1d1f]">
-              {t.timerTitle}
-            </h2>
-            <p className="text-xs text-[#86868b] mt-1">
-              {t.timerDesc}
-            </p>
-          </div>
-
-          {/* Preset Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {[
-              { label: t.timer1Min, secs: 60 },
-              { label: t.timer3Min, secs: 180 },
-              { label: t.timer5Min, secs: 300 },
-              { label: t.timer10Min, secs: 600 },
-              { label: t.timer15Min, secs: 900 },
-            ].map(p => (
-              <button
-                key={p.secs}
-                onClick={() => handleSetTimer(p.secs)}
-                className={`px-3.5 py-1 text-xs font-semibold rounded-full transition-all border ${
-                  totalSeconds === p.secs
-                    ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-apple-pill'
-                    : 'bg-white text-[#6e6e73] border-black/[0.06] hover:text-[#1d1d1f]'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Large Digital Clock Face */}
-          <div className="space-y-4">
-            <div className={`font-mono text-6xl sm:text-7xl font-light tracking-tight transition-colors ${
-              secondsRemaining === 0 ? 'text-rose-600 animate-pulse' : 'text-[#1d1d1f]'
-            }`}>
-              {formatTime(secondsRemaining)}
-            </div>
-
-            {/* Subtle Progress Bar */}
-            <div className="w-full max-w-md mx-auto h-1.5 bg-black/[0.05] rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-[#0071e3] transition-all duration-1000 rounded-full"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-
-            {secondsRemaining === 0 && (
-              <p className="text-sm font-semibold text-rose-600 animate-in fade-in">
-                🔔 {t.timerFinished}
-              </p>
-            )}
-          </div>
-
-          {/* Primary Controls */}
-          <div className="flex items-center justify-center gap-3">
-            <button
-              onClick={() => setIsTimerRunning(!isTimerRunning)}
-              className="flex items-center gap-2 px-8 py-3 bg-[#1d1d1f] hover:bg-black text-white text-sm font-semibold rounded-full shadow-apple-pill transition-all"
-            >
-              {isTimerRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
-              <span>{isTimerRunning ? t.pauseTimer : t.startTimer}</span>
-            </button>
-
-            <button
-              onClick={() => handleSetTimer(totalSeconds)}
-              className="p-3 text-[#86868b] hover:text-[#1d1d1f] border border-black/[0.08] hover:bg-black/[0.04] rounded-full transition-colors"
-              title={t.resetTimer}
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              className={`p-3 rounded-full border transition-colors ${
-                soundEnabled 
-                  ? 'border-emerald-600/30 text-emerald-600 bg-emerald-500/10' 
-                  : 'border-black/[0.08] text-[#86868b]'
-              }`}
-              title={t.soundToggleLabel}
-            >
-              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* 3. EMPIRE GAME ASSISTANT */}
-      {activeTab === 'empire' && (
-        <EmpireBoard language={language} />
-      )}
-
-      {/* 4. DISCUSSION CARDS (10 Deepening Cards) */}
-      {activeTab === 'discussion' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          {DISCUSSION_CARDS.map((card) => (
-            <div
-              key={card.id}
-              className="bg-white rounded-2xl border border-black/[0.06] p-6 shadow-apple-card space-y-4 flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-black/[0.04] text-[#1d1d1f]">
-                    {card.theme[language]}
-                  </span>
-                </div>
-
-                <h3 className="text-base font-semibold text-[#1d1d1f] leading-snug">
-                  {card.title[language]}
-                </h3>
-
-                <blockquote className="italic font-serif text-xs text-[#6e6e73] border-l-2 border-black/20 pl-3 py-1 bg-[#f5f5f7] rounded-r-xl leading-relaxed">
-                  {card.quoteSnippet[language]}
-                </blockquote>
-
-                <div className="bg-[#f5f5f7] border border-black/[0.03] p-3.5 rounded-xl">
-                  <strong className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider block mb-1">
-                    {t.coreQuestionLabel}:
-                  </strong>
-                  <p className="text-xs text-[#1d1d1f] leading-relaxed font-medium">
-                    {card.coreQuestion[language]}
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t border-black/[0.04] space-y-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#86868b] block">
-                  {t.deepeningQuestionsLabel}:
-                </span>
-                <ul className="space-y-1 text-xs text-[#6e6e73]">
-                  {card.deepeningQuestions[language].map((q, i) => (
-                    <li key={i} className="flex items-start gap-1.5">
-                      <span className="text-[#aeaeb2] font-bold">•</span>
-                      <span className="leading-relaxed font-normal">{q}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* 5. FACILITATOR PLAYBOOK & BEST PRACTICES */}
-      {activeTab === 'playbook' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-          {CAMP_BEST_PRACTICES.map((bp) => (
-            <div
-              key={bp.id}
-              className="bg-white rounded-2xl border border-black/[0.06] p-6 shadow-apple-card space-y-4"
-            >
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-black/[0.04] text-[#1d1d1f]">
-                {bp.area[language]}
-              </span>
-
-              <h3 className="text-sm font-semibold text-[#1d1d1f] leading-snug">
-                {bp.title[language]}
-              </h3>
-
-              <p className="text-xs font-serif italic text-[#1d1d1f] bg-[#f5f5f7] border border-black/[0.03] p-3.5 rounded-xl leading-relaxed">
-                „{bp.quoteOrMotto[language]}“
-              </p>
-
-              <ul className="space-y-1.5 text-xs text-[#6e6e73]">
-                {bp.keyInsights[language].map((insight, idx) => (
-                  <li key={idx} className="flex items-start gap-1.5">
-                    <span className="text-[#aeaeb2]">•</span>
-                    <span className="leading-relaxed font-normal">{insight}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

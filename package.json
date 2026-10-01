@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src",
-    "check": "tsc --noEmit && eslint src"
+    "check": "tsc --noEmit && eslint src",
+    "test:e2e": "node tests/e2e.spec.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.16.0",
@@ -17,6 +18,7 @@
     "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

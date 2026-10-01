@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
-  Palette, Heart, Check, Copy, ChevronDown, ChevronUp, 
-  Clock, Plus 
+  Palette, Heart, Check, Copy, Clock, Plus, 
+  X, MessageCircle, ChevronRight, SlidersHorizontal, Sparkles 
 } from 'lucide-react';
 import { 
   Language, ServiceProject, ArtsPrompt, ServiceProjectCategory, 
@@ -10,505 +11,637 @@ import {
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from '../data/artsPrompts';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { Badge } from './ui/Badge';
+import { Dialog } from './ui/Dialog';
+import { Sheet } from './ui/Sheet';
+import { usePlanner } from '../context/PlannerContext';
+import { useToast } from '../context/ToastContext';
+import { generateWhatsAppLink } from '../utils/share';
 
 interface ServiceArtsViewProps {
   language: Language;
   searchQuery: string;
   onAddToPlanner?: (slot: SessionSlot) => void;
+  selectedId?: string | null;
 }
+
+type TabType = 'all' | 'service' | 'arts';
 
 export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   language,
-  searchQuery,
-  onAddToPlanner,
+  searchQuery: externalSearchQuery,
+  selectedId: propSelectedId,
 }) => {
-  const [subTab, setSubTab] = useState<'service' | 'arts'>('service');
-  
-  // Service filters
+  const { id: routeId } = useParams<{ id?: string }>();
+  const effectiveId = propSelectedId ?? routeId;
+  const t = UI_TRANSLATIONS[language];
+  const navigate = useNavigate();
+  const { addSlotToPlan } = usePlanner();
+  const { showToast } = useToast();
+
+  const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [localSearch, setLocalSearch] = useState('');
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<ServiceProjectCategory | 'all'>('all');
   const [selectedScope, setSelectedScope] = useState<ServiceProjectScope | 'all'>('all');
-  const [expandedProjectId, setExpandedProjectId] = useState<string | null>(SERVICE_PROJECTS_DATA[0].id);
-  
-  // Arts filters
   const [selectedArtForm, setSelectedArtForm] = useState<ArtForm | 'all'>('all');
-  const [_expandedArtId, _setExpandedArtId] = useState<string | null>(ARTS_PROMPTS_DATA[0].id);
 
-  // Copy notification states
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [addedId, setAddedId] = useState<string | null>(null);
+  const [activeItem, setActiveItem] = useState<{
+    type: 'service' | 'art';
+    data: ServiceProject | ArtsPrompt;
+  } | null>(null);
 
-  const t = UI_TRANSLATIONS[language];
+  // Sync prop / route param
+  useEffect(() => {
+    if (effectiveId) {
+      const serviceMatch = SERVICE_PROJECTS_DATA.find((p) => p.id === effectiveId);
+      if (serviceMatch) {
+        setActiveItem({ type: 'service', data: serviceMatch });
+        return;
+      }
+      const artMatch = ARTS_PROMPTS_DATA.find((a) => a.id === effectiveId);
+      if (artMatch) {
+        setActiveItem({ type: 'art', data: artMatch });
+      }
+    } else {
+      setActiveItem(null);
+    }
+  }, [effectiveId]);
 
-  // Filtered Service Projects
+  const effectiveSearch = externalSearchQuery || localSearch;
+
+  // Filtered service items
   const filteredProjects = useMemo(() => {
+    if (activeTab === 'arts') return [];
     return SERVICE_PROJECTS_DATA.filter((proj) => {
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
+      if (effectiveSearch.trim()) {
+        const q = effectiveSearch.toLowerCase();
         const matchesTitle = proj.title[language].toLowerCase().includes(q);
         const matchesObj = proj.objective[language].toLowerCase().includes(q);
-        const matchesSteps = proj.steps[language].some(s => s.toLowerCase().includes(q));
-        if (!matchesTitle && !matchesObj && !matchesSteps) return false;
+        if (!matchesTitle && !matchesObj) return false;
       }
       if (selectedCategory !== 'all' && proj.category !== selectedCategory) return false;
       if (selectedScope !== 'all' && proj.scope !== selectedScope) return false;
       return true;
     });
-  }, [searchQuery, language, selectedCategory, selectedScope]);
+  }, [activeTab, effectiveSearch, language, selectedCategory, selectedScope]);
 
-  // Filtered Arts Prompts
+  // Filtered arts items
   const filteredArts = useMemo(() => {
+    if (activeTab === 'service') return [];
     return ARTS_PROMPTS_DATA.filter((art) => {
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
+      if (effectiveSearch.trim()) {
+        const q = effectiveSearch.toLowerCase();
         const matchesTitle = art.title[language].toLowerCase().includes(q);
         const matchesDesc = art.description[language].toLowerCase().includes(q);
-        const matchesTheme = art.theme[language].toLowerCase().includes(q);
-        const matchesBook = art.book[language].toLowerCase().includes(q);
-        if (!matchesTitle && !matchesDesc && !matchesTheme && !matchesBook) return false;
+        if (!matchesTitle && !matchesDesc) return false;
       }
       if (selectedArtForm !== 'all' && art.artForm !== selectedArtForm) return false;
       return true;
     });
-  }, [searchQuery, language, selectedArtForm]);
+  }, [activeTab, effectiveSearch, language, selectedArtForm]);
 
-  const handleCopyProject = (project: ServiceProject) => {
-    const text = `🌱 ${project.title[language]} (${project.duration[language]})\n\n${t.objectiveTitle}:\n${project.objective[language]}\n\n${t.materialsTitle}:\n${project.materials[language].map(m => `• ${m}`).join('\n')}\n\n${t.stepsTitle}:\n${project.steps[language].map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n${t.reflectionTitle}:\n${project.reflectionQuestions[language].map(q => `• ${q}`).join('\n')}\n\n${t.tipsTitle}:\n${project.animatorTips[language].map(tip => `• ${tip}`).join('\n')}`;
+  const totalCount = filteredProjects.length + filteredArts.length;
+
+  const handleSelectItem = (type: 'service' | 'art', item: ServiceProject | ArtsPrompt) => {
+    setActiveItem({ type, data: item });
+  };
+
+  const handleCloseDialog = () => {
+    setActiveItem(null);
+  };
+
+  const handleAddToPlan = () => {
+    if (!activeItem) return;
+    if (activeItem.type === 'service') {
+      const proj = activeItem.data as ServiceProject;
+      const result = addSlotToPlan({
+        type: 'service',
+        title: proj.title,
+        durationMinutes: 45,
+        description: proj.objective,
+        referenceId: proj.id,
+        referenceType: 'service',
+      });
+      showToast({
+        text: language === 'de' ? 'Projekt zum Plan hinzugefügt' : 'Project added to plan',
+        action: { label: language === 'de' ? 'Plan öffnen' : 'Open Plan', onClick: () => navigate('/planner') },
+        undo: { label: language === 'de' ? 'Rückgängig' : 'Undo', onClick: () => result.undo() },
+      });
+    } else {
+      const art = activeItem.data as ArtsPrompt;
+      const result = addSlotToPlan({
+        type: 'arts_discussion',
+        title: art.title,
+        durationMinutes: 30,
+        description: art.description,
+        referenceId: art.id,
+        referenceType: 'art',
+      });
+      showToast({
+        text: language === 'de' ? 'Kunst-Aktivität hinzugefügt' : 'Art activity added',
+        action: { label: language === 'de' ? 'Plan öffnen' : 'Open Plan', onClick: () => navigate('/planner') },
+        undo: { label: language === 'de' ? 'Rückgängig' : 'Undo', onClick: () => result.undo() },
+      });
+    }
+  };
+
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    if (!activeItem) return;
+    let text: string;
+    if (activeItem.type === 'service') {
+      const p = activeItem.data as ServiceProject;
+      text = `${p.title[language]}\n\n${p.objective[language]}\n\nSchritte:\n${p.steps[language].map((s, i) => `${i + 1}. ${s}`).join('\n')}`;
+    } else {
+      const a = activeItem.data as ArtsPrompt;
+      text = `${a.title[language]} (${a.book[language]})\n\n${a.description[language]}`;
+    }
     navigator.clipboard.writeText(text);
-    setCopiedId(project.id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleCopyArt = (art: ArtsPrompt) => {
-    const text = `🎨 ${art.title[language]} (${art.book[language]})\n\n${art.description[language]}\n\n${t.materialsTitle}:\n${art.materials[language].map(m => `• ${m}`).join('\n')}\n\n${t.stepsTitle}:\n${art.guidingSteps[language].map((s, idx) => `${idx + 1}. ${s}`).join('\n')}\n\n${t.reflectionTitle}:\n${art.reflectionPrompts[language].map(q => `• ${q}`).join('\n')}`;
-    navigator.clipboard.writeText(text);
-    setCopiedId(art.id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  const handleAddProjectToPlanner = (project: ServiceProject) => {
-    if (!onAddToPlanner) return;
-    const slot: SessionSlot = {
-      id: `service-${project.id}-${Date.now()}`,
-      type: 'service',
-      title: project.title,
-      durationMinutes: 45,
-      description: project.objective,
-      materials: project.materials,
-      tips: {
-        de: project.animatorTips.de[0] || '',
-        en: project.animatorTips.en[0] || '',
-      },
-      referenceId: project.id,
-      referenceType: 'service',
-    };
-    onAddToPlanner(slot);
-    setAddedId(project.id);
-    setTimeout(() => setAddedId(null), 2000);
-  };
-
-  const handleAddArtToPlanner = (art: ArtsPrompt) => {
-    if (!onAddToPlanner) return;
-    const slot: SessionSlot = {
-      id: `art-${art.id}-${Date.now()}`,
-      type: 'arts_discussion',
-      title: art.title,
-      durationMinutes: 25,
-      description: art.description,
-      materials: art.materials,
-      referenceId: art.id,
-      referenceType: 'art',
-    };
-    onAddToPlanner(slot);
-    setAddedId(art.id);
-    setTimeout(() => setAddedId(null), 2000);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* Editorial Header & Segmented Sub-View Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-black/[0.06] pb-5">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1d1d1f]">
-            {t.serviceArtsHeaderTitle}
-          </h1>
-          <p className="text-xs sm:text-sm text-[#86868b] mt-1 max-w-xl font-normal leading-relaxed">
-            {t.serviceArtsHeaderDesc}
-          </p>
+    <div className="space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in duration-200">
+      
+      {/* 1. Section Header & Segment Control */}
+      <div className="bg-surface rounded-3xl border border-border p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
+              {t.tabServiceArts}
+            </h1>
+            <p className="text-xs sm:text-sm text-text-secondary">
+              {language === 'de' 
+                ? 'Gemeindeprojekte & kreative Kunstideen für Juniorjugendgruppen.' 
+                : 'Community service and creative arts for junior youth.'}
+            </p>
+          </div>
+
+          {/* Segment Toggle: Alle / Dienst / Kunst */}
+          <div className="flex items-center p-1 bg-surface-2 rounded-2xl border border-border shrink-0">
+            <button
+              type="button"
+              onClick={() => setActiveTab('all')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+                activeTab === 'all'
+                  ? 'bg-surface text-text shadow-xs'
+                  : 'text-text-secondary hover:text-text'
+              }`}
+            >
+              {language === 'de' ? 'Alle' : 'All'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('service')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                activeTab === 'service'
+                  ? 'bg-surface text-text shadow-xs'
+                  : 'text-text-secondary hover:text-text'
+              }`}
+            >
+              <Heart className="w-3.5 h-3.5 text-accent-text" />
+              <span>{language === 'de' ? 'Dienst' : 'Service'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('arts')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                activeTab === 'arts'
+                  ? 'bg-surface text-text shadow-xs'
+                  : 'text-text-secondary hover:text-text'
+              }`}
+            >
+              <Palette className="w-3.5 h-3.5 text-accent-text" />
+              <span>{language === 'de' ? 'Kunst' : 'Arts'}</span>
+            </button>
+          </div>
         </div>
 
-        {/* Apple Segmented Switcher */}
-        <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] self-start sm:self-auto shrink-0">
-          <button
-            onClick={() => setSubTab('service')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-              subTab === 'service'
-                ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-            }`}
-          >
-            <Heart className="w-3.5 h-3.5 text-rose-500" />
-            <span>{t.subtabServiceProjects}</span>
-            <span className="text-[10px] opacity-60">({SERVICE_PROJECTS_DATA.length})</span>
-          </button>
+        {/* Search Bar & Filter Sheet Button */}
+        <div className="mt-4 flex items-center gap-2.5">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              placeholder={language === 'de' ? 'Projekte & Kunstideen durchsuchen...' : 'Search service & art prompts...'}
+              className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent"
+            />
+            {localSearch && (
+              <button
+                type="button"
+                onClick={() => setLocalSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text p-1"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
 
           <button
-            onClick={() => setSubTab('arts')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-              subTab === 'arts'
-                ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+            type="button"
+            onClick={() => setIsFilterSheetOpen(true)}
+            className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition-colors cursor-pointer min-h-[40px] ${
+              selectedCategory !== 'all' || selectedScope !== 'all' || selectedArtForm !== 'all'
+                ? 'bg-accent text-accent-contrast border-accent'
+                : 'bg-surface-2 text-text-secondary hover:text-text border-border'
             }`}
           >
-            <Palette className="w-3.5 h-3.5 text-purple-600" />
-            <span>{t.subtabArtsPrompts}</span>
-            <span className="text-[10px] opacity-60">({ARTS_PROMPTS_DATA.length})</span>
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{language === 'de' ? 'Filter' : 'Filter'}</span>
           </button>
         </div>
       </div>
 
-      {/* SUBTAB 1: COMMUNITY SERVICE PROJECTS BANK */}
-      {subTab === 'service' && (
-        <div className="space-y-6">
-          {/* Category Filter Pills */}
-          <div className="flex flex-col gap-3">
-            <div className="overflow-x-auto pb-1 custom-scrollbar">
-              <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
-                {[
-                  { id: 'all', label: t.catAll },
-                  { id: 'environmental', label: t.catEnvironmental },
-                  { id: 'neighborhood', label: t.catNeighborhood },
-                  { id: 'intergenerational', label: t.catIntergenerational },
-                  { id: 'children', label: t.catChildren },
-                  { id: 'institutional', label: t.catInstitutional },
-                  { id: 'creative', label: t.catCreative },
-                ].map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id as ServiceProjectCategory | 'all')}
-                    className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                      selectedCategory === cat.id
-                        ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                        : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
+      {/* 2. Unified Cards Grid (Same anatomy as Spiele) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Service Projects */}
+        {filteredProjects.map((project) => (
+          <article
+            key={project.id}
+            role="button"
+            tabIndex={0}
+            onClick={() => handleSelectItem('service', project)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleSelectItem('service', project);
+              }
+            }}
+            className="group relative bg-surface rounded-2xl border border-border p-5 shadow-xs hover:border-accent/40 hover:shadow-apple-card transition-all cursor-pointer flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge category="service" size="sm">
+                    {language === 'de' ? 'Dienstprojekt' : 'Service Project'}
+                  </Badge>
+                  <Badge category="neutral" size="sm">
+                    {project.duration[language]}
+                  </Badge>
+                </div>
+              </div>
+
+              <h3 className="text-base sm:text-lg font-bold text-text group-hover:text-accent transition-colors mb-1.5 leading-snug">
+                {project.title[language]}
+              </h3>
+
+              <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed mb-4">
+                {project.objective[language]}
+              </p>
+            </div>
+
+            <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-text-secondary">
+              <span className="text-text-tertiary">
+                {project.steps[language].length} {language === 'de' ? 'Schritte' : 'steps'}
+              </span>
+
+              <span className="inline-flex items-center gap-1 font-semibold text-accent-text group-hover:translate-x-1 transition-transform">
+                <span>{language === 'de' ? 'Details ansehen' : 'View Details'}</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+          </article>
+        ))}
+
+        {/* Arts Prompts */}
+        {filteredArts.map((art) => (
+          <article
+            key={art.id}
+            role="button"
+            tabIndex={0}
+            onClick={() => handleSelectItem('art', art)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleSelectItem('art', art);
+              }
+            }}
+            className="group relative bg-surface rounded-2xl border border-border p-5 shadow-xs hover:border-accent/40 hover:shadow-apple-card transition-all cursor-pointer flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge category="arts" size="sm">
+                    {art.theme[language]}
+                  </Badge>
+                  <Badge category="neutral" size="sm">
+                    {art.book[language]}
+                  </Badge>
+                </div>
+              </div>
+
+              <h3 className="text-base sm:text-lg font-bold text-text group-hover:text-accent transition-colors mb-1.5 leading-snug">
+                {art.title[language]}
+              </h3>
+
+              <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed mb-4">
+                {art.description[language]}
+              </p>
+            </div>
+
+            <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-text-secondary">
+              <span className="text-text-tertiary">
+                {art.guidingSteps[language].length} {language === 'de' ? 'Schritte' : 'steps'}
+              </span>
+
+              <span className="inline-flex items-center gap-1 font-semibold text-accent-text group-hover:translate-x-1 transition-transform">
+                <span>{language === 'de' ? 'Details ansehen' : 'View Details'}</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {totalCount === 0 && (
+        <div className="p-8 text-center bg-surface rounded-3xl border border-border">
+          <p className="text-sm text-text-secondary">
+            {language === 'de' ? 'Keine Aktivitäten für diese Filter gefunden.' : 'No activities found matching these filters.'}
+          </p>
+        </div>
+      )}
+
+      {/* 3. Detail Dialog (Same design & order as Spiele) */}
+      {activeItem && (
+        <Dialog
+          isOpen={true}
+          onClose={handleCloseDialog}
+          maxWidth="lg"
+          showCloseButton={false}
+        >
+          <div className="space-y-5">
+            {/* Title Row with Close X */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1.5 min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge category={activeItem.type === 'service' ? 'service' : 'arts'} size="md">
+                    {activeItem.type === 'service' ? (language === 'de' ? 'Dienstprojekt' : 'Service') : (language === 'de' ? 'Kreativer Ausdruck' : 'Arts')}
+                  </Badge>
+                  {activeItem.type === 'art' && (
+                    <Badge category="neutral" size="md">
+                      {(activeItem.data as ArtsPrompt).book[language]}
+                    </Badge>
+                  )}
+                </div>
+
+                <h2 className="text-xl sm:text-2xl font-bold text-text tracking-tight leading-tight">
+                  {activeItem.data.title[language]}
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCloseDialog}
+                className="p-2 rounded-full text-text-secondary hover:text-text transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+                aria-label="Schließen"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Metadata Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-3.5 bg-surface-2 rounded-2xl border border-border text-xs">
+              <div className="flex items-start gap-2">
+                <Clock className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-text-tertiary text-2xs font-medium">{language === 'de' ? 'Dauer' : 'Duration'}</p>
+                  <p className="font-semibold text-text leading-snug">
+                    {activeItem.type === 'service' ? (activeItem.data as ServiceProject).duration[language] : '30–45 Min.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <Sparkles className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-text-tertiary text-2xs font-medium">{language === 'de' ? 'Fokus' : 'Focus'}</p>
+                  <p className="font-semibold text-text leading-snug">
+                    {activeItem.type === 'service' ? (language === 'de' ? 'Gemeindedienst' : 'Community') : (activeItem.data as ArtsPrompt).theme[language]}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Scope / Duration Filter */}
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-[#86868b] font-medium">{t.projectScopeLabel}:</span>
-              {[
-                { id: 'all', label: t.scopeAll },
-                { id: 'quick', label: t.scopeQuick },
-                { id: 'medium', label: t.scopeMedium },
-                { id: 'deep', label: t.scopeDeep },
-              ].map((scope) => (
+            {/* Primary Action Button: "Zum Plan hinzufügen" */}
+            <div>
+              <button
+                type="button"
+                onClick={handleAddToPlan}
+                className="w-full py-3 px-4 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-sm shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px]"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{language === 'de' ? 'Zum Plan hinzufügen' : 'Add to Session Plan'}</span>
+              </button>
+            </div>
+
+            {/* Content: Description & Steps */}
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary">
+                  {language === 'de' ? 'Ziel & Beschreibung' : 'Objective & Description'}
+                </h3>
+                <p className="text-text bg-surface-2 border border-border p-3.5 rounded-2xl leading-relaxed text-xs sm:text-sm">
+                  {activeItem.type === 'service' 
+                    ? (activeItem.data as ServiceProject).objective[language]
+                    : (activeItem.data as ArtsPrompt).description[language]}
+                </p>
+              </div>
+
+              {/* Materials */}
+              {activeItem.data.materials[language].length > 0 && (
+                <div className="space-y-1.5">
+                  <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary">
+                    {language === 'de' ? 'Benötigtes Material' : 'Materials Needed'}
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {activeItem.data.materials[language].map((mat, i) => (
+                      <span key={i} className="text-xs font-medium bg-surface-2 text-text px-2.5 py-1 rounded-full border border-border">
+                        {mat}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Guiding Steps */}
+              <div className="space-y-2">
+                <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary">
+                  {language === 'de' ? 'Schritt für Schritt' : 'Step by Step'}
+                </h3>
+                <div className="space-y-2 max-h-[35vh] overflow-y-auto custom-scrollbar pr-1">
+                  {(activeItem.type === 'service' 
+                    ? (activeItem.data as ServiceProject).steps[language] 
+                    : (activeItem.data as ArtsPrompt).guidingSteps[language]
+                  ).map((step, idx) => (
+                    <div key={idx} className="flex items-start gap-2.5 p-3 rounded-2xl bg-surface-2 border border-border">
+                      <span className="w-5 h-5 rounded-full bg-accent text-accent-contrast font-bold text-2xs flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <p className="text-xs sm:text-sm text-text leading-relaxed">{step}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Secondary Utilities */}
+            <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-text-secondary">
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer min-h-[36px]"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copied ? (language === 'de' ? 'Kopiert!' : 'Copied!') : (language === 'de' ? 'Kopieren' : 'Copy')}</span>
+              </button>
+
+              <a
+                href={generateWhatsAppLink(
+                  `${activeItem.data.title[language]} — JY Hub`,
+                  `${window.location.origin}/service-arts`
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer min-h-[36px]"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        </Dialog>
+      )}
+
+      {/* 4. Filter Sheet */}
+      <Sheet
+        isOpen={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+        title={language === 'de' ? 'Filter & Kategorien' : 'Filters & Categories'}
+        position="bottom"
+      >
+        <div className="space-y-5 pb-4">
+          <div>
+            <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+              {language === 'de' ? 'Dienst-Umfang' : 'Service Scope'}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedScope('all')}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  selectedScope === 'all'
+                    ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                    : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+                }`}
+              >
+                {language === 'de' ? 'Alle Umfänge' : 'All Scopes'}
+              </button>
+              {(['quick', 'medium', 'deep'] as ServiceProjectScope[]).map((scope) => (
                 <button
-                  key={scope.id}
-                  onClick={() => setSelectedScope(scope.id as ServiceProjectScope | 'all')}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                    selectedScope === scope.id
-                      ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-apple-pill font-semibold'
-                      : 'bg-white text-[#6e6e73] border-black/[0.06] hover:text-[#1d1d1f]'
+                  key={scope}
+                  type="button"
+                  onClick={() => setSelectedScope(scope)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    selectedScope === scope
+                      ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
                   }`}
                 >
-                  {scope.label}
+                  {scope === 'quick' ? '1–2h Quick' : scope === 'medium' ? 'Halbtag' : 'Mehrtägig'}
                 </button>
               ))}
-
-              <span className="ml-auto font-mono text-[11px] text-[#86868b]">
-                {filteredProjects.length} {language === 'de' ? 'Projekte' : 'projects'}
-              </span>
             </div>
           </div>
 
-          {/* Service Projects List */}
-          <div className="space-y-4">
-            {filteredProjects.map((project) => {
-              const isExpanded = expandedProjectId === project.id;
-              const isCopied = copiedId === project.id;
-              const isAdded = addedId === project.id;
-
-              return (
-                <div
-                  key={project.id}
-                  className="bg-white rounded-2xl border border-black/[0.06] shadow-apple-card overflow-hidden transition-all"
-                >
-                  {/* Card Header Bar */}
-                  <div
-                    onClick={() => setExpandedProjectId(isExpanded ? null : project.id)}
-                    className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:bg-black/[0.01] transition-colors"
-                  >
-                    <div className="space-y-1.5 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-800">
-                          {project.category === 'environmental' && t.catEnvironmental}
-                          {project.category === 'neighborhood' && t.catNeighborhood}
-                          {project.category === 'intergenerational' && t.catIntergenerational}
-                          {project.category === 'children' && t.catChildren}
-                          {project.category === 'institutional' && t.catInstitutional}
-                          {project.category === 'creative' && t.catCreative}
-                        </span>
-
-                        <span className="text-[11px] text-[#86868b] flex items-center gap-1 font-medium">
-                          <Clock className="w-3 h-3" />
-                          <span>{project.duration[language]}</span>
-                        </span>
-                      </div>
-
-                      <h3 className="text-base sm:text-lg font-semibold text-[#1d1d1f] tracking-tight">
-                        {project.title[language]}
-                      </h3>
-
-                      <p className="text-xs sm:text-sm text-[#6e6e73] font-normal leading-relaxed line-clamp-2">
-                        {project.objective[language]}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                      {onAddToPlanner && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddProjectToPlanner(project);
-                          }}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full transition-all border ${
-                            isAdded
-                              ? 'bg-emerald-600 text-white border-emerald-600'
-                              : 'bg-black/[0.03] hover:bg-black/[0.07] text-[#1d1d1f] border-black/[0.06]'
-                          }`}
-                          title={t.addToPlanner}
-                        >
-                          {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 text-emerald-600" />}
-                          <span className="hidden sm:inline">{isAdded ? t.addedToPlannerSuccess : t.addToPlanner}</span>
-                        </button>
-                      )}
-
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCopyProject(project);
-                        }}
-                        className="p-2 rounded-full border border-black/[0.06] text-[#86868b] hover:text-[#1d1d1f] hover:bg-black/[0.04] transition-colors"
-                        title={t.copyDevotionalPlan}
-                      >
-                        {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      </button>
-
-                      <div className="p-1 text-[#86868b]">
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Expanded Project Details */}
-                  {isExpanded && (
-                    <div className="px-5 sm:px-6 pb-6 pt-2 border-t border-black/[0.04] space-y-5 text-xs sm:text-sm">
-                      {/* Objective */}
-                      <div className="bg-[#f5f5f7] p-4 rounded-xl space-y-1">
-                        <strong className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] block">
-                          {t.objectiveTitle}
-                        </strong>
-                        <p className="text-xs sm:text-sm text-[#1d1d1f] leading-relaxed font-normal">
-                          {project.objective[language]}
-                        </p>
-                      </div>
-
-                      {/* Materials */}
-                      <div className="space-y-1.5">
-                        <strong className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] block">
-                          {t.materialsTitle}
-                        </strong>
-                        <div className="flex flex-wrap gap-1.5">
-                          {project.materials[language].map((mat, i) => (
-                            <span key={i} className="bg-black/[0.04] text-[#1d1d1f] text-xs px-2.5 py-1 rounded-lg">
-                              • {mat}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Step-by-Step Guide */}
-                      <div className="space-y-2">
-                        <strong className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] block">
-                          {t.stepsTitle}
-                        </strong>
-                        <div className="space-y-2">
-                          {project.steps[language].map((step, idx) => (
-                            <div key={idx} className="flex items-start gap-3 bg-white border border-black/[0.05] p-3 rounded-xl">
-                              <span className="w-5 h-5 rounded-full bg-[#1d1d1f] text-white text-[11px] font-semibold flex items-center justify-center shrink-0 mt-0.5">
-                                {idx + 1}
-                              </span>
-                              <p className="text-xs sm:text-sm text-[#1d1d1f] leading-relaxed font-normal">
-                                {step}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Circle Reflection Questions */}
-                      <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-xl space-y-2">
-                        <strong className="text-[11px] font-semibold uppercase tracking-wider text-amber-950 block">
-                          {t.reflectionTitle}
-                        </strong>
-                        <ul className="space-y-1 text-xs text-amber-950">
-                          {project.reflectionQuestions[language].map((q, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <span className="font-bold">•</span>
-                              <span className="leading-relaxed">{q}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* Facilitator Tips */}
-                      {project.animatorTips[language].length > 0 && (
-                        <div className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl space-y-1 text-xs text-emerald-950">
-                          <strong className="font-semibold block mb-0.5">{t.tipsTitle}:</strong>
-                          <ul className="space-y-1">
-                            {project.animatorTips[language].map((tip, idx) => (
-                              <li key={idx} className="flex items-start gap-1.5">
-                                <span>✓</span>
-                                <span>{tip}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* SUBTAB 2: ARTS & DRAMA PROMPTS */}
-      {subTab === 'arts' && (
-        <div className="space-y-6">
-          {/* Art Form Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2">
-            {[
-              { id: 'all', label: t.artFormAll },
-              { id: 'drama', label: t.artFormDrama },
-              { id: 'music_poetry', label: t.artFormMusicPoetry },
-              { id: 'visual_arts', label: t.artFormVisual },
-              { id: 'collaborative_mural', label: t.artFormMural },
-            ].map((form) => (
+          <div>
+            <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+              {language === 'de' ? 'Projekt-Kategorie' : 'Project Category'}
+            </label>
+            <div className="flex flex-wrap gap-2">
               <button
-                key={form.id}
-                onClick={() => setSelectedArtForm(form.id as ArtForm | 'all')}
-                className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                  selectedArtForm === form.id
-                    ? 'bg-[#1d1d1f] text-white shadow-apple-pill font-semibold'
-                    : 'bg-white text-[#6e6e73] border border-black/[0.06] hover:text-[#1d1d1f]'
+                type="button"
+                onClick={() => setSelectedCategory('all')}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  selectedCategory === 'all'
+                    ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                    : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
                 }`}
               >
-                {form.label}
+                {language === 'de' ? 'Alle Kategorien' : 'All Categories'}
               </button>
-            ))}
-
-            <span className="ml-auto font-mono text-[11px] text-[#86868b]">
-              {filteredArts.length} {language === 'de' ? 'Impulse' : 'prompts'}
-            </span>
+              {(['neighborhood', 'environmental', 'intergenerational', 'children', 'institutional', 'creative'] as ServiceProjectCategory[]).map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    selectedCategory === cat
+                      ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+                  }`}
+                >
+                  {cat === 'neighborhood' ? (language === 'de' ? 'Nachbarschaft' : 'Neighborhood')
+                    : cat === 'environmental' ? (language === 'de' ? 'Umwelt' : 'Environment')
+                    : cat === 'intergenerational' ? (language === 'de' ? 'Generationen' : 'Intergenerational')
+                    : cat === 'children' ? (language === 'de' ? 'Kinder' : 'Children')
+                    : cat === 'institutional' ? (language === 'de' ? 'Gemeinde' : 'Community')
+                    : (language === 'de' ? 'Kreativ' : 'Creative')}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Arts Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-            {filteredArts.map((art) => {
-              const isCopied = copiedId === art.id;
-              const isAdded = addedId === art.id;
-
-              return (
-                <div
-                  key={art.id}
-                  className="bg-white rounded-2xl border border-black/[0.06] p-6 shadow-apple-card flex flex-col justify-between space-y-4"
+          <div>
+            <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+              {language === 'de' ? 'Kunstform' : 'Art Form'}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedArtForm('all')}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  selectedArtForm === 'all'
+                    ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                    : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+                }`}
+              >
+                {language === 'de' ? 'Alle Formen' : 'All Forms'}
+              </button>
+              {(['drama', 'music_poetry', 'visual_arts', 'collaborative_mural'] as ArtForm[]).map((form) => (
+                <button
+                  key={form}
+                  type="button"
+                  onClick={() => setSelectedArtForm(form)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    selectedArtForm === form
+                      ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+                  }`}
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-800">
-                        {art.artForm === 'drama' && t.artFormDrama}
-                        {art.artForm === 'music_poetry' && t.artFormMusicPoetry}
-                        {art.artForm === 'visual_arts' && t.artFormVisual}
-                        {art.artForm === 'collaborative_mural' && t.artFormMural}
-                      </span>
+                  {form === 'drama' ? (language === 'de' ? 'Theater & Drama' : 'Drama')
+                    : form === 'music_poetry' ? (language === 'de' ? 'Musik & Poesie' : 'Music & Poetry')
+                    : form === 'visual_arts' ? (language === 'de' ? 'Bildende Kunst' : 'Visual Arts')
+                    : (language === 'de' ? 'Gemeinschaftskunst' : 'Mural')}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                      <span className="text-[11px] text-[#86868b] font-medium truncate">
-                        {art.book[language]}
-                      </span>
-                    </div>
-
-                    <h3 className="text-base sm:text-lg font-semibold text-[#1d1d1f] tracking-tight">
-                      {art.title[language]}
-                    </h3>
-
-                    <p className="text-xs text-[#6e6e73] leading-relaxed font-normal">
-                      {art.description[language]}
-                    </p>
-
-                    {/* Step-by-Step Instructions */}
-                    <div className="pt-2 border-t border-black/[0.04] space-y-1.5">
-                      <strong className="text-[10px] font-semibold uppercase tracking-wider text-[#86868b] block">
-                        {t.stepsTitle}:
-                      </strong>
-                      <ol className="space-y-1.5 text-xs text-[#1d1d1f]">
-                        {art.guidingSteps[language].map((step, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <span className="font-semibold text-[#86868b]">{idx + 1}.</span>
-                            <span className="leading-relaxed font-normal">{step}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-
-                    {/* Reflection */}
-                    <div className="p-3 bg-[#f5f5f7] border border-black/[0.03] rounded-xl text-xs space-y-1 text-[#1d1d1f]">
-                      <strong className="text-[10px] font-semibold uppercase tracking-wider text-[#86868b] block">
-                        {t.reflectionTitle}:
-                      </strong>
-                      <ul className="space-y-1 text-[#6e6e73]">
-                        {art.reflectionPrompts[language].map((p, idx) => (
-                          <li key={idx}>• {p}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Bottom Actions */}
-                  <div className="pt-3 border-t border-black/[0.04] flex flex-wrap items-center justify-between gap-2">
-                    <button
-                      onClick={() => handleCopyArt(art)}
-                      className="inline-flex items-center gap-1.5 text-xs text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
-                    >
-                      {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{isCopied ? t.copiedProject : t.copyQuote}</span>
-                    </button>
-
-                    {onAddToPlanner && (
-                      <button
-                        onClick={() => handleAddArtToPlanner(art)}
-                        className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-full transition-all border ${
-                          isAdded
-                            ? 'bg-emerald-600 text-white border-emerald-600'
-                            : 'bg-black/[0.03] hover:bg-black/[0.07] text-[#1d1d1f] border-black/[0.06]'
-                        }`}
-                      >
-                        {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5 text-purple-600" />}
-                        <span>{isAdded ? t.addedToPlannerSuccess : t.addToPlanner}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setIsFilterSheetOpen(false)}
+              className="w-full py-3 rounded-xl bg-accent text-accent-contrast font-semibold text-xs transition-colors cursor-pointer"
+            >
+              {language === 'de' ? `${totalCount} Aktivitäten anzeigen` : `Show ${totalCount} Activities`}
+            </button>
           </div>
         </div>
-      )}
+      </Sheet>
+
     </div>
   );
 };

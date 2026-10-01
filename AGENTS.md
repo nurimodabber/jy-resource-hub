@@ -49,9 +49,16 @@ Before committing: `npm run check` and `npm run build` must pass.
 - `id`s on quotes, games and methods are stable slugs; don't rename them (favorites, planner presets and deep links depend on them).
 - Child safety: Accounts and contributions are for adults/animators only. Never collect personal data or photos of junior youth.
 
+## Terminology & Glossary
+- Sections: Start (`/`), Spiele (`/games`), Zitate (`/quotes`), Planer (`/planner`), Dienst & Kunst (`/service-arts`), Werkzeuge (`/tools`).
+- Person: **Animator** (DE & EN) / **Animatoren** (DE Plural). Avoid "Gruppenleiter" or "Facilitator".
+- Tools: **Empire Spielleitung** (avoid "Empire-Spiel Assistent").
+- Core actions: "Schnell finden", "Zum Plan hinzufügen", "Ablauf durchführen", "Üben", "Lieder". No Denglish ("Blitz-Finder", "Songs", "Interaktives Studio", "Feld-Tools").
+
 ## Gotchas & Notes
 - Single deployment target: Vercel auto-deploys `main`. GitHub Pages workflow deleted.
 - Scratch and test SVGs removed from git and public directory.
 - The folder holds ignored personal clutter (Google Takeout zip, `.rtfd` folder, `rtf_converted.txt`).
   Don't read, commit or move it without asking. Never read `.env.local`.
 - `node_modules/` inside OneDrive is slow on first run (hydration). Mark the folder "Always keep on this device".
+

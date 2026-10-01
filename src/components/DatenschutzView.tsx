@@ -14,13 +14,15 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
   const handleClearData = () => {
     if (window.confirm(
       language === 'de'
-        ? 'Möchtest du alle lokal im Browser gespeicherten Daten (Favoriten, Sprachwahl) wirklich löschen?'
-        : 'Are you sure you want to clear all locally stored data (favorites, language)?'
+        ? 'Möchtest du alle lokal im Browser gespeicherten Daten (Favoriten, Pläne, Einstellungen) wirklich löschen?'
+        : 'Are you sure you want to clear all locally stored data (favorites, plans, settings)?'
     )) {
       localStorage.removeItem('jy_favorites');
       localStorage.removeItem('jy_lang');
       localStorage.removeItem('jy_theme');
-      localStorage.removeItem('jy_planner_state');
+      localStorage.removeItem('jy_plans');
+      localStorage.removeItem('jy_active_plan_id');
+      localStorage.removeItem('jy_quick_pick');
       setCleared(true);
       setTimeout(() => setCleared(false), 3000);
     }
@@ -79,7 +81,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
             </p>
             <p className="text-xs text-text-secondary mt-2">
               {language === 'de'
-                ? 'Ressourcen und Planungswerkzeuge richten sich ausschließlich an erwachsene Gruppenleiter, Mentor*innen und Koordinatoren.'
+                ? 'Ressourcen und Planungswerkzeuge richten sich ausschließlich an erwachsene Animatoren, Mentor*innen und Koordinatoren.'
                 : 'All planning tools and resources are intended exclusively for adult animators, mentors, and coordinators.'}
             </p>
           </div>
@@ -127,10 +129,22 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
           </p>
         </section>
 
+        {/* Externe Einbindungen: bahaisongs.com */}
+        <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
+          <h2 className="text-base font-semibold text-text">
+            {language === 'de' ? '5. Externe Einbindung (bahaisongs.com via Zwei-Klick-Lösung)' : '5. External Embeds (bahaisongs.com via 2-Click Pattern)'}
+          </h2>
+          <p>
+            {language === 'de'
+              ? 'Für Andachtslieder bieten wir eine optionale Einbindung des externen Noten- und Liedarchivs bahaisongs.com an. Um deine Privatsphäre zu schützen, wird dieser Dienst standardmäßig blockiert (Click-to-Load / Zwei-Klick-Lösung). Erst wenn du aktiv auf „Lieder-Archiv laden“ klickst, wird eine Verbindung zu bahaisongs.com aufgebaut und deine IP-Adresse an den Betreiber übertragen.'
+              : 'For devotional songs, we provide an optional embed of the external sheet music archive bahaisongs.com. To protect your privacy, this service is blocked by default (click-to-load / two-click pattern). Only when you actively click "Load songs archive", a connection to bahaisongs.com is established and your IP address is transmitted to the provider.'}
+          </p>
+        </section>
+
         {/* Betroffenenrechte */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {language === 'de' ? '5. Deine Rechte' : '5. Your Rights'}
+            {language === 'de' ? '6. Deine Rechte' : '6. Your Rights'}
           </h2>
           <p>
             {language === 'de'

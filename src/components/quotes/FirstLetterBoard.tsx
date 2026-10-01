@@ -59,15 +59,15 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#86868b]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.firstLetterSubtitle}</p>
-        <span className="font-mono text-[11px] bg-black/[0.04] px-3 py-1 rounded-full text-[#1d1d1f] self-start sm:self-auto shrink-0">
+        <span className="font-mono text-2xs bg-surface-2 border border-border px-3 py-1 rounded-full text-text self-start sm:self-auto shrink-0">
           {visibleInitialsCount} / {rawWords.length} {t.wordsRemaining}
         </span>
       </div>
 
       {/* Blackboard Canvas */}
-      <div className="bg-[#1d1d1f] text-white rounded-2xl p-8 sm:p-12 shadow-inner border border-black/40 space-y-6 text-center">
+      <div className="bg-surface-raised text-text rounded-2xl p-6 sm:p-10 shadow-xs border border-border space-y-6 text-center">
         <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed tracking-wide min-h-[140px]">
           {rawWords.map((word, idx) => {
             const state = wordStates[idx] || 'initial';
@@ -82,17 +82,17 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
                 onClick={() => handleToggleWord(idx)}
                 className={`cursor-pointer transition-all duration-200 select-none inline-block ${
                   state === 'revealed'
-                    ? 'text-emerald-400 font-bold px-1.5 py-0.5 bg-white/10 rounded-lg'
+                    ? 'text-accent-text font-bold px-1.5 py-0.5 bg-accent-subtle rounded-lg'
                     : state === 'blank'
-                    ? 'text-neutral-600 border-b border-neutral-700 px-1.5'
-                    : 'text-neutral-100 hover:text-emerald-300'
+                    ? 'text-text-tertiary border-b border-border px-1.5 opacity-40'
+                    : 'text-text hover:text-accent-text'
                 }`}
                 title={t.tapWordHint}
               >
                 {state === 'revealed' && word}
                 {state === 'initial' && (
                   <span>
-                    <strong className="text-white font-bold">{initialChar}</strong>
+                    <strong className="text-text font-bold">{initialChar}</strong>
                     <span className="opacity-40">{underscores}</span>
                     <span className="opacity-70">{punctuation}</span>
                   </span>
@@ -107,9 +107,9 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
           })}
         </div>
 
-        <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-400">
+        <div className="pt-4 border-t border-border flex flex-wrap items-center justify-between gap-3 text-xs text-text-secondary">
           <span className="font-serif italic">— {quote.source[language]} ({quote.book[language]})</span>
-          <span className="text-[11px] text-neutral-400">
+          <span className="text-2xs text-text-tertiary">
             {t.tapWordHint}
           </span>
         </div>
@@ -119,17 +119,19 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={handleEraseNext}
             disabled={wordStates.every((s) => s === 'blank')}
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-[#0071e3] text-white text-xs font-semibold rounded-full hover:bg-[#0077ed] disabled:opacity-40 transition-all shadow-apple-pill"
+            className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-full hover:bg-accent-hover disabled:opacity-40 transition-colors shadow-xs cursor-pointer min-h-[36px]"
           >
             <Eraser className="w-3.5 h-3.5" />
             <span>{t.eraseInitialsBtn}</span>
           </button>
 
           <button
+            type="button"
             onClick={handleReset}
-            className="flex items-center gap-1.5 px-4 py-2.5 border border-black/[0.08] text-[#1d1d1f] text-xs font-medium rounded-full hover:bg-black/[0.04] transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-full hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{t.resetInitials}</span>
@@ -137,7 +139,7 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
         </div>
 
         {wordStates.every((s) => s === 'blank') && (
-          <p className="text-xs font-semibold text-emerald-600 animate-in fade-in flex items-center gap-1">
+          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{t.allInitialsHidden}</span>
           </p>

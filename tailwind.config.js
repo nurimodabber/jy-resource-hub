@@ -46,6 +46,7 @@ export default {
           hover: 'var(--accent-hover)',
           contrast: 'var(--accent-contrast)',
           subtle: 'var(--accent-subtle)',
+          text: 'var(--accent-text)',
         },
         cat: {
           cooperative: 'var(--cat-cooperative)',

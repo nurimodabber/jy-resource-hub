@@ -27,7 +27,7 @@ export async function shareResource(payload: SharePayload): Promise<{ success: b
   }
 }
 
-export function generateWhatsAppLink(text: string, url: string): string {
-  const fullText = `${text}\n\n${url}`;
+export function generateWhatsAppLink(text: string, url?: string): string {
+  const fullText = url ? `${text}\n\n${url}` : text;
   return `https://api.whatsapp.com/send?text=${encodeURIComponent(fullText)}`;
 }

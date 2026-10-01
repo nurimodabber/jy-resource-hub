@@ -191,3 +191,11 @@ export interface SessionPreset {
   slots: SessionSlot[];
 }
 
+export interface SessionPlan {
+  id: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  slots: SessionSlot[];
+}
+

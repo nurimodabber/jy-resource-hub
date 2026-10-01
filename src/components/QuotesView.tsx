@@ -1,15 +1,22 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { 
-  Copy, Check, ChevronDown, ChevronUp, Bookmark, 
-  Eraser, RotateCcw, ArrowRight, Type, Puzzle, 
-  Search, Activity, HandMetal, Timer 
+  Copy, Check, Bookmark, Search, X, Play, 
+  ChevronRight, SlidersHorizontal, 
+  MessageCircle, Plus, Layers
 } from 'lucide-react';
-import { QuotePhase, QuoteItem, Language } from '../types';
+import { QuotePhase, QuoteItem, Language, QuoteGeneralTopic } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { QUOTES_DATA } from '../data/quotes';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { Badge } from './ui/Badge';
+import { Dialog } from './ui/Dialog';
+import { Sheet } from './ui/Sheet';
+import { usePlanner } from '../context/PlannerContext';
+import { useToast } from '../context/ToastContext';
+import { generateWhatsAppLink } from '../utils/share';
 
-// Interactive Practice Studio Components
+// Interactive Practice Simulators
 import { FirstLetterBoard } from './quotes/FirstLetterBoard';
 import { WordPuzzle } from './quotes/WordPuzzle';
 import { ImposterDetector } from './quotes/ImposterDetector';
@@ -27,769 +34,913 @@ interface QuotesViewProps {
   onSelectQuote?: (quote: QuoteItem) => void;
 }
 
-type StudioTool = 'chalkboard' | 'firstLetter' | 'wordPuzzle' | 'imposter' | 'metronome' | 'codeClicker' | 'speedRun';
+type InteractiveTool = 'chalkboard' | 'firstLetter' | 'wordPuzzle' | 'imposter' | 'metronome' | 'codeClicker' | 'speedRun';
 
 export const QuotesView: React.FC<QuotesViewProps> = ({
-  searchQuery,
+  searchQuery: externalSearchQuery,
   language,
   favorites,
   onToggleFavorite,
   showOnlyFavorites,
-  selectedQuoteId,
+  selectedQuoteId: propQuoteId,
   onSelectQuote,
 }) => {
+  const { id: routeQuoteId } = useParams<{ id?: string }>();
+  const effectiveQuoteId = propQuoteId ?? routeQuoteId;
   const t = UI_TRANSLATIONS[language];
+  const navigate = useNavigate();
+  const { addSlotToPlan } = usePlanner();
+  const { showToast } = useToast();
 
-  // Apple Segmented Sub-view: Studio, Methods, or Quotes Library
-  const [viewMode, setViewMode] = useState<'studio' | 'methods' | 'quotes'>('studio');
-  
-  // Active Interactive Tool inside the Studio
-  const [activeTool, setActiveTool] = useState<StudioTool>('chalkboard');
-
-  // Selected practice quote
-  const [selectedQuote, setSelectedQuote] = useState<QuoteItem>(() => {
-    if (selectedQuoteId) {
-      const match = QUOTES_DATA.find((q) => q.id === selectedQuoteId);
-      if (match) return match;
-    }
-    return QUOTES_DATA[0];
-  });
-
-  // Sync when selectedQuoteId changes externally
-  useEffect(() => {
-    if (selectedQuoteId) {
-      const match = QUOTES_DATA.find((q) => q.id === selectedQuoteId);
-      if (match) {
-        setSelectedQuote(match);
-        setViewMode('studio');
-      }
-    }
-  }, [selectedQuoteId]);
-
-  // Notify parent of selected quote change
-  useEffect(() => {
-    if (selectedQuote && onSelectQuote) {
-      onSelectQuote(selectedQuote);
-    }
-  }, [selectedQuote, onSelectQuote]);
-
-  // Phase & Modality filter for methods view
-  const [selectedPhase, setSelectedPhase] = useState<QuotePhase | 'all'>('all');
-  const [selectedModality, setSelectedModality] = useState<string>('all');
-  const [expandedMethodId, setExpandedMethodId] = useState<string | null>('wort-mind');
-  
-  const [copiedQuoteId, setCopiedQuoteId] = useState<string | null>(null);
-
-  // Hierarchical Quote Filter States: 1. Book -> 2. Section/Lesson -> 3. Generalized Topic
+  const [localSearch, setLocalSearch] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState<QuoteGeneralTopic | 'all'>('all');
   const [selectedBook, setSelectedBook] = useState<string>('all');
   const [selectedSection, setSelectedSection] = useState<string>('all');
-  const [selectedTopic, setSelectedTopic] = useState<string>('all');
-  const [expandedLangQuoteIds, setExpandedLangQuoteIds] = useState<string[]>([]);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
-  const handleSelectBook = (book: string) => {
-    setSelectedBook(book);
-    setSelectedSection('all');
-  };
+  // Active Quote in Reading View
+  const [readingQuote, setReadingQuote] = useState<QuoteItem | null>(() => {
+    if (effectiveQuoteId) {
+      return QUOTES_DATA.find((q) => q.id === effectiveQuoteId) || null;
+    }
+    return null;
+  });
 
-  // Unique books list for filtering
-  const uniqueBooks = useMemo(() => {
-    const booksMap = new Map<string, { de: string; en: string; count: number }>();
-    QUOTES_DATA.forEach(q => {
-      const deMain = q.mainBook ? q.mainBook.de : q.book.de.split(',')[0].trim();
-      const enMain = q.mainBook ? q.mainBook.en : q.book.en.split(',')[0].trim();
-      const existing = booksMap.get(deMain);
-      if (existing) {
-        existing.count += 1;
-      } else {
-        booksMap.set(deMain, { de: deMain, en: enMain, count: 1 });
-      }
-    });
-    return Array.from(booksMap.values());
-  }, []);
+  // Practice Modes
+  const [isPracticeMethodsOpen, setIsPracticeMethodsOpen] = useState(false);
+  const [activeInteractiveTool, setActiveInteractiveTool] = useState<InteractiveTool | null>(null);
+  const [isAllMethodsModalOpen, setIsAllMethodsModalOpen] = useState(false);
+  const [methodPhaseFilter, setMethodPhaseFilter] = useState<QuotePhase | 'all'>('all');
+  const [expandedMethodId, setExpandedMethodId] = useState<string | null>(null);
 
-  // Available sections (lessons) based on selectedBook
-  const availableSections = useMemo(() => {
-    const sectionsMap = new Map<string, { de: string; en: string; count: number }>();
-    QUOTES_DATA.forEach(q => {
-      const deMain = q.mainBook ? q.mainBook.de : q.book.de.split(',')[0].trim();
-      if (selectedBook !== 'all' && deMain !== selectedBook) return;
-      if (q.section) {
-        const existing = sectionsMap.get(q.section.de);
-        if (existing) {
-          existing.count += 1;
-        } else {
-          sectionsMap.set(q.section.de, { de: q.section.de, en: q.section.en, count: 1 });
-        }
-      }
-    });
-    return Array.from(sectionsMap.values()).sort((a, b) => {
-      const numA = parseInt(a.de.replace(/\D/g, '')) || 0;
-      const numB = parseInt(b.de.replace(/\D/g, '')) || 0;
-      return numA - numB;
-    });
-  }, [selectedBook]);
-
-  // Generalized topics list
-  const generalTopicsList = useMemo(() => [
-    { id: 'all', label: t.allTopics },
-    { id: 'einheit', label: t.topicEinheit },
-    { id: 'wahrhaftigkeit', label: t.topicWahrhaftigkeit },
-    { id: 'dienst', label: t.topicDienst },
-    { id: 'gerechtigkeit', label: t.topicGerechtigkeit },
-    { id: 'verstand', label: t.topicVerstand },
-    { id: 'seele', label: t.topicSeele },
-    { id: 'freude', label: t.topicFreude },
-    { id: 'gebet', label: t.topicGebet },
-  ], [t]);
-
-  const hasActiveQuoteFilters = selectedBook !== 'all' || selectedSection !== 'all' || selectedTopic !== 'all';
-
-  const handleResetQuoteFilters = () => {
-    setSelectedBook('all');
-    setSelectedSection('all');
-    setSelectedTopic('all');
-  };
-
-  const toggleDualLang = (id: string) => {
-    setExpandedLangQuoteIds(prev => 
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
-  // Interactive Disappearing Board State
-  const quoteText = language === 'de' ? selectedQuote.textDe : selectedQuote.textEn;
-  const words = useMemo(() => quoteText.split(/\s+/), [quoteText]);
-  const [hiddenWordIndices, setHiddenWordIndices] = useState<number[]>([]);
-
-  // Reset hidden words whenever the quote or language changes
+  // Sync external deep link
   useEffect(() => {
-    setHiddenWordIndices([]);
-  }, [selectedQuote, language]);
+    if (effectiveQuoteId) {
+      const match = QUOTES_DATA.find((q) => q.id === effectiveQuoteId);
+      if (match) {
+        setReadingQuote(match);
+      }
+    } else {
+      setReadingQuote(null);
+    }
+  }, [effectiveQuoteId]);
 
-  const tools = [
-    { id: 'chalkboard' as const, label: t.toolChalkboard, icon: Eraser },
-    { id: 'firstLetter' as const, label: t.toolFirstLetter, icon: Type },
-    { id: 'wordPuzzle' as const, label: t.toolWordPuzzle, icon: Puzzle },
-    { id: 'imposter' as const, label: t.toolImposter, icon: Search },
-    { id: 'metronome' as const, label: t.toolMetronome, icon: Activity },
-    { id: 'codeClicker' as const, label: t.toolCodeClicker, icon: HandMetal },
-    { id: 'speedRun' as const, label: t.toolSpeedRun, icon: Timer },
+  const effectiveSearch = externalSearchQuery || localSearch;
+
+  // Unique books for filter sheet
+  const uniqueBooks = useMemo(() => {
+    const set = new Set<string>();
+    QUOTES_DATA.forEach((q) => {
+      const b = q.mainBook ? q.mainBook[language] : q.book[language].split(',')[0].trim();
+      set.add(b);
+    });
+    return Array.from(set);
+  }, [language]);
+
+  // Unique sections/lessons for selected book
+  const availableSections = useMemo(() => {
+    if (selectedBook === 'all') return [];
+    const set = new Set<string>();
+    QUOTES_DATA.forEach((q) => {
+      const b = q.mainBook ? q.mainBook[language] : q.book[language].split(',')[0].trim();
+      if (b === selectedBook && q.section) {
+        set.add(q.section[language]);
+      }
+    });
+    return Array.from(set);
+  }, [selectedBook, language]);
+
+  // Filtered quotes list
+  const filteredQuotes = useMemo(() => {
+    return QUOTES_DATA.filter((quote) => {
+      if (showOnlyFavorites && !favorites.includes(quote.id)) return false;
+
+      if (effectiveSearch) {
+        const query = effectiveSearch.toLowerCase();
+        const textMatch = (language === 'de' ? quote.textDe : quote.textEn).toLowerCase().includes(query);
+        const sourceMatch = quote.source[language].toLowerCase().includes(query);
+        const themeMatch = quote.theme[language].toLowerCase().includes(query);
+        const keywordMatch = quote.keywords?.some((k) => k.toLowerCase().includes(query));
+        if (!textMatch && !sourceMatch && !themeMatch && !keywordMatch) return false;
+      }
+
+      if (selectedTopic !== 'all' && quote.generalTopic !== selectedTopic) {
+        return false;
+      }
+
+      if (selectedBook !== 'all') {
+        const b = quote.mainBook ? quote.mainBook[language] : quote.book[language].split(',')[0].trim();
+        if (b !== selectedBook) return false;
+      }
+
+      if (selectedSection !== 'all' && quote.section) {
+        if (quote.section[language] !== selectedSection) return false;
+      }
+
+      return true;
+    });
+  }, [effectiveSearch, selectedTopic, selectedBook, selectedSection, showOnlyFavorites, favorites, language]);
+
+  // Interactive Tools catalog (Recommended methods first)
+  const interactiveTools: { id: InteractiveTool; nameDe: string; nameEn: string; descDe: string; descEn: string }[] = [
+    {
+      id: 'chalkboard',
+      nameDe: 'Die verschwindende Tafel',
+      nameEn: 'The Disappearing Board',
+      descDe: 'Wörter schrittweise ausblenden und aus dem Gedächtnis ergänzen.',
+      descEn: 'Erase words progressively and recall them from memory.',
+    },
+    {
+      id: 'firstLetter',
+      nameDe: 'Erstbuchstaben-Board',
+      nameEn: 'First-Letter Anchors',
+      descDe: 'Nur noch die Anfangsbuchstaben als kognitive Gedächtnisstütze.',
+      descEn: 'Rely only on initial letters as minimal memory cues.',
+    },
+    {
+      id: 'wordPuzzle',
+      nameDe: 'Wort-Puzzle',
+      nameEn: 'Word Puzzle',
+      descDe: 'Durcheinandergewürfelte Wörter in die richtige Reihenfolge setzen.',
+      descEn: 'Assemble scrambled words in correct grammatical order.',
+    },
+    {
+      id: 'imposter',
+      nameDe: 'Kuckucksei-Detektor',
+      nameEn: 'Imposter Detector',
+      descDe: 'Eingeschlichene falsche Wörter im Vers aufspüren und korrigieren.',
+      descEn: 'Spot and correct decoy words inserted into the holy verse.',
+    },
+    {
+      id: 'metronome',
+      nameDe: 'Takt-Schritt / Metronom',
+      nameEn: 'Rhythm Pacer',
+      descDe: 'Im Takt des Metronoms sprechen zur Verankerung im Sprachzentrum.',
+      descEn: 'Recite in rhythmic tempo to anchor cadence into memory.',
+    },
+    {
+      id: 'codeClicker',
+      nameDe: 'Code-Knacker (Aktionswörter)',
+      nameEn: 'Action Triggers',
+      descDe: 'Bestimmte Wörter durch Klatschen, Schnipsen oder Stampfen ersetzen.',
+      descEn: 'Substitute selected keywords with physical actions.',
+    },
+    {
+      id: 'speedRun',
+      nameDe: 'Speed-Run Timer',
+      nameEn: 'Speed-Run Stopwatch',
+      descDe: 'Schnelligkeits-Challenge im Kreis für flüssiges, fehlerfreies Sprechen.',
+      descEn: 'Group speed challenge for fluent recitation without hesitation.',
+    },
   ];
 
-  const handleEraseNext = () => {
-    const unhidden = words.map((_, i) => i).filter(i => !hiddenWordIndices.includes(i));
-    if (unhidden.length === 0) return;
+  // Topics for the single horizontal chip row
+  const topics: { id: QuoteGeneralTopic; labelDe: string; labelEn: string }[] = [
+    { id: 'einheit', labelDe: 'Einheit', labelEn: 'Unity' },
+    { id: 'wahrhaftigkeit', labelDe: 'Wahrhaftigkeit', labelEn: 'Truthfulness' },
+    { id: 'dienst', labelDe: 'Dienst', labelEn: 'Service' },
+    { id: 'gerechtigkeit', labelDe: 'Gerechtigkeit', labelEn: 'Justice' },
+    { id: 'verstand', labelDe: 'Verstand & Wissen', labelEn: 'Intellect' },
+    { id: 'seele', labelDe: 'Seele & Geist', labelEn: 'Soul & Spirit' },
+    { id: 'freude', labelDe: 'Freude', labelEn: 'Joy' },
+    { id: 'gebet', labelDe: 'Gebet', labelEn: 'Prayer' },
+  ];
 
-    // Pick 2-3 random unhidden words to hide
+  // Chalkboard simulator internal state
+  const [chalkboardHiddenIndices, setChalkboardHiddenIndices] = useState<number[]>([]);
+  const currentQuoteText = readingQuote ? (language === 'de' ? readingQuote.textDe : readingQuote.textEn) : '';
+  const currentWords = useMemo(() => currentQuoteText.split(/\s+/), [currentQuoteText]);
+
+  const handleEraseMoreWords = () => {
+    const unhidden = currentWords.map((_, i) => i).filter((i) => !chalkboardHiddenIndices.includes(i));
+    if (unhidden.length === 0) return;
     const countToHide = Math.min(unhidden.length, Math.floor(Math.random() * 2) + 2);
     const shuffled = [...unhidden].sort(() => 0.5 - Math.random());
-    const toHide = shuffled.slice(0, countToHide);
-
-    setHiddenWordIndices(prev => [...prev, ...toHide]);
+    setChalkboardHiddenIndices((prev) => [...prev, ...shuffled.slice(0, countToHide)]);
   };
 
-  const handleToggleWord = (idx: number) => {
-    setHiddenWordIndices(prev => 
-      prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
-    );
+  const handleResetChalkboard = () => {
+    setChalkboardHiddenIndices([]);
   };
 
-  const filteredMethods = useMemo(() => {
-    return QUOTE_METHODS_DATA.filter((method) => {
-      if (showOnlyFavorites && !favorites.includes(method.id)) {
-        return false;
-      }
+  const handleSelectQuoteItem = (quote: QuoteItem) => {
+    setReadingQuote(quote);
+    setChalkboardHiddenIndices([]);
+    if (onSelectQuote) onSelectQuote(quote);
+    navigate(`/quotes/${quote.id}`);
+  };
 
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchesName = method.name[language].toLowerCase().includes(q);
-        const matchesSummary = method.summary[language].toLowerCase().includes(q);
-        const matchesWhy = method.whyItWorks[language].toLowerCase().includes(q);
-        if (!matchesName && !matchesSummary && !matchesWhy) return false;
-      }
+  const handleCloseReadingView = () => {
+    setReadingQuote(null);
+    setIsPracticeMethodsOpen(false);
+    setActiveInteractiveTool(null);
+    navigate('/quotes');
+  };
 
-      if (selectedPhase !== 'all' && method.phase !== selectedPhase) {
-        return false;
-      }
+  const handleAddToPlan = (quote: QuoteItem) => {
+    const result = addSlotToPlan({
+      type: 'study',
+      title: { de: `Zitat: ${quote.theme.de}`, en: `Quote: ${quote.theme.en}` },
+      durationMinutes: 20,
+      description: { de: quote.textDe, en: quote.textEn },
+      referenceId: quote.id,
+      referenceType: 'quote',
+    });
 
-      if (selectedModality !== 'all' && method.modality !== selectedModality) {
-        return false;
-      }
+    showToast({
+      text: language === 'de' ? 'Zitat zum Plan hinzugefügt' : 'Quote added to plan',
+      action: {
+        label: language === 'de' ? 'Plan öffnen' : 'Open Plan',
+        onClick: () => navigate('/planner'),
+      },
+      undo: {
+        label: language === 'de' ? 'Rückgängig' : 'Undo',
+        onClick: () => result.undo(),
+      },
+    });
+  };
 
+  const [copiedQuote, setCopiedQuote] = useState(false);
+  const handleCopyQuote = (quote: QuoteItem) => {
+    const text = `„${language === 'de' ? quote.textDe : quote.textEn}“\n— ${quote.source[language]} (${quote.book[language]})`;
+    navigator.clipboard.writeText(text);
+    setCopiedQuote(true);
+    setTimeout(() => setCopiedQuote(false), 2000);
+  };
+
+  // Full 50 Methods filtered
+  const filteredAllMethods = useMemo(() => {
+    return QUOTE_METHODS_DATA.filter((m) => {
+      if (methodPhaseFilter !== 'all' && m.phase !== methodPhaseFilter) return false;
       return true;
     });
-  }, [searchQuery, language, selectedPhase, selectedModality, showOnlyFavorites, favorites]);
-
-  const filteredQuotes = useMemo(() => {
-    return QUOTES_DATA.filter((item) => {
-      const mainBookDe = item.mainBook ? item.mainBook.de : item.book.de.split(',')[0].trim();
-      if (selectedBook !== 'all' && mainBookDe !== selectedBook) {
-        return false;
-      }
-
-      if (selectedSection !== 'all' && item.section?.de !== selectedSection) {
-        return false;
-      }
-
-      if (selectedTopic !== 'all' && item.generalTopic !== selectedTopic) {
-        return false;
-      }
-
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchesDe = item.textDe.toLowerCase().includes(q);
-        const matchesEn = item.textEn.toLowerCase().includes(q);
-        const matchesTheme = item.theme[language].toLowerCase().includes(q);
-        const matchesSource = item.source[language].toLowerCase().includes(q);
-        const matchesBook = item.book[language].toLowerCase().includes(q);
-        const matchesKeywords = item.keywords.some((k) => k.toLowerCase().includes(q));
-
-        if (!matchesDe && !matchesEn && !matchesTheme && !matchesSource && !matchesBook && !matchesKeywords) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [searchQuery, language, selectedBook, selectedSection, selectedTopic]);
-
-  // Keep selectedQuote in sync with filtered list
-  useEffect(() => {
-    if (filteredQuotes.length > 0 && !filteredQuotes.some(q => q.id === selectedQuote.id)) {
-      setSelectedQuote(filteredQuotes[0]);
-    }
-  }, [filteredQuotes, selectedQuote]);
-
-  const handleCopyQuote = (item: QuoteItem) => {
-    const text = language === 'de' ? item.textDe : item.textEn;
-    navigator.clipboard.writeText(`„${text}“\n— ${item.source[language]} (${item.book[language]})`);
-    setCopiedQuoteId(item.id);
-    setTimeout(() => setCopiedQuoteId(null), 2000);
-  };
-
-  const launchStudioWithQuote = (item: QuoteItem, tool: StudioTool = 'chalkboard') => {
-    setSelectedQuote(item);
-    setActiveTool(tool);
-    setViewMode('studio');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [methodPhaseFilter]);
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* Editorial Header & 3-Mode Segmented Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-black/[0.06] pb-5">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1d1d1f]">
-            {t.quotesHeaderTitle}
-          </h1>
-          <p className="text-xs sm:text-sm text-[#86868b] mt-1 max-w-xl font-normal leading-relaxed">
-            {t.quotesHeaderDesc}
-          </p>
+    <div className="space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in duration-200">
+      
+      {/* 1. Header Section */}
+      <div className="bg-surface rounded-3xl border border-border p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
+              {t.tabQuotes}
+            </h1>
+            <p className="text-xs sm:text-sm text-text-secondary truncate">
+              {language === 'de'
+                ? `${QUOTES_DATA.length} heilige Zitate & ${QUOTE_METHODS_DATA.length} erprobte Verinnerlichungsmethoden.`
+                : `${QUOTES_DATA.length} scripture verses and ${QUOTE_METHODS_DATA.length} memorisation methods.`}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsAllMethodsModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[40px] shrink-0"
+          >
+            <Layers className="w-4 h-4 text-accent-text" />
+            <span>
+              {language === 'de'
+                ? `Alle ${QUOTE_METHODS_DATA.length} Methoden ansehen`
+                : `View all ${QUOTE_METHODS_DATA.length} methods`}
+            </span>
+          </button>
         </div>
 
-        {/* Apple Segmented View Switcher */}
-        <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] self-start sm:self-auto">
+        {/* Search Bar & Filter Sheet Trigger */}
+        <div className="mt-5 flex items-center gap-2.5">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-text-tertiary absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              placeholder={language === 'de' ? 'Zitate nach Text, Thema oder Quelle durchsuchen...' : 'Search quotes by text, theme, or source...'}
+              className="w-full pl-9 pr-8 py-2.5 text-xs rounded-xl bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent"
+            />
+            {localSearch && (
+              <button
+                type="button"
+                onClick={() => setLocalSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text p-1 min-h-[32px] min-w-[32px] flex items-center justify-center"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
           <button
-            onClick={() => setViewMode('studio')}
-            className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-              viewMode === 'studio'
-                ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+            type="button"
+            onClick={() => setIsFilterSheetOpen(true)}
+            className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold border transition-colors cursor-pointer min-h-[40px] ${
+              selectedBook !== 'all' || selectedSection !== 'all'
+                ? 'bg-accent text-accent-contrast border-accent'
+                : 'bg-surface-2 text-text-secondary hover:text-text border-border'
             }`}
           >
-            {t.subtabStudio}
-          </button>
-          <button
-            onClick={() => setViewMode('methods')}
-            className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-              viewMode === 'methods'
-                ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-            }`}
-          >
-            {t.subtabMethods} ({QUOTE_METHODS_DATA.length})
-          </button>
-          <button
-            onClick={() => setViewMode('quotes')}
-            className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-              viewMode === 'quotes'
-                ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-            }`}
-          >
-            {t.subtabQuotes} ({QUOTES_DATA.length})
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{language === 'de' ? 'Buch & Lektion' : 'Book & Lesson'}</span>
+            {(selectedBook !== 'all' || selectedSection !== 'all') && (
+              <span className="w-2 h-2 rounded-full bg-accent-contrast ml-0.5" />
+            )}
           </button>
         </div>
+
+        {/* Single Theme Filter Chip Row (Horizontal, No visible scrollbar) */}
+        <div className="mt-3 pt-3 border-t border-border flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          <button
+            type="button"
+            onClick={() => setSelectedTopic('all')}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
+              selectedTopic === 'all'
+                ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+            }`}
+          >
+            {language === 'de' ? 'Alle Themen' : 'All Topics'}
+          </button>
+          {topics.map((top) => (
+            <button
+              key={top.id}
+              type="button"
+              onClick={() => setSelectedTopic(selectedTopic === top.id ? 'all' : top.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
+                selectedTopic === top.id
+                  ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                  : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+              }`}
+            >
+              {language === 'de' ? top.labelDe : top.labelEn}
+            </button>
+          ))}
+        </div>
+
+        {/* Active Removable Filters Display */}
+        {(selectedBook !== 'all' || selectedSection !== 'all' || selectedTopic !== 'all') && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 pt-2 border-t border-border text-xs">
+            <span className="text-text-tertiary">{language === 'de' ? 'Aktive Filter:' : 'Active filters:'}</span>
+            {selectedTopic !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <span>Thema: {topics.find((t) => t.id === selectedTopic)?.[language === 'de' ? 'labelDe' : 'labelEn']}</span>
+                <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => setSelectedTopic('all')} />
+              </span>
+            )}
+            {selectedBook !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <span>Buch: {selectedBook}</span>
+                <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => { setSelectedBook('all'); setSelectedSection('all'); }} />
+              </span>
+            )}
+            {selectedSection !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <span>Lektion: {selectedSection}</span>
+                <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => setSelectedSection('all')} />
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* VIEW 1: INTERACTIVE PRACTICE STUDIO (7 SIMULATORS) */}
-      {viewMode === 'studio' && (
-        <div className="space-y-6">
-          {/* Studio Tool Selection Pills */}
-          <div className="overflow-x-auto pb-1 custom-scrollbar">
-            <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
-              {tools.map((tool) => {
-                const Icon = tool.icon;
-                const isSelected = activeTool === tool.id;
-                return (
-                  <button
-                    key={tool.id}
-                    onClick={() => setActiveTool(tool.id)}
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                      isSelected
-                        ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                        : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5 text-[#0071e3]" />
-                    <span>{tool.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+      {/* 2. Quotes List Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filteredQuotes.map((quote) => (
+          <article
+            key={quote.id}
+            role="button"
+            tabIndex={0}
+            onClick={() => handleSelectQuoteItem(quote)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleSelectQuoteItem(quote);
+              }
+            }}
+            className="group relative bg-surface rounded-2xl border border-border p-5 shadow-xs hover:border-accent/40 hover:shadow-apple-card transition-all cursor-pointer flex flex-col justify-between"
+          >
+            <div>
+              {/* Badges & Bookmark */}
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <Badge category="study" size="sm">
+                  {quote.theme[language]}
+                </Badge>
 
-          {/* Quote Selection Bar: 3-Tier Hierarchical Filter */}
-          <div className="p-4 sm:p-5 bg-white rounded-2xl border border-black/[0.06] shadow-2xs space-y-4">
-            {/* Tier 1 & Tier 2: Book & Section dropdowns + Citation & Copy */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-black/[0.04] pb-3.5">
-              <div className="flex flex-wrap items-center gap-2.5">
-                {/* 1. Book Filter */}
-                <div className="flex items-center gap-1.5">
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] shrink-0">
-                    {t.filterBookLabel}:
-                  </label>
-                  <select
-                    value={selectedBook}
-                    onChange={(e) => handleSelectBook(e.target.value)}
-                    className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer transition-colors"
-                  >
-                    <option value="all">{t.allBooks} ({QUOTES_DATA.length})</option>
-                    {uniqueBooks.map(b => (
-                      <option key={b.de} value={b.de}>
-                        {b[language]} ({b.count})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* 2. Section / Lesson Filter */}
-                <div className="flex items-center gap-1.5">
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] shrink-0">
-                    {t.filterSectionLabel}:
-                  </label>
-                  <select
-                    value={selectedSection}
-                    onChange={(e) => setSelectedSection(e.target.value)}
-                    disabled={availableSections.length === 0}
-                    className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <option value="all">{t.allSections} ({availableSections.reduce((acc, s) => acc + s.count, 0)})</option>
-                    {availableSections.map(s => (
-                      <option key={s.de} value={s.de}>
-                        {s[language]} ({s.count})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Reset Filters */}
-                {hasActiveQuoteFilters && (
-                  <button
-                    onClick={handleResetQuoteFilters}
-                    className="flex items-center gap-1 text-[11px] font-medium text-[#0071e3] hover:underline px-2 py-1"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>{t.resetFilters}</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Active Quote Citation and Copy */}
-              <div className="flex items-center gap-2 self-start lg:self-auto shrink-0">
-                <span className="text-[11px] text-[#86868b] font-medium max-w-[220px] truncate" title={selectedQuote.source[language]}>
-                  {selectedQuote.source[language]}
-                </span>
                 <button
-                  onClick={() => handleCopyQuote(selectedQuote)}
-                  className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border border-black/[0.08] hover:bg-black/[0.04] text-[#1d1d1f] transition-colors"
+                  type="button"
+                  onClick={(e) => onToggleFavorite(quote.id, e)}
+                  className={`p-1.5 rounded-full text-text-tertiary hover:text-text transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center ${
+                    favorites.includes(quote.id) ? 'text-accent fill-current' : ''
+                  }`}
+                  aria-label="Lesezeichen"
                 >
-                  {copiedQuoteId === selectedQuote.id ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5 text-[#86868b]" />
-                  )}
-                  <span>{copiedQuoteId === selectedQuote.id ? t.copiedSuccess : t.copyQuote}</span>
+                  <Bookmark className={`w-4 h-4 ${favorites.includes(quote.id) ? 'fill-current text-accent' : ''}`} />
                 </button>
               </div>
+
+              {/* Quote Excerpt in Serif */}
+              <blockquote className="font-serif italic text-base sm:text-lg text-text leading-relaxed line-clamp-3 mb-3">
+                „{language === 'de' ? quote.textDe : quote.textEn}“
+              </blockquote>
             </div>
 
-            {/* Tier 3: Generalized Topic Filter Pills */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
-                  {t.filterTopicLabel}:
-                </span>
-                <span className="text-[11px] text-[#86868b]">
-                  {filteredQuotes.length} {filteredQuotes.length === 1 ? t.quoteFound : t.quotesFound}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-                {generalTopicsList.map(topic => {
-                  const isSelected = selectedTopic === topic.id;
-                  return (
-                    <button
-                      key={topic.id}
-                      onClick={() => setSelectedTopic(topic.id)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 transition-all ${
-                        isSelected
-                          ? 'bg-[#1d1d1f] text-white font-semibold shadow-apple-pill'
-                          : 'bg-black/[0.04] text-[#6e6e73] hover:bg-black/[0.08]'
-                      }`}
-                    >
-                      {topic.label}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Unclipped Source Line & Action */}
+            <div className="pt-3 border-t border-border flex items-center justify-between gap-2 text-xs text-text-secondary">
+              <span className="font-serif text-text-tertiary leading-snug line-clamp-2">
+                — {quote.source[language]} ({quote.book[language]})
+              </span>
+
+              <span className="inline-flex items-center gap-1 font-semibold text-accent-text group-hover:translate-x-1 transition-transform shrink-0">
+                <span>{language === 'de' ? 'Lesen & Üben' : 'Read & Practice'}</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </span>
             </div>
+          </article>
+        ))}
+      </div>
 
-            {/* Matching Quotes Selector (Selectable Mini-Cards) */}
-            <div className="pt-2 border-t border-black/[0.04]">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] mb-2">
-                {t.matchingQuotes} ({filteredQuotes.length}):
-              </div>
-              {filteredQuotes.length === 0 ? (
-                <div className="py-6 text-center text-xs text-[#86868b] bg-black/[0.02] rounded-xl border border-dashed border-black/[0.08]">
-                  <p>{t.noQuotesMatch}</p>
-                  <button
-                    onClick={handleResetQuoteFilters}
-                    className="mt-2 text-[#0071e3] font-medium hover:underline text-xs"
-                  >
-                    {t.resetFilters}
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
-                  {filteredQuotes.map((q) => {
-                    const isSelected = selectedQuote.id === q.id;
-                    const textPreview = language === 'de' ? q.textDe : q.textEn;
-                    return (
-                      <button
-                        key={q.id}
-                        onClick={() => setSelectedQuote(q)}
-                        className={`p-2.5 rounded-xl text-left border transition-all flex flex-col justify-between gap-1.5 ${
-                          isSelected
-                            ? 'bg-blue-50/70 border-[#0071e3] ring-1 ring-[#0071e3]/30 shadow-xs'
-                            : 'bg-white hover:bg-black/[0.02] border-black/[0.06]'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2 w-full">
-                          <span className="text-xs font-semibold text-[#1d1d1f] truncate">
-                            {q.theme[language]}
-                          </span>
-                          {q.section && (
-                            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-black/[0.05] text-[#86868b] shrink-0">
-                              {q.section[language]}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-[#6e6e73] font-serif italic line-clamp-1">
-                          „{textPreview}“
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* TOOL 1: DISAPPEARING CHALKBOARD */}
-          {activeTool === 'chalkboard' && (
-            <div className="bg-white rounded-3xl border border-black/[0.06] p-6 sm:p-8 shadow-apple-card space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#86868b]">
-                <p>{t.boardSubtitle}</p>
-                <span className="font-mono text-[11px] bg-black/[0.04] px-3 py-1 rounded-full text-[#1d1d1f] self-start sm:self-auto shrink-0">
-                  {words.length - hiddenWordIndices.length} / {words.length} {t.wordsRemaining}
-                </span>
-              </div>
-
-              {/* Apple Blackboard Canvas */}
-              <div className="bg-[#1d1d1f] text-white rounded-2xl p-8 sm:p-12 shadow-inner border border-black/40 space-y-6 text-center">
-                <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed tracking-wide min-h-[140px]">
-                  {words.map((word, idx) => {
-                    const isHidden = hiddenWordIndices.includes(idx);
-                    return (
-                      <span
-                        key={idx}
-                        onClick={() => handleToggleWord(idx)}
-                        className={`cursor-pointer transition-all duration-200 select-none ${
-                          isHidden
-                            ? 'text-neutral-500 border-b border-neutral-700 px-2 py-0.5'
-                            : 'hover:text-emerald-400'
-                        }`}
-                        title={isHidden ? 'Klicken zum Einblenden' : 'Klicken zum Ausblenden'}
-                      >
-                        {isHidden ? '_____' : word}
-                      </span>
-                    );
-                  })}
-                </div>
-
-                <div className="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-400">
-                  <span className="font-serif italic">— {selectedQuote.source[language]} ({selectedQuote.book[language]})</span>
-                  <span className="text-[11px] text-neutral-400">
-                    {t.tapWordHint}
-                  </span>
-                </div>
-              </div>
-
-              {/* Controls Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleEraseNext}
-                    disabled={hiddenWordIndices.length === words.length}
-                    className="flex items-center gap-1.5 px-5 py-2.5 bg-[#0071e3] text-white text-xs font-semibold rounded-full hover:bg-[#0077ed] disabled:opacity-40 transition-all shadow-apple-pill"
-                  >
-                    <Eraser className="w-3.5 h-3.5" />
-                    <span>{t.eraseNextWord}</span>
-                  </button>
-                  <button
-                    onClick={() => setHiddenWordIndices([])}
-                    disabled={hiddenWordIndices.length === 0}
-                    className="flex items-center gap-1.5 px-4 py-2.5 border border-black/[0.08] text-[#1d1d1f] text-xs font-medium rounded-full hover:bg-black/[0.04] disabled:opacity-40 transition-colors"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>{t.resetBoard}</span>
-                  </button>
-                </div>
-
-                {hiddenWordIndices.length === words.length && (
-                  <p className="text-xs font-semibold text-emerald-600 animate-in fade-in">
-                    {t.allWordsHidden}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* TOOL 2: FIRST-LETTER ANCHORS */}
-          {activeTool === 'firstLetter' && (
-            <FirstLetterBoard quote={selectedQuote} language={language} />
-          )}
-
-          {/* TOOL 3: INTERACTIVE WORD PUZZLE */}
-          {activeTool === 'wordPuzzle' && (
-            <WordPuzzle quote={selectedQuote} language={language} />
-          )}
-
-          {/* TOOL 4: IMPOSTER DETECTOR */}
-          {activeTool === 'imposter' && (
-            <ImposterDetector quote={selectedQuote} language={language} />
-          )}
-
-          {/* TOOL 5: METRONOME CADENCE PACER */}
-          {activeTool === 'metronome' && (
-            <MetronomePacer quote={selectedQuote} language={language} />
-          )}
-
-          {/* TOOL 6: CODE CLICKER */}
-          {activeTool === 'codeClicker' && (
-            <CodeClicker quote={selectedQuote} language={language} />
-          )}
-
-          {/* TOOL 7: SPEED RUN TIMER */}
-          {activeTool === 'speedRun' && (
-            <SpeedRunTimer quote={selectedQuote} language={language} />
-          )}
+      {filteredQuotes.length === 0 && (
+        <div className="p-8 text-center bg-surface rounded-3xl border border-border">
+          <p className="text-sm text-text-secondary">
+            {language === 'de' ? 'Keine Zitate für diese Suche oder Filter gefunden.' : 'No quotes found matching your search or filters.'}
+          </p>
         </div>
       )}
 
-      {/* VIEW 2: 50 COOPERATIVE MEMORIZATION METHODS CATALOG */}
-      {viewMode === 'methods' && (
-        <div className="space-y-6">
-          {/* Phase & Modality Filter Bar */}
-          <div className="flex flex-col gap-3">
-            {/* Phase Segmented Filter */}
-            <div className="overflow-x-auto pb-1 custom-scrollbar">
-              <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
+      {/* 3. Reading View Dialog */}
+      {readingQuote && (
+        <Dialog
+          isOpen={true}
+          onClose={handleCloseReadingView}
+          maxWidth="lg"
+          showCloseButton={false}
+        >
+          <div className="space-y-5">
+            {/* Title Row with Badges, Close X, and Bookmark */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge category="study" size="md">
+                    {readingQuote.theme[language]}
+                  </Badge>
+                  {readingQuote.section && (
+                    <Badge category="neutral" size="md">
+                      {readingQuote.section[language]}
+                    </Badge>
+                  )}
+                </div>
+                <h2 className="text-sm font-semibold text-text-secondary">
+                  {readingQuote.book[language]}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-1 shrink-0 -mt-1">
                 <button
-                  onClick={() => setSelectedPhase('all')}
-                  className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                    selectedPhase === 'all'
-                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                  type="button"
+                  onClick={(e) => onToggleFavorite(readingQuote.id, e)}
+                  className={`p-2 rounded-full text-text-secondary hover:text-text transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center ${
+                    favorites.includes(readingQuote.id) ? 'text-accent bg-accent-subtle' : ''
                   }`}
+                  aria-label="Lesezeichen"
                 >
-                  {t.allPhases} (50)
+                  <Bookmark className={`w-5 h-5 ${favorites.includes(readingQuote.id) ? 'fill-current text-accent' : ''}`} />
                 </button>
+
                 <button
-                  onClick={() => setSelectedPhase(1)}
-                  className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                    selectedPhase === 1
-                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                  }`}
+                  type="button"
+                  onClick={handleCloseReadingView}
+                  className="p-2 rounded-full text-text-secondary hover:text-text transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
+                  aria-label="Schließen"
                 >
-                  {t.phase1Title} (16)
-                </button>
-                <button
-                  onClick={() => setSelectedPhase(2)}
-                  className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                    selectedPhase === 2
-                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                  }`}
-                >
-                  {t.phase2Title} (17)
-                </button>
-                <button
-                  onClick={() => setSelectedPhase(3)}
-                  className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all ${
-                    selectedPhase === 3
-                      ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                      : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                  }`}
-                >
-                  {t.phase3Title} (17)
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            {/* Modality Filter Chips */}
-            <div className="flex flex-wrap items-center gap-1.5 text-xs text-[#86868b]">
-              <span>Modus:</span>
-              {[
-                { id: 'all', label: language === 'de' ? 'Alle Modi' : 'All Modes' },
-                { id: 'rhythm', label: t.modalityRhythm },
-                { id: 'movement', label: t.modalityMovement },
-                { id: 'visual', label: t.modalityVisual },
-                { id: 'focus', label: t.modalityFocus },
-              ].map((m) => (
+            {/* Sacred Scripture Quote Text in Playfair Serif */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-surface-2 border border-border text-center space-y-4">
+              <blockquote className="font-serif italic text-xl sm:text-3xl text-text leading-relaxed">
+                „{language === 'de' ? readingQuote.textDe : readingQuote.textEn}“
+              </blockquote>
+
+              <p className="text-xs sm:text-sm font-serif text-text-secondary">
+                — {readingQuote.source[language]} • {readingQuote.book[language]}
+              </p>
+            </div>
+
+            {/* Primary Action Button: "Üben" */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setIsPracticeMethodsOpen(true)}
+                className="w-full py-3 px-4 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-sm shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px]"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                <span>{language === 'de' ? 'Üben (Methode wählen)' : 'Practice (Choose Method)'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAddToPlan(readingQuote)}
+                className="w-full py-3 px-4 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px]"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{language === 'de' ? 'Zum Plan hinzufügen' : 'Add to Plan'}</span>
+              </button>
+            </div>
+
+            {/* Secondary Actions (Copy & Share) */}
+            <div className="pt-3 border-t border-border flex items-center justify-between gap-3 text-xs text-text-secondary">
+              <button
+                type="button"
+                onClick={() => handleCopyQuote(readingQuote)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer min-h-[36px]"
+              >
+                {copiedQuote ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedQuote ? (language === 'de' ? 'Kopiert!' : 'Copied!') : (language === 'de' ? 'Zitat kopieren' : 'Copy Quote')}</span>
+              </button>
+
+              <a
+                href={generateWhatsAppLink(
+                  `„${language === 'de' ? readingQuote.textDe : readingQuote.textEn}“ — ${readingQuote.source[language]}`,
+                  `${window.location.origin}/quotes/${readingQuote.id}`
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer min-h-[36px]"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        </Dialog>
+      )}
+
+      {/* 4. Practice Methods Selection Dialog (Short method list, 1 line each, recommended first) */}
+      <Dialog
+        isOpen={isPracticeMethodsOpen}
+        onClose={() => setIsPracticeMethodsOpen(false)}
+        title={language === 'de' ? 'Verinnerlichungsmethode wählen' : 'Choose Memorisation Method'}
+        maxWidth="md"
+        showCloseButton={true}
+      >
+        <div className="space-y-3 pt-2">
+          {interactiveTools.map((tool) => (
+            <button
+              key={tool.id}
+              type="button"
+              onClick={() => {
+                setActiveInteractiveTool(tool.id);
+                setIsPracticeMethodsOpen(false);
+              }}
+              className="w-full text-left p-3.5 rounded-2xl bg-surface-2 hover:bg-surface-raised border border-border transition-colors cursor-pointer flex items-center justify-between group"
+            >
+              <div className="min-w-0 pr-3">
+                <h4 className="text-xs sm:text-sm font-bold text-text group-hover:text-accent-text transition-colors truncate">
+                  {language === 'de' ? tool.nameDe : tool.nameEn}
+                </h4>
+                <p className="text-2xs text-text-secondary mt-0.5 line-clamp-1">
+                  {language === 'de' ? tool.descDe : tool.descEn}
+                </p>
+              </div>
+
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent text-accent-contrast text-xs font-semibold shrink-0 group-hover:bg-accent-hover transition-colors">
+                <span>{language === 'de' ? 'Starten' : 'Start'}</span>
+                <Play className="w-3 h-3 fill-current" />
+              </span>
+            </button>
+          ))}
+
+          <div className="pt-2 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setIsPracticeMethodsOpen(false);
+                setIsAllMethodsModalOpen(true);
+              }}
+              className="text-xs font-semibold text-accent-text hover:underline"
+            >
+              {language === 'de'
+                ? `+ Alle ${QUOTE_METHODS_DATA.length} Methoden ansehen`
+                : `+ View all ${QUOTE_METHODS_DATA.length} methods`}
+            </button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* 5. Full-Screen Interactive Practice Simulator View */}
+      {activeInteractiveTool && readingQuote && (
+        <div
+          className="fixed inset-0 z-50 bg-bg text-text p-4 sm:p-8 flex flex-col justify-between safe-top safe-bottom overflow-y-auto animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Top Bar with Exit */}
+          <div className="flex items-center justify-between border-b border-border pb-4 max-w-4xl mx-auto w-full">
+            <div>
+              <span className="text-2xs font-semibold uppercase tracking-wider text-accent-text block">
+                {language === 'de' ? 'Interaktives Studio' : 'Practice Studio'}
+              </span>
+              <h2 className="text-base sm:text-lg font-bold text-text">
+                {interactiveTools.find((t) => t.id === activeInteractiveTool)?.[language === 'de' ? 'nameDe' : 'nameEn']}
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setActiveInteractiveTool(null)}
+              className="p-2 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
+              aria-label="Studio schließen"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Practice Canvas Area */}
+          <div className="max-w-4xl mx-auto w-full py-6 flex-1 flex flex-col justify-center">
+            {activeInteractiveTool === 'chalkboard' && (
+              <div className="space-y-6">
+                <div className="p-8 sm:p-12 rounded-3xl bg-surface-raised border border-border text-center space-y-6 shadow-xs">
+                  <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text">
+                    {currentWords.map((word, idx) => {
+                      const isHidden = chalkboardHiddenIndices.includes(idx);
+                      const punctuation = word.replace(/[a-zA-ZäöüÄÖÜß0-9]/g, '');
+                      return (
+                        <span
+                          key={idx}
+                          onClick={() => {
+                            setChalkboardHiddenIndices((prev) =>
+                              prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+                            );
+                          }}
+                          className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-lg ${
+                            isHidden
+                              ? 'text-text-tertiary border-b-2 border-border opacity-40'
+                              : 'text-text hover:text-accent-text'
+                          }`}
+                        >
+                          {isHidden ? `____${punctuation}` : word}
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  <p className="text-xs text-text-tertiary font-serif italic">
+                    — {readingQuote.source[language]}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleEraseMoreWords}
+                    disabled={chalkboardHiddenIndices.length === currentWords.length}
+                    className="px-6 py-2.5 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-xs transition-colors shadow-xs cursor-pointer min-h-[40px]"
+                  >
+                    {language === 'de' ? 'Wörter ausblenden' : 'Erase Words'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleResetChalkboard}
+                    className="px-4 py-2.5 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[40px]"
+                  >
+                    {language === 'de' ? 'Zurücksetzen' : 'Reset'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {activeInteractiveTool === 'firstLetter' && (
+              <FirstLetterBoard quote={readingQuote} language={language} />
+            )}
+
+            {activeInteractiveTool === 'wordPuzzle' && (
+              <WordPuzzle quote={readingQuote} language={language} />
+            )}
+
+            {activeInteractiveTool === 'imposter' && (
+              <ImposterDetector quote={readingQuote} language={language} />
+            )}
+
+            {activeInteractiveTool === 'metronome' && (
+              <MetronomePacer quote={readingQuote} language={language} />
+            )}
+
+            {activeInteractiveTool === 'codeClicker' && (
+              <CodeClicker quote={readingQuote} language={language} />
+            )}
+
+            {activeInteractiveTool === 'speedRun' && (
+              <SpeedRunTimer quote={readingQuote} language={language} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 6. Filter Sheet for Book & Section */}
+      <Sheet
+        isOpen={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+        title={language === 'de' ? 'Buch & Lektion filtern' : 'Filter Book & Lesson'}
+        position="bottom"
+      >
+        <div className="space-y-6 pb-4">
+          <div>
+            <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+              {language === 'de' ? 'Buch auswählen' : 'Select Book'}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedBook('all');
+                  setSelectedSection('all');
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  selectedBook === 'all'
+                    ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                    : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+                }`}
+              >
+                {language === 'de' ? 'Alle Bücher' : 'All Books'}
+              </button>
+              {uniqueBooks.map((book) => (
                 <button
-                  key={m.id}
-                  onClick={() => setSelectedModality(m.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
-                    selectedModality === m.id
-                      ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-apple-pill'
-                      : 'bg-white text-[#6e6e73] border-black/[0.06] hover:text-[#1d1d1f]'
+                  key={book}
+                  type="button"
+                  onClick={() => {
+                    setSelectedBook(book);
+                    setSelectedSection('all');
+                  }}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    selectedBook === book
+                      ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
                   }`}
                 >
-                  {m.label}
+                  {book}
                 </button>
               ))}
-              <span className="ml-auto font-mono text-[11px] text-[#86868b]">
-                {filteredMethods.length} {language === 'de' ? 'Methoden' : 'methods'}
-              </span>
             </div>
           </div>
 
-          {/* Methods Cards List */}
-          <div className="space-y-3">
-            {filteredMethods.map((method) => {
-              const isExpanded = expandedMethodId === method.id;
-              const isFav = favorites.includes(method.id);
+          {availableSections.length > 0 && (
+            <div>
+              <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+                {language === 'de' ? 'Lektion / Abschnitt' : 'Lesson / Section'}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedSection('all')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    selectedSection === 'all'
+                      ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+                  }`}
+                >
+                  {language === 'de' ? 'Alle Lektionen' : 'All Lessons'}
+                </button>
+                {availableSections.map((sec) => (
+                  <button
+                    key={sec}
+                    type="button"
+                    onClick={() => setSelectedSection(sec)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      selectedSection === sec
+                        ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                        : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+                    }`}
+                  >
+                    {sec}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setIsFilterSheetOpen(false)}
+              className="w-full py-3 rounded-xl bg-accent text-accent-contrast font-semibold text-xs transition-colors cursor-pointer"
+            >
+              {language === 'de' ? `${filteredQuotes.length} Zitate anzeigen` : `Show ${filteredQuotes.length} Quotes`}
+            </button>
+          </div>
+        </div>
+      </Sheet>
+
+      {/* 7. "Mehr Methoden" Catalog Dialog */}
+      <Dialog
+        isOpen={isAllMethodsModalOpen}
+        onClose={() => setIsAllMethodsModalOpen(false)}
+        title={
+          language === 'de'
+            ? `Methoden-Katalog (${QUOTE_METHODS_DATA.length} Methoden)`
+            : `Memorisation Methods (${QUOTE_METHODS_DATA.length} Methods)`
+        }
+        maxWidth="xl"
+        showCloseButton={true}
+      >
+        <div className="space-y-4 pt-2">
+          {/* Phase Filter Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button
+              type="button"
+              onClick={() => setMethodPhaseFilter('all')}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                methodPhaseFilter === 'all' ? 'bg-accent text-accent-contrast font-semibold' : 'bg-surface-2 text-text-secondary hover:text-text'
+              }`}
+            >
+              {language === 'de' ? 'Alle Phasen' : 'All Phases'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMethodPhaseFilter(1)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                methodPhaseFilter === 1 ? 'bg-accent text-accent-contrast font-semibold' : 'bg-surface-2 text-text-secondary hover:text-text'
+              }`}
+            >
+              {language === 'de' ? 'Phase 1: Verstehen & Struktur' : 'Phase 1: Comprehend'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMethodPhaseFilter(2)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                methodPhaseFilter === 2 ? 'bg-accent text-accent-contrast font-semibold' : 'bg-surface-2 text-text-secondary hover:text-text'
+              }`}
+            >
+              {language === 'de' ? 'Phase 2: Rhythmus & Einprägen' : 'Phase 2: Memorise'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMethodPhaseFilter(3)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                methodPhaseFilter === 3 ? 'bg-accent text-accent-contrast font-semibold' : 'bg-surface-2 text-text-secondary hover:text-text'
+              }`}
+            >
+              {language === 'de' ? 'Phase 3: Festigen & Abruf' : 'Phase 3: Consolidate'}
+            </button>
+          </div>
+
+          {/* Methods List */}
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
+            {filteredAllMethods.map((m) => {
+              const isExpanded = expandedMethodId === m.id;
               return (
                 <div
-                  key={method.id}
-                  className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden shadow-apple-card transition-all"
+                  key={m.id}
+                  className="p-4 rounded-2xl bg-surface-2 border border-border space-y-2 transition-colors"
                 >
                   <div
-                    onClick={() => setExpandedMethodId(isExpanded ? null : method.id)}
-                    className="p-5 flex items-center justify-between cursor-pointer hover:bg-black/[0.01] transition-colors"
+                    onClick={() => setExpandedMethodId(isExpanded ? null : m.id)}
+                    className="flex items-start justify-between gap-3 cursor-pointer"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="w-7 h-7 rounded-full bg-black/[0.04] text-[#1d1d1f] font-semibold text-xs flex items-center justify-center shrink-0">
-                        {method.phase}
-                      </span>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-base text-[#1d1d1f]">
-                            {method.name[language]}
-                          </h3>
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-black/[0.04] text-[#6e6e73]">
-                            {method.modality === 'movement' && t.modalityMovement}
-                            {method.modality === 'rhythm' && t.modalityRhythm}
-                            {method.modality === 'visual' && t.modalityVisual}
-                            {method.modality === 'focus' && t.modalityFocus}
-                          </span>
-                        </div>
-                        <p className="text-xs text-[#86868b] mt-0.5 font-normal">
-                          {method.summary[language]}
-                        </p>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-surface text-text-secondary border border-border">
+                          Phase {m.phase}
+                        </span>
+                        <span className="text-2xs text-text-tertiary">
+                          {m.durationMinutes}′
+                        </span>
                       </div>
+                      <h4 className="text-sm font-bold text-text hover:text-accent transition-colors">
+                        {m.name[language]}
+                      </h4>
+                      <p className="text-xs text-text-secondary mt-0.5 line-clamp-2">
+                        {m.summary[language]}
+                      </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => onToggleFavorite(method.id, e)}
-                        className={`p-1.5 rounded-full transition-colors ${
-                          isFav
-                            ? 'text-amber-500 bg-amber-500/10'
-                            : 'text-[#aeaeb2] hover:text-[#1d1d1f] hover:bg-black/[0.04]'
-                        }`}
-                        title={t.savedItems}
-                      >
-                        <Bookmark className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
-                      </button>
-                      <div className="p-1 text-[#86868b]">
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </div>
-                    </div>
+                    <ChevronRight className={`w-4 h-4 text-text-tertiary transition-transform mt-1 ${isExpanded ? 'rotate-90' : ''}`} />
                   </div>
 
                   {isExpanded && (
-                    <div className="px-5 pb-5 pt-2 border-t border-black/[0.04] space-y-4 text-xs sm:text-sm text-[#1d1d1f]">
-                      {/* Why it works */}
-                      <div className="bg-[#f5f5f7] p-3.5 rounded-xl space-y-1">
-                        <strong className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] block">
-                          {t.whyWorksTitle}
+                    <div className="pt-3 border-t border-border space-y-3 text-xs animate-in fade-in">
+                      <div>
+                        <strong className="text-text font-semibold block mb-1">
+                          {language === 'de' ? 'Schritt für Schritt:' : 'Step by Step:'}
                         </strong>
-                        <p className="text-xs text-[#1d1d1f] leading-relaxed font-normal">
-                          {method.whyItWorks[language]}
-                        </p>
-                      </div>
-
-                      {/* Step by step in the room */}
-                      <div className="space-y-2">
-                        <strong className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] block">
-                          {t.stepsInRoomTitle}
-                        </strong>
-                        <div className="space-y-2">
-                          {method.steps.map((step, idx) => (
-                            <div key={idx} className="flex items-start gap-2.5 text-xs text-[#1d1d1f]">
-                              <span className="w-4 h-4 rounded-full bg-black/[0.08] text-[#1d1d1f] text-[10px] font-semibold flex items-center justify-center shrink-0 mt-0.5">
-                                {idx + 1}
+                        <div className="space-y-1.5">
+                          {m.steps.map((st, sIdx) => (
+                            <div key={sIdx} className="flex items-start gap-2">
+                              <span className="w-4 h-4 rounded-full bg-accent text-accent-contrast font-bold text-2xs flex items-center justify-center shrink-0 mt-0.5">
+                                {sIdx + 1}
                               </span>
-                              <div>
-                                <span className="font-semibold block">{step.name[language]}</span>
-                                <span className="leading-relaxed font-normal text-[#6e6e73]">{step.description[language]}</span>
-                              </div>
+                              <p className="text-text-secondary">{st.description[language]}</p>
                             </div>
                           ))}
                         </div>
                       </div>
 
-                      {/* Reset Condition if available */}
-                      {method.resetRule && (
-                        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-950 font-normal">
-                          <strong className="font-semibold block mb-0.5">{t.resetRuleTitle}:</strong>
-                          <p>{method.resetRule[language]}</p>
-                        </div>
-                      )}
-
-                      {/* Facilitator tip */}
-                      {method.animatorTips[language].length > 0 && (
-                        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-950 font-normal">
-                          <strong className="font-semibold block mb-0.5">{t.tipsPracticeTitle}:</strong>
-                          <ul className="space-y-1">
-                            {method.animatorTips[language].map((tip, i) => (
-                              <li key={i}>• {tip}</li>
-                            ))}
-                          </ul>
+                      {m.whyItWorks && (
+                        <div className="p-3 rounded-xl bg-surface border border-border">
+                          <strong className="text-text font-semibold block mb-0.5">
+                            {language === 'de' ? 'Warum es funktioniert:' : 'Why it works:'}
+                          </strong>
+                          <p className="text-text-secondary">{m.whyItWorks[language]}</p>
                         </div>
                       )}
                     </div>
@@ -799,209 +950,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             })}
           </div>
         </div>
-      )}
+      </Dialog>
 
-      {/* VIEW 3: QUOTE LIBRARY (ZITATESAMMLUNG) */}
-      {viewMode === 'quotes' && (
-        <div className="space-y-6">
-          {/* Hierarchical Filter Bar: Book, Section & Topic */}
-          <div className="p-4 sm:p-5 bg-white rounded-2xl border border-black/[0.06] shadow-2xs space-y-4">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-black/[0.04] pb-3.5">
-              <div className="flex flex-wrap items-center gap-2.5">
-                {/* 1. Book Filter */}
-                <div className="flex items-center gap-1.5">
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] shrink-0">
-                    {t.filterBookLabel}:
-                  </label>
-                  <select
-                    value={selectedBook}
-                    onChange={(e) => handleSelectBook(e.target.value)}
-                    className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer transition-colors"
-                  >
-                    <option value="all">{t.allBooks} ({QUOTES_DATA.length})</option>
-                    {uniqueBooks.map(b => (
-                      <option key={b.de} value={b.de}>
-                        {b[language]} ({b.count})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* 2. Section / Lesson Filter */}
-                <div className="flex items-center gap-1.5">
-                  <label className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b] shrink-0">
-                    {t.filterSectionLabel}:
-                  </label>
-                  <select
-                    value={selectedSection}
-                    onChange={(e) => setSelectedSection(e.target.value)}
-                    disabled={availableSections.length === 0}
-                    className="text-xs font-medium bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] px-3 py-1.5 rounded-full border border-black/[0.06] outline-hidden cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <option value="all">{t.allSections} ({availableSections.reduce((acc, s) => acc + s.count, 0)})</option>
-                    {availableSections.map(s => (
-                      <option key={s.de} value={s.de}>
-                        {s[language]} ({s.count})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Reset Filters */}
-                {hasActiveQuoteFilters && (
-                  <button
-                    onClick={handleResetQuoteFilters}
-                    className="flex items-center gap-1 text-[11px] font-medium text-[#0071e3] hover:underline px-2 py-1"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>{t.resetFilters}</span>
-                  </button>
-                )}
-              </div>
-
-              <span className="text-xs text-[#86868b] font-medium shrink-0 self-end lg:self-auto">
-                {filteredQuotes.length} {filteredQuotes.length === 1 ? t.quoteFound : t.quotesFound}
-              </span>
-            </div>
-
-            {/* Tier 3: Generalized Topic Filter Pills */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#86868b]">
-                {t.filterTopicLabel}:
-              </span>
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-                {generalTopicsList.map(topic => {
-                  const isSelected = selectedTopic === topic.id;
-                  return (
-                    <button
-                      key={topic.id}
-                      onClick={() => setSelectedTopic(topic.id)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 transition-all ${
-                        isSelected
-                          ? 'bg-[#1d1d1f] text-white font-semibold shadow-apple-pill'
-                          : 'bg-black/[0.04] text-[#6e6e73] hover:bg-black/[0.08]'
-                      }`}
-                    >
-                      {topic.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Empty state if no quotes match */}
-          {filteredQuotes.length === 0 && (
-            <div className="py-12 text-center text-sm text-[#86868b] bg-white rounded-2xl border border-black/[0.06] p-8 space-y-3">
-              <p>{t.noQuotesMatch}</p>
-              <button
-                onClick={handleResetQuoteFilters}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>{t.resetFilters}</span>
-              </button>
-            </div>
-          )}
-
-          {/* Quotes Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-            {filteredQuotes.map((q) => {
-              const isDualOpen = expandedLangQuoteIds.includes(q.id);
-              return (
-                <div
-                  key={q.id}
-                  className="bg-white rounded-2xl border border-black/[0.06] p-6 shadow-apple-card flex flex-col justify-between space-y-5"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-black/[0.04] text-[#1d1d1f]">
-                          {q.theme[language]}
-                        </span>
-                        {q.section && (
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-[#0071e3] border border-blue-100">
-                            {q.section[language]}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-[#86868b] font-medium">
-                          {q.book[language]}
-                        </span>
-                        <button
-                          onClick={() => toggleDualLang(q.id)}
-                          className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-black/[0.05] hover:bg-black/[0.1] text-[#0071e3] transition-colors"
-                          title={language === 'de' ? 'Englische Übersetzung anzeigen' : 'Show German translation'}
-                        >
-                          {isDualOpen ? 'DE/EN ▲' : 'DE/EN ▼'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <blockquote className="font-serif text-base sm:text-lg text-[#1d1d1f] leading-relaxed italic">
-                      „{language === 'de' ? q.textDe : q.textEn}“
-                    </blockquote>
-
-                    {isDualOpen && (
-                      <div className="p-3 bg-black/[0.02] border-l-2 border-[#0071e3] rounded-r-xl text-xs sm:text-sm font-serif italic text-[#515154] leading-relaxed">
-                        „{language === 'de' ? q.textEn : q.textDe}“
-                      </div>
-                    )}
-
-                    <p className="text-xs text-[#86868b] font-medium">
-                      — {q.source[language]}
-                    </p>
-                  </div>
-
-                  {/* Bottom Actions with Direct Studio Simulator Launcher */}
-                  <div className="pt-3 border-t border-black/[0.04] flex flex-wrap items-center justify-between gap-2">
-                    <button
-                      onClick={() => handleCopyQuote(q)}
-                      className="inline-flex items-center gap-1.5 text-xs text-[#6e6e73] hover:text-[#1d1d1f] transition-colors"
-                    >
-                      {copiedQuoteId === q.id ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5 text-[#86868b]" />
-                      )}
-                      <span>{copiedQuoteId === q.id ? t.copiedSuccess : t.copyQuote}</span>
-                    </button>
-
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => launchStudioWithQuote(q, 'chalkboard')}
-                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
-                        title={t.toolChalkboard}
-                      >
-                        <Eraser className="w-3 h-3 text-[#0071e3]" />
-                        <span>Tafel</span>
-                      </button>
-
-                      <button
-                        onClick={() => launchStudioWithQuote(q, 'wordPuzzle')}
-                        className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-black/[0.04] hover:bg-black/[0.08] text-[#1d1d1f] rounded-full transition-colors"
-                        title={t.toolWordPuzzle}
-                      >
-                        <Puzzle className="w-3 h-3 text-emerald-600" />
-                        <span>Puzzle</span>
-                      </button>
-
-                      <button
-                        onClick={() => launchStudioWithQuote(q, 'firstLetter')}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-[#0071e3] hover:underline ml-1"
-                      >
-                        <span>{t.openInSimulator}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

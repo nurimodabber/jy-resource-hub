@@ -8,3 +8,8 @@ dist-ssr
 rtf_converted.txt
 .vercel
 .env*
+screenshots/
+test-results/
+playwright-report/
+scripts/baseline-report.json
+

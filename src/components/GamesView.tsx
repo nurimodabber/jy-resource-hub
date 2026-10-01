@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Sparkles, RotateCcw, Zap } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { Sparkles, SlidersHorizontal, LayoutGrid, List, X } from 'lucide-react';
 import { Game, GameCategory, EnergyLevel, Language } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { GameCard } from './GameCard';
 import { GameModal } from './GameModal';
+import { Sheet } from './ui/Sheet';
 import { UI_TRANSLATIONS } from '../data/translations';
 
 interface GamesViewProps {
@@ -24,61 +26,55 @@ export const GamesView: React.FC<GamesViewProps> = ({
   onToggleFavorite,
   showOnlyFavorites,
   onClearShowOnlyFavorites,
-  selectedGameId,
+  selectedGameId: propGameId,
   onSelectGame,
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState<GameCategory | 'all'>('all');
-  const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel | 'all'>('all');
+  const { id: routeGameId } = useParams<{ id?: string }>();
+  const effectiveGameId = propGameId ?? routeGameId;
+  const [selectedCategory, setSelectedCategory] = useState<GameCategory | null>(null);
+  const [selectedEnergy, setSelectedEnergy] = useState<EnergyLevel | null>(null);
   const [onlyInstantPrep, setOnlyInstantPrep] = useState(false);
+  const [isCompactView, setIsCompactView] = useState(false);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+
   const [activeGame, setActiveGame] = useState<Game | null>(() => {
-    if (selectedGameId) {
-      return GAMES_DATA.find((g) => g.id === selectedGameId) || null;
+    if (effectiveGameId) {
+      return GAMES_DATA.find((g) => g.id === effectiveGameId) || null;
     }
     return null;
   });
 
-  // Sync with selectedGameId prop if it changes externally (e.g. back button or deep link)
+  // Sync external deep link
   React.useEffect(() => {
-    if (selectedGameId) {
-      const match = GAMES_DATA.find((g) => g.id === selectedGameId);
+    if (effectiveGameId) {
+      const match = GAMES_DATA.find((g) => g.id === effectiveGameId);
       if (match) setActiveGame(match);
     } else {
       setActiveGame(null);
     }
-  }, [selectedGameId]);
+  }, [effectiveGameId]);
 
   const t = UI_TRANSLATIONS[language];
 
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {
-      all: GAMES_DATA.length,
-      cooperative: 0,
-      social_deduction: 0,
-      competitive: 0,
-      energizer: 0,
-    };
-    GAMES_DATA.forEach((g) => {
-      counts[g.category] = (counts[g.category] || 0) + 1;
-    });
-    return counts;
-  }, []);
+  const categories: { id: GameCategory; label: string }[] = [
+    { id: 'cooperative', label: t.filterCooperative },
+    { id: 'social_deduction', label: t.filterSocialDeduction },
+    { id: 'competitive', label: t.filterCompetitive },
+    { id: 'energizer', label: t.filterEnergizer },
+  ];
 
-  const categories: { id: GameCategory | 'all'; label: string; count: number }[] = [
-    { id: 'all', label: t.filterAll, count: categoryCounts.all },
-    { id: 'cooperative', label: t.filterCooperative, count: categoryCounts.cooperative },
-    { id: 'social_deduction', label: t.filterSocialDeduction, count: categoryCounts.social_deduction },
-    { id: 'competitive', label: t.filterCompetitive, count: categoryCounts.competitive },
-    { id: 'energizer', label: t.filterEnergizer, count: categoryCounts.energizer },
+  const energyLevels: { id: EnergyLevel; label: string }[] = [
+    { id: 'calm', label: t.filterCalmEnergy },
+    { id: 'medium', label: t.filterMediumEnergy },
+    { id: 'high', label: t.filterHighEnergy },
   ];
 
   const filteredGames = useMemo(() => {
     return GAMES_DATA.filter((game) => {
-      // Favorites filter
       if (showOnlyFavorites && !favorites.includes(game.id)) {
         return false;
       }
 
-      // Search
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesTitle = game.title[language].toLowerCase().includes(q);
@@ -88,17 +84,14 @@ export const GamesView: React.FC<GamesViewProps> = ({
         if (!matchesTitle && !matchesSummary && !matchesIdea && !matchesRules) return false;
       }
 
-      // Category
-      if (selectedCategory !== 'all' && game.category !== selectedCategory) {
+      if (selectedCategory && game.category !== selectedCategory) {
         return false;
       }
 
-      // Energy
-      if (selectedEnergy !== 'all' && game.energyLevel !== selectedEnergy) {
+      if (selectedEnergy && game.energyLevel !== selectedEnergy) {
         return false;
       }
 
-      // Instant prep
       if (onlyInstantPrep && game.prepLevel !== 'instant') {
         return false;
       }
@@ -107,198 +100,243 @@ export const GamesView: React.FC<GamesViewProps> = ({
     });
   }, [searchQuery, language, selectedCategory, selectedEnergy, onlyInstantPrep, showOnlyFavorites, favorites]);
 
-  const hasActiveFilters = selectedCategory !== 'all' || selectedEnergy !== 'all' || onlyInstantPrep;
-
-  const resetAllFilters = () => {
-    setSelectedCategory('all');
-    setSelectedEnergy('all');
-    setOnlyInstantPrep(false);
+  const handleOpenGame = (game: Game) => {
+    setActiveGame(game);
+    if (onSelectGame) onSelectGame(game);
   };
 
+  const handleCloseGame = () => {
+    setActiveGame(null);
+    if (onSelectGame) onSelectGame(null);
+  };
+
+  const handleClearAllFilters = () => {
+    setSelectedCategory(null);
+    setSelectedEnergy(null);
+    setOnlyInstantPrep(false);
+    if (onClearShowOnlyFavorites) onClearShowOnlyFavorites();
+  };
+
+  const hasActiveFilters = selectedCategory !== null || selectedEnergy !== null || onlyInstantPrep || showOnlyFavorites;
+
   return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* Editorial Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-black/[0.06] pb-5">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1d1d1f]">
-            {showOnlyFavorites ? t.savedItems : t.gamesHeaderTitle}
-          </h1>
-          <p className="text-xs sm:text-sm text-[#86868b] mt-1 max-w-xl font-normal leading-relaxed">
-            {showOnlyFavorites ? t.noSavedItems : t.gamesHeaderDesc}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-[#86868b] font-medium">
-            {filteredGames.length} {filteredGames.length === 1 ? t.gameFound : t.gamesFound}
-          </span>
-          {hasActiveFilters && (
-            <button
-              onClick={resetAllFilters}
-              className="inline-flex items-center gap-1 text-xs text-[#0071e3] hover:underline font-medium"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>{t.resetFilters}</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Active Favorites Notification Banner */}
-      {showOnlyFavorites && (
-        <div className="flex items-center justify-between p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-xs text-amber-900">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold">
-              {language === 'de' ? 'Favoriten-Filter aktiv:' : 'Favorites filter active:'}
-            </span>
-            <span>
-              {language === 'de' 
-                ? 'Es werden nur deine gemerkten Spiele angezeigt.' 
-                : 'Showing only your bookmarked games.'}
-            </span>
+    <div className="space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in duration-200">
+      
+      {/* 1. Header & Quick Filter Bar */}
+      <div className="bg-surface rounded-3xl border border-border p-5 sm:p-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
+              {t.tabGames}
+            </h1>
+            <p className="text-xs sm:text-sm text-text-secondary mt-0.5 truncate">
+              {language === 'de'
+                ? `${GAMES_DATA.length} erprobte Gruppenspiele mit Regeln und Tipps.`
+                : `${GAMES_DATA.length} field-tested games with rules and tips.`}
+            </p>
           </div>
-          {onClearShowOnlyFavorites && (
-            <button
-              onClick={onClearShowOnlyFavorites}
-              className="font-semibold text-[#0071e3] hover:underline shrink-0 ml-3"
-            >
-              {language === 'de' ? `Alle ${GAMES_DATA.length} Spiele anzeigen` : `Show all ${GAMES_DATA.length} games`}
-            </button>
-          )}
-        </div>
-      )}
 
-      {/* Streamlined Apple Filter Bar */}
-      <div className="flex flex-col gap-3">
-        {/* Primary Category Segmented Control */}
-        <div className="overflow-x-auto pb-1 custom-scrollbar">
-          <div className="inline-flex items-center p-1 bg-black/[0.05] rounded-full border border-black/[0.03] min-w-max">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 text-xs rounded-full font-medium transition-all inline-flex items-center gap-1.5 ${
-                  selectedCategory === cat.id
-                    ? 'bg-white text-[#1d1d1f] shadow-apple-pill font-semibold'
-                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
-                }`}
-              >
-                <span>{cat.label}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                    selectedCategory === cat.id
-                      ? cat.id === 'cooperative'
-                        ? 'bg-emerald-100 text-emerald-800 font-semibold'
-                        : 'bg-black/[0.08] text-[#1d1d1f]'
-                      : 'bg-black/[0.04] text-[#86868b]'
-                  }`}
-                >
-                  {cat.count}
-                </span>
-              </button>
-            ))}
+          {/* Action Row: Compact View Toggle & Filter Sheet */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsCompactView(!isCompactView)}
+              className="p-2.5 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
+              title={isCompactView ? 'Kartenansicht' : 'Kompaktansicht'}
+              aria-label="Ansicht umschalten"
+            >
+              {isCompactView ? <LayoutGrid className="w-4 h-4" /> : <List className="w-4 h-4" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsFilterSheetOpen(true)}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-colors cursor-pointer min-h-[40px] ${
+                hasActiveFilters
+                  ? 'bg-accent text-accent-contrast border-accent'
+                  : 'bg-surface-2 text-text-secondary hover:text-text border-border'
+              }`}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>{language === 'de' ? 'Filter' : 'Filters'}</span>
+              {hasActiveFilters && (
+                <span className="w-2 h-2 rounded-full bg-accent-contrast ml-0.5" />
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Secondary Refinement Pills */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Instant Prep Toggle */}
-          <button
-            onClick={() => setOnlyInstantPrep(!onlyInstantPrep)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs rounded-full font-medium transition-all border ${
-              onlyInstantPrep
-                ? 'bg-emerald-600 text-white border-emerald-600 shadow-apple-pill'
-                : 'bg-white text-[#6e6e73] border-black/[0.06] hover:bg-black/[0.02]'
-            }`}
-          >
-            <Zap className={`w-3 h-3 ${onlyInstantPrep ? 'text-white' : 'text-emerald-600'}`} />
-            <span>{t.quickFilterInstant}</span>
-          </button>
-
-          {/* Energy Level Filter Pills */}
-          {(['all', 'calm', 'medium', 'high'] as const).map((energy) => {
-            const isSelected = selectedEnergy === energy;
-            const label = energy === 'all' 
-              ? (language === 'de' ? 'Alle Intensitäten' : 'All Intensities')
-              : energy === 'calm'
-                ? t.filterCalmEnergy
-                : energy === 'medium'
-                  ? t.filterMediumEnergy
-                  : t.filterHighEnergy;
-
+        {/* Horizontal Category Chips Row (No "Alle..." chips) */}
+        <div className="mt-4 pt-3 border-t border-border flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          {categories.map((cat) => {
+            const isSelected = selectedCategory === cat.id;
             return (
               <button
-                key={energy}
-                onClick={() => setSelectedEnergy(energy)}
-                className={`px-3 py-1 text-xs rounded-full font-medium transition-all border ${
-                  isSelected && energy !== 'all'
-                    ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-apple-pill'
-                    : isSelected && energy === 'all'
-                      ? 'bg-black/[0.05] text-[#1d1d1f] border-transparent font-semibold'
-                      : 'bg-white text-[#86868b] border-black/[0.06] hover:text-[#1d1d1f]'
+                key={cat.id}
+                type="button"
+                onClick={() => setSelectedCategory(isSelected ? null : cat.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
+                  isSelected
+                    ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                    : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
                 }`}
               >
-                {label}
+                {cat.label}
               </button>
             );
           })}
+
+          {/* Quick toggle Instant Prep */}
+          <button
+            type="button"
+            onClick={() => setOnlyInstantPrep(!onlyInstantPrep)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[32px] cursor-pointer flex items-center gap-1 ${
+              onlyInstantPrep
+                ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+            }`}
+          >
+            <Sparkles className="w-3 h-3" />
+            <span>{t.filterInstantPrep}</span>
+          </button>
         </div>
+
+        {/* Removable Active Filter Chips */}
+        {hasActiveFilters && (
+          <div className="mt-3 pt-2.5 border-t border-border flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-text-tertiary">{language === 'de' ? 'Aktiv:' : 'Active:'}</span>
+            {selectedCategory && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <span>{categories.find((c) => c.id === selectedCategory)?.label}</span>
+                <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => setSelectedCategory(null)} />
+              </span>
+            )}
+            {selectedEnergy && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <span>{energyLevels.find((e) => e.id === selectedEnergy)?.label}</span>
+                <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => setSelectedEnergy(null)} />
+              </span>
+            )}
+            {onlyInstantPrep && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <span>{t.filterInstantPrep}</span>
+                <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => setOnlyInstantPrep(false)} />
+              </span>
+            )}
+            {showOnlyFavorites && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <span>{t.savedItems}</span>
+                <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={onClearShowOnlyFavorites} />
+              </span>
+            )}
+
+            <button
+              type="button"
+              onClick={handleClearAllFilters}
+              className="text-2xs font-semibold text-accent-text hover:underline ml-1 cursor-pointer"
+            >
+              {language === 'de' ? 'Alle zurücksetzen' : 'Reset all'}
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Games Cards Grid */}
-      {filteredGames.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {filteredGames.map((game) => (
-            <GameCard
-              key={game.id}
-              game={game}
-              onSelect={(g) => {
-                setActiveGame(g);
-                onSelectGame?.(g);
-              }}
-              language={language}
-              isFavorite={favorites.includes(game.id)}
-              onToggleFavorite={onToggleFavorite}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-16 bg-white rounded-3xl border border-black/[0.06] p-8 space-y-3">
-          <div className="w-12 h-12 rounded-full bg-black/[0.04] text-[#86868b] flex items-center justify-center mx-auto">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <h3 className="text-base font-semibold text-[#1d1d1f]">
-            {language === 'de' ? 'Keine Spiele gefunden' : 'No games match your criteria'}
-          </h3>
-          <p className="text-xs text-[#86868b] max-w-sm mx-auto">
-            {language === 'de' 
-              ? 'Passe deine Filtereinstellungen oder Suchbegriffe an, um mehr Ergebnisse anzuzeigen.'
-              : 'Try adjusting your filters or search term to discover available activities.'}
+      {/* 2. Games Grid or Compact List */}
+      <div className={isCompactView ? 'space-y-2' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'}>
+        {filteredGames.map((game) => (
+          <GameCard
+            key={game.id}
+            game={game}
+            language={language}
+            isFavorite={favorites.includes(game.id)}
+            onToggleFavorite={onToggleFavorite}
+            onSelect={handleOpenGame}
+            compact={isCompactView}
+          />
+        ))}
+      </div>
+
+      {filteredGames.length === 0 && (
+        <div className="p-8 text-center bg-surface rounded-3xl border border-border">
+          <p className="text-sm text-text-secondary">
+            {language === 'de' ? 'Keine Spiele gefunden. Versuche Filter zurückzusetzen.' : 'No games found. Try clearing filters.'}
           </p>
-          {hasActiveFilters && (
-            <button
-              onClick={resetAllFilters}
-              className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-[#1d1d1f] text-white shadow-apple-pill hover:bg-black transition-all"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>{t.resetFilters}</span>
-            </button>
-          )}
         </div>
       )}
 
-      {/* Game Details Modal */}
+      {/* 3. Game Detail Modal */}
       {activeGame && (
         <GameModal
           game={activeGame}
-          onClose={() => {
-            setActiveGame(null);
-            onSelectGame?.(null);
-          }}
+          onClose={handleCloseGame}
           language={language}
           isFavorite={favorites.includes(activeGame.id)}
           onToggleFavorite={onToggleFavorite}
         />
       )}
+
+      {/* 4. Filter Sheet */}
+      <Sheet
+        isOpen={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+        title={language === 'de' ? 'Spiele filtern' : 'Filter Games'}
+        position="bottom"
+      >
+        <div className="space-y-5 pb-4">
+          {/* Energy Filter */}
+          <div>
+            <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+              {language === 'de' ? 'Intensität & Energie' : 'Energy Level'}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {energyLevels.map((lvl) => (
+                <button
+                  key={lvl.id}
+                  type="button"
+                  onClick={() => setSelectedEnergy(selectedEnergy === lvl.id ? null : lvl.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    selectedEnergy === lvl.id
+                      ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+                  }`}
+                >
+                  {lvl.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Prep filter */}
+          <div>
+            <label className="text-xs font-semibold text-text-secondary uppercase tracking-wider block mb-2">
+              {language === 'de' ? 'Vorbereitung' : 'Preparation'}
+            </label>
+            <button
+              type="button"
+              onClick={() => setOnlyInstantPrep(!onlyInstantPrep)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                onlyInstantPrep
+                  ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                  : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
+              }`}
+            >
+              {t.filterInstantPrep} (0′ Prep)
+            </button>
+          </div>
+
+          {/* Submit button showing dynamic count */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setIsFilterSheetOpen(false)}
+              className="w-full py-3 rounded-xl bg-accent text-accent-contrast font-semibold text-xs transition-colors cursor-pointer"
+            >
+              {language === 'de' ? `${filteredGames.length} Spiele anzeigen` : `Show ${filteredGames.length} Games`}
+            </button>
+          </div>
+        </div>
+      </Sheet>
+
     </div>
   );
 };

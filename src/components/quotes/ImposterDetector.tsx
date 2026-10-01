@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, CheckCircle2, RotateCcw } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
@@ -8,7 +8,6 @@ interface ImposterDetectorProps {
   language: Language;
 }
 
-// Decoy substitutions for words depending on language
 const DECOY_MAP: Record<string, string[]> = {
   // German decoys
   'Bergwerk': ['Schrank', 'Tresor', 'Palast', 'Brunnen'],
@@ -48,19 +47,16 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
   const [isResolved, setIsResolved] = useState<boolean>(false);
   const [shakeIndex, setShakeIndex] = useState<number | null>(null);
 
-  // Generate an imposter word
-  const generateImposter = () => {
+  const generateImposter = useCallback(() => {
     setIsResolved(false);
     setShakeIndex(null);
 
-    // Find words in text that have known decoys or are substantive (length >= 4)
     const eligibleIndices: { index: number; word: string; decoy: string }[] = [];
 
     rawWords.forEach((word, idx) => {
       const clean = word.replace(/[.,;:!?„"«»]/g, '');
       const punctuation = word.replace(/[a-zA-ZäöüÄÖÜß0-9]/g, '');
 
-      // Check if known in dictionary
       for (const [key, decoys] of Object.entries(DECOY_MAP)) {
         if (clean.toLowerCase() === key.toLowerCase()) {
           const randomDecoy = decoys[Math.floor(Math.random() * decoys.length)];
@@ -72,7 +68,6 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
         }
       }
 
-      // Fallback: substantive nouns / adjectives
       if (clean.length >= 5) {
         const fallbackDecoys = language === 'de'
           ? ['Wunder', 'Gedanke', 'Prüfung', 'Zeichen', 'Hoffnung']
@@ -88,17 +83,16 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
       setDecoyWord(chosen.decoy);
       setOriginalWord(chosen.word);
     } else {
-      // Emergency fallback: swap word 2
       const fallbackIdx = Math.min(2, rawWords.length - 1);
       setImposterIndex(fallbackIdx);
       setDecoyWord(language === 'de' ? 'Traum' : 'dream');
       setOriginalWord(rawWords[fallbackIdx]);
     }
-  };
+  }, [rawWords, language]);
 
   useEffect(() => {
     generateImposter();
-  }, [quote, language, quoteText]);
+  }, [generateImposter]);
 
   const handleWordClick = (idx: number) => {
     if (isResolved) return;
@@ -113,72 +107,75 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#86868b]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.imposterSubtitle}</p>
-        <span className="font-mono text-[11px] bg-black/[0.04] px-3 py-1 rounded-full text-[#1d1d1f] self-start sm:self-auto shrink-0">
+        <span className="font-mono text-2xs bg-surface-2 border border-border px-3 py-1 rounded-full text-text self-start sm:self-auto shrink-0">
           {isResolved ? '100% Original' : (language === 'de' ? '1 Fehler versteckt' : '1 Decoy hidden')}
         </span>
       </div>
 
       {/* Main Reading Canvas */}
-      <div className="bg-white rounded-3xl border border-black/[0.06] p-6 sm:p-10 shadow-apple-card space-y-6">
-        <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-[#1d1d1f] text-center min-h-[140px]">
+      <div className="bg-surface rounded-3xl border border-border p-6 sm:p-10 shadow-xs space-y-6">
+        <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px]">
           {rawWords.map((word, idx) => {
             const isImposter = idx === imposterIndex;
             const displayedWord = isImposter && !isResolved ? decoyWord : word;
             const isShaking = shakeIndex === idx;
 
             return (
-              <span
+              <button
+                type="button"
                 key={idx}
                 onClick={() => handleWordClick(idx)}
-                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-xl ${
+                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-xl font-serif text-xl sm:text-3xl ${
                   isImposter && isResolved
-                    ? 'bg-emerald-500/15 text-emerald-800 font-bold border border-emerald-500/30'
+                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30'
                     : isImposter && !isResolved
-                    ? 'hover:bg-amber-500/10'
+                    ? 'hover:bg-accent-subtle hover:text-accent-text'
                     : isShaking
-                    ? 'bg-rose-50 text-rose-800 animate-shake border border-rose-200'
-                    : 'hover:bg-black/[0.04]'
+                    ? 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30'
+                    : 'hover:bg-surface-2'
                 }`}
                 title={language === 'de' ? 'Klicken zum Prüfen' : 'Click to inspect'}
               >
                 {displayedWord}
-              </span>
+              </button>
             );
           })}
         </div>
 
         {/* Resolution Banner */}
         {isResolved ? (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between gap-3 text-emerald-950 animate-in fade-in">
+          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between gap-3 text-emerald-900 dark:text-emerald-200 animate-in fade-in">
             <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <div className="text-xs">
                 <strong className="font-semibold block">{t.imposterFound}</strong>
-                <span className="text-emerald-800">
+                <span className="text-emerald-700 dark:text-emerald-300">
                   {language === 'de' ? `„${decoyWord}“ wurde durch „${originalWord}“ ersetzt.` : `"${decoyWord}" was corrected to "${originalWord}".`}
                 </span>
               </div>
             </div>
 
             <button
+              type="button"
               onClick={generateImposter}
-              className="px-4 py-1.5 bg-emerald-600 text-white rounded-full text-xs font-semibold hover:bg-emerald-700 transition-colors shadow-apple-pill shrink-0"
+              className="px-4 py-2 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[36px]"
             >
               {t.nextImposter}
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-between pt-2 border-t border-black/[0.04] text-xs text-[#86868b]">
+          <div className="flex items-center justify-between pt-2 border-t border-border text-xs text-text-secondary">
             <span className="flex items-center gap-1.5">
-              <Search className="w-3.5 h-3.5 text-[#0071e3]" />
+              <Search className="w-3.5 h-3.5 text-accent-text" />
               <span>{language === 'de' ? 'Findet das gefälschte Wort und klickt darauf!' : 'Locate the imposter word and click it!'}</span>
             </span>
 
             <button
+              type="button"
               onClick={generateImposter}
-              className="flex items-center gap-1.5 px-3 py-1 text-xs text-[#1d1d1f] hover:bg-black/[0.04] rounded-full transition-colors border border-black/[0.06]"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-text hover:bg-surface-2 rounded-full transition-colors border border-border cursor-pointer min-h-[32px]"
             >
               <RotateCcw className="w-3 h-3" />
               <span>{t.nextImposter}</span>

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Users, Clock, MapPin, Copy, Check, Info, Bookmark, 
-  AlertCircle, Share2, MessageCircle 
+  AlertCircle, Share2, MessageCircle, Plus, X 
 } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { Dialog } from './ui/Dialog';
 import { Badge, BadgeCategory } from './ui/Badge';
-import { Button } from './ui/Button';
 import { IconButton } from './ui/IconButton';
 import { shareResource, generateWhatsAppLink } from '../utils/share';
+import { usePlanner } from '../context/PlannerContext';
+import { useToast } from '../context/ToastContext';
 
 interface GameModalProps {
   game: Game | null;
@@ -28,6 +30,9 @@ export const GameModal: React.FC<GameModalProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const navigate = useNavigate();
+  const { addSlotToPlan } = usePlanner();
+  const { showToast } = useToast();
 
   if (!game) return null;
 
@@ -86,17 +91,47 @@ export const GameModal: React.FC<GameModalProps> = ({
     gameUrl
   );
 
+  const handleAddToPlan = () => {
+    const durationNum = parseInt(game.durationMinutes.replace(/[^0-9]/g, '')) || 15;
+    const result = addSlotToPlan({
+      type: game.energyLevel === 'calm' ? 'closing' : 'warmup',
+      title: { de: game.title.de, en: game.title.en },
+      durationMinutes: durationNum,
+      description: { de: game.summary.de, en: game.summary.en },
+      referenceId: game.id,
+      referenceType: 'game',
+    });
+
+    showToast({
+      text: language === 'de' ? 'Spiel zum Plan hinzugefügt' : 'Game added to plan',
+      action: {
+        label: language === 'de' ? 'Plan öffnen' : 'Open Plan',
+        onClick: () => {
+          onClose();
+          navigate('/planner');
+        },
+      },
+      undo: {
+        label: language === 'de' ? 'Rückgängig' : 'Undo',
+        onClick: () => {
+          result.undo();
+        },
+      },
+    });
+  };
+
   return (
     <Dialog
       isOpen={!!game}
       onClose={onClose}
       maxWidth="lg"
-      showCloseButton={true}
+      showCloseButton={false}
     >
-      <div className="space-y-6 short:space-y-3">
-        {/* Header Badges & Title */}
-        <div className="flex items-start justify-between gap-4 -mt-1">
-          <div className="space-y-1.5">
+      <div className="space-y-5 short:space-y-3">
+        
+        {/* 1. Title Row with Integrated Close Button (No ~90px empty top strip) */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1.5 min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
               <Badge category={getCategory()} size="md">
                 {getCategoryLabel()}
@@ -105,86 +140,100 @@ export const GameModal: React.FC<GameModalProps> = ({
                 {getEnergyLabel()}
               </Badge>
             </div>
-            <h2 className="text-xl sm:text-2xl font-semibold text-text tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold text-text tracking-tight leading-tight">
               {game.title[language]}
             </h2>
           </div>
 
-          <div className="flex items-center gap-1">
-            <IconButton
-              label={t.shareBtn || 'Teilen'}
-              onClick={handleShare}
-              size="md"
-              className={shareSuccess ? 'text-emerald-500 bg-emerald-500/10' : 'text-text-tertiary hover:text-text'}
-            >
-              {shareSuccess ? <Check className="w-5 h-5 text-emerald-500" /> : <Share2 className="w-5 h-5" />}
-            </IconButton>
-
+          <div className="flex items-center gap-1 shrink-0 -mt-1">
             <IconButton
               label={isFavorite ? t.savedItems : `${t.savedItems} (hinzufügen)`}
               onClick={(e) => onToggleFavorite(game.id, e)}
               size="md"
               className={
                 isFavorite
-                  ? 'text-accent bg-accent/10 hover:bg-accent/20'
-                  : 'text-text-tertiary hover:text-text'
+                  ? 'text-accent bg-accent-subtle hover:bg-accent/20'
+                  : 'text-text-secondary hover:text-text'
               }
             >
               <Bookmark className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
             </IconButton>
+
+            <IconButton
+              label={t.close || 'Schließen (Esc)'}
+              onClick={onClose}
+              size="md"
+              variant="ghost"
+              className="text-text-secondary hover:text-text"
+            >
+              <X className="w-5 h-5" />
+            </IconButton>
           </div>
         </div>
 
-        {/* Responsive Layout: 1 Column on Portrait / Desktop, 2 Columns in Phone Landscape (`short:grid-cols-2`) */}
-        <div className="short:grid short:grid-cols-2 short:gap-4 space-y-6 short:space-y-0">
-          
-          {/* Column 1 (Left on landscape): Metrics, Idea, Materials */}
-          <div className="space-y-4">
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 short:grid-cols-2 gap-2.5 p-3.5 bg-surface-2 rounded-2xl border border-border-subtle text-xs">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-text-tertiary shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-text-tertiary text-2xs font-medium">{t.groupLabel}</p>
-                  <p className="font-semibold text-text truncate">{game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-text-tertiary shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-text-tertiary text-2xs font-medium">{t.durationLabel}</p>
-                  <p className="font-semibold text-text truncate">{game.durationMinutes}′</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-text-tertiary shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-text-tertiary text-2xs font-medium">{t.prepLabel}</p>
-                  <p className="font-semibold text-text truncate">
-                    {game.prepLevel === 'instant' ? t.filterInstantPrep : t.filterMaterialPrep}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-text-tertiary shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-text-tertiary text-2xs font-medium">{t.spaceLabel}</p>
-                  <p className="font-semibold text-text truncate">{game.space[language]}</p>
-                </div>
-              </div>
+        {/* 2. Metadata Grid (Allows 2 lines so values like 'Keine Vorbereitung' never truncate) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-surface-2 rounded-2xl border border-border text-xs">
+          <div className="flex items-start gap-2">
+            <Users className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-text-tertiary text-2xs font-medium">{t.groupLabel}</p>
+              <p className="font-semibold text-text leading-snug">{game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}</p>
             </div>
+          </div>
 
-            {/* Core Idea */}
+          <div className="flex items-start gap-2">
+            <Clock className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-text-tertiary text-2xs font-medium">{t.durationLabel}</p>
+              <p className="font-semibold text-text leading-snug">{game.durationMinutes}′</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <Info className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-text-tertiary text-2xs font-medium">{t.prepLabel}</p>
+              <p className="font-semibold text-text leading-snug">
+                {game.prepLevel === 'instant' ? t.filterInstantPrep : t.filterMaterialPrep}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-2">
+            <MapPin className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-text-tertiary text-2xs font-medium">{t.spaceLabel}</p>
+              <p className="font-semibold text-text leading-snug">{game.space[language]}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Primary Action: "Zum Plan hinzufügen" (One primary action per screen) */}
+        <div>
+          <button
+            type="button"
+            onClick={handleAddToPlan}
+            className="w-full py-3 px-4 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-sm shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px] outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{language === 'de' ? 'Zum Plan hinzufügen' : 'Add to Session Plan'}</span>
+          </button>
+        </div>
+
+        {/* 4. Content (Responsive: 1 col portrait, 2 cols landscape) */}
+        <div className="short:grid short:grid-cols-2 short:gap-4 space-y-5 short:space-y-0">
+          
+          {/* Column 1: Core Idea & Materials */}
+          <div className="space-y-4">
             <div className="space-y-1.5">
               <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary">
                 {t.ideaTitle}
               </h3>
-              <p className="text-text bg-surface-2 border border-border-subtle p-3.5 rounded-2xl leading-relaxed text-xs sm:text-sm">
+              <p className="text-text bg-surface-2 border border-border p-3.5 rounded-2xl leading-relaxed text-xs sm:text-sm">
                 {game.idea[language]}
               </p>
             </div>
 
-            {/* Materials */}
             {game.materials[language].length > 0 && game.materials[language][0] !== 'Keine' && game.materials[language][0] !== 'None' && (
               <div className="space-y-1.5">
                 <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary">
@@ -192,7 +241,7 @@ export const GameModal: React.FC<GameModalProps> = ({
                 </h3>
                 <div className="flex flex-wrap gap-1.5">
                   {game.materials[language].map((mat, i) => (
-                    <span key={i} className="text-xs font-medium bg-surface-2 text-text px-2.5 py-1 rounded-full border border-border-subtle">
+                    <span key={i} className="text-xs font-medium bg-surface-2 text-text px-2.5 py-1 rounded-full border border-border">
                       {mat}
                     </span>
                   ))}
@@ -201,17 +250,16 @@ export const GameModal: React.FC<GameModalProps> = ({
             )}
           </div>
 
-          {/* Column 2 (Right on landscape): Rules Step by Step, Animator Tips */}
+          {/* Column 2: Rules Step by Step & Tips */}
           <div className="space-y-4">
-            {/* Rules Step by Step */}
             <div className="space-y-2">
               <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary">
                 {t.rulesTitle}
               </h3>
-              <div className="space-y-2 max-h-[45vh] short:max-h-[30vh] overflow-y-auto custom-scrollbar pr-1">
+              <div className="space-y-2 max-h-[40vh] short:max-h-[25vh] overflow-y-auto custom-scrollbar pr-1">
                 {game.rules[language].map((rule, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 p-3 rounded-2xl bg-surface-2 border border-border-subtle">
-                    <span className="w-5 h-5 rounded-full bg-text text-bg font-semibold text-2xs flex items-center justify-center shrink-0 mt-0.5">
+                  <div key={idx} className="flex items-start gap-2.5 p-3 rounded-2xl bg-surface-2 border border-border">
+                    <span className="w-5 h-5 rounded-full bg-accent text-accent-contrast font-semibold text-2xs flex items-center justify-center shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
                     <p className="text-xs sm:text-sm text-text leading-relaxed">
@@ -222,17 +270,16 @@ export const GameModal: React.FC<GameModalProps> = ({
               </div>
             </div>
 
-            {/* Facilitator Tips */}
             {game.animatorTips[language].length > 0 && (
               <div className="space-y-1.5">
                 <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 text-accent" />
+                  <AlertCircle className="w-3.5 h-3.5 text-accent-text" />
                   <span>{t.tipsTitle}</span>
                 </h3>
-                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl space-y-1.5 text-xs text-text">
+                <div className="p-3 bg-accent-subtle border border-accent/20 rounded-2xl space-y-1.5 text-xs text-text">
                   {game.animatorTips[language].map((tip, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <span className="text-accent font-bold">•</span>
+                      <span className="text-accent-text font-bold">•</span>
                       <p className="leading-relaxed">{tip}</p>
                     </div>
                   ))}
@@ -243,39 +290,40 @@ export const GameModal: React.FC<GameModalProps> = ({
 
         </div>
 
-        {/* Bottom Actions */}
-        <div className="pt-3 border-t border-border-subtle flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Button
+        {/* 5. Secondary Utility Actions (Share, Copy, WhatsApp) - No 'Schließen' button */}
+        <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
               onClick={handleCopy}
-              variant="secondary"
-              size="sm"
-              icon={copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-text-tertiary" />}
-              iconPosition="left"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text font-medium transition-colors cursor-pointer"
             >
-              {copied ? t.copiedSuccess : t.copyRules}
-            </Button>
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? t.copiedSuccess : t.copyRules}</span>
+            </button>
 
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 transition-colors"
-              title={t.shareOnWhatsApp || 'WhatsApp'}
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text font-medium transition-colors cursor-pointer"
             >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span>WhatsApp</span>
-            </a>
+              {shareSuccess ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
+              <span>{t.shareBtn || 'Teilen'}</span>
+            </button>
           </div>
 
-          <Button
-            onClick={onClose}
-            variant="primary"
-            size="sm"
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text font-medium transition-colors cursor-pointer"
+            title="WhatsApp"
           >
-            {t.close}
-          </Button>
+            <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>WhatsApp</span>
+          </a>
         </div>
+
       </div>
     </Dialog>
   );

@@ -1,25 +1,40 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { BottomTabBar } from './components/BottomTabBar';
 import { LeftNavigationRail } from './components/LeftNavigationRail';
 import { MoreSheet } from './components/MoreSheet';
 import { CommandPalette } from './components/CommandPalette';
-import { HomeView } from './components/HomeView';
-import { GamesView } from './components/GamesView';
-import { QuotesView } from './components/QuotesView';
-import { SessionBuilder } from './components/SessionBuilder';
-import { ServiceArtsView } from './components/ServiceArtsView';
-import { ToolkitsView } from './components/ToolkitsView';
-import { ImpressumView } from './components/ImpressumView';
-import { DatenschutzView } from './components/DatenschutzView';
 import { BahaiSongsModal } from './components/BahaiSongsModal';
+import { DocumentHead } from './components/DocumentHead';
+import { ToastProvider } from './context/ToastContext';
+import { PlannerProvider } from './context/PlannerContext';
 import { Language, NavTab, SessionSlot, Game, QuoteItem, QuoteMethod } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
-import { Music, FileText, ShieldCheck } from 'lucide-react';
+import { Music, FileText, ShieldCheck, Loader2 } from 'lucide-react';
 import { Logo } from './components/Logo';
 
-export const App: React.FC = () => {
+// Lazy-loaded routes for code-splitting
+const HomeView = lazy(() => import('./components/HomeView').then(m => ({ default: m.HomeView })));
+const GamesView = lazy(() => import('./components/GamesView').then(m => ({ default: m.GamesView })));
+const QuotesView = lazy(() => import('./components/QuotesView').then(m => ({ default: m.QuotesView })));
+const SessionBuilder = lazy(() => import('./components/SessionBuilder').then(m => ({ default: m.SessionBuilder })));
+const ServiceArtsView = lazy(() => import('./components/ServiceArtsView').then(m => ({ default: m.ServiceArtsView })));
+const ToolkitsView = lazy(() => import('./components/ToolkitsView').then(m => ({ default: m.ToolkitsView })));
+const ImpressumView = lazy(() => import('./components/ImpressumView').then(m => ({ default: m.ImpressumView })));
+const DatenschutzView = lazy(() => import('./components/DatenschutzView').then(m => ({ default: m.DatenschutzView })));
+const NotFoundView = lazy(() => import('./components/NotFoundView').then(m => ({ default: m.NotFoundView })));
+
+const RouteLoading: React.FC = () => (
+  <div className="flex items-center justify-center py-24 min-h-[300px]" role="status" aria-label="Loading">
+    <div className="flex flex-col items-center gap-3 text-text-secondary text-sm">
+      <Loader2 className="w-6 h-6 animate-spin text-accent" />
+      <span>Wird geladen...</span>
+    </div>
+  </div>
+);
+
+export const AppContent: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -34,37 +49,18 @@ export const App: React.FC = () => {
     }
   }, [navigate]);
 
-  // Derive active tab and sub-IDs from pathname
-  const { activeTab, subId } = useMemo(() => {
-    const segments = location.pathname.split('/').filter(Boolean);
-    const root = segments[0] || 'home';
-
-    if (root === 'home' || root === '') {
-      return { activeTab: 'home' as NavTab, subId: null };
-    }
-    if (root === 'games') {
-      return { activeTab: 'games' as NavTab, subId: segments[1] || null };
-    }
-    if (root === 'quotes') {
-      return { activeTab: 'quotes' as NavTab, subId: segments[1] || null };
-    }
-    if (root === 'planner') {
-      return { activeTab: 'planner' as NavTab, subId: null };
-    }
-    if (root === 'service-arts') {
-      return { activeTab: 'service-arts' as NavTab, subId: null };
-    }
-    if (root === 'tools') {
-      return { activeTab: 'tools' as NavTab, subId: segments[1] || null };
-    }
-    if (root === 'impressum') {
-      return { activeTab: 'impressum' as NavTab, subId: null };
-    }
-    if (root === 'datenschutz') {
-      return { activeTab: 'datenschutz' as NavTab, subId: null };
-    }
-
-    return { activeTab: 'home' as NavTab, subId: null };
+  // Derive active tab from pathname for header/rail/tabbar highlighting
+  const activeTab = useMemo<NavTab>(() => {
+    const root = location.pathname.split('/').filter(Boolean)[0] || 'home';
+    if (root === 'home' || root === '') return 'home';
+    if (root === 'games') return 'games';
+    if (root === 'quotes') return 'quotes';
+    if (root === 'planner') return 'planner';
+    if (root === 'service-arts') return 'service-arts';
+    if (root === 'tools') return 'tools';
+    if (root === 'impressum') return 'impressum';
+    if (root === 'datenschutz') return 'datenschutz';
+    return 'home';
   }, [location.pathname]);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -169,7 +165,9 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-bg text-text selection:bg-accent/20">
-      
+      {/* Dynamic Per-Route Document Head & Meta Tags */}
+      <DocumentHead language={language} />
+
       {/* Top Navbar */}
       <Navbar
         activeTab={activeTab}
@@ -183,6 +181,7 @@ export const App: React.FC = () => {
         setShowOnlyFavorites={setShowOnlyFavorites}
         onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenMore={() => setIsMoreSheetOpen(true)}
       />
 
       {/* Phone Landscape Slim Left Rail */}
@@ -195,77 +194,146 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="short-content-pad flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 md:pb-8">
-        
-        {activeTab === 'home' && (
-          <HomeView
-            language={language}
-            onNavigateTab={handleTabChange}
-            onSelectGame={handleSelectGame}
-            onSelectQuoteToPractice={handlePracticeQuote}
-            favorites={favorites}
-            onToggleFavorite={handleToggleFavorite}
-          />
-        )}
+        <Suspense fallback={<RouteLoading />}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <HomeView
+                  language={language}
+                  onNavigateTab={handleTabChange}
+                  onSelectGame={handleSelectGame}
+                  onSelectQuoteToPractice={handlePracticeQuote}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                />
+              }
+            />
+            <Route path="/home" element={<Navigate to="/" replace />} />
 
-        {activeTab === 'games' && (
-          <GamesView
-            searchQuery={searchQuery}
-            language={language}
-            favorites={favorites}
-            onToggleFavorite={handleToggleFavorite}
-            showOnlyFavorites={showOnlyFavorites}
-            onClearShowOnlyFavorites={() => setShowOnlyFavorites(false)}
-            selectedGameId={subId}
-            onSelectGame={handleSelectGame}
-          />
-        )}
+            <Route
+              path="/games"
+              element={
+                <GamesView
+                  searchQuery={searchQuery}
+                  language={language}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                  showOnlyFavorites={showOnlyFavorites}
+                  onClearShowOnlyFavorites={() => setShowOnlyFavorites(false)}
+                  onSelectGame={handleSelectGame}
+                />
+              }
+            />
+            <Route
+              path="/games/:id"
+              element={
+                <GamesView
+                  searchQuery={searchQuery}
+                  language={language}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                  showOnlyFavorites={showOnlyFavorites}
+                  onClearShowOnlyFavorites={() => setShowOnlyFavorites(false)}
+                  onSelectGame={handleSelectGame}
+                />
+              }
+            />
 
-        {activeTab === 'quotes' && (
-          <QuotesView
-            searchQuery={searchQuery}
-            language={language}
-            favorites={favorites}
-            onToggleFavorite={handleToggleFavorite}
-            showOnlyFavorites={showOnlyFavorites}
-            selectedQuoteId={subId}
-            onSelectQuote={(q) => navigate(`/quotes/${q.id}`)}
-          />
-        )}
+            <Route
+              path="/quotes"
+              element={
+                <QuotesView
+                  searchQuery={searchQuery}
+                  language={language}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                  showOnlyFavorites={showOnlyFavorites}
+                  onSelectQuote={(q) => navigate(`/quotes/${q.id}`)}
+                />
+              }
+            />
+            <Route
+              path="/quotes/:id"
+              element={
+                <QuotesView
+                  searchQuery={searchQuery}
+                  language={language}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                  showOnlyFavorites={showOnlyFavorites}
+                  onSelectQuote={(q) => navigate(`/quotes/${q.id}`)}
+                />
+              }
+            />
 
-        {activeTab === 'planner' && (
-          <SessionBuilder
-            language={language}
-            onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
-            externalSlotToAdd={slotToAddToPlanner}
-            onClearExternalSlot={() => setSlotToAddToPlanner(null)}
-          />
-        )}
+            <Route
+              path="/planner"
+              element={
+                <SessionBuilder
+                  language={language}
+                  onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
+                  externalSlotToAdd={slotToAddToPlanner}
+                  onClearExternalSlot={() => setSlotToAddToPlanner(null)}
+                  favorites={favorites}
+                />
+              }
+            />
 
-        {activeTab === 'service-arts' && (
-          <ServiceArtsView
-            language={language}
-            searchQuery={searchQuery}
-            onAddToPlanner={handleAddToPlanner}
-          />
-        )}
+            <Route
+              path="/service-arts"
+              element={
+                <ServiceArtsView
+                  language={language}
+                  searchQuery={searchQuery}
+                  onAddToPlanner={handleAddToPlanner}
+                />
+              }
+            />
+            <Route
+              path="/service-arts/:id"
+              element={
+                <ServiceArtsView
+                  language={language}
+                  searchQuery={searchQuery}
+                  onAddToPlanner={handleAddToPlanner}
+                />
+              }
+            />
 
-        {activeTab === 'tools' && (
-          <ToolkitsView language={language} />
-        )}
+            <Route
+              path="/tools"
+              element={<ToolkitsView language={language} />}
+            />
+            <Route
+              path="/tools/:toolId"
+              element={<ToolkitsView language={language} />}
+            />
 
-        {activeTab === 'impressum' && (
-          <ImpressumView
-            language={language}
-            onBack={() => handleTabChange('home')}
-          />
-        )}
+            <Route
+              path="/impressum"
+              element={
+                <ImpressumView
+                  language={language}
+                  onBack={() => handleTabChange('home')}
+                />
+              }
+            />
 
-        {activeTab === 'datenschutz' && (
-          <DatenschutzView
-            language={language}
-            onBack={() => handleTabChange('home')}
-          />
-        )}
+            <Route
+              path="/datenschutz"
+              element={
+                <DatenschutzView
+                  language={language}
+                  onBack={() => handleTabChange('home')}
+                />
+              }
+            />
+
+            {/* Real 404 Route */}
+            <Route path="*" element={<NotFoundView language={language} />} />
+          </Routes>
+        </Suspense>
       </main>
 
       {/* Mobile Portrait Bottom Tab Bar */}
@@ -311,7 +379,7 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsBahaiSongsOpen(true)}
-              className="text-text-secondary hover:text-text font-medium inline-flex items-center gap-1.5 transition-colors"
+              className="text-text-secondary hover:text-text font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Music className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Bahá'í Songs</span>
@@ -319,7 +387,7 @@ export const App: React.FC = () => {
             <span className="text-text-tertiary">•</span>
             <button
               onClick={() => handleTabChange('impressum')}
-              className="text-text-secondary hover:text-text transition-colors inline-flex items-center gap-1"
+              className="text-text-secondary hover:text-text transition-colors inline-flex items-center gap-1 cursor-pointer"
             >
               <FileText className="w-3.5 h-3.5 text-text-tertiary" />
               <span>{t.impressumTitle || 'Impressum'}</span>
@@ -327,7 +395,7 @@ export const App: React.FC = () => {
             <span className="text-text-tertiary">•</span>
             <button
               onClick={() => handleTabChange('datenschutz')}
-              className="text-text-secondary hover:text-text transition-colors inline-flex items-center gap-1"
+              className="text-text-secondary hover:text-text transition-colors inline-flex items-center gap-1 cursor-pointer"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-text-tertiary" />
               <span>{t.datenschutzTitle || 'Datenschutz'}</span>
@@ -335,7 +403,7 @@ export const App: React.FC = () => {
             <span className="text-text-tertiary">•</span>
             <button
               onClick={() => window.print()}
-              className="text-text-secondary hover:text-text transition-colors"
+              className="text-text-secondary hover:text-text transition-colors cursor-pointer"
             >
               {t.printHandout}
             </button>
@@ -350,6 +418,21 @@ export const App: React.FC = () => {
         language={language}
       />
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  const [language] = useState<Language>(() => {
+    const saved = localStorage.getItem('jy_lang');
+    return (saved === 'de' || saved === 'en') ? saved : 'de';
+  });
+
+  return (
+    <ToastProvider>
+      <PlannerProvider language={language}>
+        <AppContent />
+      </PlannerProvider>
+    </ToastProvider>
   );
 };
 
