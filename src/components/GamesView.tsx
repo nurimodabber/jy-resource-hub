@@ -6,6 +6,7 @@ import { GAMES_DATA } from '../data/games';
 import { GameCard } from './GameCard';
 import { GameModal } from './GameModal';
 import { Sheet } from './ui/Sheet';
+import { EmptyState } from './ui/EmptyState';
 import { UI_TRANSLATIONS } from '../data/translations';
 
 interface GamesViewProps {
@@ -257,11 +258,12 @@ export const GamesView: React.FC<GamesViewProps> = ({
       </div>
 
       {filteredGames.length === 0 && (
-        <div className="p-8 text-center bg-surface rounded-3xl border border-border">
-          <p className="text-sm text-text-secondary">
-            {language === 'de' ? 'Keine Spiele gefunden. Versuche Filter zurückzusetzen.' : 'No games found. Try clearing filters.'}
-          </p>
-        </div>
+        <EmptyState
+          title={language === 'de' ? 'Keine Spiele gefunden' : 'No games found'}
+          description={language === 'de' ? 'Versuche, deine Filter zurückzusetzen oder einen anderen Suchbegriff einzugeben.' : 'Try clearing your filters or using a different search term.'}
+          actionLabel={hasActiveFilters ? (language === 'de' ? 'Filter zurücksetzen' : 'Reset filters') : undefined}
+          onAction={hasActiveFilters ? handleClearAllFilters : undefined}
+        />
       )}
 
       {/* 3. Game Detail Modal */}

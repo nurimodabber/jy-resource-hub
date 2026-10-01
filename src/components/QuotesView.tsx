@@ -12,6 +12,7 @@ import { UI_TRANSLATIONS } from '../data/translations';
 import { Badge } from './ui/Badge';
 import { Dialog } from './ui/Dialog';
 import { Sheet } from './ui/Sheet';
+import { EmptyState } from './ui/EmptyState';
 import { usePlanner } from '../context/PlannerContext';
 import { useToast } from '../context/ToastContext';
 import { generateWhatsAppLink } from '../utils/share';
@@ -456,11 +457,17 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       </div>
 
       {filteredQuotes.length === 0 && (
-        <div className="p-8 text-center bg-surface rounded-3xl border border-border">
-          <p className="text-sm text-text-secondary">
-            {language === 'de' ? 'Keine Zitate für diese Suche oder Filter gefunden.' : 'No quotes found matching your search or filters.'}
-          </p>
-        </div>
+        <EmptyState
+          title={language === 'de' ? 'Keine Zitate gefunden' : 'No quotes found'}
+          description={language === 'de' ? 'Versuche, die aktiven Filter zurückzusetzen oder einen anderen Suchbegriff einzugeben.' : 'Try clearing your active filters or entering a different search keyword.'}
+          actionLabel={selectedTopic !== 'all' || selectedBook !== 'all' || selectedSection !== 'all' || localSearch ? (language === 'de' ? 'Filter & Suche zurücksetzen' : 'Reset filters & search') : undefined}
+          onAction={() => {
+            setSelectedTopic('all');
+            setSelectedBook('all');
+            setSelectedSection('all');
+            setLocalSearch('');
+          }}
+        />
       )}
 
       {/* 3. Reading View Dialog */}

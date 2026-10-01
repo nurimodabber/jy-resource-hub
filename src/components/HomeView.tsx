@@ -279,10 +279,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* Results Bar (Max 3 results + Alle passenden button) */}
         <div className="mt-6">
           <div className="flex items-center justify-between gap-2 mb-3">
-            <h2 className="text-xs sm:text-sm font-semibold text-text-secondary">
-              {hasAnyFilter
-                ? `${t.homeMatchesFound} (${allMatchingGames.length})`
-                : (language === 'de' ? 'Vorschläge für heute' : 'Suggested for today')}
+            <h2 className="text-xs sm:text-sm font-bold text-text flex items-center gap-1.5">
+              <span>
+                {hasAnyFilter
+                  ? (language === 'de' ? `${allMatchingGames.length} passende Spiele` : `${allMatchingGames.length} matching games`)
+                  : (language === 'de' ? 'Vorschläge für heute' : 'Suggested for today')}
+              </span>
+              {hasAnyFilter && (
+                <span className="w-2 h-2 rounded-full bg-accent inline-block" />
+              )}
             </h2>
 
             <button

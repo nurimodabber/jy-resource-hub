@@ -20,14 +20,19 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <div
-      className={`py-12 sm:py-16 px-6 text-center bg-surface rounded-3xl border border-border-subtle flex flex-col items-center justify-center max-w-lg mx-auto ${className}`}
+      className={`py-12 sm:py-16 px-6 text-center bg-surface rounded-3xl border border-border flex flex-col items-center justify-center max-w-lg mx-auto ${className}`}
     >
-      {icon && (
-        <div className="w-12 h-12 rounded-2xl bg-surface-2 text-text-secondary flex items-center justify-center mb-4 border border-border-subtle">
-          {icon}
+      {/* Friendly logo color circular illustration */}
+      <div className="relative mb-5 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-brand">
+            {icon || <div className="w-4 h-4 rounded-full bg-sage" />}
+          </div>
         </div>
-      )}
-      <h3 className="text-base sm:text-lg font-semibold text-text mb-1">
+        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-sage/30 border-2 border-surface" />
+      </div>
+
+      <h3 className="text-base sm:text-lg font-bold text-text mb-1 tracking-tight">
         {title}
       </h3>
       <p className="text-xs sm:text-sm text-text-secondary max-w-sm mb-5 leading-relaxed">
