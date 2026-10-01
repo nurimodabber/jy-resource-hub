@@ -8,7 +8,7 @@ export interface DialogProps {
   title?: string;
   description?: string;
   children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | 'full';
   showCloseButton?: boolean;
 }
 
@@ -82,6 +82,7 @@ export const Dialog: React.FC<DialogProps> = ({
     lg: 'max-w-2xl',
     xl: 'max-w-3xl',
     '2xl': 'max-w-5xl',
+    '4xl': 'max-w-[1040px]',
     full: 'max-w-full m-2 sm:m-6',
   };
 

@@ -470,38 +470,71 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         <Dialog
           isOpen={true}
           onClose={handleCloseReadingView}
-          maxWidth="lg"
+          maxWidth="4xl"
           showCloseButton={false}
         >
-          <div className="space-y-5">
-            {/* Title Row with Badges, Close X, and Bookmark */}
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1.5">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <Badge category="study" size="md">
-                    {readingQuote.theme[language]}
+          <div className="space-y-6">
+            {/* Header: Title, Category, Prev/Next Arrows, Bookmark & Close */}
+            <div className="flex items-center justify-between gap-3 border-b border-border pb-4">
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <Badge category="study" size="md">
+                  {readingQuote.theme[language]}
+                </Badge>
+                {readingQuote.section && (
+                  <Badge category="neutral" size="md">
+                    {readingQuote.section[language]}
                   </Badge>
-                  {readingQuote.section && (
-                    <Badge category="neutral" size="md">
-                      {readingQuote.section[language]}
-                    </Badge>
-                  )}
-                </div>
-                <h2 className="text-sm font-semibold text-text-secondary">
+                )}
+                <span className="text-xs font-semibold text-text-secondary truncate">
                   {readingQuote.book[language]}
-                </h2>
+                </span>
               </div>
 
-              <div className="flex items-center gap-1 shrink-0 -mt-1">
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Prev / Next Navigation Arrows */}
+                {(() => {
+                  const currentIndex = filteredQuotes.findIndex((q) => q.id === readingQuote.id);
+                  const hasPrev = currentIndex > 0;
+                  const hasNext = currentIndex < filteredQuotes.length - 1;
+                  return (
+                    <div className="flex items-center gap-1 mr-1">
+                      <button
+                        type="button"
+                        disabled={!hasPrev}
+                        onClick={() => {
+                          if (hasPrev) handleSelectQuoteItem(filteredQuotes[currentIndex - 1]);
+                        }}
+                        className="p-1.5 rounded-lg border border-border bg-surface-2 hover:bg-surface-raised disabled:opacity-30 disabled:pointer-events-none text-text transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+                        title={language === 'de' ? 'Vorheriges Zitat (←)' : 'Previous quote (←)'}
+                        aria-label="Vorheriges Zitat"
+                      >
+                        ←
+                      </button>
+                      <button
+                        type="button"
+                        disabled={!hasNext}
+                        onClick={() => {
+                          if (hasNext) handleSelectQuoteItem(filteredQuotes[currentIndex + 1]);
+                        }}
+                        className="p-1.5 rounded-lg border border-border bg-surface-2 hover:bg-surface-raised disabled:opacity-30 disabled:pointer-events-none text-text transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+                        title={language === 'de' ? 'Nächstes Zitat (→)' : 'Next quote (→)'}
+                        aria-label="Nächstes Zitat"
+                      >
+                        →
+                      </button>
+                    </div>
+                  );
+                })()}
+
                 <button
                   type="button"
                   onClick={(e) => onToggleFavorite(readingQuote.id, e)}
-                  className={`p-2 rounded-full text-text-secondary hover:text-text transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center ${
-                    favorites.includes(readingQuote.id) ? 'text-accent bg-accent-subtle' : ''
+                  className={`p-2 rounded-full text-text-secondary hover:text-text transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer ${
+                    favorites.includes(readingQuote.id) ? 'text-accent-contrast bg-accent hover:bg-accent-hover' : ''
                   }`}
                   aria-label="Lesezeichen"
                 >
-                  <Bookmark className={`w-5 h-5 ${favorites.includes(readingQuote.id) ? 'fill-current text-accent' : ''}`} />
+                  <Bookmark className={`w-5 h-5 ${favorites.includes(readingQuote.id) ? 'fill-current' : ''}`} />
                 </button>
 
                 <button
@@ -515,61 +548,117 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               </div>
             </div>
 
-            {/* Sacred Scripture Quote Text in Playfair Serif */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-surface-2 border border-border text-center space-y-4">
-              <blockquote className="font-serif italic text-xl sm:text-3xl text-text leading-relaxed">
-                „{language === 'de' ? readingQuote.textDe : readingQuote.textEn}“
-              </blockquote>
+            {/* Desktop 2-Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              
+              {/* Left Column (≈58% - 7 cols): Quote in large serif on calm tinted panel */}
+              <div className="lg:col-span-7 space-y-4">
+                <div className="p-7 sm:p-9 rounded-3xl bg-surface-2/80 border border-border/80 flex flex-col justify-between space-y-6">
+                  <blockquote className="font-serif italic text-xl sm:text-2xl lg:text-3xl text-text leading-relaxed">
+                    „{language === 'de' ? readingQuote.textDe : readingQuote.textEn}“
+                  </blockquote>
 
-              <p className="text-xs sm:text-sm font-serif text-text-secondary">
-                — {readingQuote.source[language]} • {readingQuote.book[language]}
-              </p>
-            </div>
+                  <div className="pt-4 border-t border-border/60">
+                    <p className="text-sm font-serif font-medium text-text-secondary">
+                      — {readingQuote.source[language]}
+                    </p>
+                    <p className="text-2xs font-serif text-text-tertiary mt-0.5">
+                      {readingQuote.book[language]}
+                    </p>
+                  </div>
+                </div>
 
-            {/* Primary Action Button: "Üben" */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setIsPracticeMethodsOpen(true)}
-                className="w-full py-3 px-4 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-sm shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px]"
-              >
-                <Play className="w-4 h-4 fill-current" />
-                <span>{language === 'de' ? 'Üben (Methode wählen)' : 'Practice (Choose Method)'}</span>
-              </button>
+                {/* Secondary Actions (Copy & WhatsApp) */}
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleCopyQuote(readingQuote)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer min-h-[36px]"
+                  >
+                    {copiedQuote ? <Check className="w-3.5 h-3.5 text-sage" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedQuote ? (language === 'de' ? 'Kopiert!' : 'Copied!') : (language === 'de' ? 'Zitat kopieren' : 'Copy Quote')}</span>
+                  </button>
 
-              <button
-                type="button"
-                onClick={() => handleAddToPlan(readingQuote)}
-                className="w-full py-3 px-4 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px]"
-              >
-                <Plus className="w-4 h-4" />
-                <span>{language === 'de' ? 'Zum Plan hinzufügen' : 'Add to Plan'}</span>
-              </button>
-            </div>
+                  <a
+                    href={generateWhatsAppLink(
+                      `„${language === 'de' ? readingQuote.textDe : readingQuote.textEn}“ — ${readingQuote.source[language]}`,
+                      `${window.location.origin}/quotes/${readingQuote.id}`
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer min-h-[36px]"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+              </div>
 
-            {/* Secondary Actions (Copy & Share) */}
-            <div className="pt-3 border-t border-border flex items-center justify-between gap-3 text-xs text-text-secondary">
-              <button
-                type="button"
-                onClick={() => handleCopyQuote(readingQuote)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer min-h-[36px]"
-              >
-                {copiedQuote ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedQuote ? (language === 'de' ? 'Kopiert!' : 'Copied!') : (language === 'de' ? 'Zitat kopieren' : 'Copy Quote')}</span>
-              </button>
+              {/* Right Column (≈42% - 5 cols, sticky): Primary Actions & Quick Methods preview */}
+              <div className="lg:col-span-5 space-y-5 lg:sticky lg:top-2">
+                
+                {/* Primary Action Buttons */}
+                <div className="space-y-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsPracticeMethodsOpen(true)}
+                    className="w-full py-3 px-4 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-bold text-sm shadow-apple-pill flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer min-h-[46px] outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+                  >
+                    <Play className="w-4 h-4 fill-current" />
+                    <span>{language === 'de' ? 'Üben (Methode wählen)' : 'Practice (Choose Method)'}</span>
+                  </button>
 
-              <a
-                href={generateWhatsAppLink(
-                  `„${language === 'de' ? readingQuote.textDe : readingQuote.textEn}“ — ${readingQuote.source[language]}`,
-                  `${window.location.origin}/quotes/${readingQuote.id}`
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer min-h-[36px]"
-              >
-                <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>WhatsApp</span>
-              </a>
+                  <button
+                    type="button"
+                    onClick={() => handleAddToPlan(readingQuote)}
+                    className="w-full py-2.5 px-4 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[42px]"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>{language === 'de' ? 'Zum Plan hinzufügen' : 'Add to Plan'}</span>
+                  </button>
+                </div>
+
+                {/* Short preview of 2–3 suggested Verinnerlichungsmethoden to start straight away */}
+                <div className="p-4 rounded-2xl bg-surface-2 border border-border space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                      {language === 'de' ? 'Direkt loslegen' : 'Quick Practice'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsPracticeMethodsOpen(true)}
+                      className="text-2xs font-semibold text-accent-text hover:underline cursor-pointer"
+                    >
+                      {language === 'de' ? 'Alle anzeigen' : 'View all'} →
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {interactiveTools.slice(0, 3).map((tool) => (
+                      <button
+                        key={tool.id}
+                        type="button"
+                        onClick={() => setActiveInteractiveTool(tool.id)}
+                        className="w-full text-left p-2.5 rounded-xl bg-surface hover:bg-surface-raised border border-border transition-colors cursor-pointer flex items-center justify-between group"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <p className="text-xs font-bold text-text group-hover:text-brand transition-colors truncate">
+                            {language === 'de' ? tool.nameDe : tool.nameEn}
+                          </p>
+                          <p className="text-2xs text-text-tertiary line-clamp-1 mt-0.5">
+                            {language === 'de' ? tool.descDe : tool.descEn}
+                          </p>
+                        </div>
+                        <span className="p-1 rounded-lg bg-accent text-accent-contrast group-hover:bg-accent-hover shrink-0">
+                          <Play className="w-3 h-3 fill-current" />
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </Dialog>

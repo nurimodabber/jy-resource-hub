@@ -124,13 +124,13 @@ export const GameModal: React.FC<GameModalProps> = ({
     <Dialog
       isOpen={!!game}
       onClose={onClose}
-      maxWidth="lg"
+      maxWidth="4xl"
       showCloseButton={false}
     >
-      <div className="space-y-5 short:space-y-3">
+      <div className="space-y-6">
         
-        {/* 1. Title Row with Integrated Close Button (No ~90px empty top strip) */}
-        <div className="flex items-start justify-between gap-3">
+        {/* Header Row: Title, Badges, Bookmark and Close */}
+        <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
           <div className="space-y-1.5 min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
               <Badge category={getCategory()} size="md">
@@ -139,8 +139,13 @@ export const GameModal: React.FC<GameModalProps> = ({
               <Badge category="neutral" size="md">
                 {getEnergyLabel()}
               </Badge>
+              {game.prepLevel === 'instant' && (
+                <Badge category="cooperative" size="md">
+                  0′ Prep
+                </Badge>
+              )}
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-text tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-3xl font-bold text-text tracking-tight leading-tight">
               {game.title[language]}
             </h2>
           </div>
@@ -152,7 +157,7 @@ export const GameModal: React.FC<GameModalProps> = ({
               size="md"
               className={
                 isFavorite
-                  ? 'text-accent bg-accent-subtle hover:bg-accent/20'
+                  ? 'text-accent-contrast bg-accent hover:bg-accent-hover'
                   : 'text-text-secondary hover:text-text'
               }
             >
@@ -171,77 +176,49 @@ export const GameModal: React.FC<GameModalProps> = ({
           </div>
         </div>
 
-        {/* 2. Metadata Grid (Allows 2 lines so values like 'Keine Vorbereitung' never truncate) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3.5 bg-surface-2 rounded-2xl border border-border text-xs">
-          <div className="flex items-start gap-2">
-            <Users className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-text-tertiary text-2xs font-medium">{t.groupLabel}</p>
-              <p className="font-semibold text-text leading-snug">{game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-2">
-            <Clock className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-text-tertiary text-2xs font-medium">{t.durationLabel}</p>
-              <p className="font-semibold text-text leading-snug">{game.durationMinutes}′</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-2">
-            <Info className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-text-tertiary text-2xs font-medium">{t.prepLabel}</p>
-              <p className="font-semibold text-text leading-snug">
-                {game.prepLevel === 'instant' ? t.filterInstantPrep : t.filterMaterialPrep}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-text-tertiary text-2xs font-medium">{t.spaceLabel}</p>
-              <p className="font-semibold text-text leading-snug">{game.space[language]}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 3. Primary Action: "Zum Plan hinzufügen" (One primary action per screen) */}
-        <div>
-          <button
-            type="button"
-            onClick={handleAddToPlan}
-            className="w-full py-3 px-4 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-sm shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer min-h-[44px] outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <Plus className="w-4 h-4" />
-            <span>{language === 'de' ? 'Zum Plan hinzufügen' : 'Add to Session Plan'}</span>
-          </button>
-        </div>
-
-        {/* 4. Content (Responsive: 1 col portrait, 2 cols landscape) */}
-        <div className="short:grid short:grid-cols-2 short:gap-4 space-y-5 short:space-y-0">
+        {/* Two-Column Desktop / One-Column Tablet Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* Column 1: Core Idea & Materials */}
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary">
+          {/* Left Column (≈60% - 7 cols): Idea & Wirkung, Ablauf im Detail (numbered steps) */}
+          <div className="lg:col-span-7 space-y-6">
+            {/* 1. Idee & Wirkung */}
+            <div className="space-y-2">
+              <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
                 {t.ideaTitle}
               </h3>
-              <p className="text-text bg-surface-2 border border-border p-3.5 rounded-2xl leading-relaxed text-xs sm:text-sm">
+              <p className="text-text bg-surface-2/70 border border-border p-4 rounded-2xl leading-relaxed text-sm">
                 {game.idea[language]}
               </p>
             </div>
 
+            {/* 2. Ablauf im Detail (Numbered steps) */}
+            <div className="space-y-3">
+              <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                {t.rulesTitle}
+              </h3>
+              <div className="space-y-2.5">
+                {game.rules[language].map((rule, idx) => (
+                  <div key={idx} className="flex items-start gap-3 p-3.5 rounded-2xl bg-surface-2 border border-border">
+                    <span className="w-6 h-6 rounded-full bg-brand text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                      {idx + 1}
+                    </span>
+                    <p className="text-sm text-text leading-relaxed">
+                      {rule}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Materials if needed */}
             {game.materials[language].length > 0 && game.materials[language][0] !== 'Keine' && game.materials[language][0] !== 'None' && (
-              <div className="space-y-1.5">
-                <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary">
+              <div className="space-y-2">
+                <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
                   {t.materialsTitle}
                 </h3>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {game.materials[language].map((mat, i) => (
-                    <span key={i} className="text-xs font-medium bg-surface-2 text-text px-2.5 py-1 rounded-full border border-border">
+                    <span key={i} className="text-xs font-semibold bg-surface-2 text-text px-3 py-1.5 rounded-xl border border-border">
                       {mat}
                     </span>
                   ))}
@@ -250,78 +227,117 @@ export const GameModal: React.FC<GameModalProps> = ({
             )}
           </div>
 
-          {/* Column 2: Rules Step by Step & Tips */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary">
-                {t.rulesTitle}
-              </h3>
-              <div className="space-y-2 max-h-[40vh] short:max-h-[25vh] overflow-y-auto custom-scrollbar pr-1">
-                {game.rules[language].map((rule, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 p-3 rounded-2xl bg-surface-2 border border-border">
-                    <span className="w-5 h-5 rounded-full bg-accent text-accent-contrast font-semibold text-2xs flex items-center justify-center shrink-0 mt-0.5">
-                      {idx + 1}
-                    </span>
-                    <p className="text-xs sm:text-sm text-text leading-relaxed">
-                      {rule}
+          {/* Right Column (≈40% - 5 cols, sticky on desktop): Fact grid, Primary action, Tips, Share */}
+          <div className="lg:col-span-5 space-y-5 lg:sticky lg:top-2">
+            
+            {/* Fact Grid */}
+            <div className="p-4 bg-surface-2 rounded-2xl border border-border space-y-3">
+              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary block">
+                {language === 'de' ? 'Spieldaten' : 'Overview'}
+              </span>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="flex items-start gap-2.5">
+                  <Users className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="text-text-tertiary text-2xs font-medium">{t.groupLabel}</p>
+                    <p className="font-bold text-text leading-snug">{game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <Clock className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="text-text-tertiary text-2xs font-medium">{t.durationLabel}</p>
+                    <p className="font-bold text-text leading-snug">{game.durationMinutes}′</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <Info className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="text-text-tertiary text-2xs font-medium">{t.prepLabel}</p>
+                    <p className="font-bold text-text leading-snug">
+                      {game.prepLevel === 'instant' ? t.filterInstantPrep : t.filterMaterialPrep}
                     </p>
                   </div>
-                ))}
+                </div>
+
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="text-text-tertiary text-2xs font-medium">{t.spaceLabel}</p>
+                    <p className="font-bold text-text leading-snug">{game.space[language]}</p>
+                  </div>
+                </div>
               </div>
             </div>
 
+            {/* Primary Action Button: Amber fill with navy text */}
+            <div>
+              <button
+                type="button"
+                onClick={handleAddToPlan}
+                className="w-full py-3 px-4 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-bold text-sm shadow-apple-pill flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer min-h-[46px] outline-hidden focus-visible:ring-2 focus-visible:ring-brand"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{language === 'de' ? 'Zum Plan hinzufügen' : 'Add to Session Plan'}</span>
+              </button>
+            </div>
+
+            {/* Hinweise für Animatoren */}
             {game.animatorTips[language].length > 0 && (
-              <div className="space-y-1.5">
-                <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
+              <div className="space-y-2">
+                <h4 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
                   <AlertCircle className="w-3.5 h-3.5 text-accent-text" />
                   <span>{t.tipsTitle}</span>
-                </h3>
-                <div className="p-3 bg-accent-subtle border border-accent/20 rounded-2xl space-y-1.5 text-xs text-text">
+                </h4>
+                <div className="p-3.5 bg-accent-subtle/70 border border-accent/25 rounded-2xl space-y-2 text-xs text-text">
                   {game.animatorTips[language].map((tip, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <span className="text-accent-text font-bold">•</span>
-                      <p className="leading-relaxed">{tip}</p>
+                      <span className="text-accent-text font-bold leading-relaxed">•</span>
+                      <p className="leading-relaxed font-medium">{tip}</p>
                     </div>
                   ))}
                 </div>
               </div>
             )}
+
+            {/* Secondary Share Actions */}
+            <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-sage" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? t.copiedSuccess : t.copyRules}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer"
+                >
+                  {shareSuccess ? <Check className="w-3.5 h-3.5 text-sage" /> : <Share2 className="w-3.5 h-3.5" />}
+                  <span>{t.shareBtn || 'Teilen'}</span>
+                </button>
+              </div>
+
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-text font-medium transition-colors cursor-pointer"
+                title="WhatsApp"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span>WhatsApp</span>
+              </a>
+            </div>
+
           </div>
 
-        </div>
-
-        {/* 5. Secondary Utility Actions (Share, Copy, WhatsApp) - No 'Schließen' button */}
-        <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text font-medium transition-colors cursor-pointer"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? t.copiedSuccess : t.copyRules}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleShare}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text font-medium transition-colors cursor-pointer"
-            >
-              {shareSuccess ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
-              <span>{t.shareBtn || 'Teilen'}</span>
-            </button>
-          </div>
-
-          <a
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text font-medium transition-colors cursor-pointer"
-            title="WhatsApp"
-          >
-            <MessageCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>WhatsApp</span>
-          </a>
         </div>
 
       </div>
