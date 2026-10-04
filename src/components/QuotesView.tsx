@@ -657,18 +657,20 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                       </button>
                     </div>
 
-                    {/* Theme header */}
-                    <h3 className="text-xs font-bold text-text mb-1.5 truncate">
-                      {quote.theme[language]}
-                    </h3>
-
-                    {/* Quote Excerpt clamped to 3 lines in Lora serif */}
-                    <blockquote
+                    {/* Theme header and quote excerpt as an accessible button */}
+                    <button
+                      type="button"
                       onClick={() => handleOpenReadingModal(quote)}
-                      className="font-serif italic text-sm sm:text-base text-text leading-relaxed line-clamp-3 mb-3 cursor-pointer hover:text-brand transition-colors"
+                      className="w-full text-left group/quote focus:outline-hidden cursor-pointer"
                     >
-                      „{language === 'de' ? quote.textDe : quote.textEn}“
-                    </blockquote>
+                      <h3 className="text-xs font-bold text-text mb-1.5 truncate group-hover/quote:text-brand transition-colors">
+                        {quote.theme[language]}
+                      </h3>
+
+                      <blockquote className="font-serif italic text-sm sm:text-base text-text leading-relaxed line-clamp-3 mb-3 group-hover/quote:text-brand/90 transition-colors">
+                        „{language === 'de' ? quote.textDe : quote.textEn}“
+                      </blockquote>
+                    </button>
                   </div>
 
                   {/* Actions & Source Line */}
@@ -1004,11 +1006,13 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   key={m.id}
                   className="p-4 sm:p-5 rounded-2xl bg-surface border border-border space-y-3 shadow-xs transition-colors"
                 >
-                  <div
-                    onClick={() => setExpandedMethodId(isExpanded ? null : m.id)}
-                    className="flex items-start justify-between gap-3 cursor-pointer"
-                  >
-                    <div className="min-w-0 flex-1">
+                  <div className="w-full flex items-start justify-between gap-3">
+                    <button
+                      type="button"
+                      aria-expanded={isExpanded}
+                      onClick={() => setExpandedMethodId(isExpanded ? null : m.id)}
+                      className="min-w-0 flex-1 text-left cursor-pointer group focus:outline-hidden"
+                    >
                       <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                         <span className="text-2xs font-bold px-2 py-0.5 rounded-full bg-surface-2 text-text-secondary border border-border">
                           Phase {m.phase}
@@ -1024,21 +1028,20 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                         )}
                       </div>
 
-                      <h3 className="text-sm sm:text-base font-bold text-text hover:text-brand transition-colors">
+                      <h3 className="text-sm sm:text-base font-bold text-text group-hover:text-brand transition-colors">
                         {m.name[language]}
                       </h3>
 
                       <p className="text-xs text-text-secondary mt-1 line-clamp-2">
                         {m.summary[language]}
                       </p>
-                    </div>
+                    </button>
 
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0 pt-0.5">
                       {matchingWebTool && (
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
+                          onClick={() => {
                             if (readingQuote) {
                               handleStartPractice(readingQuote, matchingWebTool.id);
                             } else {
@@ -1052,7 +1055,15 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                         </button>
                       )}
 
-                      <ChevronRight className={`w-4 h-4 text-text-tertiary transition-transform mt-1 ${isExpanded ? 'rotate-90' : ''}`} />
+                      <button
+                        type="button"
+                        aria-expanded={isExpanded}
+                        aria-label={isExpanded ? (language === 'de' ? 'Einklappen' : 'Collapse') : (language === 'de' ? 'Ausklappen' : 'Expand')}
+                        onClick={() => setExpandedMethodId(isExpanded ? null : m.id)}
+                        className="p-1 rounded-lg text-text-tertiary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+                      >
+                        <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                      </button>
                     </div>
                   </div>
 

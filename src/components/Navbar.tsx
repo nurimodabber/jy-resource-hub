@@ -191,7 +191,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               title={t.savedItems}
               aria-label={`${t.savedItems}${favoriteCount > 0 ? ` (${favoriteCount})` : ''}`}
             >
-              <Bookmark className={`w-4 h-4 shrink-0 ${favoriteCount > 0 ? 'fill-current text-accent-text dark:text-accent' : ''}`} />
+              <Bookmark
+                className={`w-4 h-4 shrink-0 ${
+                  favoriteCount > 0
+                    ? showOnlyFavorites
+                      ? 'fill-current'
+                      : 'fill-current text-accent-text dark:text-accent'
+                    : ''
+                }`}
+              />
               {favoriteCount > 0 && (
                 <span className="font-semibold text-xs leading-none">
                   {favoriteCount}

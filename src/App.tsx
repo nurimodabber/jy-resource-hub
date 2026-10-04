@@ -129,7 +129,7 @@ export const AppContent: React.FC = () => {
   };
 
   const handlePracticeQuote = (quote: QuoteItem, _method?: QuoteMethod) => {
-    navigate(`/quotes/${quote.id}`);
+    navigate(`/quotes/${quote.id}?tab=practice`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -145,7 +145,7 @@ export const AppContent: React.FC = () => {
         navigate(`/quotes/${id}`);
         break;
       case 'method':
-        navigate('/quotes');
+        navigate('/quotes?tab=methods');
         break;
       case 'service':
       case 'art':

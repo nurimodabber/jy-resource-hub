@@ -77,10 +77,11 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
             const underscores = '_'.repeat(Math.max(1, Math.min(cleanWord.length - 1, 4)));
 
             return (
-              <span
+              <button
+                type="button"
                 key={idx}
                 onClick={() => handleToggleWord(idx)}
-                className={`cursor-pointer transition-all duration-200 select-none inline-block ${
+                className={`cursor-pointer transition-all duration-200 select-none inline-block font-serif text-xl sm:text-3xl focus:outline-hidden ${
                   state === 'revealed'
                     ? 'text-accent-text font-bold px-1.5 py-0.5 bg-accent-subtle rounded-lg'
                     : state === 'blank'
@@ -102,7 +103,7 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
                     ____<span className="opacity-70">{punctuation}</span>
                   </span>
                 )}
-              </span>
+              </button>
             );
           })}
         </div>

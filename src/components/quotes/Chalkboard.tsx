@@ -46,14 +46,15 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
             const punctuation = word.replace(/[a-zA-ZäöüÄÖÜß0-9]/g, '');
 
             return (
-              <span
+              <button
+                type="button"
                 key={idx}
                 onClick={() => {
                   setHiddenIndices((prev) =>
                     prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
                   );
                 }}
-                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-lg ${
+                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-lg font-serif text-xl sm:text-3xl focus:outline-hidden ${
                   isHidden
                     ? 'text-text-tertiary border-b-2 border-border opacity-40 font-mono tracking-widest'
                     : 'text-text hover:text-accent-text hover:bg-surface-2'
@@ -61,7 +62,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
                 title={language === 'de' ? 'Klicken zum Ein-/Ausblenden' : 'Click to toggle'}
               >
                 {isHidden ? `____${punctuation}` : word}
-              </span>
+              </button>
             );
           })}
         </div>
