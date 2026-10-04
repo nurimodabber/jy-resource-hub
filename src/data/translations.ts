@@ -157,6 +157,24 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     toolMetronome: 'Rhythmus-Pacer',
     toolCodeClicker: 'Code-Klicker',
     toolSpeedRun: 'Speed-Run',
+    toolCloze: 'Lückentext-Meisterschaft',
+    toolTypeRecall: 'Tastatur-Schreibtrainer',
+    toolCascade: 'Zitate-Treppe',
+    toolFlashReader: 'Blitz-Leser (RSVP)',
+
+    // Quotes Navigation & Studio
+    tabQuotesCatalog: 'Zitate',
+    tabPracticeStudio: 'Jetzt auswendig lernen',
+    tabAllMethods: 'Alle 50 Methoden',
+    sortByBook: 'Nach Jugendbüchern geordnet',
+    juniorYouthBooks: 'Offizielle Jugendbücher',
+    allJuniorYouthBooks: 'Alle 11 Jugendbücher',
+    otherCollections: 'Weitere Sammlungen',
+    changeQuote: 'Anderes Zitat wählen',
+    selectQuoteToPractice: 'Zitat zum Auswendiglernen wählen',
+    practiceThisQuote: 'Jetzt auswendig lernen',
+    availableWebMethods: 'Interaktive Web-Methoden',
+    methodPlayableOnWeb: 'Auf Website spielbar',
 
     // 1. Chalkboard
     boardTitle: 'Interaktive Tafel (Verschwindende Wörter)',
@@ -508,6 +526,24 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     toolMetronome: 'Rhythm Metronome',
     toolCodeClicker: 'Code Clicker',
     toolSpeedRun: 'Speed Challenge',
+    toolCloze: 'Cloze Challenge',
+    toolTypeRecall: 'Type Recall',
+    toolCascade: 'Stepwise Cascade',
+    toolFlashReader: 'Flash Reader (RSVP)',
+
+    // Quotes Navigation & Studio
+    tabQuotesCatalog: 'Quotes',
+    tabPracticeStudio: 'Practice Studio',
+    tabAllMethods: 'All 50 Methods',
+    sortByBook: 'Sorted by Junior Youth Book',
+    juniorYouthBooks: 'Official Junior Youth Books',
+    allJuniorYouthBooks: 'All 11 Junior Youth Books',
+    otherCollections: 'Other Collections',
+    changeQuote: 'Change Quote',
+    selectQuoteToPractice: 'Select Quote to Memorise',
+    practiceThisQuote: 'Practice Now',
+    availableWebMethods: 'Interactive Web Methods',
+    methodPlayableOnWeb: 'Playable on website',
 
     // 1. Chalkboard
     boardTitle: 'Interactive Disappearing Chalkboard',

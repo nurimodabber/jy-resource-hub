@@ -1,4 +1,111 @@
-import { QuoteItem } from '../types';
+import { QuoteItem, JuniorYouthBookMeta } from '../types';
+
+export const JUNIOR_YOUTH_BOOKS: JuniorYouthBookMeta[] = [
+  {
+    id: 'breezes',
+    order: 1,
+    title: { de: 'Brise der Bestätigung', en: 'Breezes of Confirmation' },
+    targetAge: '11–12',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'straightpath',
+    order: 2,
+    title: { de: 'Den geraden Pfad beschreiten', en: 'Walking the Straight Path' },
+    targetAge: '11–12',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'powerword',
+    order: 3,
+    title: { de: 'Die Kraft des Wortes nutzen', en: 'Drawing on the Power of the Word' },
+    targetAge: '12–13',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'excellence',
+    order: 4,
+    title: { de: 'Nach Vortrefflichkeit streben', en: 'Learning About Excellence' },
+    targetAge: '12–13',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'glimmerings',
+    order: 5,
+    title: { de: 'Hoffnungsschimmer', en: 'Glimmerings of Hope' },
+    targetAge: '11–12',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'spiritfaith',
+    order: 6,
+    title: { de: 'Geist des Glaubens', en: 'Spirit of Faith' },
+    targetAge: '12–13',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'wellspring',
+    order: 7,
+    title: { de: 'Quelle der Freude', en: 'Wellspring of Joy' },
+    targetAge: '11–12',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'observation',
+    order: 8,
+    title: { de: 'Beobachtung und Erkenntnis', en: 'Observation and Insight' },
+    targetAge: '13–14',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'numbers',
+    order: 9,
+    title: { de: 'Über Zahlen nachdenken', en: 'Thinking About Numbers' },
+    targetAge: '12–13',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'honor',
+    order: 10,
+    title: { de: 'Die Würde des Menschen', en: 'Human Honor' },
+    targetAge: '13–14',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'waves',
+    order: 11,
+    title: { de: 'Wellen eines Meeres', en: 'Waves of One Sea' },
+    targetAge: '12–13',
+    isOfficialJYBook: true,
+    category: 'junior_youth',
+  },
+  {
+    id: 'ruhi5',
+    order: 12,
+    title: { de: 'Ruhi Buch 5 / Grundlagentexte', en: 'Ruhi Book 5 / Core Texts' },
+    targetAge: 'Animatoren',
+    isOfficialJYBook: false,
+    category: 'animator_training',
+  },
+  {
+    id: 'prayers',
+    order: 13,
+    title: { de: 'Gebete & Andacht', en: 'Prayers & Devotions' },
+    targetAge: 'Alle',
+    isOfficialJYBook: false,
+    category: 'devotional',
+  },
+];
 
 export const QUOTES_DATA: QuoteItem[] = [
   // ==========================================

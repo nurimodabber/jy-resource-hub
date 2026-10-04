@@ -69,6 +69,15 @@ export type QuoteGeneralTopic =
   | 'freude' 
   | 'gebet';
 
+export interface JuniorYouthBookMeta {
+  id: string;
+  order: number;
+  title: LocalizedString;
+  targetAge?: string;
+  isOfficialJYBook: boolean;
+  category: 'junior_youth' | 'animator_training' | 'devotional';
+}
+
 export interface QuoteItem {
   id: string;
   source: LocalizedString;
