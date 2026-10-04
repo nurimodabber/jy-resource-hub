@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { CheckCircle2, RotateCcw, HelpCircle, Sparkles } from 'lucide-react';
+import { CheckCircle2, RotateCcw, HelpCircle } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 
 interface ClozeTestProps {
@@ -244,7 +244,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                 disabled={!allFilled}
                 className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-full hover:bg-accent-hover disabled:opacity-40 transition-colors shadow-xs cursor-pointer min-h-[36px]"
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>{language === 'de' ? 'Prüfen' : 'Check'}</span>
               </button>
             )}

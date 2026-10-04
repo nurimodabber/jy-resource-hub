@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Clock, ChevronRight, Bookmark, Sparkles } from 'lucide-react';
+import { Users, Clock, ChevronRight, Bookmark } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { Badge, BadgeCategory } from './ui/Badge';
@@ -131,9 +131,8 @@ export const GameCard: React.FC<GameCardProps> = ({
               {getEnergyLabel()}
             </Badge>
             {game.prepLevel === 'instant' && (
-              <span className="inline-flex items-center gap-0.5 text-2xs font-bold text-sage bg-sage-subtle px-2 py-0.5 rounded-full shrink-0">
-                <Sparkles className="w-3 h-3" />
-                <span>0′ Prep</span>
+              <span className="inline-flex items-center text-2xs font-semibold text-sage bg-sage-subtle px-2 py-0.5 rounded-full shrink-0">
+                0′ Prep
               </span>
             )}
           </div>

@@ -63,7 +63,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
   const handleCopyTeams = () => {
     if (generatedTeams.length === 0) return;
     const lines = generatedTeams.map((team) => {
-      const title = isPairsMode ? `👥 Tandem ${team.id}` : `🏆 ${t.teamLabel} ${team.id}`;
+      const title = isPairsMode ? `Tandem ${team.id}` : `${t.teamLabel} ${team.id}`;
       return `${title}:\n${team.members.map((m) => `  • ${m}`).join('\n')}`;
     });
     navigator.clipboard.writeText(lines.join('\n\n'));
@@ -370,7 +370,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
                     {generatedTeams.map((team) => (
                       <div key={team.id} className="p-4 rounded-2xl bg-surface-2 border border-border space-y-2">
                         <span className="text-xs font-bold text-accent-text block">
-                          {isPairsMode ? `👥 Tandem ${team.id}` : `🏆 Team ${team.id}`} ({team.members.length})
+                          {isPairsMode ? `Tandem ${team.id}` : `Team ${team.id}`} ({team.members.length})
                         </span>
                         <ul className="text-xs sm:text-sm text-text space-y-1">
                           {team.members.map((m, idx) => (

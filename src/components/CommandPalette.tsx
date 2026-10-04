@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, Compass, BookOpen, Clock, Sparkles, Music, Layers, X, ArrowRight } from 'lucide-react';
+import { Search, Compass, BookOpen, Clock, Palette, Music, Layers, X, ArrowRight } from 'lucide-react';
 import { Language } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { QUOTES_DATA } from '../data/quotes';
@@ -233,7 +233,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       case 'quote': return <BookOpen className="w-4 h-4 text-blue-500" />;
       case 'method': return <Clock className="w-4 h-4 text-amber-500" />;
       case 'service': return <Layers className="w-4 h-4 text-teal-500" />;
-      case 'art': return <Sparkles className="w-4 h-4 text-purple-500" />;
+      case 'art': return <Palette className="w-4 h-4 text-purple-500" />;
       case 'song': return <Music className="w-4 h-4 text-cyan-500" />;
     }
   };

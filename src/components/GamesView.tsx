@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { Sparkles, SlidersHorizontal, LayoutGrid, List, X } from 'lucide-react';
+import { Clock, SlidersHorizontal, LayoutGrid, List, X } from 'lucide-react';
 import { Game, GameCategory, EnergyLevel, Language } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { GameCard } from './GameCard';
@@ -197,7 +197,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
                 : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
             }`}
           >
-            <Sparkles className="w-3 h-3" />
+            <Clock className="w-3 h-3" />
             <span>{t.filterInstantPrep}</span>
           </button>
         </div>

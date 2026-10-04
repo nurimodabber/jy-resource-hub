@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Trophy, Timer, Sparkles } from 'lucide-react';
+import { Play, Pause, RotateCcw, Trophy, Timer } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
 
@@ -101,7 +101,7 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
         {/* Record Beaten Announcement */}
         {isRecordBeaten && (
           <div className="p-4 bg-accent-subtle border border-accent/20 rounded-2xl flex items-center justify-center gap-2 text-accent-text font-semibold text-xs animate-in fade-in">
-            <Sparkles className="w-4 h-4" />
+            <Trophy className="w-4 h-4" />
             <span>{t.recordBeaten} ({formatTime(elapsedMs)})</span>
           </div>
         )}

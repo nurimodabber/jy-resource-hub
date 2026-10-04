@@ -4,7 +4,8 @@ import {
   Copy, Check, Bookmark, Search, X, Play, 
   ChevronRight, SlidersHorizontal, 
   MessageCircle, Plus, Layers, BookOpen, Zap,
-  Maximize2, Minimize2, ArrowRight
+  Maximize2, Minimize2, ArrowRight,
+  Eraser, Type, FileText, Puzzle, Keyboard, Activity, Hand, Timer, Laptop
 } from 'lucide-react';
 import { QuotePhase, QuoteItem, Language, QuoteGeneralTopic } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
@@ -214,7 +215,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     nameEn: string;
     descDe: string;
     descEn: string;
-    icon: string;
+    icon: React.FC<{ className?: string }>;
     categoryDe: string;
     categoryEn: string;
     methodId: string;
@@ -225,7 +226,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'Disappearing Board',
       descDe: 'Wörter schrittweise ausblenden und aus dem Gedächtnis ergänzen.',
       descEn: 'Erase words progressively and recall them from memory.',
-      icon: '🪄',
+      icon: Eraser,
       categoryDe: 'Visuell',
       categoryEn: 'Visual',
       methodId: 'die-verschwindende-tafel',
@@ -236,7 +237,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'First-Letter Anchors',
       descDe: 'Nur noch die Anfangsbuchstaben als kognitive Gedächtnisstütze.',
       descEn: 'Rely only on initial letters as minimal memory cues.',
-      icon: '🔤',
+      icon: Type,
       categoryDe: 'Kognitiv',
       categoryEn: 'Cognitive',
       methodId: 'erstbuchstaben-geruest',
@@ -247,7 +248,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'Cloze Challenge',
       descDe: 'Fehlende Wörter aus dem Wortspeicher in die richtigen Lücken einsetzen.',
       descEn: 'Insert missing words from the pool into the correct slots.',
-      icon: '🧩',
+      icon: FileText,
       categoryDe: 'Wortspeicher',
       categoryEn: 'Vocabulary',
       methodId: 'zitate-lochkarte',
@@ -258,7 +259,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'Word Puzzle',
       descDe: 'Durcheinandergewürfelte Wörter in die richtige Reihenfolge setzen.',
       descEn: 'Assemble scrambled words in correct grammatical order.',
-      icon: '🧱',
+      icon: Puzzle,
       categoryDe: 'Struktur',
       categoryEn: 'Structure',
       methodId: 'zitate-puzzle-im-raum',
@@ -269,7 +270,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'Imposter Spotter',
       descDe: 'Eingeschlichene falsche Wörter im Vers aufspüren und korrigieren.',
       descEn: 'Spot and correct decoy words inserted into the holy verse.',
-      icon: '🔍',
+      icon: Search,
       categoryDe: 'Aufmerksamkeit',
       categoryEn: 'Attention',
       methodId: 'fehler-sucher',
@@ -280,7 +281,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'Type Recall',
       descDe: 'Echtzeit-Feedback beim Tippen Buchstabe für Buchstabe aus dem Kopf.',
       descEn: 'Live typing feedback letter-by-letter directly from memory.',
-      icon: '⌨️',
+      icon: Keyboard,
       categoryDe: 'Motorisch',
       categoryEn: 'Motor',
       methodId: 'kollektives-tafel-schreiben',
@@ -291,7 +292,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'Stepwise Cascade',
       descDe: 'Satz für Satz stufenweise aufbauen und akkumulierend rezitieren.',
       descEn: 'Accumulate phrases step by step until the full verse is mastered.',
-      icon: '🪜',
+      icon: Layers,
       categoryDe: 'Kumulativ',
       categoryEn: 'Cumulative',
       methodId: 'zitate-treppe',
@@ -302,7 +303,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'Rhythm Metronome',
       descDe: 'Im gleichmäßigen 4/4-Takt mit Audio-Klick sprechen zur Sprachverankerung.',
       descEn: 'Recite in rhythmic tempo with audio tick to anchor cadence.',
-      icon: '⏱️',
+      icon: Activity,
       categoryDe: 'Rhythmus',
       categoryEn: 'Rhythm',
       methodId: 'metronom-steigerung',
@@ -311,9 +312,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       id: 'codeClicker',
       nameDe: 'Code-Knacker (Aktionswörter)',
       nameEn: 'Action Triggers',
-      descDe: 'Bestimmte Wörter durch Klatschen 👏, Schnipsen 🫰 oder Stampfen 🦶 ersetzen.',
+      descDe: 'Bestimmte Wörter durch Klatschen, Schnipsen oder Stampfen ersetzen.',
       descEn: 'Substitute selected keywords with simultaneous physical actions.',
-      icon: '👏',
+      icon: Hand,
       categoryDe: 'Kinästhetisch',
       categoryEn: 'Kinesthetic',
       methodId: 'der-klick-ersatz',
@@ -324,7 +325,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'Speed Challenge',
       descDe: 'Schnelligkeits-Challenge im Kreis für flüssiges, fehlerfreies Sprechen.',
       descEn: 'Group speed challenge for fluent recitation without hesitation.',
-      icon: '🏎️',
+      icon: Timer,
       categoryDe: 'Gruppenspiel',
       categoryEn: 'Group',
       methodId: 'kreis-sprint',
@@ -335,7 +336,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       nameEn: 'Flash Reader (RSVP)',
       descDe: 'Wörter strömen in schnellem Tempo zur Beseitigung von Leseverzögerungen.',
       descEn: 'Flashes words at high speed to eliminate vocal hesitation.',
-      icon: '⚡',
+      icon: Zap,
       categoryDe: 'Fokus',
       categoryEn: 'Focus',
       methodId: 'echokammer',
@@ -812,18 +813,19 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
               {interactiveTools.map((tool) => {
                 const isActive = activeInteractiveTool === tool.id;
+                const Icon = tool.icon;
                 return (
                   <button
                     key={tool.id}
                     type="button"
                     onClick={() => setActiveInteractiveTool(tool.id)}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl border text-xs font-semibold whitespace-nowrap transition-all cursor-pointer min-h-[42px] shrink-0 ${
+                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold whitespace-nowrap transition-all cursor-pointer min-h-[42px] shrink-0 ${
                       isActive
                         ? 'bg-accent text-accent-contrast border-accent shadow-apple-pill'
                         : 'bg-surface hover:bg-surface-2 border-border text-text'
                     }`}
                   >
-                    <span className="text-base leading-none">{tool.icon}</span>
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-accent-contrast' : 'text-accent'}`} />
                     <span>{language === 'de' ? tool.nameDe : tool.nameEn}</span>
                   </button>
                 );
@@ -1021,8 +1023,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                           {m.durationMinutes}
                         </span>
                         {matchingWebTool && (
-                          <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-accent-text border border-accent/25">
-                            <span>💻</span>
+                          <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text border border-accent/20">
+                            <Laptop className="w-3 h-3 text-accent shrink-0" />
                             <span>{t.methodPlayableOnWeb}</span>
                           </span>
                         )}

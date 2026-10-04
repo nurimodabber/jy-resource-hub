@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Home, Compass, BookOpen, Clock, Sparkles, Layers, Bookmark, 
+  Home, Compass, BookOpen, Clock, Palette, Layers, Bookmark, 
   Search, X, MoreHorizontal 
 } from 'lucide-react';
 import { Logo } from './Logo';
@@ -80,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'games', label: t.tabGames, href: '/games', icon: Compass },
     { id: 'quotes', label: t.tabQuotes, href: '/quotes', icon: BookOpen },
     { id: 'planner', label: t.tabPlanner, href: '/planner', icon: Clock },
-    { id: 'service-arts', label: t.tabServiceArts, href: '/service-arts', icon: Sparkles },
+    { id: 'service-arts', label: t.tabServiceArts, href: '/service-arts', icon: Palette },
     { id: 'tools', label: t.tabTools, href: '/tools', icon: Layers },
   ];
 

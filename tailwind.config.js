@@ -102,10 +102,10 @@ export default {
         serif: ['"Lora"', '"Playfair Display"', 'Georgia', 'serif'],
       },
       boxShadow: {
-        'apple-card': '0 2px 14px rgba(14, 32, 51, 0.05)',
-        'apple-card-hover': '0 10px 28px rgba(14, 32, 51, 0.09)',
-        'apple-pill': '0 2px 8px rgba(14, 32, 51, 0.07)',
-        'apple-modal': '0 20px 50px rgba(9, 19, 32, 0.35)',
+        'apple-card': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
+        'apple-card-hover': '0 8px 24px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03)',
+        'apple-pill': '0 2px 8px -2px rgba(180, 83, 9, 0.20)',
+        'apple-modal': '0 24px 48px -12px rgba(0, 0, 0, 0.22)',
       },
       zIndex: {
         '60': '60',

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { 
-  Sparkles, Layers, Music, Search, Printer, 
+  Palette, Layers, Music, Search, Printer, 
   FileText, ShieldCheck, Moon, Sun, Monitor, Globe, ChevronRight, X 
 } from 'lucide-react';
 import { NavTab, Language } from '../types';
@@ -96,7 +96,7 @@ export const MoreSheet: React.FC<MoreSheetProps> = ({
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                <Palette className="w-4 h-4 text-accent shrink-0" />
                 <span className="font-medium">{t.tabServiceArts}</span>
               </div>
               <ChevronRight className="w-3.5 h-3.5 text-text-tertiary" />

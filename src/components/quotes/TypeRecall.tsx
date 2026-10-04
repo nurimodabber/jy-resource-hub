@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { RotateCcw, HelpCircle, CheckCircle2, Award } from 'lucide-react';
+import { RotateCcw, HelpCircle, CheckCircle2, Award, Keyboard } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 
 interface TypeRecallProps {
@@ -253,7 +253,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
           /* Prompt to tap to type */
           <div className="text-center">
             <span className="inline-flex items-center gap-1.5 text-2xs text-text-tertiary font-mono bg-surface-2 border border-border px-3 py-1 rounded-full">
-              <span>⌨️</span>
+              <Keyboard className="w-3.5 h-3.5" />
               <span>
                 {language === 'de'
                   ? 'Tippe auf der Tastatur einfach los...'

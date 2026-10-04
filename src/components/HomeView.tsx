@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Users, Clock, Zap, Sparkles, Dices, ArrowRight, BookOpen, 
+  Users, Clock, Zap, Compass, Dices, ArrowRight, BookOpen, 
   Bookmark, CheckCircle2, ChevronRight, Calendar 
 } from 'lucide-react';
 import { Language, Game, QuoteItem, NavTab } from '../types';
@@ -159,8 +159,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 1. "Schnell finden" Hero Section (Sans font, 1 primary action, no Denglish) */}
       <section className="bg-surface rounded-3xl border border-border p-5 sm:p-8 shadow-xs">
         <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-subtle text-accent-text text-xs font-semibold mb-2.5">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-2 border border-border text-text-secondary text-xs font-semibold mb-2.5">
+            <Compass className="w-3.5 h-3.5 text-accent" />
             <span>{language === 'de' ? 'Schnell finden' : 'Quick Pick'}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight leading-tight">
@@ -279,15 +279,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* Results Bar (Max 3 results + Alle passenden button) */}
         <div className="mt-6">
           <div className="flex items-center justify-between gap-2 mb-3">
-            <h2 className="text-xs sm:text-sm font-bold text-text flex items-center gap-1.5">
-              <span>
-                {hasAnyFilter
-                  ? (language === 'de' ? `${allMatchingGames.length} passende Spiele` : `${allMatchingGames.length} matching games`)
-                  : (language === 'de' ? 'Vorschläge für heute' : 'Suggested for today')}
-              </span>
-              {hasAnyFilter && (
-                <span className="w-2 h-2 rounded-full bg-accent inline-block" />
-              )}
+            <h2 className="text-xs sm:text-sm font-bold text-text">
+              {hasAnyFilter
+                ? (language === 'de' ? `${allMatchingGames.length} passende Spiele` : `${allMatchingGames.length} matching games`)
+                : (language === 'de' ? 'Vorschläge für heute' : 'Suggested for today')}
             </h2>
 
             <button

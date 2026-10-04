@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Eraser, RotateCcw, Sparkles } from 'lucide-react';
+import { Eraser, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
 
@@ -141,7 +141,7 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
 
         {wordStates.every((s) => s === 'blank') && (
           <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5" />
+            <CheckCircle2 className="w-3.5 h-3.5" />
             <span>{t.allInitialsHidden}</span>
           </p>
         )}

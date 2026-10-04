@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HelpCircle, Home, Compass, Sparkles } from 'lucide-react';
+import { HelpCircle, Home, Compass } from 'lucide-react';
 import { Language } from '../types';
 import { Button } from './ui/Button';
 
@@ -51,9 +51,8 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({ language }) => {
       </div>
 
       <div className="p-6 rounded-2xl bg-surface border border-border-subtle text-left">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-3 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-accent" />
-          <span>{isDe ? 'Beliebte Bereiche' : 'Popular Destinations'}</span>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-3">
+          {isDe ? 'Beliebte Bereiche' : 'Popular Destinations'}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
           <Link

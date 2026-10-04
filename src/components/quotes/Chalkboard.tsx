@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Eraser, RotateCcw, Sparkles } from 'lucide-react';
+import { Eraser, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
 
@@ -69,7 +69,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
 
         {allHidden ? (
           <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold text-xs animate-in fade-in">
-            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>{t.allWordsHidden}</span>
           </div>
         ) : (

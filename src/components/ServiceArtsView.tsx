@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
   Palette, Heart, Check, Copy, Clock, Plus, 
-  X, MessageCircle, ChevronRight, SlidersHorizontal, Sparkles 
+  X, MessageCircle, ChevronRight, SlidersHorizontal, Compass 
 } from 'lucide-react';
 import { 
   Language, ServiceProject, ArtsPrompt, ServiceProjectCategory, 
@@ -415,7 +415,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               </div>
 
               <div className="flex items-start gap-2">
-                <Sparkles className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
+                <Compass className="w-4 h-4 text-text-tertiary shrink-0 mt-0.5" />
                 <div>
                   <p className="text-text-tertiary text-2xs font-medium">{language === 'de' ? 'Fokus' : 'Focus'}</p>
                   <p className="font-semibold text-text leading-snug">

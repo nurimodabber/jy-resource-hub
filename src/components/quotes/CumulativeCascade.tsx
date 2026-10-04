@@ -165,7 +165,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
               <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <div className="text-xs">
                 <strong className="font-semibold block text-sm">
-                  {language === 'de' ? 'Meisterstufe erreicht! 🎉' : 'Master level unlocked! 🎉'}
+                  {language === 'de' ? 'Meisterstufe erreicht!' : 'Master level unlocked!'}
                 </strong>
                 <span className="text-emerald-700 dark:text-emerald-300">
                   {language === 'de'
