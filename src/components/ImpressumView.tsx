@@ -42,7 +42,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack }
           <h2 className="text-base font-semibold text-text">
             {language === 'de' ? 'Dienstanbieter & Betreiber' : 'Service Provider & Operator'}
           </h2>
-          <div className="p-4 rounded-2xl bg-surface-2 border border-border-subtle text-xs sm:text-sm font-mono leading-relaxed">
+          <div className="p-4 rounded-2xl bg-surface-2 border border-border-subtle text-xs sm:text-sm tabular-nums leading-relaxed">
             <p className="font-semibold text-text">Junior Youth Resource Hub</p>
             <p>c/o Nuri Modabber</p>
             <p>[Straße & Hausnummer / Address placeholder]</p>

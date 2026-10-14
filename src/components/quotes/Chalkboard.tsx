@@ -34,7 +34,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.boardSubtitle}</p>
-        <span className="font-mono text-2xs bg-surface-2 border border-border px-3 py-1 rounded-full text-text self-start sm:self-auto shrink-0">
+        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
           {visibleCount} / {currentWords.length} {t.wordsRemaining}
         </span>
       </div>
@@ -56,7 +56,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
                 }}
                 className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-lg font-serif text-xl sm:text-3xl focus:outline-hidden ${
                   isHidden
-                    ? 'text-text-tertiary border-b-2 border-border opacity-40 font-mono tracking-widest'
+                    ? 'text-text-tertiary border-b-2 border-border opacity-40 tabular-nums tracking-widest'
                     : 'text-text hover:text-accent-text hover:bg-surface-2'
                 }`}
                 title={language === 'de' ? 'Klicken zum Ein-/Ausblenden' : 'Click to toggle'}

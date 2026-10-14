@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { 
-  Palette, Layers, Music, Search, Printer, 
-  FileText, ShieldCheck, Moon, Sun, Monitor, Globe, ChevronRight, X 
-} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Palette, Bookmark, Music, Printer, Download, Upload, Trash2, X } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme, Theme } from '../context/ThemeContext';
+import { useToast } from '../context/ToastContext';
+import { exportLocalData, importLocalData, clearLocalData, downloadText } from '../utils/backup';
 
 export interface MoreSheetProps {
   isOpen: boolean;
@@ -18,324 +18,163 @@ export interface MoreSheetProps {
   setLanguage: (lang: Language) => void;
 }
 
+const Segmented: React.FC<{
+  value: string;
+  onChange: (v: string) => void;
+  options: { id: string; label: string }[];
+  label: string;
+}> = ({ value, onChange, options, label }) => (
+  <div role="group" aria-label={label} className="grid gap-1 p-1 rounded-xl bg-surface-2 border border-border" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
+    {options.map((o) => (
+      <button
+        key={o.id}
+        type="button"
+        aria-pressed={value === o.id}
+        onClick={() => onChange(o.id)}
+        className={`h-9 rounded-lg text-sm transition-colors ${
+          value === o.id ? 'bg-surface border border-border text-text font-semibold' : 'text-text-secondary hover:text-text'
+        }`}
+      >
+        {o.label}
+      </button>
+    ))}
+  </div>
+);
+
+const Row: React.FC<{ icon: React.ReactNode; label: string; hint?: string; onClick?: () => void; to?: string }> = ({ icon, label, hint, onClick, to }) => {
+  const cls = 'w-full flex items-center gap-3 min-h-[44px] px-3 rounded-xl text-sm text-text hover:bg-surface-2 transition-colors text-left';
+  const inner = (
+    <>
+      <span className="text-text-tertiary shrink-0">{icon}</span>
+      <span className="flex-1">{label}</span>
+      {hint && <span className="text-xs text-text-tertiary">{hint}</span>}
+    </>
+  );
+  return to ? (
+    <Link to={to} onClick={onClick} className={cls}>{inner}</Link>
+  ) : (
+    <button type="button" onClick={onClick} className={cls}>{inner}</button>
+  );
+};
+
 export const MoreSheet: React.FC<MoreSheetProps> = ({
   isOpen,
   onClose,
-  activeTab,
-  onSelectTab,
   onOpenBahaiSongs,
-  onOpenCommandPalette,
   language,
   setLanguage,
 }) => {
   const t = UI_TRANSLATIONS[language];
+  const de = language === 'de';
   const { theme, setTheme } = useTheme();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const mobileSheetRef = useRef<HTMLDivElement>(null);
+  const { showToast } = useToast();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleNav = (tab: NavTab) => {
-    onSelectTab(tab);
-    onClose();
-  };
-
-  // Close on outside click for desktop dropdown
   useEffect(() => {
     if (!isOpen) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        // Check if click was outside desktop dropdown
-        onClose();
-      }
-    };
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      }
-    };
-
-    window.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    panelRef.current?.focus();
+    return () => window.removeEventListener('keydown', onKey);
   }, [isOpen, onClose]);
-
-  // Lock body scroll only on mobile when sheet is open
-  useEffect(() => {
-    if (isOpen && window.innerWidth < 1024) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const content = (
-    <div className="space-y-4">
-      {/* 1. Sections & Utilities */}
-      <div>
-        <h4 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary mb-1.5 px-1">
-          {t.moreSectionsLabel || 'Bereiche & Werkzeuge'}
-        </h4>
-        <div className="bg-surface-2 rounded-2xl border border-border divide-y divide-border/60 overflow-hidden text-xs">
-          {/* On mobile / tablet, show Service-Arts and Tools if hidden from main nav */}
-          <div className="lg:hidden">
-            <button
-              type="button"
-              onClick={() => handleNav('service-arts')}
-              className={`w-full flex items-center justify-between p-3 text-left transition-colors cursor-pointer ${
-                activeTab === 'service-arts' ? 'bg-brand/10 text-brand font-semibold' : 'text-text hover:bg-surface-raised'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Palette className="w-4 h-4 text-accent shrink-0" />
-                <span className="font-medium">{t.tabServiceArts}</span>
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 text-text-tertiary" />
-            </button>
+  const handleExport = () => {
+    downloadText(`jy-hub-backup-${new Date().toISOString().slice(0, 10)}.json`, exportLocalData());
+    showToast({ text: de ? 'Sicherung heruntergeladen' : 'Backup downloaded' });
+  };
 
-            <button
-              type="button"
-              onClick={() => handleNav('tools')}
-              className={`w-full flex items-center justify-between p-3 text-left transition-colors cursor-pointer ${
-                activeTab === 'tools' ? 'bg-brand/10 text-brand font-semibold' : 'text-text hover:bg-surface-raised'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Layers className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                <span className="font-medium">{t.tabTools}</span>
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 text-text-tertiary" />
-            </button>
-          </div>
+  const handleImport = async (file?: File | null) => {
+    if (!file) return;
+    try {
+      const n = importLocalData(await file.text());
+      showToast({ text: de ? `${n} Einträge wiederhergestellt. Seite wird neu geladen.` : `${n} entries restored. Reloading.` });
+      setTimeout(() => window.location.reload(), 900);
+    } catch {
+      showToast({ text: de ? 'Datei nicht lesbar' : 'File not readable' });
+    }
+  };
 
-          <button
-            type="button"
-            onClick={() => {
-              onOpenBahaiSongs();
-              onClose();
-            }}
-            className="w-full flex items-center justify-between p-3 text-left transition-colors text-text hover:bg-surface-raised cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5">
-              <Music className="w-4 h-4 text-sage shrink-0" />
-              <span className="font-medium">Bahá'í Songs</span>
-            </div>
-            <span className="text-2xs text-text-tertiary font-medium">bahaisongs.com</span>
-          </button>
+  const handleClear = () => {
+    if (window.confirm(de ? 'Alle Merkliste, Pläne und Einstellungen auf diesem Gerät löschen?' : 'Delete all saved items, plans and settings on this device?')) {
+      clearLocalData();
+      window.location.reload();
+    }
+  };
 
-          <button
-            type="button"
-            onClick={() => {
-              onOpenCommandPalette();
-              onClose();
-            }}
-            className="w-full flex items-center justify-between p-3 text-left transition-colors text-text hover:bg-surface-raised cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5">
-              <Search className="w-4 h-4 text-accent-text shrink-0" />
-              <span className="font-medium">{t.cmdKSearch || 'Schnellsuche (⌘K)'}</span>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-text-tertiary" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              window.print();
-              onClose();
-            }}
-            className="w-full flex items-center justify-between p-3 text-left transition-colors text-text hover:bg-surface-raised cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5">
-              <Printer className="w-4 h-4 text-text-tertiary shrink-0" />
-              <span className="font-medium">{t.printHandout || 'Druckansicht / PDF'}</span>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-text-tertiary" />
-          </button>
-        </div>
-      </div>
-
-      {/* 2. Settings: Language & Theme Segmented Controls */}
-      <div>
-        <h4 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary mb-1.5 px-1">
-          {t.moreSettingsLabel || 'Einstellungen'}
-        </h4>
-        <div className="grid grid-cols-1 gap-2.5">
-          {/* Language Control */}
-          <div className="p-3 bg-surface-2 rounded-2xl border border-border flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs font-semibold text-text">
-              <Globe className="w-4 h-4 text-brand" />
-              <span>{language === 'de' ? 'Sprache' : 'Language'}</span>
-            </div>
-            <div className="flex p-0.5 bg-surface rounded-xl border border-border">
-              <button
-                type="button"
-                onClick={() => setLanguage('de')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  language === 'de' ? 'bg-brand text-white shadow-xs' : 'text-text-secondary hover:text-text'
-                }`}
-              >
-                DE
-              </button>
-              <button
-                type="button"
-                onClick={() => setLanguage('en')}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  language === 'en' ? 'bg-brand text-white shadow-xs' : 'text-text-secondary hover:text-text'
-                }`}
-              >
-                EN
-              </button>
-            </div>
-          </div>
-
-          {/* Theme Control */}
-          <div className="p-3 bg-surface-2 rounded-2xl border border-border flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-xs font-semibold text-text">
-              <Sun className="w-4 h-4 text-accent-text dark:hidden" />
-              <Moon className="w-4 h-4 text-accent-text hidden dark:block" />
-              <span>{language === 'de' ? 'Erscheinung' : 'Appearance'}</span>
-            </div>
-            <div className="flex p-0.5 bg-surface rounded-xl border border-border text-xs">
-              <button
-                type="button"
-                onClick={() => setTheme('light')}
-                className={`px-2.5 py-1 rounded-lg font-medium flex items-center gap-1 transition-all cursor-pointer ${
-                  theme === 'light' ? 'bg-brand text-white shadow-xs font-semibold' : 'text-text-secondary hover:text-text'
-                }`}
-                title={t.themeLight || 'Hell'}
-              >
-                <Sun className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Hell</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setTheme('dark')}
-                className={`px-2.5 py-1 rounded-lg font-medium flex items-center gap-1 transition-all cursor-pointer ${
-                  theme === 'dark' ? 'bg-brand text-white shadow-xs font-semibold' : 'text-text-secondary hover:text-text'
-                }`}
-                title={t.themeDark || 'Dunkel'}
-              >
-                <Moon className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Dunkel</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setTheme('system')}
-                className={`px-2.5 py-1 rounded-lg font-medium flex items-center gap-1 transition-all cursor-pointer ${
-                  theme === 'system' ? 'bg-brand text-white shadow-xs font-semibold' : 'text-text-secondary hover:text-text'
-                }`}
-                title={t.themeSystem || 'System'}
-              >
-                <Monitor className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Auto</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Legal & Privacy Links */}
-      <div className="pt-2 border-t border-border flex items-center justify-between px-1 text-xs">
-        <button
-          type="button"
-          onClick={() => handleNav('impressum')}
-          className="text-text-secondary hover:text-brand font-medium transition-colors cursor-pointer inline-flex items-center gap-1.5"
-        >
-          <FileText className="w-3.5 h-3.5 text-text-tertiary" />
-          <span>{t.impressumTitle || 'Impressum'}</span>
-        </button>
-
-        <span className="text-text-tertiary">•</span>
-
-        <button
-          type="button"
-          onClick={() => handleNav('datenschutz')}
-          className="text-text-secondary hover:text-brand font-medium transition-colors cursor-pointer inline-flex items-center gap-1.5"
-        >
-          <ShieldCheck className="w-3.5 h-3.5 text-text-tertiary" />
-          <span>{t.datenschutzTitle || 'Datenschutz'}</span>
-        </button>
-      </div>
-    </div>
-  );
-
-  const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
-
-  if (isDesktop) {
-    return (
-      <div className="hidden lg:block">
-        {/* Transparent backdrop for outside dismiss */}
-        <div 
-          className="fixed inset-0 z-50 bg-black/20 backdrop-blur-2xs transition-opacity" 
-          onClick={onClose} 
-          aria-hidden="true" 
-        />
-        <div
-          ref={dropdownRef}
-          role="dialog"
-          aria-modal="true"
-          className="fixed top-16 right-6 xl:right-[calc((100vw-72rem)/2+1.5rem)] z-50 w-80 bg-surface rounded-3xl border border-border shadow-apple-modal p-4 animate-in fade-in zoom-in-95 duration-150 outline-hidden"
-        >
-          <div className="flex items-center justify-between pb-2 mb-3 border-b border-border">
-            <span className="text-xs font-bold text-text">
-              {t.moreSheetTitle || 'Menü & Einstellungen'}
-            </span>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1 rounded-lg text-text-tertiary hover:text-text cursor-pointer"
-              aria-label="Schließen"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          {content}
-        </div>
-      </div>
-    );
-  }
+  const heading = 'text-2xs font-semibold uppercase tracking-wider text-text-tertiary px-3 mb-1';
 
   return (
-    <div className="lg:hidden">
+    <div className="print:hidden">
+      <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} aria-hidden="true" />
       <div
-        className="fixed inset-0 z-60 bg-black/60 backdrop-blur-xs transition-opacity"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <div
-        ref={mobileSheetRef}
+        ref={panelRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
-        className="fixed inset-x-0 bottom-0 z-70 bg-surface rounded-t-3xl border-t border-border shadow-apple-modal p-5 max-h-[85vh] overflow-y-auto custom-scrollbar animate-in slide-in-from-bottom duration-250 outline-hidden safe-bottom"
+        aria-label={t.tabSettings}
+        className="fixed z-60 bg-surface border border-border shadow-apple-modal outline-hidden inset-x-0 bottom-0 max-h-[88vh] overflow-y-auto rounded-t-2xl safe-bottom lg:inset-x-auto lg:bottom-auto lg:top-14 lg:right-6 lg:w-[22rem] lg:rounded-2xl lg:max-h-[calc(100vh-5rem)]"
       >
-        {/* Drag Handle */}
-        <div className="w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto mb-4 shrink-0" />
-
-        <div className="flex items-center justify-between pb-3 mb-4 border-b border-border">
-          <h3 className="text-sm font-bold text-text">
-            {t.moreSheetTitle || 'Menü & Einstellungen'}
-          </h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1 rounded-lg text-text-tertiary hover:text-text cursor-pointer"
-            aria-label="Schließen"
-          >
+        <div className="flex items-center justify-between px-4 h-12 border-b border-border sticky top-0 bg-surface">
+          <h2 className="text-sm font-semibold text-text">{t.tabSettings}</h2>
+          <button type="button" onClick={onClose} aria-label={t.close || 'Schließen'} className="w-9 h-9 rounded-xl flex items-center justify-center text-text-secondary hover:bg-surface-2">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {content}
+        <div className="p-3 space-y-4">
+          <div className="lg:hidden">
+            <p className={heading}>{de ? 'Bereiche' : 'Sections'}</p>
+            <Row to="/service-arts" onClick={onClose} icon={<Palette className="w-4 h-4" />} label={t.tabServiceArts} />
+            <Row to="/saved" onClick={onClose} icon={<Bookmark className="w-4 h-4" />} label={t.savedItems} />
+          </div>
+
+          <div className="space-y-2 px-1">
+            <p className={heading.replace('px-3', 'px-2')}>{de ? 'Darstellung' : 'Appearance'}</p>
+            <Segmented
+              label={de ? 'Darstellung' : 'Appearance'}
+              value={theme}
+              onChange={(v) => setTheme(v as Theme)}
+              options={[
+                { id: 'light', label: de ? 'Hell' : 'Light' },
+                { id: 'dark', label: de ? 'Dunkel' : 'Dark' },
+                { id: 'system', label: 'Auto' },
+              ]}
+            />
+            <p className={heading.replace('px-3', 'px-2') + ' pt-2'}>{de ? 'Sprache' : 'Language'}</p>
+            <Segmented
+              label={de ? 'Sprache' : 'Language'}
+              value={language}
+              onChange={(v) => setLanguage(v as Language)}
+              options={[
+                { id: 'de', label: 'Deutsch' },
+                { id: 'en', label: 'English' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <p className={heading}>{de ? 'Dieses Gerät' : 'This device'}</p>
+            <Row onClick={() => { window.print(); onClose(); }} icon={<Printer className="w-4 h-4" />} label={t.printHandout} />
+            <Row onClick={handleExport} icon={<Download className="w-4 h-4" />} label={de ? 'Daten sichern' : 'Back up data'} />
+            <Row onClick={() => fileRef.current?.click()} icon={<Upload className="w-4 h-4" />} label={de ? 'Sicherung einlesen' : 'Restore backup'} />
+            <input ref={fileRef} type="file" accept="application/json" className="hidden" onChange={(e) => handleImport(e.target.files?.[0])} />
+            <Row onClick={handleClear} icon={<Trash2 className="w-4 h-4" />} label={de ? 'Alles auf diesem Gerät löschen' : 'Delete everything on this device'} />
+          </div>
+
+          <div>
+            <p className={heading}>{de ? 'Weitere Ressourcen' : 'More resources'}</p>
+            <Row onClick={() => { onOpenBahaiSongs(); onClose(); }} icon={<Music className="w-4 h-4" />} label="Bahá'í Songs" hint="bahaisongs.com" />
+          </div>
+
+          <div className="flex items-center justify-center gap-4 pt-2 border-t border-border text-xs text-text-secondary">
+            <Link to="/impressum" onClick={onClose} className="py-2 hover:text-text">{t.impressumTitle}</Link>
+            <span aria-hidden="true">·</span>
+            <Link to="/datenschutz" onClick={onClose} className="py-2 hover:text-text">{t.datenschutzTitle}</Link>
+          </div>
+        </div>
       </div>
     </div>
   );

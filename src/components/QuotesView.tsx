@@ -519,7 +519,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               <button
                 type="button"
                 onClick={() => { setSelectedBook('all'); setSelectedSection('all'); }}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
                   selectedBook === 'all'
                     ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                     : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -536,7 +536,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     key={book.id}
                     type="button"
                     onClick={() => { setSelectedBook(isSelected ? 'all' : bookTitle); setSelectedSection('all'); }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[32px] cursor-pointer flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors min-h-[32px] cursor-pointer flex items-center gap-1.5 ${
                       isSelected
                         ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                         : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -544,7 +544,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   >
                     <span>{bookTitle}</span>
                     {book.isOfficialJYBook && (
-                      <span className={`text-2xs opacity-75 font-mono ${isSelected ? 'text-accent-contrast' : 'text-text-tertiary'}`}>
+                      <span className={`text-2xs opacity-75 tabular-nums ${isSelected ? 'text-accent-contrast' : 'text-text-tertiary'}`}>
                         ({book.targetAge})
                       </span>
                     )}
@@ -558,7 +558,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedTopic('all')}
-                className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[30px] cursor-pointer ${
+                className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors min-h-[30px] cursor-pointer ${
                   selectedTopic === 'all'
                     ? 'bg-surface-raised text-text font-semibold border border-accent/40 shadow-2xs'
                     : 'text-text-tertiary hover:text-text'
@@ -571,7 +571,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   key={top.id}
                   type="button"
                   onClick={() => setSelectedTopic(selectedTopic === top.id ? 'all' : top.id)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[30px] cursor-pointer ${
+                  className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors min-h-[30px] cursor-pointer ${
                     selectedTopic === top.id
                       ? 'bg-surface-raised text-text font-semibold border border-accent/40 shadow-2xs'
                       : 'text-text-tertiary hover:text-text'
@@ -595,19 +595,19 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <span className="text-text-tertiary">{language === 'de' ? 'Aktive Filter:' : 'Active filters:'}</span>
               {selectedBook !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface border border-border text-text">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface border border-border text-text">
                   <span>Buch: {selectedBook}</span>
                   <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => { setSelectedBook('all'); setSelectedSection('all'); }} />
                 </span>
               )}
               {selectedSection !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface border border-border text-text">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface border border-border text-text">
                   <span>Lektion: {selectedSection}</span>
                   <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => setSelectedSection('all')} />
                 </span>
               )}
               {selectedTopic !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface border border-border text-text">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface border border-border text-text">
                   <span>Thema: {topics.find((t) => t.id === selectedTopic)?.[language === 'de' ? 'labelDe' : 'labelEn']}</span>
                   <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => setSelectedTopic('all')} />
                 </span>
@@ -792,7 +792,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsQuotePickerOpen(true)}
-                className="px-5 py-2.5 rounded-full bg-accent text-accent-contrast font-semibold text-xs shadow-apple-pill cursor-pointer"
+                className="px-5 py-2.5 rounded-lg bg-accent text-accent-contrast font-semibold text-xs shadow-apple-pill cursor-pointer"
               >
                 {t.selectQuoteToPractice}
               </button>
@@ -930,7 +930,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setMethodPhaseFilter('all')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
                     methodPhaseFilter === 'all'
                       ? 'bg-accent text-accent-contrast shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -941,7 +941,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setMethodPhaseFilter(1)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
                     methodPhaseFilter === 1
                       ? 'bg-accent text-accent-contrast shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -952,7 +952,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setMethodPhaseFilter(2)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
                     methodPhaseFilter === 2
                       ? 'bg-accent text-accent-contrast shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -963,7 +963,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setMethodPhaseFilter(3)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors min-h-[32px] cursor-pointer ${
                     methodPhaseFilter === 3
                       ? 'bg-accent text-accent-contrast shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -1016,14 +1016,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                       className="min-w-0 flex-1 text-left cursor-pointer group focus:outline-hidden"
                     >
                       <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                        <span className="text-2xs font-bold px-2 py-0.5 rounded-full bg-surface-2 text-text-secondary border border-border">
+                        <span className="text-2xs font-bold px-2 py-0.5 rounded-lg bg-surface-2 text-text-secondary border border-border">
                           Phase {m.phase}
                         </span>
-                        <span className="text-2xs font-mono text-text-tertiary">
+                        <span className="text-2xs tabular-nums text-text-tertiary">
                           {m.durationMinutes}
                         </span>
                         {matchingWebTool && (
-                          <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text border border-accent/20">
+                          <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-lg bg-accent-subtle text-accent-text border border-accent/20">
                             <Laptop className="w-3 h-3 text-accent shrink-0" />
                             <span>{t.methodPlayableOnWeb}</span>
                           </span>
@@ -1246,7 +1246,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             <button
               type="button"
               onClick={() => setSelectedBook('all')}
-              className={`px-3 py-1 rounded-full text-2xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-2xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 selectedBook === 'all'
                   ? 'bg-accent text-accent-contrast shadow-xs'
                   : 'bg-surface-2 text-text-secondary hover:text-text'
@@ -1259,7 +1259,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 key={book.id}
                 type="button"
                 onClick={() => setSelectedBook(book.title[language])}
-                className={`px-3 py-1 rounded-full text-2xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-lg text-2xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                   selectedBook === book.title[language]
                     ? 'bg-accent text-accent-contrast shadow-xs'
                     : 'bg-surface-2 text-text-secondary hover:text-text'
@@ -1293,7 +1293,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-2xs font-bold text-text-secondary">{bookTitle}</span>
                       {q.section && (
-                        <span className="text-2xs font-mono text-text-tertiary">· {q.section[language]}</span>
+                        <span className="text-2xs tabular-nums text-text-tertiary">· {q.section[language]}</span>
                       )}
                       <span className="text-2xs font-semibold text-accent-text">({q.theme[language]})</span>
                     </div>
@@ -1399,7 +1399,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               <button
                 type="button"
                 onClick={() => { setSelectedBook('all'); setSelectedSection('all'); }}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   selectedBook === 'all'
                     ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                     : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -1414,7 +1414,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     key={book.id}
                     type="button"
                     onClick={() => { setSelectedBook(bookTitle); setSelectedSection('all'); }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       selectedBook === bookTitle
                         ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                         : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -1436,7 +1436,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedSection('all')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     selectedSection === 'all'
                       ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -1449,7 +1449,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     key={sec}
                     type="button"
                     onClick={() => setSelectedSection(sec)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       selectedSection === sec
                         ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                         : 'bg-surface-2 text-text-secondary hover:text-text border border-border'

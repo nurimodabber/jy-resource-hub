@@ -458,7 +458,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                   </h3>
                   <div className="flex flex-wrap gap-1.5">
                     {activeItem.data.materials[language].map((mat, i) => (
-                      <span key={i} className="text-xs font-medium bg-surface-2 text-text px-2.5 py-1 rounded-full border border-border">
+                      <span key={i} className="text-xs font-medium bg-surface-2 text-text px-2.5 py-1 rounded-lg border border-border">
                         {mat}
                       </span>
                     ))}
@@ -531,7 +531,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedScope('all')}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   selectedScope === 'all'
                     ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                     : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -544,7 +544,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                   key={scope}
                   type="button"
                   onClick={() => setSelectedScope(scope)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     selectedScope === scope
                       ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -564,7 +564,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedCategory('all')}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   selectedCategory === 'all'
                     ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                     : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -577,7 +577,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     selectedCategory === cat
                       ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -602,7 +602,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedArtForm('all')}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   selectedArtForm === 'all'
                     ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                     : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -615,7 +615,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                   key={form}
                   type="button"
                   onClick={() => setSelectedArtForm(form)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     selectedArtForm === form
                       ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text border border-border'

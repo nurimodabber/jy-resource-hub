@@ -247,7 +247,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/60  transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -277,7 +277,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               <X className="w-4 h-4" />
             </button>
           ) : (
-            <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-2xs font-mono bg-surface-2 text-text-tertiary border border-border-subtle">
+            <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-2xs tabular-nums bg-surface-2 text-text-tertiary border border-border-subtle">
               ESC
             </kbd>
           )}

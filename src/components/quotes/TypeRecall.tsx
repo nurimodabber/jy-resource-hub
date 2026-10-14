@@ -117,7 +117,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
           <button
             type="button"
             onClick={() => setMode('initials')}
-            className={`px-3 py-1 rounded-full text-2xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-2xs font-semibold transition-all cursor-pointer ${
               mode === 'initials'
                 ? 'bg-accent text-accent-contrast shadow-xs'
                 : 'text-text-secondary hover:text-text'
@@ -128,7 +128,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
           <button
             type="button"
             onClick={() => setMode('full')}
-            className={`px-3 py-1 rounded-full text-2xs font-semibold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-2xs font-semibold transition-all cursor-pointer ${
               mode === 'full'
                 ? 'bg-accent text-accent-contrast shadow-xs'
                 : 'text-text-secondary hover:text-text'
@@ -252,7 +252,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
         ) : (
           /* Prompt to tap to type */
           <div className="text-center">
-            <span className="inline-flex items-center gap-1.5 text-2xs text-text-tertiary font-mono bg-surface-2 border border-border px-3 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-2xs text-text-tertiary tabular-nums bg-surface-2 border border-border px-3 py-1 rounded-lg">
               <Keyboard className="w-3.5 h-3.5" />
               <span>
                 {language === 'de'
@@ -270,7 +270,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
               type="button"
               onClick={handleHint}
               disabled={isCompleted}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-full hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[36px]"
             >
               <HelpCircle className="w-3.5 h-3.5 text-accent-text" />
               <span>{language === 'de' ? 'Buchstabe aufdecken' : 'Reveal letter'}</span>
@@ -279,7 +279,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
             <button
               type="button"
               onClick={resetPractice}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-full hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>{language === 'de' ? 'Neu starten' : 'Restart'}</span>

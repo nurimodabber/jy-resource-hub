@@ -80,7 +80,7 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.metronomeSubtitle}</p>
-        <span className="font-mono text-2xs bg-surface-2 border border-border px-3 py-1 rounded-full text-text self-start sm:self-auto shrink-0">
+        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
           {bpm} BPM (4/4 Takt)
         </span>
       </div>
@@ -130,7 +130,7 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
             <button
               type="button"
               onClick={() => setIsPlaying(!isPlaying)}
-              className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold rounded-full bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[40px]"
+              className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold rounded-lg bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[40px]"
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
               <span>{isPlaying ? t.stopMetronome : t.startMetronome}</span>
@@ -149,7 +149,7 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
             <button
               type="button"
               onClick={() => setIsAudioEnabled(!isAudioEnabled)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium border transition-colors cursor-pointer min-h-[40px] ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors cursor-pointer min-h-[40px] ${
                 isAudioEnabled
                   ? 'bg-surface-2 border-border text-text font-semibold'
                   : 'border-border text-text-secondary hover:text-text'
@@ -175,7 +175,7 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
               onChange={(e) => setBpm(Number(e.target.value))}
               className="w-full sm:w-36 accent-accent"
             />
-            <span className="text-xs font-mono font-semibold text-text w-8 text-right">
+            <span className="text-xs tabular-nums font-semibold text-text w-8 text-right">
               {bpm}
             </span>
           </div>

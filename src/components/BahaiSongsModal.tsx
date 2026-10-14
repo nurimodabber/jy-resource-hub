@@ -50,7 +50,7 @@ export const BahaiSongsModal: React.FC<BahaiSongsModalProps> = ({
             href="https://www.bahaisongs.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 min-h-[36px] bg-surface-2 hover:bg-black/10 dark:hover:bg-white/10 text-text text-xs font-semibold rounded-full border border-border-subtle transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 min-h-[36px] bg-surface-2 hover:bg-black/10 dark:hover:bg-white/10 text-text text-xs font-semibold rounded-lg border border-border-subtle transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
           >
             <span>{language === 'de' ? 'In neuem Tab öffnen' : 'Open in new tab'}</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -96,7 +96,7 @@ export const BahaiSongsModal: React.FC<BahaiSongsModalProps> = ({
           ) : (
             <>
               {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-surface/80 backdrop-blur-xs z-10">
+                <div className="absolute inset-0 flex items-center justify-center bg-surface/80  z-10">
                   <div className="flex flex-col items-center gap-2.5 text-text-secondary text-xs font-medium">
                     <RefreshCw className="w-5 h-5 animate-spin text-text" />
                     <span>{language === 'de' ? 'Lade bahaisongs.com...' : 'Loading bahaisongs.com...'}</span>

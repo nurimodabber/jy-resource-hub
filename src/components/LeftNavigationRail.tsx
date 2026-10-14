@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Compass, BookOpen, Clock, Menu } from 'lucide-react';
+import { Home, Compass, BookOpen, Clock, Layers, Menu } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { Logo } from './Logo';
@@ -20,61 +20,36 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
   const t = UI_TRANSLATIONS[language];
 
   const items = [
-    {
-      id: 'home',
-      label: t.tabHome || 'Start',
-      icon: Home,
-      onClick: () => onSelectTab('home'),
-      isActive: activeTab === 'home',
-    },
-    {
-      id: 'games',
-      label: t.tabGames,
-      icon: Compass,
-      onClick: () => onSelectTab('games'),
-      isActive: activeTab === 'games',
-    },
-    {
-      id: 'quotes',
-      label: t.tabQuotes,
-      icon: BookOpen,
-      onClick: () => onSelectTab('quotes'),
-      isActive: activeTab === 'quotes',
-    },
-    {
-      id: 'planner',
-      label: t.tabPlanner,
-      icon: Clock,
-      onClick: () => onSelectTab('planner'),
-      isActive: activeTab === 'planner',
-    },
+    { id: 'home', label: t.tabHome, icon: Home, onClick: () => onSelectTab('home'), isActive: activeTab === 'home' },
+    { id: 'games', label: t.tabGames, icon: Compass, onClick: () => onSelectTab('games'), isActive: activeTab === 'games' },
+    { id: 'quotes', label: t.tabQuotes, icon: BookOpen, onClick: () => onSelectTab('quotes'), isActive: activeTab === 'quotes' },
+    { id: 'planner', label: t.tabPlanner, icon: Clock, onClick: () => onSelectTab('planner'), isActive: activeTab === 'planner' },
+    { id: 'tools', label: t.tabTools, icon: Layers, onClick: () => onSelectTab('tools'), isActive: activeTab === 'tools' },
     {
       id: 'more',
-      label: t.tabMore || 'Mehr',
+      label: t.tabMore,
       icon: Menu,
       onClick: onOpenMore,
-      isActive: activeTab === 'service-arts' || activeTab === 'tools' || activeTab === 'impressum' || activeTab === 'datenschutz',
+      isActive: ['service-arts', 'saved', 'impressum', 'datenschutz'].includes(activeTab),
     },
   ];
 
   return (
     <aside
-      className="short-nav-rail hidden short:flex fixed left-0 top-0 bottom-0 w-14 z-50 bg-surface/95 dark:bg-surface/95 backdrop-blur-xl border-r border-border-subtle flex-col items-center justify-between py-2 safe-left print:hidden"
+      className="short-nav-rail hidden short:flex fixed left-0 top-0 bottom-0 w-14 z-50 bg-surface border-r border-border flex-col items-center justify-between py-2 safe-left print:hidden"
       role="navigation"
-      aria-label="Kompakt-Navigation (Querformat)"
+      aria-label="Navigation"
     >
-      {/* Mini Logo */}
       <button
         onClick={() => onSelectTab('home')}
-        className="w-10 h-10 rounded-xl bg-surface-2 hover:bg-surface-raised flex items-center justify-center p-1 border border-border-subtle transition-transform active:scale-95"
+        className="w-10 h-10 rounded-xl flex items-center justify-center p-1"
         title={t.siteTitle}
         aria-label={t.siteTitle}
       >
         <Logo className="w-6 h-6" />
       </button>
 
-      {/* Nav Items */}
-      <div className="flex flex-col items-center gap-1.5 my-auto">
+      <div className="flex flex-col items-center gap-1 my-auto">
         {items.map((item) => {
           const Icon = item.icon;
           return (
@@ -83,10 +58,9 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
               onClick={item.onClick}
               title={item.label}
               aria-label={item.label}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all outline-hidden active:scale-90 ${
-                item.isActive
-                  ? 'bg-accent text-accent-contrast shadow-apple-pill font-semibold'
-                  : 'text-text-secondary hover:text-text hover:bg-surface-2'
+              aria-current={item.isActive ? 'page' : undefined}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                item.isActive ? 'bg-accent-subtle text-accent-text' : 'text-text-secondary hover:text-text hover:bg-surface-2'
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -95,8 +69,7 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
         })}
       </div>
 
-      {/* Bottom spacer / indicator */}
-      <div className="w-6 h-1 rounded-full bg-border-subtle/50" />
+      <div className="h-6" />
     </aside>
   );
 };

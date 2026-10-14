@@ -96,7 +96,7 @@ export const Dialog: React.FC<DialogProps> = ({
     >
       {/* Backdrop (Darkened and blurred, covers entire viewport above header) */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/60  transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -105,7 +105,7 @@ export const Dialog: React.FC<DialogProps> = ({
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`relative w-full ${maxWidthClasses[maxWidth]} bg-surface rounded-3xl border border-border-subtle shadow-apple-modal overflow-hidden z-10 my-auto flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] animate-in fade-in zoom-in-95 duration-200 outline-hidden`}
+        className={`relative w-full ${maxWidthClasses[maxWidth]} bg-surface rounded-2xl border border-border shadow-apple-modal overflow-hidden z-10 my-auto flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] animate-in fade-in zoom-in-95 duration-200 outline-hidden`}
       >
         {/* Header */}
         {(title || showCloseButton) && (

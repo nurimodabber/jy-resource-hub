@@ -1307,8 +1307,8 @@ export const GAMES_DATA: Game[] = [
     groupSize: { min: 8, max: 30 },
     prepLevel: 'low_prep',
     materials: {
-      de: ['Kleine Zettel', 'Stifte', 'Optional: Empire-Board im Toolkit'],
-      en: ['Paper slips', 'Pens', 'Optional: In-app Empire Board']
+      de: ['Kleine Zettel', 'Stifte', 'Optional: Empire-Werkzeug auf dieser Seite'],
+      en: ['Paper slips', 'Pens', 'Optional: Empire tool on this site']
     },
     durationMinutes: '20–40 Min',
     space: {
@@ -1343,11 +1343,11 @@ export const GAMES_DATA: Game[] = [
     },
     animatorTips: {
       de: [
-        'Nutzt das interaktive Empire-Board im Reiter „Praxis-Toolkits“ – so muss die Liste nicht ständig wiederholt werden.',
+        'Nutzt das interaktive Empire-Board unter „Werkzeuge“ → Empire – so muss die Liste nicht ständig wiederholt werden.',
         'Die Mitglieder eines Reiches dürfen ihren König leise beraten, aber nur der König spricht die Vermutung laut aus.'
       ],
       en: [
-        'Use the interactive Empire Board in the "Field Toolkits" tab to display names on screen without constant interruptions.',
+        'Use the interactive Empire Board under Tools → Empire to display names on screen without constant interruptions.',
         'Empire subjects may quietly consult their king, but only the king states the official guess.'
       ]
     },

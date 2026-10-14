@@ -19,7 +19,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   disabled,
   ...props
 }, ref) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-full transition-all duration-150 select-none outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-xl transition-colors duration-150 select-none outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
 
   const sizeStyles = {
     sm: 'text-xs px-3.5 py-1.5 min-h-[36px] sm:min-h-[32px] gap-1.5',
@@ -28,11 +28,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   };
 
   const variantStyles = {
-    primary: 'bg-accent hover:bg-accent-hover text-accent-contrast shadow-sm font-semibold',
-    secondary: 'bg-surface-2 hover:bg-black/10 dark:hover:bg-white/10 text-text border border-border-subtle',
+    primary: 'bg-accent hover:bg-accent-hover text-accent-contrast font-semibold',
+    secondary: 'bg-surface hover:bg-surface-2 text-text border border-border',
     outline: 'bg-transparent hover:bg-surface-2 text-text border border-border',
     ghost: 'bg-transparent hover:bg-surface-2 text-text',
-    danger: 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm font-semibold',
+    danger: 'bg-rose-700 hover:bg-rose-800 text-white font-semibold',
   };
 
   return (

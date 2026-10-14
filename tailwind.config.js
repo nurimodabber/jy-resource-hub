@@ -16,6 +16,12 @@ export default {
       'short': { raw: '(max-height: 500px)' },
     },
     extend: {
+      borderRadius: {
+        lg: '6px',
+        xl: '8px',
+        '2xl': '10px',
+        '3xl': '12px',
+      },
       fontSize: {
         '2xs': ['12px', { lineHeight: '16px' }],
         'xs': ['13px', { lineHeight: '18px' }],
@@ -56,24 +62,6 @@ export default {
           subtle: 'var(--accent-subtle)',
           text: 'var(--accent-text)',
         },
-        cat: {
-          cooperative: 'var(--cat-cooperative)',
-          'cooperative-subtle': 'var(--cat-cooperative-subtle)',
-          social: 'var(--cat-social)',
-          'social-subtle': 'var(--cat-social-subtle)',
-          competitive: 'var(--cat-competitive)',
-          'competitive-subtle': 'var(--cat-competitive-subtle)',
-          energizer: 'var(--cat-energizer)',
-          'energizer-subtle': 'var(--cat-energizer-subtle)',
-          service: 'var(--cat-service)',
-          'service-subtle': 'var(--cat-service-subtle)',
-          arts: 'var(--cat-arts)',
-          'arts-subtle': 'var(--cat-arts-subtle)',
-          devotional: 'var(--cat-devotional)',
-          'devotional-subtle': 'var(--cat-devotional-subtle)',
-          study: 'var(--cat-study)',
-          'study-subtle': 'var(--cat-study-subtle)',
-        },
         // Apple tokens mapped dynamically to CSS variables for backwards compatibility
         apple: {
           bg: 'var(--bg)',
@@ -102,10 +90,12 @@ export default {
         serif: ['"Lora"', '"Playfair Display"', 'Georgia', 'serif'],
       },
       boxShadow: {
-        'apple-card': '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)',
-        'apple-card-hover': '0 8px 24px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03)',
-        'apple-pill': '0 2px 8px -2px rgba(180, 83, 9, 0.20)',
-        'apple-modal': '0 24px 48px -12px rgba(0, 0, 0, 0.22)',
+        'apple-card': 'none',
+        'apple-card-hover': 'none',
+        'apple-pill': 'none',
+        'apple-modal': '0 16px 40px -12px rgba(0, 0, 0, 0.28)',
+        xs: 'none',
+        sm: 'none',
       },
       zIndex: {
         '60': '60',

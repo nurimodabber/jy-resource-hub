@@ -510,7 +510,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 key={p.id}
                 type="button"
                 onClick={() => setActivePlanId(p.id)}
-                className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                   activePlanId === p.id
                     ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                     : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
@@ -766,7 +766,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 <h4 className="text-sm font-bold text-text group-hover:text-accent transition-colors">
                   {preset.name}
                 </h4>
-                <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text">
+                <span className="text-2xs font-semibold px-2 py-0.5 rounded-lg bg-accent-subtle text-accent-text">
                   {preset.slots.length} {language === 'de' ? 'Blöcke' : 'slots'}
                 </span>
               </div>
@@ -792,7 +792,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             <button
               type="button"
               onClick={() => setPickerTab('games')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
                 pickerTab === 'games' ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary hover:text-text'
               }`}
             >
@@ -801,7 +801,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             <button
               type="button"
               onClick={() => setPickerTab('quotes')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
                 pickerTab === 'quotes' ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary hover:text-text'
               }`}
             >
@@ -810,7 +810,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             <button
               type="button"
               onClick={() => setPickerTab('songs')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
                 pickerTab === 'songs' ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary hover:text-text'
               }`}
             >
@@ -819,7 +819,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             <button
               type="button"
               onClick={() => setPickerTab('service')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
                 pickerTab === 'service' ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary hover:text-text'
               }`}
             >
@@ -828,7 +828,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             <button
               type="button"
               onClick={() => setPickerTab('arts')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
                 pickerTab === 'arts' ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary hover:text-text'
               }`}
             >
@@ -837,7 +837,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             <button
               type="button"
               onClick={() => setPickerTab('saved')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
                 pickerTab === 'saved' ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary hover:text-text'
               }`}
             >
@@ -1003,7 +1003,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
           {/* Top Bar: Progress & Close */}
           <div className="flex items-center justify-between border-b border-border pb-4">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-accent text-accent-contrast">
+              <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-accent text-accent-contrast">
                 {currentBlockIndex + 1} / {slots.length}
               </span>
               <h2 className="text-sm font-semibold text-text-secondary truncate">
@@ -1037,7 +1037,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
 
             {/* Countdown Timer Display */}
             <div className="py-4">
-              <div className="text-5xl sm:text-7xl font-mono font-bold text-accent-text tracking-tighter">
+              <div className="text-5xl sm:text-7xl tabular-nums font-bold text-accent-text tracking-tighter">
                 {String(Math.floor(timerSecondsLeft / 60)).padStart(2, '0')}:
                 {String(timerSecondsLeft % 60).padStart(2, '0')}
               </div>

@@ -61,7 +61,7 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.firstLetterSubtitle}</p>
-        <span className="font-mono text-2xs bg-surface-2 border border-border px-3 py-1 rounded-full text-text self-start sm:self-auto shrink-0">
+        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
           {visibleInitialsCount} / {rawWords.length} {t.wordsRemaining}
         </span>
       </div>
@@ -123,7 +123,7 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
             type="button"
             onClick={handleEraseNext}
             disabled={wordStates.every((s) => s === 'blank')}
-            className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-full hover:bg-accent-hover disabled:opacity-40 transition-colors shadow-xs cursor-pointer min-h-[36px]"
+            className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-lg hover:bg-accent-hover disabled:opacity-40 transition-colors shadow-xs cursor-pointer min-h-[36px]"
           >
             <Eraser className="w-3.5 h-3.5" />
             <span>{t.eraseInitialsBtn}</span>
@@ -132,7 +132,7 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-full hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
+            className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{t.resetInitials}</span>

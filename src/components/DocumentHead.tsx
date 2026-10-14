@@ -14,46 +14,46 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
     const pathname = location.pathname;
     let title: string;
     let description = isDe
-      ? 'Kuratierte Spiele, Zitate zum Auswendiglernen, Andachtsplaner und Praxis-Werkzeuge für Bahá\'í-Juniorjugendgruppen und Camps.'
+      ? 'Spiele, Zitate, Planer und Werkzeuge für Animatoren von Bahá\'í-Juniorjugendgruppen.'
       : 'Curated games, scripture quotes with memorisation methods, session planner, and field tools for Bahá\'í junior youth animators and camps.';
 
     if (pathname === '/' || pathname === '/home') {
       title = isDe
-        ? 'Junior Youth Resource Hub — Material & Impulse für Gruppenleiter'
-        : 'Junior Youth Resource Hub — Resources & Inspiration for Animators';
+        ? 'Junior Youth Hub — Spiele, Zitate und Werkzeuge für Animatoren'
+        : 'Junior Youth Hub — Games, quotes and tools for animators';
     } else if (pathname.startsWith('/games')) {
-      title = isDe ? 'Spiele-Bibliothek — JY Hub' : 'Games Library — JY Hub';
+      title = isDe ? 'Spiele — Junior Youth Hub' : 'Games — Junior Youth Hub';
       description = isDe
         ? 'Erprobte Gruppenspiele nach Energielevel, Gruppengröße und Material filtern.'
         : 'Field-tested group games filtered by energy level, group size, and materials.';
     } else if (pathname.startsWith('/quotes')) {
-      title = isDe ? 'Zitate & Lernmethoden — JY Hub' : 'Quotes & Memorisation — JY Hub';
+      title = isDe ? 'Zitate — Junior Youth Hub' : 'Quotes — Junior Youth Hub';
       description = isDe
         ? 'Kanonische Bahá\'í-Zitate nach Text und Thema mit interaktiven Lernmethoden.'
         : 'Canonical Bahá\'í quotes by text and topic with interactive memorisation tools.';
     } else if (pathname.startsWith('/planner')) {
-      title = isDe ? 'Ablauf-Planer — JY Hub' : 'Session Planner — JY Hub';
+      title = isDe ? 'Planer — Junior Youth Hub' : 'Planner — Junior Youth Hub';
       description = isDe
         ? 'Gruppentreffen und Andachten per Drag & Drop planen und als Handout drucken.'
         : 'Plan group sessions and devotionals with drag-and-drop, export and print.';
     } else if (pathname.startsWith('/service-arts')) {
-      title = isDe ? 'Dienst & Kunst — JY Hub' : 'Service & Arts — JY Hub';
+      title = isDe ? 'Dienst und Kunst — Junior Youth Hub' : 'Service and Arts — Junior Youth Hub';
       description = isDe
         ? 'Gemeindedienst-Projekte und kreative Ausdrucks-Impulse für Jugendliche.'
         : 'Community service projects and creative arts prompts for junior youth.';
     } else if (pathname.startsWith('/tools')) {
-      title = isDe ? 'Praxis-Werkzeuge — JY Hub' : 'Field Tools — JY Hub';
+      title = isDe ? 'Werkzeuge — Junior Youth Hub' : 'Tools — Junior Youth Hub';
       description = isDe
-        ? 'Team-Generator, Runden-Timer, Impulskarten und Spiel-Assistenten.'
-        : 'Team generator, round timer, reflection cards, and game assistants.';
+        ? 'Empire, Rollenverteiler, Teams, Timer und Spielfinder.'
+        : 'Empire, role dealer, teams, timer and game finder.';
     } else if (pathname === '/impressum') {
-      title = isDe ? 'Impressum — JY Hub' : 'Legal Notice — JY Hub';
+      title = isDe ? 'Impressum — Junior Youth Hub' : 'Legal Notice — Junior Youth Hub';
       description = 'Angaben gemäß § 5 TMG.';
     } else if (pathname === '/datenschutz') {
-      title = isDe ? 'Datenschutzerklärung — JY Hub' : 'Privacy Policy — JY Hub';
+      title = isDe ? 'Datenschutzerklärung — Junior Youth Hub' : 'Privacy Policy — Junior Youth Hub';
       description = 'Datenschutz nach DSGVO: Keine Cookies, kein Tracking, 100% lokal.';
     } else {
-      title = isDe ? '404 Seite nicht gefunden — JY Hub' : '404 Page Not Found — JY Hub';
+      title = isDe ? 'Seite nicht gefunden — Junior Youth Hub' : 'Page not found — Junior Youth Hub';
     }
 
     // Set document title

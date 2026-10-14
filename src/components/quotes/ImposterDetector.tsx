@@ -109,7 +109,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.imposterSubtitle}</p>
-        <span className="font-mono text-2xs bg-surface-2 border border-border px-3 py-1 rounded-full text-text self-start sm:self-auto shrink-0">
+        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
           {isResolved ? '100% Original' : (language === 'de' ? '1 Fehler versteckt' : '1 Decoy hidden')}
         </span>
       </div>
@@ -175,7 +175,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
             <button
               type="button"
               onClick={generateImposter}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-text hover:bg-surface-2 rounded-full transition-colors border border-border cursor-pointer min-h-[32px]"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors border border-border cursor-pointer min-h-[32px]"
             >
               <RotateCcw className="w-3 h-3" />
               <span>{t.nextImposter}</span>

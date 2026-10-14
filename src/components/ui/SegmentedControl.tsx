@@ -35,7 +35,7 @@ export function SegmentedControl<T extends string = string>({
   return (
     <div
       role="tablist"
-      className={`inline-flex items-center bg-surface-2 p-1 rounded-full border border-border-subtle max-w-full overflow-x-auto custom-scrollbar ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center bg-surface-2 p-1 rounded-xl border border-border-subtle max-w-full overflow-x-auto custom-scrollbar ${sizeStyles[size]} ${className}`}
     >
       {options.map((option) => {
         const isSelected = value === option.id;
@@ -46,9 +46,9 @@ export function SegmentedControl<T extends string = string>({
             type="button"
             aria-selected={isSelected}
             onClick={() => onChange(option.id)}
-            className={`inline-flex items-center justify-center rounded-full font-medium transition-all duration-150 outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none shrink-0 gap-1.5 ${itemHeightStyles[size]} ${
+            className={`inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150 outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none shrink-0 gap-1.5 ${itemHeightStyles[size]} ${
               isSelected
-                ? 'bg-surface text-text shadow-apple-pill font-semibold'
+                ? 'bg-surface text-text border border-border font-semibold'
                 : 'text-text-secondary hover:text-text'
             }`}
           >
@@ -56,7 +56,7 @@ export function SegmentedControl<T extends string = string>({
             <span className="truncate">{option.label}</span>
             {typeof option.count === 'number' && (
               <span
-                className={`text-2xs px-1.5 py-0.5 rounded-full font-mono ${
+                className={`text-2xs px-1.5 py-0.5 rounded-lg tabular-nums ${
                   isSelected ? 'bg-black/5 dark:bg-white/10 text-text' : 'text-text-tertiary'
                 }`}
               >

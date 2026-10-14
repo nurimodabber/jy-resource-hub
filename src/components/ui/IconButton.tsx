@@ -15,7 +15,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>((
   disabled,
   ...props
 }, ref) => {
-  const baseStyles = 'inline-flex items-center justify-center rounded-full transition-all duration-150 outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-95 disabled:opacity-50 disabled:pointer-events-none shrink-0';
+  const baseStyles = 'inline-flex items-center justify-center rounded-xl transition-colors duration-150 outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none shrink-0';
 
   const sizeStyles = {
     sm: 'w-9 h-9 min-w-[36px] min-h-[36px]',
@@ -24,7 +24,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>((
   };
 
   const variantStyles = {
-    primary: 'bg-accent hover:bg-accent-hover text-accent-contrast shadow-sm',
+    primary: 'bg-accent hover:bg-accent-hover text-accent-contrast',
     secondary: 'bg-surface-2 hover:bg-black/10 dark:hover:bg-white/10 text-text border border-border-subtle',
     outline: 'bg-transparent hover:bg-surface-2 text-text border border-border',
     ghost: 'bg-transparent hover:bg-surface-2 text-text-secondary hover:text-text',

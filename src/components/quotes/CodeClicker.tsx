@@ -67,7 +67,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.codeClickerSubtitle}</p>
-        <span className="font-mono text-2xs bg-surface-2 border border-border px-3 py-1 rounded-full text-text self-start sm:self-auto shrink-0">
+        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
           {Object.keys(tabooWords).length} {language === 'de' ? 'Aktionswörter aktiv' : 'Action words active'}
         </span>
       </div>
@@ -88,7 +88,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
                   type="button"
                   key={word}
                   onClick={() => handleToggleTaboo(word)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-accent-subtle text-accent-text border border-accent/20 cursor-pointer hover:bg-accent/20 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-accent-subtle text-accent-text border border-accent/20 cursor-pointer hover:bg-accent/20 transition-colors"
                   title={language === 'de' ? 'Klicken zum Entfernen' : 'Click to remove'}
                 >
                   <span>{action.icon}</span>
@@ -102,7 +102,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
           <button
             type="button"
             onClick={pickRandomCodeWords}
-            className="flex items-center gap-1.5 px-3 py-1 text-xs text-text hover:bg-surface-2 rounded-full transition-colors border border-border cursor-pointer min-h-[32px]"
+            className="flex items-center gap-1.5 px-3 py-1 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors border border-border cursor-pointer min-h-[32px]"
           >
             <Shuffle className="w-3 h-3 text-accent-text" />
             <span>{t.newCodeWords}</span>

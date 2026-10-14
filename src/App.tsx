@@ -9,10 +9,9 @@ import { BahaiSongsModal } from './components/BahaiSongsModal';
 import { DocumentHead } from './components/DocumentHead';
 import { ToastProvider } from './context/ToastContext';
 import { PlannerProvider } from './context/PlannerContext';
-import { Language, NavTab, SessionSlot, Game, QuoteItem, QuoteMethod } from './types';
+import { Language, NavTab, SessionSlot,  } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
 import { Loader2 } from 'lucide-react';
-import { Logo } from './components/Logo';
 
 // Lazy-loaded routes for code-splitting
 const HomeView = lazy(() => import('./components/HomeView').then(m => ({ default: m.HomeView })));
@@ -23,6 +22,7 @@ const ServiceArtsView = lazy(() => import('./components/ServiceArtsView').then(m
 const ToolkitsView = lazy(() => import('./components/ToolkitsView').then(m => ({ default: m.ToolkitsView })));
 const ImpressumView = lazy(() => import('./components/ImpressumView').then(m => ({ default: m.ImpressumView })));
 const DatenschutzView = lazy(() => import('./components/DatenschutzView').then(m => ({ default: m.DatenschutzView })));
+const SavedView = lazy(() => import('./components/SavedView').then(m => ({ default: m.SavedView })));
 const NotFoundView = lazy(() => import('./components/NotFoundView').then(m => ({ default: m.NotFoundView })));
 
 const RouteLoading: React.FC = () => (
@@ -58,12 +58,13 @@ export const AppContent: React.FC = () => {
     if (root === 'planner') return 'planner';
     if (root === 'service-arts') return 'service-arts';
     if (root === 'tools') return 'tools';
+    if (root === 'saved') return 'saved';
     if (root === 'impressum') return 'impressum';
     if (root === 'datenschutz') return 'datenschutz';
     return 'home';
   }, [location.pathname]);
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const searchQuery = '';
   const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isMoreSheetOpen, setIsMoreSheetOpen] = useState(false);
@@ -120,19 +121,6 @@ export const AppContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSelectGame = (game: Game | null) => {
-    if (game) {
-      navigate(`/games/${game.id}`);
-    } else {
-      navigate('/games');
-    }
-  };
-
-  const handlePracticeQuote = (quote: QuoteItem, _method?: QuoteMethod) => {
-    navigate(`/quotes/${quote.id}?tab=practice`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const handleCommandPaletteNavigate = (
     type: 'game' | 'quote' | 'method' | 'service' | 'art' | 'song' | 'tool', 
     id: string
@@ -171,15 +159,8 @@ export const AppContent: React.FC = () => {
       {/* Top Navbar */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={handleTabChange}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
         language={language}
-        setLanguage={setLanguage}
         favoriteCount={favorites.length}
-        showOnlyFavorites={showOnlyFavorites}
-        setShowOnlyFavorites={setShowOnlyFavorites}
-        onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenMore={() => setIsMoreSheetOpen(true)}
       />
@@ -193,50 +174,31 @@ export const AppContent: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="short-content-pad flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 md:pb-8">
+      <main className="short-content-pad flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 lg:pb-8">
         <Suspense fallback={<RouteLoading />}>
           <Routes>
             <Route
               path="/"
               element={
-                <HomeView
-                  language={language}
-                  onNavigateTab={handleTabChange}
-                  onSelectGame={handleSelectGame}
-                  onSelectQuoteToPractice={handlePracticeQuote}
-                  favorites={favorites}
-                  onToggleFavorite={handleToggleFavorite}
-                />
+                <HomeView language={language} favorites={favorites} />
               }
             />
             <Route path="/home" element={<Navigate to="/" replace />} />
+            <Route
+              path="/saved"
+              element={<SavedView language={language} favorites={favorites} onToggleFavorite={handleToggleFavorite} />}
+            />
 
             <Route
               path="/games"
               element={
-                <GamesView
-                  searchQuery={searchQuery}
-                  language={language}
-                  favorites={favorites}
-                  onToggleFavorite={handleToggleFavorite}
-                  showOnlyFavorites={showOnlyFavorites}
-                  onClearShowOnlyFavorites={() => setShowOnlyFavorites(false)}
-                  onSelectGame={handleSelectGame}
-                />
+                <GamesView language={language} favorites={favorites} onToggleFavorite={handleToggleFavorite} />
               }
             />
             <Route
               path="/games/:id"
               element={
-                <GamesView
-                  searchQuery={searchQuery}
-                  language={language}
-                  favorites={favorites}
-                  onToggleFavorite={handleToggleFavorite}
-                  showOnlyFavorites={showOnlyFavorites}
-                  onClearShowOnlyFavorites={() => setShowOnlyFavorites(false)}
-                  onSelectGame={handleSelectGame}
-                />
+                <GamesView language={language} favorites={favorites} onToggleFavorite={handleToggleFavorite} />
               }
             />
 
@@ -364,47 +326,17 @@ export const AppContent: React.FC = () => {
         onNavigate={handleCommandPaletteNavigate}
       />
 
-      {/* Footer: Clean Minimal Two Rows */}
-      <footer className="bg-surface/70 border-t border-border mt-10 py-6 text-xs text-text-secondary print:hidden safe-bottom mb-16 md:mb-0">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-4">
-          {/* Row 1: Logo + Junior Youth Hub + one-line description */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 text-center sm:text-left">
-            <div className="flex items-center gap-2.5">
-              <div className="w-6 h-6 rounded-lg bg-surface-2 border border-border flex items-center justify-center p-0.5 shrink-0">
-                <Logo className="w-4 h-4" />
-              </div>
-              <span className="font-bold text-text tracking-tight text-sm whitespace-nowrap">
-                {t.siteTitle}
-              </span>
-            </div>
-            <p className="text-2xs sm:text-xs text-text-tertiary">
-              {t.footerNote}
-            </p>
-          </div>
-
-          {/* Row 2: Impressum · Datenschutz on left, Copyright on right */}
-          <div className="pt-3 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-2xs text-text-tertiary text-center sm:text-left">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => handleTabChange('impressum')}
-                className="hover:text-brand font-medium transition-colors cursor-pointer whitespace-nowrap"
-              >
-                {t.impressumTitle || 'Impressum'}
-              </button>
-              <span>·</span>
-              <button
-                type="button"
-                onClick={() => handleTabChange('datenschutz')}
-                className="hover:text-brand font-medium transition-colors cursor-pointer whitespace-nowrap"
-              >
-                {t.datenschutzTitle || 'Datenschutzerklärung'}
-              </button>
-            </div>
-
-            <div className="whitespace-nowrap">
-              <span>© 2026 Junior Youth Hub</span>
-            </div>
+      <footer className="border-t border-border mt-10 py-6 text-xs text-text-secondary print:hidden safe-bottom mb-16 lg:mb-0">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <p className="text-text-tertiary">{t.footerNote}</p>
+          <div className="flex items-center gap-4">
+            <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text">
+              {t.impressumTitle}
+            </button>
+            <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text">
+              {t.datenschutzTitle}
+            </button>
+            <span className="text-text-tertiary">© 2026 {t.siteTitle}</span>
           </div>
         </div>
       </footer>

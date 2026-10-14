@@ -78,7 +78,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
         </p>
 
         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-          <span className="font-mono text-2xs bg-surface-2 border border-border px-3 py-1 rounded-full text-text flex items-center gap-1.5">
+          <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text flex items-center gap-1.5">
             <Zap className="w-3.5 h-3.5 text-accent-text" />
             <span>{wpm} WPM</span>
           </span>
@@ -87,7 +87,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={() => { setChunkSize(1); setCurrentIndex(0); }}
-              className={`px-2.5 py-0.5 rounded-full text-2xs font-semibold transition-all cursor-pointer ${
+              className={`px-2.5 py-0.5 rounded-lg text-2xs font-semibold transition-all cursor-pointer ${
                 chunkSize === 1 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary'
               }`}
             >
@@ -96,7 +96,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={() => { setChunkSize(2); setCurrentIndex(0); }}
-              className={`px-2.5 py-0.5 rounded-full text-2xs font-semibold transition-all cursor-pointer ${
+              className={`px-2.5 py-0.5 rounded-lg text-2xs font-semibold transition-all cursor-pointer ${
                 chunkSize === 2 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary'
               }`}
             >
@@ -122,7 +122,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             {chunks[currentIndex] || '...'}
           </div>
 
-          <span className="text-2xs font-mono text-text-tertiary mt-4 block">
+          <span className="text-2xs tabular-nums text-text-tertiary mt-4 block">
             {currentIndex + 1} / {chunks.length}
           </span>
         </div>
@@ -166,7 +166,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={handleTogglePlay}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[40px]"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[40px]"
             >
               {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
               <span>{isPlaying ? (language === 'de' ? 'Pause' : 'Pause') : (language === 'de' ? 'Starten' : 'Start')}</span>
@@ -196,7 +196,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
               onChange={(e) => setWpm(Number(e.target.value))}
               className="w-full sm:w-36 accent-accent"
             />
-            <span className="text-xs font-mono font-semibold text-text w-16 text-right">
+            <span className="text-xs tabular-nums font-semibold text-text w-16 text-right">
               {wpm} wpm
             </span>
           </div>

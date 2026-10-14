@@ -1,7 +1,6 @@
 import { Language } from '../types';
 
-export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
-  de: {
+const de = {
     // Brand & Navigation
     siteTitle: 'Junior Youth Hub',
     siteSubtitle: 'Praxisressourcen für Jugendgruppen & Freizeiten',
@@ -13,9 +12,17 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     tabTools: 'Werkzeuge',
     tabToolkits: 'Werkzeuge',
     tabMore: 'Mehr',
+    tabSettings: 'Einstellungen',
     searchPlaceholder: 'Spiele, Methoden oder Zitate suchen (⌘K)...',
     clearSearch: 'Löschen',
-    savedItems: 'Favoriten',
+    savedItems: 'Gemerkt',
+    savedGames: 'Spiele',
+    savedQuotes: 'Zitate',
+    savedMethods: 'Methoden',
+    savedProjects: 'Projekte',
+    savedEmptyTitle: 'Noch nichts gemerkt',
+    savedEmptyHint: 'Tippe bei Spielen, Zitaten oder Projekten auf das Lesezeichen. Dann findest du sie hier wieder.',
+    savedEmptyAction: 'Spiele ansehen',
     noSavedItems: 'Noch keine Favoriten gespeichert. Klicke auf das Lesezeichen-Symbol bei einem Spiel oder Zitat.',
     cmdKSearch: 'Schnellsuche (⌘K)',
 
@@ -369,8 +376,11 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Footer
     footerNote: 'Praxisorientierte Ressourcen für die Begleitung von Juniorjugendlichen.',
     printHandout: 'Druckansicht / PDF',
-  },
-  en: {
+};
+
+export type TKey = keyof typeof de;
+
+const en: Record<TKey, string> = {
     // Brand & Navigation
     siteTitle: 'Junior Youth Hub',
     siteSubtitle: 'Practical resources for youth groups and camps',
@@ -382,9 +392,17 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     tabTools: 'Tools',
     tabToolkits: 'Tools',
     tabMore: 'More',
+    tabSettings: 'Settings',
     searchPlaceholder: 'Search games, methods, or quotes (⌘K)...',
     clearSearch: 'Clear',
-    savedItems: 'Favorites',
+    savedItems: 'Saved',
+    savedGames: 'Games',
+    savedQuotes: 'Quotes',
+    savedMethods: 'Methods',
+    savedProjects: 'Projects',
+    savedEmptyTitle: 'Nothing saved yet',
+    savedEmptyHint: 'Tap the bookmark on games, quotes or projects. They will show up here.',
+    savedEmptyAction: 'Browse games',
     noSavedItems: 'No saved items yet. Click the bookmark icon on any game or quote.',
     cmdKSearch: 'Quick Search (⌘K)',
 
@@ -738,5 +756,6 @@ export const UI_TRANSLATIONS: Record<Language, Record<string, string>> = {
     // Footer
     footerNote: 'Purpose-built resources for junior youth animators and camp coordinators.',
     printHandout: 'Print / Export PDF',
-  }
 };
+
+export const UI_TRANSLATIONS: Record<Language, Record<TKey, string>> = { de, en };

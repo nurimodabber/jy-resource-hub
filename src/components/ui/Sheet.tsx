@@ -64,7 +64,7 @@ export const Sheet: React.FC<SheetProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-black/60  transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -74,7 +74,7 @@ export const Sheet: React.FC<SheetProps> = ({
         <div
           ref={sheetRef}
           tabIndex={-1}
-          className="fixed inset-x-0 bottom-0 z-10 max-h-[90vh] bg-surface rounded-t-3xl border-t border-border shadow-apple-modal flex flex-col animate-in slide-in-from-bottom duration-250 outline-hidden safe-bottom"
+          className="fixed inset-x-0 bottom-0 z-10 max-h-[90vh] bg-surface rounded-t-2xl border-t border-border shadow-apple-modal flex flex-col animate-in slide-in-from-bottom duration-250 outline-hidden safe-bottom"
         >
           {/* Mobile Handle Bar */}
           <div className="w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto mt-3 shrink-0" />

@@ -1,0 +1,14 @@
+{
+  "name": "Junior Youth Hub",
+  "short_name": "JY Hub",
+  "description": "Spiele, Zitate und Werkzeuge für Animatoren von Juniorjugendgruppen.",
+  "lang": "de",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F6F5F2",
+  "theme_color": "#F6F5F2",
+  "icons": [
+    { "src": "/logo.png", "sizes": "any", "type": "image/png", "purpose": "any" }
+  ]
+}

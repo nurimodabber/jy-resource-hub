@@ -15,7 +15,7 @@ export const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }
     <div
       role="group"
       aria-label="Darstellungsmodus / Theme mode"
-      className={`inline-flex items-center p-0.5 bg-surface-2 rounded-full border border-border-subtle ${className}`}
+      className={`inline-flex items-center p-0.5 bg-surface-2 rounded-xl border border-border-subtle ${className}`}
     >
       {options.map((opt) => {
         const isActive = theme === opt.id;
@@ -26,9 +26,9 @@ export const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }
             aria-pressed={isActive}
             title={opt.label}
             onClick={() => setTheme(opt.id)}
-            className={`p-1.5 rounded-full transition-all outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
+            className={`p-1.5 rounded-lg transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
               isActive
-                ? 'bg-surface text-text shadow-apple-pill font-medium'
+                ? 'bg-surface text-text border border-border font-medium'
                 : 'text-text-secondary hover:text-text'
             }`}
           >
