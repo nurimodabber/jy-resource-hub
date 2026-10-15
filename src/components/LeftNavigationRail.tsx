@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Compass, BookOpen, Clock, Layers, Menu } from 'lucide-react';
+import { Compass, BookOpen, Palette, Calendar, Layers } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { Logo } from './Logo';
@@ -7,31 +7,22 @@ import { Logo } from './Logo';
 export interface LeftNavigationRailProps {
   activeTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
-  onOpenMore: () => void;
   language: Language;
 }
 
 export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
   activeTab,
   onSelectTab,
-  onOpenMore,
   language,
 }) => {
   const t = UI_TRANSLATIONS[language];
 
   const items = [
-    { id: 'home', label: t.tabHome, icon: Home, onClick: () => onSelectTab('home'), isActive: activeTab === 'home' },
-    { id: 'games', label: t.tabGames, icon: Compass, onClick: () => onSelectTab('games'), isActive: activeTab === 'games' },
-    { id: 'quotes', label: t.tabQuotes, icon: BookOpen, onClick: () => onSelectTab('quotes'), isActive: activeTab === 'quotes' },
-    { id: 'planner', label: t.tabPlanner, icon: Clock, onClick: () => onSelectTab('planner'), isActive: activeTab === 'planner' },
-    { id: 'tools', label: t.tabTools, icon: Layers, onClick: () => onSelectTab('tools'), isActive: activeTab === 'tools' },
-    {
-      id: 'more',
-      label: t.tabMore,
-      icon: Menu,
-      onClick: onOpenMore,
-      isActive: ['service-arts', 'saved', 'impressum', 'datenschutz'].includes(activeTab),
-    },
+    { id: 'games' as NavTab, label: t.tabGames, icon: Compass },
+    { id: 'quotes' as NavTab, label: t.tabQuotes, icon: BookOpen },
+    { id: 'service-arts' as NavTab, label: t.tabServiceArts, icon: Palette },
+    { id: 'planner' as NavTab, label: t.tabPlanner, icon: Calendar },
+    { id: 'tools' as NavTab, label: t.tabTools, icon: Layers },
   ];
 
   return (
@@ -41,29 +32,34 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
       aria-label="Navigation"
     >
       <button
+        type="button"
         onClick={() => onSelectTab('home')}
-        className="w-10 h-10 rounded-xl flex items-center justify-center p-1"
+        className="w-10 h-10 rounded-control flex items-center justify-center p-1 hover:bg-surface-2 transition-colors duration-150 ease-out"
         title={t.siteTitle}
         aria-label={t.siteTitle}
       >
         <Logo className="w-6 h-6" />
       </button>
 
-      <div className="flex flex-col items-center gap-1 my-auto">
+      <div className="flex flex-col items-center gap-1.5 my-auto">
         {items.map((item) => {
           const Icon = item.icon;
+          const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
-              onClick={item.onClick}
+              type="button"
+              onClick={() => onSelectTab(item.id)}
               title={item.label}
               aria-label={item.label}
-              aria-current={item.isActive ? 'page' : undefined}
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                item.isActive ? 'bg-accent-subtle text-accent-text' : 'text-text-secondary hover:text-text hover:bg-surface-2'
+              aria-current={isActive ? 'page' : undefined}
+              className={`w-10 h-10 rounded-control flex items-center justify-center transition-colors duration-150 ease-out ${
+                isActive
+                  ? 'bg-accent-subtle text-accent-text font-semibold'
+                  : 'text-text-secondary hover:text-text hover:bg-surface-2'
               }`}
             >
-              <Icon className="w-5 h-5" />
+              <Icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.75} />
             </button>
           );
         })}

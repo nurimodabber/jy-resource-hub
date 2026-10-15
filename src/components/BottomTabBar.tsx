@@ -1,36 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Clock, Layers, Menu } from 'lucide-react';
+import { Compass, BookOpen, Palette, Calendar, Layers, type LucideIcon } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
 export interface BottomTabBarProps {
   activeTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
-  onOpenMore: () => void;
   language: Language;
 }
 
-export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectTab, onOpenMore, language }) => {
+export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectTab, language }) => {
   const t = UI_TRANSLATIONS[language];
 
-  const tabs: { id: NavTab; label: string; href: string; icon: React.FC<{ className?: string }> }[] = [
+  const tabs: {
+    id: NavTab;
+    label: string;
+    href: string;
+    icon: LucideIcon;
+  }[] = [
     { id: 'games', label: t.tabGames, href: '/games', icon: Compass },
     { id: 'quotes', label: t.tabQuotes, href: '/quotes', icon: BookOpen },
-    { id: 'planner', label: t.tabPlanner, href: '/planner', icon: Clock },
+    { id: 'service-arts', label: t.tabServiceArts, href: '/service-arts', icon: Palette },
+    { id: 'planner', label: t.tabPlanner, href: '/planner', icon: Calendar },
     { id: 'tools', label: t.tabTools, href: '/tools', icon: Layers },
   ];
 
-  const isMoreActive = ['service-arts', 'saved', 'impressum', 'datenschutz'].includes(activeTab);
-
-  const base = 'flex-1 relative flex flex-col items-center justify-center gap-1 min-h-[56px] text-2xs transition-colors';
-
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-border lg:hidden short:hidden safe-bottom print:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-none border-t border-border lg:hidden short:hidden safe-bottom print:hidden"
       aria-label="Mobile Navigation"
     >
-      <div className="flex items-stretch max-w-lg mx-auto">
+      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -40,23 +41,27 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
               to={tab.href}
               onClick={() => onSelectTab(tab.id)}
               aria-current={isActive ? 'page' : undefined}
-              className={`${base} ${isActive ? 'text-accent-text font-semibold' : 'text-text-secondary'}`}
+              className="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 select-none transition-colors group"
             >
-              {isActive && <span className="absolute top-0 left-4 right-4 h-0.5 bg-accent" />}
-              <Icon className="w-5 h-5" />
-              <span>{tab.label}</span>
+              <div
+                className={`flex items-center justify-center px-3.5 py-1 rounded-chip transition-colors duration-150 ease-out ${
+                  isActive
+                    ? 'bg-accent-subtle text-accent-text'
+                    : 'text-text-secondary group-hover:text-text'
+                }`}
+              >
+                <Icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.75} />
+              </div>
+              <span
+                className={`text-2xs truncate max-w-[64px] text-center mt-0.5 ${
+                  isActive ? 'text-accent-text font-bold' : 'text-text-secondary font-medium'
+                }`}
+              >
+                {tab.label}
+              </span>
             </Link>
           );
         })}
-        <button
-          type="button"
-          onClick={onOpenMore}
-          className={`${base} ${isMoreActive ? 'text-accent-text font-semibold' : 'text-text-secondary'}`}
-        >
-          {isMoreActive && <span className="absolute top-0 left-4 right-4 h-0.5 bg-accent" />}
-          <Menu className="w-5 h-5" />
-          <span>{t.tabMore}</span>
-        </button>
       </div>
     </nav>
   );

@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import { Navbar } from './components/Navbar';
 import { BottomTabBar } from './components/BottomTabBar';
 import { LeftNavigationRail } from './components/LeftNavigationRail';
-import { MoreSheet } from './components/MoreSheet';
+import { SettingsSheet } from './components/SettingsSheet';
 import { CommandPalette } from './components/CommandPalette';
 import { BahaiSongsModal } from './components/BahaiSongsModal';
 import { DocumentHead } from './components/DocumentHead';
@@ -68,7 +68,7 @@ export const AppContent: React.FC = () => {
   const searchQuery = '';
   const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isMoreSheetOpen, setIsMoreSheetOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [slotToAddToPlanner, setSlotToAddToPlanner] = useState<SessionSlot | null>(null);
 
   // Persistent language
@@ -122,8 +122,19 @@ export const AppContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Shift focus to H1 after route change for screen readers
+  useEffect(() => {
+    const h1 = document.querySelector('h1');
+    if (h1) {
+      if (!h1.hasAttribute('tabindex')) {
+        h1.setAttribute('tabindex', '-1');
+      }
+      h1.focus({ preventScroll: true });
+    }
+  }, [location.pathname]);
+
   const handleCommandPaletteNavigate = (
-    type: 'game' | 'quote' | 'method' | 'service' | 'art' | 'song' | 'tool', 
+    type: 'game' | 'quote' | 'method' | 'service' | 'art' | 'song' | 'tool' | 'page', 
     id: string
   ) => {
     switch (type) {
@@ -138,13 +149,20 @@ export const AppContent: React.FC = () => {
         break;
       case 'service':
       case 'art':
-        navigate('/service-arts');
+        navigate(`/service-arts/${id}`);
         break;
       case 'song':
         setIsBahaiSongsOpen(true);
         break;
       case 'tool':
-        navigate('/tools');
+        navigate(`/tools/${id}`);
+        break;
+      case 'page':
+        if (id === 'settings') {
+          setIsSettingsOpen(true);
+        } else {
+          navigate(id === 'home' ? '/' : `/${id}`);
+        }
         break;
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -163,14 +181,13 @@ export const AppContent: React.FC = () => {
         language={language}
         favoriteCount={favorites.length}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-        onOpenMore={() => setIsMoreSheetOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       {/* Phone Landscape Slim Left Rail */}
       <LeftNavigationRail
         activeTab={activeTab}
         onSelectTab={handleTabChange}
-        onOpenMore={() => setIsMoreSheetOpen(true)}
         language={language}
       />
 
@@ -305,20 +322,16 @@ export const AppContent: React.FC = () => {
       <BottomTabBar
         activeTab={activeTab}
         onSelectTab={handleTabChange}
-        onOpenMore={() => setIsMoreSheetOpen(true)}
         language={language}
       />
 
-      {/* More Sheet for Mobile (Tools, Service & Arts, Songs, Legal, Settings) */}
-      <MoreSheet
-        isOpen={isMoreSheetOpen}
-        onClose={() => setIsMoreSheetOpen(false)}
-        activeTab={activeTab}
-        onSelectTab={handleTabChange}
-        onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
-        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+      {/* Settings Sheet (Appearance, Language, Group, Backup, Offline) */}
+      <SettingsSheet
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
         language={language}
         setLanguage={setLanguage}
+        onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
       />
 
       {/* Global Command Palette (⌘K) */}
@@ -327,18 +340,25 @@ export const AppContent: React.FC = () => {
         onClose={() => setIsCommandPaletteOpen(false)}
         language={language}
         onNavigate={handleCommandPaletteNavigate}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      <footer className="border-t border-border mt-10 py-6 text-xs text-text-secondary print:hidden safe-bottom mb-16 lg:mb-0">
+      <footer className="border-t border-border mt-12 py-6 text-xs text-text-secondary print:hidden safe-bottom mb-20 lg:mb-0">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <p className="text-text-tertiary">{t.footerNote}</p>
-          <div className="flex items-center gap-4">
-            <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text transition-colors">
               {t.impressumTitle}
             </button>
-            <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text">
+            <span>·</span>
+            <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text transition-colors">
               {t.datenschutzTitle}
             </button>
+            <span>·</span>
+            <button type="button" onClick={() => navigate('/vorschlagen')} className="hover:text-text transition-colors">
+              {t.settingsSubmitProposal}
+            </button>
+            <span>·</span>
             <span className="text-text-tertiary">© 2026 {t.siteTitle}</span>
           </div>
         </div>

@@ -7,7 +7,7 @@ const de = {
     tabHome: 'Start',
     tabGames: 'Spiele',
     tabQuotes: 'Zitate',
-    tabPlanner: 'Planer',
+    tabPlanner: 'Treffen',
     tabServiceArts: 'Dienst & Kunst',
     tabTools: 'Werkzeuge',
     tabToolkits: 'Werkzeuge',
@@ -373,9 +373,30 @@ const de = {
     timer10Min: '10 Min',
     timer15Min: '15 Min',
 
-    // Footer
+    // Footer & Settings & Back navigation
     footerNote: 'Praxisorientierte Ressourcen für die Begleitung von Juniorjugendlichen.',
     printHandout: 'Druckansicht / PDF',
+    settingsMyGroup: 'Meine Gruppe',
+    settingsMyGroupHint: 'Namensliste für Werkzeuge und Gruppenaufteilung',
+    settingsMyGroupPlaceholder: 'Name hinzufügen...',
+    settingsAddName: 'Hinzufügen',
+    settingsAppearance: 'Darstellung',
+    settingsLanguage: 'Sprache',
+    settingsData: 'Daten & Sicherung',
+    settingsBackup: 'Daten sichern',
+    settingsRestore: 'Sicherung wiederherstellen',
+    settingsDeleteAll: 'Alles auf diesem Gerät löschen',
+    settingsDeleteConfirm: 'Möchtest du wirklich alle gemerkten Einträge, Pläne und Einstellungen auf diesem Gerät löschen?',
+    settingsAbout: 'Über die Seite',
+    settingsSubmitProposal: 'Vorschlag einreichen',
+    settingsVersion: 'Version 2.0',
+    settingsOfflineReady: 'Bereit für Offline-Nutzung',
+    settingsOfflineDesc: 'Funktioniert offline auf deinem Gerät',
+    backToGames: '← Spiele',
+    backToQuotes: '← Zitate',
+    backToServiceArts: '← Dienst & Kunst',
+    backToTools: '← Werkzeuge',
+    backToPlanner: '← Treffen',
 };
 
 export type TKey = keyof typeof de;
@@ -387,7 +408,7 @@ const en: Record<TKey, string> = {
     tabHome: 'Home',
     tabGames: 'Games',
     tabQuotes: 'Quotes',
-    tabPlanner: 'Planner',
+    tabPlanner: 'Gatherings',
     tabServiceArts: 'Service & Arts',
     tabTools: 'Tools',
     tabToolkits: 'Tools',
@@ -753,9 +774,30 @@ const en: Record<TKey, string> = {
     timer10Min: '10 min',
     timer15Min: '15 min',
 
-    // Footer
+    // Footer & Settings & Back navigation
     footerNote: 'Purpose-built resources for junior youth animators and camp coordinators.',
     printHandout: 'Print / Export PDF',
+    settingsMyGroup: 'My group',
+    settingsMyGroupHint: 'Name list for tools and team generation',
+    settingsMyGroupPlaceholder: 'Add name...',
+    settingsAddName: 'Add',
+    settingsAppearance: 'Appearance',
+    settingsLanguage: 'Language',
+    settingsData: 'Data & backup',
+    settingsBackup: 'Back up data',
+    settingsRestore: 'Restore backup',
+    settingsDeleteAll: 'Delete everything on this device',
+    settingsDeleteConfirm: 'Do you really want to delete all saved items, plans and settings on this device?',
+    settingsAbout: 'About',
+    settingsSubmitProposal: 'Submit proposal',
+    settingsVersion: 'Version 2.0',
+    settingsOfflineReady: 'Ready for offline use',
+    settingsOfflineDesc: 'Works offline on your device',
+    backToGames: '← Games',
+    backToQuotes: '← Quotes',
+    backToServiceArts: '← Service & Arts',
+    backToTools: '← Tools',
+    backToPlanner: '← Gatherings',
 };
 
 export const UI_TRANSLATIONS: Record<Language, Record<TKey, string>> = { de, en };

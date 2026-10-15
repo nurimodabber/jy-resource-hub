@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bookmark } from 'lucide-react';
+import { Bookmark, ArrowRight } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { GAMES_DATA } from '../data/games';
@@ -8,7 +8,7 @@ import { QUOTES_DATA } from '../data/quotes';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from '../data/artsPrompts';
-import { EmptyState } from './ui/EmptyState';
+import { EmptyState, Chip, Card } from './ui';
 
 interface SavedViewProps {
   language: Language;
@@ -27,6 +27,7 @@ interface Row {
 
 export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onToggleFavorite }) => {
   const t = UI_TRANSLATIONS[language];
+  const isDe = language === 'de';
   const navigate = useNavigate();
 
   const groups = useMemo(() => {
@@ -34,7 +35,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
     const games: Row[] = GAMES_DATA.filter((g) => has(g.id)).map((g) => ({
       id: g.id,
       title: g.title[language],
-      meta: `${g.groupSize.min}–${g.groupSize.max} · ${g.durationMinutes}`,
+      meta: `${g.groupSize.min}–${g.groupSize.max} ${isDe ? 'Jugendliche' : 'youth'} · ${g.durationMinutes}`,
       href: `/games/${g.id}`,
     }));
     const quotes: Row[] = QUOTES_DATA.filter((q) => has(q.id)).map((q) => ({
@@ -64,7 +65,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
       })),
     ];
     return { games, quotes, methods, projects } as Record<Group, Row[]>;
-  }, [favorites, language]);
+  }, [favorites, language, isDe]);
 
   const labels: Record<Group, string> = {
     games: t.savedGames,
@@ -79,60 +80,101 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
 
   if (nonEmpty.length === 0) {
     return (
-      <EmptyState
-        title={t.savedEmptyTitle}
-        description={t.savedEmptyHint}
-        actionLabel={t.savedEmptyAction}
-        onAction={() => navigate('/games')}
-      />
+      <div className="py-12">
+        <EmptyState
+          icon={<Bookmark className="w-6 h-6" strokeWidth={1.75} />}
+          title={t.savedEmptyTitle}
+          description={t.savedEmptyHint}
+          actionLabel={t.savedEmptyAction}
+          onAction={() => navigate('/games')}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h1 className="text-2xl font-semibold tracking-tight mb-4">{t.savedItems}</h1>
+    <div className="max-w-3xl mx-auto space-y-6">
+      {/* Header following standard pattern */}
+      <div>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-text">{t.savedItems}</h1>
+          <span className="px-2.5 py-0.5 rounded-chip bg-accent-subtle text-accent-text text-sm font-bold tabular-nums">
+            {favorites.length}
+          </span>
+        </div>
+        <p className="text-sm text-text-secondary mt-1">
+          {isDe
+            ? 'Alle von dir gespeicherten Spiele, Zitate und Ideen auf einen Blick.'
+            : 'All your bookmarked games, quotes, and project ideas in one place.'}
+        </p>
+      </div>
 
-      <div className="flex flex-wrap gap-2 mb-6" role="group">
-        {(['all', ...nonEmpty] as const).map((g) => (
-          <button
+      {/* Filter Chips */}
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Gemerkt filtern">
+        <Chip
+          selected={active === 'all'}
+          count={favorites.length}
+          onClick={() => setActive('all')}
+        >
+          {isDe ? 'Alle' : 'All'}
+        </Chip>
+        {nonEmpty.map((g) => (
+          <Chip
             key={g}
-            type="button"
-            aria-pressed={active === g}
+            selected={active === g}
+            count={groups[g].length}
             onClick={() => setActive(g)}
-            className={`h-9 px-3 rounded-lg text-sm border transition-colors ${
-              active === g
-                ? 'bg-accent-subtle border-accent text-accent-text font-semibold'
-                : 'border-border text-text-secondary hover:text-text'
-            }`}
           >
-            {g === 'all' ? (language === 'de' ? 'Alle' : 'All') : labels[g]}
-            <span className="ml-1.5 tabular-nums text-text-tertiary">{g === 'all' ? favorites.length : groups[g].length}</span>
-          </button>
+            {labels[g]}
+          </Chip>
         ))}
       </div>
 
+      {/* Grouped lists */}
       <div className="space-y-8">
         {shown.map((g) => (
           <section key={g} aria-label={labels[g]}>
-            <h2 className="text-sm font-semibold text-text-secondary mb-2">{labels[g]}</h2>
-            <ul className="divide-y divide-border border border-border rounded-xl bg-surface">
+            <div className="flex items-center justify-between mb-2.5">
+              <h2 className="text-sm font-bold text-text uppercase tracking-wider">{labels[g]}</h2>
+              <span className="text-xs text-text-tertiary tabular-nums font-semibold">{groups[g].length}</span>
+            </div>
+            <Card variant="list">
               {groups[g].map((row) => (
-                <li key={row.id} className="flex items-center gap-3 pr-2">
-                  <Link to={row.href} className="flex-1 min-w-0 px-4 py-3">
-                    <div className="text-sm font-medium text-text truncate">{row.title}</div>
-                    <div className="text-xs text-text-secondary truncate tabular-nums">{row.meta}</div>
+                <div
+                  key={row.id}
+                  className="flex items-center justify-between p-3.5 sm:p-4 hover:bg-surface-2 transition-colors duration-150 ease-out group"
+                >
+                  <Link to={row.href} className="flex-1 min-w-0 pr-3">
+                    <div className="text-sm font-semibold text-text group-hover:text-accent transition-colors truncate">
+                      {row.title}
+                    </div>
+                    <div className="text-xs text-text-tertiary truncate mt-0.5">
+                      {row.meta}
+                    </div>
                   </Link>
-                  <button
-                    type="button"
-                    onClick={(e) => onToggleFavorite(row.id, e)}
-                    className="w-10 h-10 inline-flex items-center justify-center rounded-lg text-accent-text hover:bg-surface-2"
-                    aria-label={`${t.savedItems}: ${row.title}`}
-                  >
-                    <Bookmark className="w-4 h-4 fill-current" />
-                  </button>
-                </li>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => onToggleFavorite(row.id, e)}
+                      aria-pressed="true"
+                      className="w-10 h-10 inline-flex items-center justify-center rounded-control text-accent hover:bg-surface-2/80 transition-colors duration-150 ease-out"
+                      aria-label={`${t.savedItems} entfernen: ${row.title}`}
+                    >
+                      <Bookmark className="w-5 h-5 fill-current text-accent" strokeWidth={1.75} />
+                    </button>
+                    <Link
+                      to={row.href}
+                      className="w-8 h-8 hidden sm:inline-flex items-center justify-center text-text-tertiary group-hover:text-accent transition-colors"
+                      tabIndex={-1}
+                      aria-hidden="true"
+                    >
+                      <ArrowRight className="w-4 h-4" strokeWidth={1.75} />
+                    </Link>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </Card>
           </section>
         ))}
       </div>
