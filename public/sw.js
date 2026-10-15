@@ -1,8 +1,13 @@
 /* Offline support: cache pages and assets as they are used, serve them when the network is gone. */
-const CACHE = 'jy-hub-v1';
+const CACHE = 'jy-hub-v2';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.add('/')).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches
+      .open(CACHE)
+      .then((c) => c.addAll(['/', '/index.html']).catch(() => c.add('/')))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -16,17 +21,22 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const req = e.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+  const url = new URL(req.url);
+
+  // Never cache or intercept API endpoints or non-GET requests
+  if (req.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) {
+    return;
+  }
 
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put('/', copy));
+          caches.open(CACHE).then((c) => c.put(req, copy));
           return res;
         })
-        .catch(() => caches.match('/')),
+        .catch(() => caches.match(req).then((hit) => hit || caches.match('/'))),
     );
     return;
   }

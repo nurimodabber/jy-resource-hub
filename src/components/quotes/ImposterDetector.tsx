@@ -160,7 +160,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
             <button
               type="button"
               onClick={generateImposter}
-              className="px-4 py-2 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[36px]"
+              className="px-4 py-2 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[44px]"
             >
               {t.nextImposter}
             </button>
@@ -175,7 +175,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
             <button
               type="button"
               onClick={generateImposter}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors border border-border cursor-pointer min-h-[32px]"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors border border-border cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3 h-3" />
               <span>{t.nextImposter}</span>

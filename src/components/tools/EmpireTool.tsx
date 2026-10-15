@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, RotateCcw, Undo2, Shuffle, Crown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCcw, Undo2, Shuffle, Crown, SlidersHorizontal, Maximize2, Minimize2, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Language } from '../../types';
 import { EMPIRE_CATEGORIES_V2 } from '../../data/empireContent';
 import { useLocalState } from '../../hooks/useLocalState';
 import { useWakeLock } from '../../hooks/useWakeLock';
 import { shuffle, normalizeTerm } from '../../utils/random';
-import { NAMES_KEY, parseNames } from '../../utils/groupNames';
-import { tr, Panel, Label, ChoiceChips, primaryBtn, secondaryBtn, chipCls } from './common';
+import { loadPresentNames } from '../../utils/groupNames';
+import { tr, Panel, ChoiceChips, primaryBtn, secondaryBtn, Label } from './common';
+import { GroupManager } from './GroupManager';
+import { Dialog } from '../ui/Dialog';
 
 type Step = 'category' | 'collect' | 'read' | 'play';
 
@@ -27,15 +29,18 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
   const [shyOnly, setShyOnly] = useLocalState<boolean>('jy_empire_shy', false);
   const [history, setHistory] = useLocalState<string[]>('jy_empire_history', []);
   const [cursor, setCursor] = useLocalState<number>('jy_empire_cursor', -1);
-  const [namesText, setNamesText] = useLocalState<string>(NAMES_KEY, '');
+  const [names, setNames] = useState<string[]>(() => loadPresentNames());
   const [termsText, setTermsText] = useLocalState<string>('jy_empire_terms', '');
   const [readOrder, setReadOrder] = useLocalState<string[]>('jy_empire_read', []);
   const [readIdx, setReadIdx] = useLocalState<number>('jy_empire_readidx', 0);
   const [kingdoms, setKingdoms] = useLocalState<Kingdom[]>('jy_empire_kingdoms', []);
   const [moves, setMoves] = useState<Move[]>([]);
   const [guesser, setGuesser] = useState<string>('');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isBeamer, setIsBeamer] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
-  useWakeLock(step !== 'category');
+  useWakeLock(step !== 'category' || isBeamer);
 
   const pool = useMemo(
     () =>
@@ -64,13 +69,14 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
     setHistory(nextHistory);
     setCursor(nextHistory.length - 1);
   };
+
   useEffect(() => {
     if (cursor < 0 && step === 'category') drawCategory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const previousCategory = () => cursor > 0 && setCursor(cursor - 1);
 
-  const names = useMemo(() => parseNames(namesText), [namesText]);
   const terms = useMemo(() => termsText.split('\n').map((s) => s.trim()).filter(Boolean), [termsText]);
   const duplicates = useMemo(() => {
     const map = new Map<string, string[]>();
@@ -100,269 +106,512 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
     if (!g || !tk || g === tk) return;
     setMoves((m) => [...m, { kingdoms, text: `${guesser} → ${target}` }]);
     setKingdoms(kingdoms.filter((k) => k !== tk).map((k) => (k === g ? { ...k, members: [...k.members, ...tk.members] } : k)));
+    // Automatically advance "Wer ist dran" to the guesser or the next eligible king
+    setGuesser(g.king);
   };
+
   const undo = () => {
     const last = moves[moves.length - 1];
     if (!last) return;
     setKingdoms(last.kingdoms);
     setMoves(moves.slice(0, -1));
   };
+
   const resetAll = () => {
-    setStep('category');
-    setTermsText('');
-    setReadOrder([]);
-    setKingdoms([]);
-    setMoves([]);
+    if (window.confirm(L('Möchtest du wirklich eine neue Runde Empire starten?', 'Start a new round of Empire?'))) {
+      setStep('category');
+      setTermsText('');
+      setReadOrder([]);
+      setKingdoms([]);
+      setMoves([]);
+    }
   };
 
   const steps: { id: Step; label: string }[] = [
-    { id: 'category', label: L('Kategorie', 'Category') },
-    { id: 'collect', label: L('Zettel', 'Slips') },
-    { id: 'read', label: L('Vorlesen', 'Read out') },
-    { id: 'play', label: L('Spielen', 'Play') },
+    { id: 'category', label: L('1 Kategorie', '1 Category') },
+    { id: 'collect', label: L('2 Zettel', '2 Slips') },
+    { id: 'read', label: L('3 Vorlesen', '3 Read out') },
+    { id: 'play', label: L('4 Spielen', '4 Play') },
   ];
 
   const winner = kingdoms.length === 1 && names.length > 1 ? kingdoms[0] : null;
 
   return (
-    <div>
-      <ol className="flex gap-1 mb-5 overflow-x-auto" aria-label={L('Ablauf', 'Steps')}>
-        {steps.map((s, i) => (
-          <li key={s.id} className="flex-1 min-w-[72px]">
-            <button
-              type="button"
-              onClick={() => setStep(s.id)}
-              aria-current={step === s.id ? 'step' : undefined}
-              className={`w-full py-2 text-sm border-b-2 transition-colors ${
-                step === s.id ? 'border-accent text-text font-semibold' : 'border-border text-text-secondary hover:text-text'
-              }`}
-            >
-              <span className="tabular-nums mr-1.5 text-text-tertiary">{i + 1}</span>
-              {s.label}
-            </button>
-          </li>
-        ))}
-      </ol>
+    <div className="space-y-5">
+      {/* "So geht's" Expandable Help */}
+      <div className="bg-surface-2 rounded-card border border-border p-4">
+        <button
+          type="button"
+          onClick={() => setShowHelp(!showHelp)}
+          className="w-full flex items-center justify-between text-xs font-semibold text-text cursor-pointer"
+        >
+          <div className="flex items-center gap-2">
+            <HelpCircle className="w-4 h-4 text-accent-text" />
+            <span>{L('So geht’s: Empire Spielbegleiter', 'How it works: Empire')}</span>
+          </div>
+          {showHelp ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+        {showHelp && (
+          <p className="text-xs text-text-secondary mt-2 leading-relaxed">
+            {L(
+              'Alle schreiben geheim einen Begriff zur Kategorie auf einen Zettel. Die Spielleitung liest alle Begriffe vor. Reihum erraten die Jugendlichen, wer welchen Begriff hatte – Richtige Antworten wachsen zu mächtigen Reichen zusammen!',
+              'Everyone secretly writes a term for the category. The host reads all terms twice. Players guess who wrote what – correct guesses merge into growing empires!'
+            )}
+          </p>
+        )}
+      </div>
 
+      {/* Filled Pill Progress Bar */}
+      <nav className="flex gap-2 p-1.5 rounded-card bg-surface-2 border border-border overflow-x-auto no-scrollbar" aria-label={L('Ablauf', 'Steps')}>
+        {steps.map((s) => (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => setStep(s.id)}
+            className={`flex-1 py-2 px-3 rounded-control text-xs font-bold transition-all text-center whitespace-nowrap cursor-pointer ${
+              step === s.id
+                ? 'bg-accent text-accent-contrast shadow-xs'
+                : 'text-text-secondary hover:text-text hover:bg-surface'
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* Step 1: Category Selection */}
       {step === 'category' && (
-        <div className="space-y-5">
-          <Panel className="text-center py-8 sm:py-12">
+        <div className="space-y-4">
+          <Panel className="text-center py-8 sm:py-12 relative space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-2xs font-bold uppercase tracking-wider text-accent-text">
+                {cursor + 1} / {pool.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen(true)}
+                className="px-2.5 py-1.5 rounded-chip bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text flex items-center gap-1 cursor-pointer"
+              >
+                <SlidersHorizontal className="w-3 h-3" />
+                <span>{L('Filter', 'Filters')}</span>
+              </button>
+            </div>
+
             {current ? (
-              <>
-                <p className="text-xs text-text-tertiary mb-3 tabular-nums">
-                  {cursor + 1} / {pool.length}
+              <div className="space-y-3">
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-text tracking-tight max-w-lg mx-auto">
+                  {current.prompt[language]}
+                </h2>
+                <p className="text-xs sm:text-sm text-text-secondary max-w-md mx-auto leading-relaxed">
+                  {current.hint[language]}
                 </p>
-                <h2 className="text-2xl sm:text-4xl font-semibold leading-tight text-text text-balance">{current.prompt[language]}</h2>
-                <p className="text-text-secondary mt-4 max-w-md mx-auto">{current.hint[language]}</p>
-                <p className="text-sm text-text-tertiary mt-5">
-                  {L('Zum Beispiel', 'For example')}: {current.examples[language].join(' · ')}
-                </p>
-              </>
+                <div className="pt-3">
+                  <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary block mb-1">
+                    {L('Beispiele', 'Examples')}:
+                  </span>
+                  <div className="flex flex-wrap justify-center gap-1.5 max-w-md mx-auto">
+                    {current.examples[language].map((ex) => (
+                      <span key={ex} className="px-2.5 py-1 rounded-chip bg-surface-2 text-text font-medium text-xs border border-border">
+                        {ex}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
             ) : (
               <p className="text-text-secondary">{L('Tippe auf „Neue Kategorie“.', 'Tap “New category”.')}</p>
             )}
           </Panel>
+
           <div className="flex gap-2">
-            <button type="button" onClick={previousCategory} disabled={cursor <= 0} className={secondaryBtn} aria-label={L('Vorherige', 'Previous')}>
+            <button
+              type="button"
+              onClick={previousCategory}
+              disabled={cursor <= 0}
+              className={secondaryBtn}
+              aria-label={L('Vorherige', 'Previous')}
+            >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <button type="button" onClick={drawCategory} className={`${primaryBtn} flex-1`} disabled={pool.length === 0}>
+            <button
+              type="button"
+              onClick={drawCategory}
+              className={`${primaryBtn} flex-1`}
+              disabled={pool.length === 0}
+            >
               <Shuffle className="w-4 h-4" />
-              {L('Neue Kategorie', 'New category')}
+              <span>{L('Neue Kategorie ziehen', 'Draw new category')}</span>
             </button>
-            <button type="button" onClick={() => setStep('collect')} disabled={!current} className={secondaryBtn}>
-              {L('Weiter', 'Next')}
+            <button
+              type="button"
+              onClick={() => setStep('collect')}
+              disabled={!current}
+              className={secondaryBtn}
+            >
+              <span>{L('Weiter zu Zetteln', 'Next to slips')}</span>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-          <Panel className="space-y-4">
-            <div>
-              <Label>{L('Stimmung', 'Mood')}</Label>
-              <ChoiceChips
-                value={mood}
-                onChange={setMood}
-                allLabel={L('Alle', 'All')}
-                options={[
-                  { id: 'fun', label: L('Lustig', 'Fun') },
-                  { id: 'thoughtful', label: L('Nachdenklich', 'Thoughtful') },
-                  { id: 'calm', label: L('Ruhig', 'Calm') },
-                ]}
-              />
-            </div>
-            <div>
-              <Label>{L('Alter', 'Age')}</Label>
-              <ChoiceChips
-                value={age}
-                onChange={setAge}
-                allLabel={L('Alle', 'All')}
-                options={[
-                  { id: '11-12', label: '11–12' },
-                  { id: '13-14', label: '13–14' },
-                ]}
-              />
-            </div>
-            <label className="flex items-center gap-2 text-sm text-text min-h-[40px]">
-              <input type="checkbox" checked={shyOnly} onChange={(e) => setShyOnly(e.target.checked)} className="w-4 h-4 accent-[var(--accent)]" />
-              {L('Nur Kategorien, die leicht zu beantworten sind', 'Only categories that are easy to answer')}
-            </label>
-            <p className="text-xs text-text-tertiary tabular-nums">
-              {L(`${pool.length} Kategorien passen. Keine Wiederholung, bis alle durch sind.`, `${pool.length} categories match. No repeats until all are used.`)}
-            </p>
-          </Panel>
         </div>
       )}
 
+      {/* Step 2: Slips & Names */}
       {step === 'collect' && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {current && (
-            <Panel>
-              <p className="text-xs text-text-tertiary">{L('Kategorie', 'Category')}</p>
-              <p className="text-lg font-semibold text-text">{current.prompt[language]}</p>
-            </Panel>
+            <div className="p-4 rounded-card bg-accent-subtle border border-accent/20">
+              <span className="text-2xs font-bold uppercase tracking-wider text-accent-text block mb-0.5">
+                {L('Aktuelle Kategorie', 'Current Category')}
+              </span>
+              <p className="text-base font-bold text-accent-text">{current.prompt[language]}</p>
+            </div>
           )}
-          <Panel className="space-y-4">
-            <div>
-              <Label htmlFor="empire-names">{L('Mitspielende (ein Name pro Zeile oder mit Komma)', 'Players (one name per line or comma-separated)')}</Label>
-              <textarea
-                id="empire-names"
-                rows={4}
-                value={namesText}
-                onChange={(e) => setNamesText(e.target.value)}
-                className="w-full p-3 rounded-xl bg-surface-2 border border-border text-sm"
-                placeholder="Amin, Leyla, Jonas, Maya"
-              />
-              <p className="text-xs text-text-tertiary mt-1 tabular-nums">{L(`${names.length} Personen`, `${names.length} players`)}</p>
+
+          {/* Group Manager for Players */}
+          <GroupManager
+            language={language}
+            onNamesChange={(presentList) => setNames(presentList)}
+          />
+
+          {/* Terms from Slips */}
+          <Panel className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label htmlFor="empire-terms" className="text-xs font-bold text-text">
+                {L('Begriffe von den Zetteln (ein Begriff pro Zeile)', 'Terms from slips (one per line)')}
+              </label>
+              <span className="text-2xs font-bold px-2 py-0.5 rounded-chip bg-surface-2 text-text-tertiary">
+                {terms.length} / {names.length} {L('Zettel', 'slips')}
+              </span>
             </div>
-            <div>
-              <Label htmlFor="empire-terms">{L('Begriffe von den Zetteln (ein Begriff pro Zeile)', 'Terms from the slips (one per line)')}</Label>
-              <textarea
-                id="empire-terms"
-                rows={6}
-                value={termsText}
-                onChange={(e) => setTermsText(e.target.value)}
-                className="w-full p-3 rounded-xl bg-surface-2 border border-border text-sm"
-              />
-              <p className="text-xs text-text-tertiary mt-1 tabular-nums">
-                {L(`${terms.length} Zettel`, `${terms.length} slips`)}
-                {names.length > 0 && ` / ${names.length}`}
-              </p>
-              {duplicates.length > 0 && (
-                <p className="text-sm text-text mt-2 p-3 rounded-xl bg-accent-subtle border border-accent/30">
-                  {L('Doppelt: ', 'Duplicate: ')}
-                  {duplicates.join(', ')}. {L('Bitte eine Person einen neuen Begriff schreiben lassen.', 'Ask one person to write a new term.')}
-                </p>
-              )}
-            </div>
+
+            <textarea
+              id="empire-terms"
+              rows={5}
+              value={termsText}
+              onChange={(e) => setTermsText(e.target.value)}
+              className="w-full p-3 rounded-control bg-surface-2 border border-border text-xs focus:outline-hidden focus:ring-2 focus:ring-accent"
+              placeholder={L('Zettel 1\nZettel 2\nZettel 3...', 'Slip 1\nSlip 2...')}
+            />
+
+            {duplicates.length > 0 && (
+              <div className="p-3 rounded-control bg-amber-500/15 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-200">
+                <strong>{L('Doppelt: ', 'Duplicate: ')}</strong>
+                {duplicates.join(', ')}. {L('Bitte eine Person einen neuen Begriff schreiben lassen.', 'Please ask someone to pick a new term.')}
+              </div>
+            )}
           </Panel>
+
           <div className="flex gap-2">
             <button type="button" onClick={() => setStep('category')} className={secondaryBtn}>
               <ChevronLeft className="w-4 h-4" />
-              {L('Zurück', 'Back')}
+              <span>{L('Zurück', 'Back')}</span>
             </button>
-            <button type="button" onClick={startReading} disabled={terms.length < 2} className={`${primaryBtn} flex-1`}>
-              {L('Vorlesen starten', 'Start reading')}
+            <button
+              type="button"
+              onClick={startReading}
+              disabled={terms.length < 2}
+              className={`${primaryBtn} flex-1`}
+            >
+              <span>{L('Vorlesen starten', 'Start reading out')}</span>
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-xs text-text-tertiary">
-            {L('Tipp: Die Begriffe müssen nicht getippt werden. Du kannst auch einfach die Zettel mischen und selbst vorlesen und direkt zu Schritt 4 springen.', 'Tip: You do not have to type the terms. You can shuffle the slips and read them yourself and jump straight to step 4.')}
-          </p>
         </div>
       )}
 
+      {/* Step 3: Read Out */}
       {step === 'read' && (
-        <div className="space-y-5">
-          <Panel className="text-center py-10 sm:py-16">
-            <p className="text-xs text-text-tertiary tabular-nums mb-3">
+        <div className="space-y-4">
+          <Panel className="text-center py-12 sm:py-16 space-y-4">
+            <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary tabular-nums">
               {readOrder.length ? `${readIdx + 1} / ${readOrder.length}` : ''}
             </p>
-            <p className="text-3xl sm:text-5xl font-semibold text-text text-balance leading-tight">{readOrder[readIdx] ?? L('Keine Begriffe', 'No terms')}</p>
-            <p className="text-sm text-text-tertiary mt-5">{L('Zweimal deutlich vorlesen.', 'Read it out twice, clearly.')}</p>
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-text tracking-tight max-w-lg mx-auto">
+              {readOrder[readIdx] ?? L('Keine Begriffe', 'No terms')}
+            </h2>
+            <p className="text-xs text-text-tertiary">
+              {L('Zweimal deutlich im Kreis vorlesen, damit alle die Begriffe hören.', 'Read clearly twice in the circle.')}
+            </p>
           </Panel>
+
           <div className="flex gap-2">
-            <button type="button" onClick={() => setReadIdx(Math.max(0, readIdx - 1))} disabled={readIdx === 0} className={secondaryBtn} aria-label={L('Zurück', 'Back')}>
+            <button
+              type="button"
+              onClick={() => setReadIdx(Math.max(0, readIdx - 1))}
+              disabled={readIdx === 0}
+              className={secondaryBtn}
+            >
               <ChevronLeft className="w-4 h-4" />
             </button>
             {readIdx < readOrder.length - 1 ? (
-              <button type="button" onClick={() => setReadIdx(readIdx + 1)} className={`${primaryBtn} flex-1`}>
-                {L('Nächster Begriff', 'Next term')}
+              <button
+                type="button"
+                onClick={() => setReadIdx(readIdx + 1)}
+                className={`${primaryBtn} flex-1`}
+              >
+                <span>{L('Nächster Begriff', 'Next term')}</span>
+                <ChevronRight className="w-4 h-4" />
               </button>
             ) : (
-              <button type="button" onClick={startPlay} className={`${primaryBtn} flex-1`}>
-                {L('Zum Spiel', 'To the game')}
+              <button
+                type="button"
+                onClick={startPlay}
+                className={`${primaryBtn} flex-1`}
+              >
+                <span>{L('Zum Spiel übergehen', 'Proceed to game')}</span>
+                <ChevronRight className="w-4 h-4" />
               </button>
             )}
           </div>
-          <button type="button" onClick={() => setReadOrder(shuffle(readOrder))} className="text-sm text-text-secondary underline">
-            {L('Noch einmal mischen', 'Shuffle again')}
-          </button>
         </div>
       )}
 
+      {/* Step 4: Play Stage */}
       {step === 'play' && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {kingdoms.length === 0 ? (
-            <Panel>
-              <p className="text-sm text-text-secondary mb-3">{L('Gib in Schritt 2 die Namen ein, dann kann es losgehen.', 'Enter the names in step 2 to begin.')}</p>
-              <button type="button" onClick={startPlay} disabled={names.length < 2} className={primaryBtn}>
-                {L('Reiche anlegen', 'Create kingdoms')}
+            <Panel className="text-center py-8 space-y-3">
+              <p className="text-xs text-text-secondary">
+                {L('Lege die Reiche an, um mit dem Raten zu beginnen.', 'Create kingdoms to begin playing.')}
+              </p>
+              <button
+                type="button"
+                onClick={startPlay}
+                disabled={names.length < 2}
+                className={primaryBtn}
+              >
+                {L('Reiche initialisieren', 'Initialize kingdoms')} ({names.length} {L('Personen', 'players')})
               </button>
             </Panel>
-          ) : (
-            <>
-              {winner ? (
-                <Panel className="text-center py-8">
-                  <Crown className="w-8 h-8 mx-auto text-accent mb-2" />
-                  <p className="text-xl font-semibold">{L(`${winner.king} hat alle Reiche vereint.`, `${winner.king} has united every kingdom.`)}</p>
-                </Panel>
-              ) : (
-                <Panel>
-                  <Label htmlFor="empire-guesser">{L('Wer ist dran?', 'Whose turn?')}</Label>
-                  <select
-                    id="empire-guesser"
-                    value={guesser}
-                    onChange={(e) => setGuesser(e.target.value)}
-                    className="w-full h-11 px-3 rounded-xl bg-surface-2 border border-border text-sm"
-                  >
-                    {kingdoms.map((k) => (
-                      <option key={k.king} value={k.king}>
-                        {k.king} ({k.members.length})
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-text-secondary mt-3">{L('Wen hat sie oder er erraten? Tippe auf das Reich der erratenen Person.', 'Whom did they guess? Tap that person’s kingdom.')}</p>
-                </Panel>
-              )}
-              <ul className="space-y-2">
-                {kingdoms.map((k) => (
-                  <li key={k.king} className="border border-border rounded-xl bg-surface p-3 flex items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-text truncate">
-                        {k.king}
-                        <span className="ml-2 text-xs font-normal text-text-tertiary tabular-nums">{k.members.length}</span>
-                      </p>
-                      {k.members.length > 1 && <p className="text-xs text-text-secondary truncate">{k.members.slice(1).join(', ')}</p>}
-                    </div>
-                    {!winner && k.king !== guesser && (
-                      <button type="button" onClick={() => guessed(k.king)} className={chipCls(false)}>
-                        {L('erraten', 'guessed')}
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex gap-2">
-                <button type="button" onClick={undo} disabled={moves.length === 0} className={secondaryBtn}>
-                  <Undo2 className="w-4 h-4" />
-                  {L('Rückgängig', 'Undo')}
-                </button>
-                <button type="button" onClick={resetAll} className={secondaryBtn}>
+          ) : winner ? (
+            /* Winner Screen */
+            <Panel className="text-center py-10 space-y-4 bg-accent-subtle border border-accent/30 animate-in zoom-in-95 duration-200">
+              <Crown className="w-12 h-12 mx-auto text-accent-text" />
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-accent-text">
+                {L(`${winner.king} hat das gesamte Empire vereint!`, `${winner.king} has united the entire Empire!`)}
+              </h2>
+              <p className="text-xs text-text-secondary max-w-sm mx-auto">
+                {L(`Alle ${names.length} Mitspielenden gehören nun zu diesem großen Reich.`, `All ${names.length} players now belong to this kingdom.`)}
+              </p>
+              <div className="pt-2">
+                <button type="button" onClick={resetAll} className={primaryBtn}>
                   <RotateCcw className="w-4 h-4" />
-                  {L('Neue Runde', 'New round')}
+                  <span>{L('Neue Runde starten', 'Start new round')}</span>
                 </button>
               </div>
-              {moves.length > 0 && <p className="text-xs text-text-tertiary">{L('Zuletzt', 'Last')}: {moves[moves.length - 1].text}</p>}
+            </Panel>
+          ) : (
+            /* Active Game Round */
+            <>
+              {/* Whose turn banner */}
+              <Panel className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">
+                    {L('Wer ist am Zug?', 'Whose turn?')}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsBeamer(true)}
+                    className="px-2.5 py-1 rounded-chip bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text flex items-center gap-1 cursor-pointer"
+                  >
+                    <Maximize2 className="w-3 h-3" />
+                    <span>{L('Beamer', 'Projector')}</span>
+                  </button>
+                </div>
+
+                <select
+                  value={guesser}
+                  onChange={(e) => setGuesser(e.target.value)}
+                  className="w-full h-11 px-3.5 rounded-control bg-surface-2 border border-border text-sm font-bold text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                >
+                  {kingdoms.map((k) => (
+                    <option key={k.king} value={k.king}>
+                      👑 {k.king} ({k.members.length} {L('Mitglieder', 'members')})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-2xs text-text-secondary">
+                  {L('Tippe unten auf „erraten“, wenn die am Zug befindliche Person das Reich eines Mitspielers erobert hat.', 'Tap "guessed" when the player successfully claims an opponent.')}
+                </p>
+              </Panel>
+
+              {/* Kingdoms List */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {kingdoms.map((k) => {
+                  const isCurrentGuesser = k.king === guesser;
+                  return (
+                    <div
+                      key={k.king}
+                      className={`p-3.5 rounded-card border transition-colors flex items-center justify-between gap-3 ${
+                        isCurrentGuesser
+                          ? 'bg-accent-subtle border-accent/40 shadow-xs'
+                          : 'bg-surface border-border hover:border-accent/20'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <Crown className={`w-3.5 h-3.5 ${isCurrentGuesser ? 'text-accent-text' : 'text-text-tertiary'}`} />
+                          <h4 className="text-sm font-bold text-text truncate">{k.king}</h4>
+                          <span className="text-2xs font-bold px-2 py-0.5 rounded-chip bg-surface-2 text-text-tertiary">
+                            {k.members.length}
+                          </span>
+                        </div>
+                        {k.members.length > 1 && (
+                          <p className="text-2xs text-text-secondary truncate mt-0.5">
+                            {k.members.slice(1).join(', ')}
+                          </p>
+                        )}
+                      </div>
+
+                      {!isCurrentGuesser && (
+                        <button
+                          type="button"
+                          onClick={() => guessed(k.king)}
+                          className="px-3 py-1.5 rounded-control bg-accent text-accent-contrast font-bold text-xs shadow-xs cursor-pointer active:scale-95 transition-transform"
+                        >
+                          {L('Erraten', 'Guessed')}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Bottom Actions */}
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={undo}
+                  disabled={moves.length === 0}
+                  className={`${secondaryBtn} flex-1`}
+                >
+                  <Undo2 className="w-4 h-4" />
+                  <span>{L('Zug rückgängig', 'Undo move')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={resetAll}
+                  className={secondaryBtn}
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>{L('Neue Runde', 'New round')}</span>
+                </button>
+              </div>
+
+              {moves.length > 0 && (
+                <p className="text-2xs text-text-tertiary text-center">
+                  {L('Letzter Zug', 'Last move')}: {moves[moves.length - 1].text}
+                </p>
+              )}
             </>
           )}
+        </div>
+      )}
+
+      {/* Filter Dialog Sheet */}
+      <Dialog
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        title={L('Kategorien filtern', 'Filter Categories')}
+        maxWidth="md"
+      >
+        <div className="space-y-4 pt-2">
+          <div>
+            <Label>{L('Stimmung', 'Mood')}</Label>
+            <ChoiceChips
+              value={mood}
+              onChange={setMood}
+              allLabel={L('Alle', 'All')}
+              options={[
+                { id: 'fun', label: L('Lustig', 'Fun') },
+                { id: 'thoughtful', label: L('Nachdenklich', 'Thoughtful') },
+                { id: 'calm', label: L('Ruhig', 'Calm') },
+              ]}
+            />
+          </div>
+
+          <div>
+            <Label>{L('Altersgruppe', 'Age group')}</Label>
+            <ChoiceChips
+              value={age}
+              onChange={setAge}
+              allLabel={L('Alle', 'All')}
+              options={[
+                { id: '11-12', label: '11–12 Jahre' },
+                { id: '13-14', label: '13–14 Jahre' },
+              ]}
+            />
+          </div>
+
+          <label className="flex items-center gap-2 text-xs text-text min-h-[40px] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={shyOnly}
+              onChange={(e) => setShyOnly(e.target.checked)}
+              className="w-4 h-4 accent-accent rounded-xs"
+            />
+            <span>{L('Nur Kategorien, die besonders leicht zu beantworten sind', 'Only easy-to-answer prompts')}</span>
+          </label>
+
+          <p className="text-2xs text-text-tertiary">
+            {L(`${pool.length} Kategorien passen zu diesen Filtern.`, `${pool.length} categories match.`)}
+          </p>
+        </div>
+      </Dialog>
+
+      {/* Fullscreen Beamer Mode Overlay */}
+      {isBeamer && (
+        <div
+          className="fixed inset-0 z-80 bg-bg text-text p-6 sm:p-10 flex flex-col justify-between safe-top safe-bottom animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="flex items-center justify-between border-b border-border pb-4 shrink-0">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-text tracking-tight">
+                👑 {L('Empire Spielstand', 'Empire Standings')}
+              </h2>
+              <p className="text-xs text-text-secondary mt-0.5">
+                {kingdoms.length} {L('verbleibende Reiche', 'kingdoms remaining')}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsBeamer(false)}
+              className="p-2.5 rounded-control bg-surface-2 hover:bg-surface-raised text-text font-bold text-xs flex items-center gap-1.5 cursor-pointer min-h-[44px]"
+            >
+              <Minimize2 className="w-4 h-4" />
+              <span>{L('Schließen', 'Close')}</span>
+            </button>
+          </div>
+
+          <div className="my-auto max-w-6xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 py-6 overflow-y-auto">
+            {kingdoms.map((k) => (
+              <div
+                key={k.king}
+                className={`p-6 rounded-card border shadow-xs space-y-3 ${
+                  k.king === guesser ? 'bg-accent-subtle border-accent' : 'bg-surface border-border'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-text truncate">{k.king}</h3>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-chip bg-accent text-accent-contrast">
+                    {k.members.length} {L('Köpfe', 'members')}
+                  </span>
+                </div>
+                {k.members.length > 1 && (
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    {k.members.join(' · ')}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center text-xs text-text-tertiary shrink-0 border-t border-border pt-4">
+            {L('Bildschirm bleibt an (Wake Lock aktiv)', 'Screen kept awake (Wake Lock active)')}
+          </div>
         </div>
       )}
     </div>

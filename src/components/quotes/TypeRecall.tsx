@@ -243,7 +243,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
             <button
               type="button"
               onClick={resetPractice}
-              className="px-3.5 py-1.5 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[36px]"
+              className="px-3.5 py-1.5 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5 inline mr-1" />
               <span>{language === 'de' ? 'Noch einmal' : 'Repeat'}</span>
@@ -270,7 +270,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
               type="button"
               onClick={handleHint}
               disabled={isCompleted}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[44px]"
             >
               <HelpCircle className="w-3.5 h-3.5 text-accent-text" />
               <span>{language === 'de' ? 'Buchstabe aufdecken' : 'Reveal letter'}</span>
@@ -279,7 +279,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
             <button
               type="button"
               onClick={resetPractice}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>{language === 'de' ? 'Neu starten' : 'Restart'}</span>

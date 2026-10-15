@@ -3,15 +3,14 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import { Navbar } from './components/Navbar';
 import { BottomTabBar } from './components/BottomTabBar';
 import { LeftNavigationRail } from './components/LeftNavigationRail';
-import { MoreSheet } from './components/MoreSheet';
+import { SettingsSheet } from './components/SettingsSheet';
 import { CommandPalette } from './components/CommandPalette';
 import { BahaiSongsModal } from './components/BahaiSongsModal';
 import { DocumentHead } from './components/DocumentHead';
 import { ToastProvider } from './context/ToastContext';
 import { PlannerProvider } from './context/PlannerContext';
-import { Language, NavTab, SessionSlot,  } from './types';
+import { Language, NavTab, SessionSlot } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
-import { Loader2 } from 'lucide-react';
 
 // Lazy-loaded routes for code-splitting
 const HomeView = lazy(() => import('./components/HomeView').then(m => ({ default: m.HomeView })));
@@ -24,13 +23,18 @@ const ImpressumView = lazy(() => import('./components/ImpressumView').then(m => 
 const DatenschutzView = lazy(() => import('./components/DatenschutzView').then(m => ({ default: m.DatenschutzView })));
 const SavedView = lazy(() => import('./components/SavedView').then(m => ({ default: m.SavedView })));
 const NotFoundView = lazy(() => import('./components/NotFoundView').then(m => ({ default: m.NotFoundView })));
+const GalleryView = lazy(() => import('./components/ui/Gallery').then(m => ({ default: m.Gallery })));
+const ProposalView = lazy(() => import('./components/ProposalView').then(m => ({ default: m.ProposalView })));
 
 const RouteLoading: React.FC = () => (
-  <div className="flex items-center justify-center py-24 min-h-[300px]" role="status" aria-label="Loading">
-    <div className="flex flex-col items-center gap-3 text-text-secondary text-sm">
-      <Loader2 className="w-6 h-6 animate-spin text-accent" />
-      <span>Wird geladen...</span>
+  <div className="max-w-4xl mx-auto py-8 space-y-6 animate-pulse" role="status" aria-label="Laden">
+    <div className="h-8 bg-surface-2 rounded-control w-1/3" />
+    <div className="h-4 bg-surface-2 rounded-control w-2/3" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+      <div className="h-28 bg-surface-2 rounded-card" />
+      <div className="h-28 bg-surface-2 rounded-card" />
     </div>
+    <div className="h-44 bg-surface-2 rounded-card mt-6" />
   </div>
 );
 
@@ -55,7 +59,7 @@ export const AppContent: React.FC = () => {
     if (root === 'home' || root === '') return 'home';
     if (root === 'games') return 'games';
     if (root === 'quotes') return 'quotes';
-    if (root === 'planner') return 'planner';
+    if (root === 'planner' || root === 'treffen') return 'planner';
     if (root === 'service-arts') return 'service-arts';
     if (root === 'tools') return 'tools';
     if (root === 'saved') return 'saved';
@@ -64,10 +68,15 @@ export const AppContent: React.FC = () => {
     return 'home';
   }, [location.pathname]);
 
+  const isDetailPage =
+    (location.pathname.startsWith('/games/') && location.pathname !== '/games') ||
+    (location.pathname.startsWith('/service-arts/') && location.pathname !== '/service-arts') ||
+    (location.pathname.startsWith('/quotes/') && location.pathname !== '/quotes');
+
   const searchQuery = '';
   const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [isMoreSheetOpen, setIsMoreSheetOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [slotToAddToPlanner, setSlotToAddToPlanner] = useState<SessionSlot | null>(null);
 
   // Persistent language
@@ -109,6 +118,8 @@ export const AppContent: React.FC = () => {
     setShowOnlyFavorites(false);
     if (tab === 'home') {
       navigate('/');
+    } else if (tab === 'planner') {
+      navigate('/treffen');
     } else {
       navigate(`/${tab}`);
     }
@@ -117,12 +128,23 @@ export const AppContent: React.FC = () => {
 
   const handleAddToPlanner = (slot: SessionSlot) => {
     setSlotToAddToPlanner(slot);
-    navigate('/planner');
+    navigate('/treffen');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Shift focus to H1 after route change for screen readers
+  useEffect(() => {
+    const h1 = document.querySelector('h1');
+    if (h1) {
+      if (!h1.hasAttribute('tabindex')) {
+        h1.setAttribute('tabindex', '-1');
+      }
+      h1.focus({ preventScroll: true });
+    }
+  }, [location.pathname]);
+
   const handleCommandPaletteNavigate = (
-    type: 'game' | 'quote' | 'method' | 'service' | 'art' | 'song' | 'tool', 
+    type: 'game' | 'quote' | 'method' | 'service' | 'art' | 'song' | 'tool' | 'page', 
     id: string
   ) => {
     switch (type) {
@@ -137,13 +159,20 @@ export const AppContent: React.FC = () => {
         break;
       case 'service':
       case 'art':
-        navigate('/service-arts');
+        navigate(`/service-arts/${id}`);
         break;
       case 'song':
         setIsBahaiSongsOpen(true);
         break;
       case 'tool':
-        navigate('/tools');
+        navigate(`/tools/${id}`);
+        break;
+      case 'page':
+        if (id === 'settings') {
+          setIsSettingsOpen(true);
+        } else {
+          navigate(id === 'home' ? '/' : `/${id}`);
+        }
         break;
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -162,14 +191,13 @@ export const AppContent: React.FC = () => {
         language={language}
         favoriteCount={favorites.length}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-        onOpenMore={() => setIsMoreSheetOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       {/* Phone Landscape Slim Left Rail */}
       <LeftNavigationRail
         activeTab={activeTab}
         onSelectTab={handleTabChange}
-        onOpenMore={() => setIsMoreSheetOpen(true)}
         language={language}
       />
 
@@ -230,7 +258,7 @@ export const AppContent: React.FC = () => {
             />
 
             <Route
-              path="/planner"
+              path="/treffen"
               element={
                 <SessionBuilder
                   language={language}
@@ -241,6 +269,10 @@ export const AppContent: React.FC = () => {
                 />
               }
             />
+            <Route
+              path="/planner"
+              element={<Navigate to="/treffen" replace />}
+            />
 
             <Route
               path="/service-arts"
@@ -248,6 +280,8 @@ export const AppContent: React.FC = () => {
                 <ServiceArtsView
                   language={language}
                   searchQuery={searchQuery}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
                   onAddToPlanner={handleAddToPlanner}
                 />
               }
@@ -258,6 +292,8 @@ export const AppContent: React.FC = () => {
                 <ServiceArtsView
                   language={language}
                   searchQuery={searchQuery}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
                   onAddToPlanner={handleAddToPlanner}
                 />
               }
@@ -292,6 +328,13 @@ export const AppContent: React.FC = () => {
               }
             />
 
+            <Route
+              path="/vorschlagen"
+              element={<ProposalView language={language} />}
+            />
+
+            <Route path="/_design" element={<GalleryView />} />
+
             {/* Real 404 Route */}
             <Route path="*" element={<NotFoundView language={language} />} />
           </Routes>
@@ -299,23 +342,21 @@ export const AppContent: React.FC = () => {
       </main>
 
       {/* Mobile Portrait Bottom Tab Bar */}
-      <BottomTabBar
-        activeTab={activeTab}
-        onSelectTab={handleTabChange}
-        onOpenMore={() => setIsMoreSheetOpen(true)}
-        language={language}
-      />
+      {!isDetailPage && (
+        <BottomTabBar
+          activeTab={activeTab}
+          onSelectTab={handleTabChange}
+          language={language}
+        />
+      )}
 
-      {/* More Sheet for Mobile (Tools, Service & Arts, Songs, Legal, Settings) */}
-      <MoreSheet
-        isOpen={isMoreSheetOpen}
-        onClose={() => setIsMoreSheetOpen(false)}
-        activeTab={activeTab}
-        onSelectTab={handleTabChange}
-        onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
-        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+      {/* Settings Sheet (Appearance, Language, Group, Backup, Offline) */}
+      <SettingsSheet
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
         language={language}
         setLanguage={setLanguage}
+        onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
       />
 
       {/* Global Command Palette (⌘K) */}
@@ -324,18 +365,25 @@ export const AppContent: React.FC = () => {
         onClose={() => setIsCommandPaletteOpen(false)}
         language={language}
         onNavigate={handleCommandPaletteNavigate}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      <footer className="border-t border-border mt-10 py-6 text-xs text-text-secondary print:hidden safe-bottom mb-16 lg:mb-0">
+      <footer className="border-t border-border mt-12 py-6 text-xs text-text-secondary print:hidden safe-bottom mb-20 lg:mb-0">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <p className="text-text-tertiary">{t.footerNote}</p>
-          <div className="flex items-center gap-4">
-            <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text transition-colors">
               {t.impressumTitle}
             </button>
-            <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text">
+            <span>·</span>
+            <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text transition-colors">
               {t.datenschutzTitle}
             </button>
+            <span>·</span>
+            <button type="button" onClick={() => navigate('/vorschlagen')} className="hover:text-text transition-colors">
+              {t.settingsSubmitProposal}
+            </button>
+            <span>·</span>
             <span className="text-text-tertiary">© 2026 {t.siteTitle}</span>
           </div>
         </div>

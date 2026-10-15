@@ -141,10 +141,22 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
           </p>
         </section>
 
+        {/* Vorschläge einreichen (GitHub Issues) */}
+        <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
+          <h2 className="text-base font-semibold text-text">
+            {language === 'de' ? '6. Vorschläge einreichen (GitHub Issues)' : '6. Submitting Proposals (GitHub Issues)'}
+          </h2>
+          <p>
+            {language === 'de'
+              ? 'Wenn du über das Formular „Vorschlag einreichen“ ein Spiel oder Projekt einsendest, werden die von dir eingegebenen Inhaltsdaten (Titel, Ablauf, Material usw.) sowie optional dein Name oder deine E-Mail-Adresse über eine serverlose Funktion als öffentliches GitHub-Issue im Projekt-Repository (GitHub Inc., San Francisco, CA, USA) angelegt. Name und E-Mail-Adresse sind vollkommen freiwillig und dienen ausschließlich eventuellen Rückfragen. Du kannst jederzeit die Berichtigung oder Löschung eines eingereichten Vorschlags verlangen (Art. 17 DSGVO).'
+              : 'When you submit a game or project proposal, the content fields (title, steps, materials, etc.) along with your optional name or email address are processed via a serverless function and posted as a public GitHub Issue in the project repository (GitHub Inc., San Francisco, CA, USA). Name and email are completely voluntary and used solely for clarifying questions. You can request rectification or deletion of any submitted proposal at any time (Art. 17 GDPR).'}
+          </p>
+        </section>
+
         {/* Betroffenenrechte */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {language === 'de' ? '6. Deine Rechte' : '6. Your Rights'}
+            {language === 'de' ? '7. Deine Rechte' : '7. Your Rights'}
           </h2>
           <p>
             {language === 'de'

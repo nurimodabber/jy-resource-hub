@@ -14,11 +14,15 @@ export interface LocalizedArray {
   en: string[];
 }
 
+export type GamePurpose = 'kennenlernen' | 'energie' | 'zusammenarbeit' | 'ruhe' | 'raten';
+
 export interface Game {
   id: string;
   title: LocalizedString;
+  subtitle?: LocalizedString;
   category: GameCategory;
   energyLevel: EnergyLevel;
+  purpose: GamePurpose;
   groupSize: {
     min: number;
     max: number;
@@ -26,12 +30,16 @@ export interface Game {
   prepLevel: PrepLevel;
   materials: LocalizedArray;
   durationMinutes: string;
+  durationMin: number;
+  durationMax: number;
   space: LocalizedString;
   summary: LocalizedString;
   idea: LocalizedString;
   rules: LocalizedArray;
   animatorTips: LocalizedArray;
   isFavoriteDefault?: boolean;
+  status?: 'draft';
+  submittedBy?: string;
 }
 
 export type QuotePhase = 1 | 2 | 3;
@@ -151,34 +159,64 @@ export type ServiceProjectCategory =
 
 export type ServiceProjectScope = 'quick' | 'medium' | 'deep';
 
+export type ActivityKind = 'dienst' | 'kunst';
+export type ActivitySetting = 'drinnen' | 'draussen' | 'beides';
+export type ActivityOccasion = 'treffen' | 'camp' | 'beides';
+
 export interface ServiceProject {
   id: string;
+  kind: 'dienst';
   title: LocalizedString;
   category: ServiceProjectCategory;
   scope: ServiceProjectScope;
   duration: LocalizedString;
+  durationMin: number;
+  durationMax: number;
+  groupSize: {
+    min: number;
+    max: number;
+  };
+  setting: ActivitySetting;
+  occasion: ActivityOccasion;
   materials: LocalizedArray;
   objective: LocalizedString;
   steps: LocalizedArray;
   reflectionQuestions: LocalizedArray;
   animatorTips: LocalizedArray;
+  status?: 'draft';
+  submittedBy?: string;
 }
 
 export type ArtForm = 'drama' | 'music_poetry' | 'visual_arts' | 'collaborative_mural';
 
 export interface ArtsPrompt {
   id: string;
+  kind: 'kunst';
   title: LocalizedString;
   book: LocalizedString;
   artForm: ArtForm;
   theme: LocalizedString;
   description: LocalizedString;
+  durationMin: number;
+  durationMax: number;
+  duration: LocalizedString;
+  groupSize: {
+    min: number;
+    max: number;
+  };
+  setting: ActivitySetting;
+  occasion: ActivityOccasion;
   materials: LocalizedArray;
   guidingSteps: LocalizedArray;
   reflectionPrompts: LocalizedArray;
+  animatorTips?: LocalizedArray;
+  status?: 'draft';
+  submittedBy?: string;
 }
 
-export type SessionSlotType = 'warmup' | 'devotional' | 'study' | 'arts_discussion' | 'service' | 'closing';
+export type ActivityItem = ServiceProject | ArtsPrompt;
+
+export type SessionSlotType = 'warmup' | 'devotional' | 'study' | 'arts_discussion' | 'service' | 'closing' | 'custom';
 
 export interface SessionSlot {
   id: string;
@@ -206,5 +244,8 @@ export interface SessionPlan {
   createdAt: number;
   updatedAt: number;
   slots: SessionSlot[];
+  startTime?: string;
+  targetDurationMinutes?: number;
+  date?: string;
 }
 

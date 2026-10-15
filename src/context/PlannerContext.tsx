@@ -6,26 +6,58 @@ interface PlannerContextType {
   activePlan: SessionPlan | null;
   activePlanId: string | null;
   setActivePlanId: (id: string) => void;
-  createNewPlan: (name?: string, slots?: SessionSlot[]) => SessionPlan;
+  createNewPlan: (name?: string, slots?: SessionSlot[], targetDuration?: number, startTime?: string) => SessionPlan;
   deletePlan: (id: string) => void;
   renamePlan: (id: string, name: string) => void;
+  updatePlanMeta: (id: string, meta: { name?: string; startTime?: string; targetDurationMinutes?: number }) => void;
   duplicatePlan: (id: string) => SessionPlan;
   addSlotToPlan: (slotData: Omit<SessionSlot, 'id'>, planId?: string) => { slotId: string; planId: string; undo: () => void };
   updateSlot: (slotId: string, updates: Partial<SessionSlot>) => void;
   removeSlot: (slotId: string) => { restoredSlot: SessionSlot; undo: () => void };
   reorderSlots: (startIndex: number, endIndex: number) => void;
+  duplicateSlot: (slotId: string) => void;
   clearActivePlan: () => { previousSlots: SessionSlot[]; undo: () => void };
-  loadPresetIntoPlan: (slots: SessionSlot[], presetName: string) => void;
+  loadPresetIntoPlan: (slots: SessionSlot[], presetName: string, targetDuration?: number) => void;
 }
 
 const PlannerContext = createContext<PlannerContextType | undefined>(undefined);
 
 const STORAGE_PLANS_KEY = 'jy_plans';
 const STORAGE_ACTIVE_PLAN_KEY = 'jy_active_plan_id';
+const LEGACY_STORAGE_KEY = 'jy_modular_session_plan';
+const MIGRATION_BACKUP_KEY = 'jy_migration_backup';
 
 export const PlannerProvider: React.FC<{ children: React.ReactNode; language: Language }> = ({ children, language }) => {
   const [plans, setPlans] = useState<SessionPlan[]>(() => {
     try {
+      // 1. One-time migration of legacy jy_modular_session_plan into jy_plans
+      const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (legacyRaw) {
+        localStorage.setItem(MIGRATION_BACKUP_KEY, legacyRaw);
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
+        try {
+          const legacySlots = JSON.parse(legacyRaw);
+          if (Array.isArray(legacySlots) && legacySlots.length > 0) {
+            const migratedPlan: SessionPlan = {
+              id: 'plan-migrated-' + Date.now(),
+              name: language === 'de' ? 'Importiertes Treffen' : 'Imported Gathering',
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+              slots: legacySlots,
+              startTime: '17:00',
+              targetDurationMinutes: 75,
+            };
+            const saved = localStorage.getItem(STORAGE_PLANS_KEY);
+            const existingPlans = saved ? JSON.parse(saved) : [];
+            const combined = [migratedPlan, ...(Array.isArray(existingPlans) ? existingPlans : [])];
+            localStorage.setItem(STORAGE_PLANS_KEY, JSON.stringify(combined));
+            return combined;
+          }
+        } catch {
+          // ignore parsing error
+        }
+      }
+
       const saved = localStorage.getItem(STORAGE_PLANS_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -72,21 +104,29 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode; language: La
     setActivePlanIdState(id);
   }, []);
 
-  const createNewPlan = useCallback((name?: string, initialSlots: SessionSlot[] = []): SessionPlan => {
+  const createNewPlan = useCallback((name?: string, initialSlots: SessionSlot[] = [], targetDuration = 75, startTime = '17:00'): SessionPlan => {
     const id = 'plan-' + Date.now();
-    const defaultName = name || (language === 'de' ? `Ablauf ${plans.length + 1}` : `Session Plan ${plans.length + 1}`);
+    const defaultName = name || (language === 'de' ? `Treffen ${plans.length + 1}` : `Gathering ${plans.length + 1}`);
     const newPlan: SessionPlan = {
       id,
       name: defaultName,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       slots: initialSlots,
+      targetDurationMinutes: targetDuration,
+      startTime,
     };
 
     setPlans((prev) => [newPlan, ...prev]);
     setActivePlanIdState(id);
     return newPlan;
   }, [language, plans.length]);
+
+  const updatePlanMeta = useCallback((id: string, meta: { name?: string; startTime?: string; targetDurationMinutes?: number }) => {
+    setPlans((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...meta, updatedAt: Date.now() } : p))
+    );
+  }, []);
 
   const deletePlan = useCallback((id: string) => {
     setPlans((prev) => {
@@ -285,18 +325,69 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode; language: La
     return { previousSlots, undo };
   }, [activePlan]);
 
-  const loadPresetIntoPlan = useCallback((slots: SessionSlot[], presetName: string) => {
-    const id = 'plan-' + Date.now();
-    const newPlan: SessionPlan = {
-      id,
-      name: presetName,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      slots: JSON.parse(JSON.stringify(slots)),
-    };
-    setPlans((prev) => [newPlan, ...prev]);
-    setActivePlanIdState(id);
+  const duplicateSlot = useCallback((slotId: string) => {
+    setPlans((prev) =>
+      prev.map((plan) => {
+        const idx = plan.slots.findIndex((s) => s.id === slotId);
+        if (idx !== -1) {
+          const original = plan.slots[idx];
+          const copy: SessionSlot = {
+            ...JSON.parse(JSON.stringify(original)),
+            id: 'slot-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+            title: {
+              de: `${original.title.de} (Kopie)`,
+              en: `${original.title.en} (Copy)`,
+            },
+          };
+          const updatedSlots = [...plan.slots];
+          updatedSlots.splice(idx + 1, 0, copy);
+          return {
+            ...plan,
+            updatedAt: Date.now(),
+            slots: updatedSlots,
+          };
+        }
+        return plan;
+      })
+    );
   }, []);
+
+  const loadPresetIntoPlan = useCallback((slots: SessionSlot[], presetName: string, targetDuration = 75, startTime = '17:00') => {
+    const preparedSlots: SessionSlot[] = slots.map((s, idx) => ({
+      ...s,
+      id: s.id || `slot-preset-${Date.now()}-${idx}`,
+    }));
+
+    setPlans((prev) => {
+      const active = prev.find((p) => p.id === activePlanId);
+      if (active && active.slots.length === 0) {
+        return prev.map((p) =>
+          p.id === activePlanId
+            ? {
+                ...p,
+                name: presetName,
+                slots: preparedSlots,
+                targetDurationMinutes: targetDuration,
+                startTime: startTime || p.startTime || '17:00',
+                updatedAt: Date.now(),
+              }
+            : p
+        );
+      }
+      const id = 'plan-' + Date.now();
+      const newPlan: SessionPlan = {
+        id,
+        name: presetName,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        slots: preparedSlots,
+        targetDurationMinutes: targetDuration,
+        startTime: startTime || '17:00',
+      };
+      setActivePlanIdState(id);
+      return [newPlan, ...prev];
+    });
+  }, [activePlanId]);
 
   return (
     <PlannerContext.Provider
@@ -308,11 +399,13 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode; language: La
         createNewPlan,
         deletePlan,
         renamePlan,
+        updatePlanMeta,
         duplicatePlan,
         addSlotToPlan,
         updateSlot,
         removeSlot,
         reorderSlots,
+        duplicateSlot,
         clearActivePlan,
         loadPresetIntoPlan,
       }}

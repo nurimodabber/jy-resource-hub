@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint src",
     "check": "tsc --noEmit && eslint src",
+    "contrast": "node scripts/check-contrast.mjs",
     "test:e2e": "node tests/e2e.spec.mjs"
   },
   "dependencies": {

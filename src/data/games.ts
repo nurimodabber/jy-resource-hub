@@ -11,6 +11,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Der menschliche Knoten',
       en: 'Human Knot'
     },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'medium',
     groupSize: { min: 6, max: 16 },
@@ -20,6 +21,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '10–20 Min',
+    durationMin: 10,
+    durationMax: 20,
     space: {
       de: 'Freie Stehfläche',
       en: 'Open standing area'
@@ -64,9 +67,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'gemeinsam-zaehlen',
     title: {
-      de: 'Gemeinsam Zählen (The Mind)',
-      en: 'Silent Counting (The Mind)'
+      de: 'Gemeinsam Zählen',
+      en: 'Silent Counting'
     },
+    subtitle: {
+      de: 'The Mind',
+      en: 'The Mind'
+    },
+    purpose: 'ruhe',
     category: 'cooperative',
     energyLevel: 'calm',
     groupSize: { min: 6, max: 25 },
@@ -76,6 +84,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
     space: {
       de: 'Ruhiger Sitzkreis',
       en: 'Quiet seated circle'
@@ -121,9 +131,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'minenfeld',
     title: {
-      de: 'Das Minenfeld (Blindes Führen)',
+      de: 'Das Minenfeld',
       en: 'The Minefield'
     },
+    subtitle: {
+      de: 'Blindes Führen',
+      en: 'Blind Guidance'
+    },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'medium',
     groupSize: { min: 6, max: 24 },
@@ -133,6 +148,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Blindfolds', 'Obstacles (bottles, cones, cushions, balls)']
     },
     durationMinutes: '15–25 Min',
+    durationMin: 15,
+    durationMax: 25,
     space: {
       de: 'Größerer Raum oder Rasenfläche',
       en: 'Large room or lawn'
@@ -180,6 +197,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Die Ein-Wort-Geschichte',
       en: 'One-Word Story'
     },
+    purpose: 'kennenlernen',
     category: 'cooperative',
     energyLevel: 'calm',
     groupSize: { min: 4, max: 20 },
@@ -189,6 +207,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
     space: {
       de: 'Sitzkreis',
       en: 'Seated circle'
@@ -231,9 +251,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'helium-stick',
     title: {
-      de: 'Helium Stick (Die schwebende Stange)',
+      de: 'Helium Stick',
       en: 'Helium Stick'
     },
+    subtitle: {
+      de: 'Die schwebende Stange',
+      en: 'Floating Rod'
+    },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'calm',
     groupSize: { min: 8, max: 16 },
@@ -243,6 +268,8 @@ export const GAMES_DATA: Game[] = [
       en: ['A very light thin pole or bamboo stick']
     },
     durationMinutes: '15–25 Min',
+    durationMin: 15,
+    durationMax: 25,
     space: {
       de: 'Ausreichend Stehfläche',
       en: 'Enough room for two parallel standing lines'
@@ -288,9 +315,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'stand-up-ruecken',
     title: {
-      de: 'Stand Up (Rücken an Rücken aufstehen)',
+      de: 'Stand Up',
       en: 'Back-to-Back Stand Up'
     },
+    subtitle: {
+      de: 'Rücken an Rücken aufstehen',
+      en: 'Stand up back to back'
+    },
+    purpose: 'energie',
     category: 'cooperative',
     energyLevel: 'high',
     groupSize: { min: 2, max: 40 },
@@ -300,6 +332,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
     space: {
       de: 'Ebener Boden mit Bewegungsfreiheit',
       en: 'Flat ground with open space'
@@ -347,6 +381,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Die stumme Reihe',
       en: 'The Silent Lineup'
     },
+    purpose: 'kennenlernen',
     category: 'cooperative',
     energyLevel: 'calm',
     groupSize: { min: 6, max: 35 },
@@ -356,6 +391,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
     space: {
       de: 'Ausreichend Raumlänge',
       en: 'Room length for a single file line'
@@ -398,9 +435,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'eisschollen-rettung',
     title: {
-      de: 'Eisschollen-Rettung (Flussüberquerung)',
+      de: 'Eisschollen-Rettung',
       en: 'Ice Flow Crossing'
     },
+    subtitle: {
+      de: 'Flussüberquerung',
+      en: 'River Crossing'
+    },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'high',
     groupSize: { min: 6, max: 20 },
@@ -410,6 +452,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Sheets of paper, carpet tiles, or mats (fewer tiles than people)']
     },
     durationMinutes: '15–20 Min',
+    durationMin: 15,
+    durationMax: 20,
     space: {
       de: 'Raum mit 8–10 Metern Länge',
       en: 'Room or lawn 8–10 meters wide'
@@ -454,9 +498,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'lebender-balltransport',
     title: {
-      de: 'Pipelines (Der lebende Balltransport)',
+      de: 'Pipelines',
       en: 'Pipelines'
     },
+    subtitle: {
+      de: 'Der lebende Balltransport',
+      en: 'Living Ball Transport'
+    },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'high',
     groupSize: { min: 8, max: 25 },
@@ -466,6 +515,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Half-pipe tubes or folded cardstock', 'A ping pong or golf ball', 'Target cup']
     },
     durationMinutes: '15–25 Min',
+    durationMin: 15,
+    durationMax: 25,
     space: {
       de: 'Flur, Saal oder Wiese',
       en: 'Long hallway, hall, or lawn'
@@ -513,6 +564,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Das blinde Quadrat',
       en: 'The Blind Square'
     },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'calm',
     groupSize: { min: 6, max: 18 },
@@ -522,6 +574,8 @@ export const GAMES_DATA: Game[] = [
       en: ['A long knotted rope (10–15 meters)', 'Blindfolds for all']
     },
     durationMinutes: '15–25 Min',
+    durationMin: 15,
+    durationMax: 25,
     space: {
       de: 'Freie Raumfläche',
       en: 'Open floor space'
@@ -566,9 +620,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'decke-wenden',
     title: {
-      de: 'Decke wenden (Der fliegende Teppich)',
+      de: 'Decke wenden',
       en: 'Turn the Tarp'
     },
+    subtitle: {
+      de: 'Der fliegende Teppich',
+      en: 'Flying Carpet'
+    },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'medium',
     groupSize: { min: 6, max: 16 },
@@ -578,6 +637,8 @@ export const GAMES_DATA: Game[] = [
       en: ['A blanket, tarp, or large sheet']
     },
     durationMinutes: '12–20 Min',
+    durationMin: 12,
+    durationMax: 20,
     space: {
       de: 'Fester Boden',
       en: 'Solid flat floor'
@@ -622,9 +683,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: '100-schlaege-ball',
     title: {
-      de: '100-Schläge-Ball (Ball in der Luft)',
-      en: 'Keep It Up (100 Hits)'
+      de: '100-Schläge-Ball',
+      en: 'Keep It Up'
     },
+    subtitle: {
+      de: 'Ball in der Luft',
+      en: '100 Hits'
+    },
+    purpose: 'energie',
     category: 'cooperative',
     energyLevel: 'high',
     groupSize: { min: 6, max: 30 },
@@ -634,6 +700,8 @@ export const GAMES_DATA: Game[] = [
       en: ['A light foam ball, volleyball, or balloon']
     },
     durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
     space: {
       de: 'Freie Raumhöhe',
       en: 'Room with open ceiling or lawn'
@@ -681,6 +749,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Blindes Sortieren nach Zahlen',
       en: 'Blind Number Sequence'
     },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'medium',
     groupSize: { min: 8, max: 25 },
@@ -690,6 +759,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Slips with numbers (e.g. 1–100, non-consecutive)', 'Tape']
     },
     durationMinutes: '12–18 Min',
+    durationMin: 12,
+    durationMax: 18,
     space: {
       de: 'Freie Raumfläche',
       en: 'Open floor space'
@@ -737,6 +808,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Der elektrische Zaun',
       en: 'The Electric Fence'
     },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'medium',
     groupSize: { min: 8, max: 18 },
@@ -746,6 +818,8 @@ export const GAMES_DATA: Game[] = [
       en: ['A rope or ribbon tensioned at 1.0 to 1.2 meters height']
     },
     durationMinutes: '20–30 Min',
+    durationMin: 20,
+    durationMax: 30,
     space: {
       de: 'Draußen / Turnhalle',
       en: 'Outdoor lawn or gymnasium'
@@ -788,9 +862,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'saeuresee',
     title: {
-      de: 'Der Säuresee (Schwebender Transport)',
-      en: 'The Acid River (Suspended Transport)'
+      de: 'Der Säuresee',
+      en: 'The Acid River'
     },
+    subtitle: {
+      de: 'Schwebender Transport',
+      en: 'Suspended Transport'
+    },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'calm',
     groupSize: { min: 6, max: 16 },
@@ -800,6 +879,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Long ropes or strings', 'A cup of water or wooden block', 'Rope/chalk boundary']
     },
     durationMinutes: '20–30 Min',
+    durationMin: 20,
+    durationMax: 30,
     space: {
       de: 'Freie Bodenfläche (min. 5x5 Meter)',
       en: 'Floor area (at least 5x5 meters)'
@@ -845,9 +926,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'stille-matrix',
     title: {
-      de: 'Die stille Matrix (Das unsichtbare Labyrinth)',
-      en: 'The Silent Matrix (Invisible Maze)'
+      de: 'Die stille Matrix',
+      en: 'The Silent Matrix'
     },
+    subtitle: {
+      de: 'Das unsichtbare Labyrinth',
+      en: 'Invisible Maze'
+    },
+    purpose: 'ruhe',
     category: 'cooperative',
     energyLevel: 'calm',
     groupSize: { min: 6, max: 20 },
@@ -857,6 +943,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Chalk or ropes for a 4x4 floor grid', 'Secret path map for the facilitator']
     },
     durationMinutes: '20–30 Min',
+    durationMin: 20,
+    durationMax: 30,
     space: {
       de: 'Freie Bodenfläche',
       en: 'Open floor space'
@@ -904,6 +992,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Die schrumpfende Insel',
       en: 'The Shrinking Island'
     },
+    purpose: 'zusammenarbeit',
     category: 'cooperative',
     energyLevel: 'medium',
     groupSize: { min: 6, max: 20 },
@@ -913,6 +1002,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Tarp, ropes, or chalk boundary']
     },
     durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
     space: {
       de: 'Bodenfläche',
       en: 'Floor area'
@@ -963,6 +1054,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Schnick-Schnack-Schnuck Evolution',
       en: 'Rock Paper Scissors Evolution'
     },
+    purpose: 'energie',
     category: 'energizer',
     energyLevel: 'high',
     groupSize: { min: 8, max: 60 },
@@ -972,6 +1064,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '5–10 Min',
+    durationMin: 5,
+    durationMax: 10,
     space: {
       de: 'Freie Fläche (drinnen oder draußen)',
       en: 'Open space (indoor or outdoor)'
@@ -1017,9 +1111,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'impuls-kreis',
     title: {
-      de: 'Der Impuls-Kreis (Synchron-Klatschen)',
+      de: 'Der Impuls-Kreis',
       en: 'Synchronized Clapping Circle'
     },
+    subtitle: {
+      de: 'Synchron-Klatschen',
+      en: 'Impulse Pass'
+    },
+    purpose: 'energie',
     category: 'energizer',
     energyLevel: 'high',
     groupSize: { min: 6, max: 30 },
@@ -1029,6 +1128,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '5–10 Min',
+    durationMin: 5,
+    durationMax: 10,
     space: {
       de: 'Kreis',
       en: 'Circle'
@@ -1079,6 +1180,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Wer bin ich?',
       en: 'Who Am I?'
     },
+    purpose: 'raten',
     category: 'social_deduction',
     energyLevel: 'calm',
     groupSize: { min: 4, max: 25 },
@@ -1088,6 +1190,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Sticky notes', 'Pens']
     },
     durationMinutes: '15–25 Min',
+    durationMin: 15,
+    durationMax: 25,
     space: {
       de: 'Sitzkreis',
       en: 'Seated circle'
@@ -1135,6 +1239,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Die Werwölfe vom Düsterwald',
       en: 'Werewolf'
     },
+    purpose: 'raten',
     category: 'social_deduction',
     energyLevel: 'medium',
     groupSize: { min: 8, max: 25 },
@@ -1144,6 +1249,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Role cards or written slips']
     },
     durationMinutes: '25–45 Min',
+    durationMin: 25,
+    durationMax: 45,
     space: {
       de: 'Ruhiger Raum mit Sitzkreis',
       en: 'Quiet room with seated circle'
@@ -1189,9 +1296,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'spion',
     title: {
-      de: 'Spion (Spyfall)',
+      de: 'Spion',
       en: 'Spyfall'
     },
+    subtitle: {
+      de: 'Spyfall',
+      en: 'Spyfall'
+    },
+    purpose: 'raten',
     category: 'social_deduction',
     energyLevel: 'medium',
     groupSize: { min: 5, max: 12 },
@@ -1201,6 +1313,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Location slips for everyone, one marked "Spy"']
     },
     durationMinutes: '15–20 Min',
+    durationMin: 15,
+    durationMax: 20,
     space: {
       de: 'Sitzkreis',
       en: 'Seated circle'
@@ -1246,6 +1360,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Der Psychiater',
       en: 'The Psychiatrist'
     },
+    purpose: 'raten',
     category: 'social_deduction',
     energyLevel: 'calm',
     groupSize: { min: 6, max: 20 },
@@ -1255,6 +1370,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '15–25 Min',
+    durationMin: 15,
+    durationMax: 25,
     space: {
       de: 'Sitzkreis',
       en: 'Seated circle'
@@ -1299,9 +1416,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'empire',
     title: {
-      de: 'Empire (Das geheime Königreich)',
-      en: 'Empire (The Secret Kingdom)'
+      de: 'Empire',
+      en: 'Empire'
     },
+    subtitle: {
+      de: 'Das geheime Königreich',
+      en: 'The Secret Kingdom'
+    },
+    purpose: 'kennenlernen',
     category: 'social_deduction',
     energyLevel: 'medium',
     groupSize: { min: 8, max: 30 },
@@ -1311,6 +1433,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Paper slips', 'Pens', 'Optional: Empire tool on this site']
     },
     durationMinutes: '20–40 Min',
+    durationMin: 20,
+    durationMax: 40,
     space: {
       de: 'Sitzkreis in einem Raum',
       en: 'Indoor seated circle'
@@ -1358,9 +1482,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'schlafmuetze-moerder',
     title: {
-      de: 'Mörder in der Runde (Zwinkerspiel)',
+      de: 'Mörder in der Runde',
       en: 'Wink Murder'
     },
+    subtitle: {
+      de: 'Zwinkerspiel',
+      en: 'Wink Game'
+    },
+    purpose: 'raten',
     category: 'social_deduction',
     energyLevel: 'calm',
     groupSize: { min: 8, max: 25 },
@@ -1370,6 +1499,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Playing cards or secret slips for role distribution']
     },
     durationMinutes: '15–20 Min',
+    durationMin: 15,
+    durationMax: 20,
     space: {
       de: 'Sitzkreis mit gutem Blickkontakt',
       en: 'Seated circle with clear sightlines'
@@ -1420,6 +1551,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Schere-Stein-Papier Fankurve',
       en: 'Rock Paper Scissors Cheering Train'
     },
+    purpose: 'energie',
     category: 'competitive',
     energyLevel: 'high',
     groupSize: { min: 10, max: 80 },
@@ -1429,6 +1561,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '7–12 Min',
+    durationMin: 7,
+    durationMax: 12,
     space: {
       de: 'Überall möglich',
       en: 'Any open space'
@@ -1472,9 +1606,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'salad-bowl',
     title: {
-      de: 'Salad Bowl (Wörter-Staffel)',
-      en: 'Salad Bowl (Three-Round Catchphrase)'
+      de: 'Salad Bowl',
+      en: 'Salad Bowl'
     },
+    subtitle: {
+      de: 'Wörter-Staffel',
+      en: 'Three-Round Catchphrase'
+    },
+    purpose: 'raten',
     category: 'competitive',
     energyLevel: 'high',
     groupSize: { min: 6, max: 24 },
@@ -1484,6 +1623,8 @@ export const GAMES_DATA: Game[] = [
       en: ['Bowl', 'Paper slips & pens', 'Timer']
     },
     durationMinutes: '25–40 Min',
+    durationMin: 25,
+    durationMax: 40,
     space: {
       de: 'Sitzgelegenheiten für zwei Teams',
       en: 'Seating for two teams'
@@ -1531,9 +1672,14 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'hi-ha-ho',
     title: {
-      de: 'Hi – Ha – Ho (Rhythmus-Duell)',
+      de: 'Hi – Ha – Ho',
       en: 'Hi – Ha – Ho'
     },
+    subtitle: {
+      de: 'Rhythmus-Duell',
+      en: 'Rhythm Duel'
+    },
+    purpose: 'energie',
     category: 'competitive',
     energyLevel: 'high',
     groupSize: { min: 6, max: 20 },
@@ -1543,6 +1689,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
     space: {
       de: 'Fester Stehkreis',
       en: 'Standing circle'
@@ -1588,6 +1736,7 @@ export const GAMES_DATA: Game[] = [
       de: 'Ninja',
       en: 'Ninja'
     },
+    purpose: 'energie',
     category: 'competitive',
     energyLevel: 'high',
     groupSize: { min: 4, max: 18 },
@@ -1597,6 +1746,8 @@ export const GAMES_DATA: Game[] = [
       en: ['None']
     },
     durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
     space: {
       de: 'Ausreichend Bewegungsradius',
       en: 'Open space with ample movement room'

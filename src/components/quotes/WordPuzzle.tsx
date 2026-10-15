@@ -123,7 +123,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
               type="button"
               onClick={handleUndo}
               disabled={placedTiles.length === 0}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[44px]"
             >
               <Undo2 className="w-3.5 h-3.5" />
               <span>{t.undoWord}</span>
@@ -131,7 +131,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
             <button
               type="button"
               onClick={initializePuzzle}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>{t.resetPuzzle}</span>
@@ -159,7 +159,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
               type="button"
               key={tile.id}
               onClick={() => handleTileClick(tile)}
-              className="px-3.5 py-2 bg-surface-2 hover:bg-surface-raised text-text text-xs font-medium rounded-lg border border-border shadow-xs  transition-all select-none cursor-pointer min-h-[36px]"
+              className="px-3.5 py-2 bg-surface-2 hover:bg-surface-raised text-text text-xs font-medium rounded-lg border border-border shadow-xs  transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center"
             >
               {tile.word}
             </button>

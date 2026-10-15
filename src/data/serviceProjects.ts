@@ -3,6 +3,7 @@ import { ServiceProject } from '../types';
 export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'trash-audit-cleanup',
+    kind: 'dienst',
     title: {
       de: 'Stadtteil-Putz & Müll-Audit',
       en: 'Neighborhood Clean-up & Trash Audit'
@@ -13,6 +14,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '1 Nachmittag (90–120 Min)',
       en: '1 Afternoon (90–120 min)'
     },
+    durationMin: 90,
+    durationMax: 120,
+    groupSize: { min: 4, max: 20 },
+    setting: 'draussen',
+    occasion: 'beides',
     materials: {
       de: ['Arbeitshandschuhe', 'Müllsäcke (verschiedene Farben für Recycling)', 'Müllgreifer (falls vorhanden)', 'Klemmbrett für Strichliste'],
       en: ['Work gloves', 'Trash bags (color-coded for recycling)', 'Litter pickers (if available)', 'Clipboard and tally sheet']
@@ -60,6 +66,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'gratitude-letters-workers',
+    kind: 'dienst',
     title: {
       de: 'Dankbarkeits-Briefe für Alltagshelden',
       en: 'Gratitude Letters for Everyday Unsung Heroes'
@@ -70,6 +77,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '1 Gruppenstunde (60–75 Min)',
       en: '1 Gathering (60–75 min)'
     },
+    durationMin: 60,
+    durationMax: 75,
+    groupSize: { min: 3, max: 15 },
+    setting: 'drinnen',
+    occasion: 'treffen',
     materials: {
       de: ['Hochwertiges Bastelpapier & Umschläge', 'Kalligrafie- und Buntstifte', 'Klebestifte & Deko-Material', 'Ggf. kleine Blumengrüße oder Teebeutel'],
       en: ['Quality cardstock and envelopes', 'Calligraphy & colored pens', 'Stickers / decorative paper', 'Optional fresh flowers or artisanal tea bags']
@@ -117,6 +129,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'elderly-wisdom-interviews',
+    kind: 'dienst',
     title: {
       de: 'Lebensweisheit-Interviews & Seniorenbesuch',
       en: 'Intergenerational Wisdom Interviews'
@@ -127,6 +140,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '2 Treffen (1x Vorbereitung, 1x Besuch & Auswertung)',
       en: '2 Sessions (1x prep, 1x visit & synthesis)'
     },
+    durationMin: 90,
+    durationMax: 180,
+    groupSize: { min: 4, max: 16 },
+    setting: 'beides',
+    occasion: 'treffen',
     materials: {
       de: ['Interview-Fragebogen auf Klemmbrett', 'Diktiergerät / Smartphone für Tonaufnahmen (mit Erlaubnis)', 'Selbstgebackene Kekse oder Kuchen', 'Fotokamera'],
       en: ['Clipboard with interview prompts', 'Voice recorder / phone (with explicit permission)', 'Homemade baked goods', 'Camera for commemorative portrait']
@@ -174,6 +192,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'seed-bombs-wildflowers',
+    kind: 'dienst',
     title: {
       de: 'Samenbomben für städtische Bienenweiden',
       en: 'Wildflower Seed Bombs for Urban Biodiversity'
@@ -184,6 +203,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '1 Gruppenstunde (60–90 Min)',
       en: '1 Gathering (60–90 min)'
     },
+    durationMin: 60,
+    durationMax: 90,
+    groupSize: { min: 4, max: 20 },
+    setting: 'beides',
+    occasion: 'beides',
     materials: {
       de: ['Heimisches Wildblumensaatgut (ungebeizt)', 'Tonmehl oder Lehmpulver', 'Torffreie Pflanzerde', 'Wasser & Rührschüsseln', 'Eierkartons zum Trocknen'],
       en: ['Native wildflower seeds (non-GMO)', 'Clay powder or bentonite', 'Peat-free potting soil', 'Water & mixing basins', 'Egg cartons for drying']
@@ -229,6 +253,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'children-storytelling-festival',
+    kind: 'dienst',
     title: {
       de: 'Kinder-Geschichtenstunde & Spielefest',
       en: 'Children\'s Storytelling & Games Festival'
@@ -239,6 +264,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '2 Treffen (Planung + Durchführung eines 90-Min Events)',
       en: '2 Sessions (Planning + hosting a 90-min event)'
     },
+    durationMin: 90,
+    durationMax: 180,
+    groupSize: { min: 4, max: 20 },
+    setting: 'beides',
+    occasion: 'beides',
     materials: {
       de: ['Kinderbücher mit Tugend-Geschichten', 'Requisiten für Schattentheater oder Puppenspiel', 'Bastelmaterialien (Farben, Scheren, Papier)', 'Kleine gesunde Snacks'],
       en: ['Illustrated storybooks featuring virtues', 'Puppet or shadow-play props', 'Crafting supplies (colored paper, safety scissors, glue)', 'Healthy snack platters']
@@ -282,6 +312,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'sidewalk-chalk-kindness',
+    kind: 'dienst',
     title: {
       de: 'Gehweg-Kreide: Lichtbotschaften im öffentlichen Raum',
       en: 'Sidewalk Chalk: Uplifting Words in Public Space'
@@ -292,6 +323,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '1 Gruppenstunde (45–60 Min)',
       en: '1 Gathering (45–60 min)'
     },
+    durationMin: 45,
+    durationMax: 60,
+    groupSize: { min: 3, max: 15 },
+    setting: 'draussen',
+    occasion: 'treffen',
     materials: {
       de: ['Große Straßenmalkreiden in leuchtenden Farben', 'Schablonen (optional)', 'Zitatenkarten als Vorlagen', 'Schwamm und Wasser für Korrekturen'],
       en: ['Jumbo sidewalk chalk in vibrant colors', 'Lettering stencils (optional)', 'Quote reference cards', 'Damp sponges for touch-ups']
@@ -335,6 +371,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'community-book-box',
+    kind: 'dienst',
     title: {
       de: 'Offener Bücherschrank & Leseecke-Patenschaft',
       en: 'Community Book Box Curation & Stewardship'
@@ -345,6 +382,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '2 Nachmittage',
       en: '2 Afternoons'
     },
+    durationMin: 120,
+    durationMax: 240,
+    groupSize: { min: 4, max: 15 },
+    setting: 'beides',
+    occasion: 'camp',
     materials: {
       de: ['Ausgemusterte wetterfeste Box oder bestehender Bücherschrank', 'Buchspenden (vorsortiert)', 'Reinigungsmittel & Pinsel', 'Lesezeichen mit ermutigenden Zitaten'],
       en: ['Weatherproof cabinet or existing public book box', 'Curated donated books', 'Cleaning rags and brushes', 'Handmade bookmarks with quotes']
@@ -388,6 +430,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'food-bank-hygiene-drive',
+    kind: 'dienst',
     title: {
       de: 'Wärme-Pakete für die örtliche Tafel / Notschlafstelle',
       en: 'Care & Hygiene Kits for Local Shelters'
@@ -398,6 +441,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '2 Treffen (Sammeln & Packen)',
       en: '2 Sessions (Collection & Packing)'
     },
+    durationMin: 90,
+    durationMax: 150,
+    groupSize: { min: 4, max: 20 },
+    setting: 'drinnen',
+    occasion: 'treffen',
     materials: {
       de: ['Stofftaschen oder Kartons', 'Hygieneartikel (Zahnbürsten, Seife, Feuchttücher, Socken)', 'Handgeschriebene Grußkarten', 'Sammelboxen für Supermärkte'],
       en: ['Cloth tote bags or boxes', 'Essential toiletries (toothbrushes, soap, warm socks, lip balm)', 'Handwritten notes of care', 'Donation collection bins']
@@ -443,6 +491,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'bike-repair-neighborhood',
+    kind: 'dienst',
     title: {
       de: 'Fahrrad-Check & Aufpump-Station für Nachbarn',
       en: 'Neighborhood Bicycle Safety & Pump Clinic'
@@ -453,6 +502,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '1 Nachmittag (2–3 Stunden)',
       en: '1 Afternoon (2–3 hours)'
     },
+    durationMin: 120,
+    durationMax: 180,
+    groupSize: { min: 4, max: 12 },
+    setting: 'draussen',
+    occasion: 'treffen',
     materials: {
       de: ['Stand-Luftpumpe mit Manometer', 'Kettenöl & Lappen', 'Inbusschlüssel-Set & Schraubenschlüssel', 'Reifenflickzeug & Eimer mit Wasser', 'Hinweisschild'],
       en: ['Floor bike pump with pressure gauge', 'Chain lubricant & rags', 'Hex key set & basic wrenches', 'Tire patch kit & water basin', 'Welcoming sidewalk sign']
@@ -498,6 +552,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'digital-helpdesk-seniors',
+    kind: 'dienst',
     title: {
       de: 'Smartphone & Digital-Sprechstunde für Ältere',
       en: 'Smartphone & Digital Clinic for Seniors'
@@ -508,6 +563,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '1–2 Nachmittage (jeweils 90 Min)',
       en: '1–2 Afternoons (90 min each)'
     },
+    durationMin: 90,
+    durationMax: 120,
+    groupSize: { min: 3, max: 12 },
+    setting: 'drinnen',
+    occasion: 'treffen',
     materials: {
       de: ['Tische und bequeme Stühle', 'WLAN-Zugang', 'Notizblöcke & Stifte für Schritt-für-Schritt-Anleitungen', 'Kaffee, Tee & Gebäck'],
       en: ['Tables and comfortable chairs', 'Stable Wi-Fi access', 'Note pads & pens for custom instructions', 'Coffee, tea & pastries']
@@ -551,6 +611,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'birdhouse-wildlife-nesting',
+    kind: 'dienst',
     title: {
       de: 'Nistkasten- & Insektenhotel-Bau',
       en: 'Nesting Boxes & Insect Hotel Crafting'
@@ -561,6 +622,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: 'Halbtages-Projekt (3–4 Stunden)',
       en: 'Half-Day Project (3–4 hours)'
     },
+    durationMin: 180,
+    durationMax: 240,
+    groupSize: { min: 4, max: 16 },
+    setting: 'beides',
+    occasion: 'camp',
     materials: {
       de: ['Unbehandeltes Holz (Fichte/Tanne)', 'Holzbohrer, Schrauben & Akkuschrauber', 'Schilfrohr, Bambusstäbe, Tannenzapfen', 'Aufhänge-Draht'],
       en: ['Untreated timber planks', 'Drill bits, wood screws & cordless drill', 'Hollow bamboo canes, pinecones, bark', 'Mounting wire']
@@ -604,6 +670,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'flowerbed-revitalization',
+    kind: 'dienst',
     title: {
       de: 'Gemeindebeet- & Parkbank-Verschönerung',
       en: 'Community Garden Revitalization & Park Bench Polish'
@@ -614,6 +681,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '1 Nachmittag (2–3 Stunden)',
       en: '1 Afternoon (2–3 hours)'
     },
+    durationMin: 120,
+    durationMax: 180,
+    groupSize: { min: 4, max: 20 },
+    setting: 'draussen',
+    occasion: 'beides',
     materials: {
       de: ['Gartenschaufeln & Harken', 'Mulch & Bio-Blumenerde', 'Mehrjährige Stauden & Sträucher', 'Schleifpapier & Holzöl für Parkbänke', 'Gießkannen'],
       en: ['Trowels, rakes & garden shears', 'Organic mulch & topsoil', 'Perennial shrubs & pollinator flowers', 'Sandpaper & non-toxic wood oil', 'Watering cans']
@@ -657,6 +729,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'hospital-care-cards',
+    kind: 'dienst',
     title: {
       de: 'Mutmach-Karten für Kinderkrankenhaus / Reha',
       en: 'Encouragement Art for Pediatric Wards'
@@ -667,6 +740,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '1 Gruppenstunde (60 Min)',
       en: '1 Gathering (60 min)'
     },
+    durationMin: 45,
+    durationMax: 60,
+    groupSize: { min: 3, max: 20 },
+    setting: 'drinnen',
+    occasion: 'treffen',
     materials: {
       de: ['Aquarellfarben & dickes Papier', 'Wachsmalstifte & Fineliner', 'Hoffnungsvolle Gedichte & Zitate', 'Schleifenbänder'],
       en: ['Watercolor palettes & heavy paper', 'Wax pastels & fine ink pens', 'Uplifting poetic verses', 'Ribbon ties']
@@ -710,6 +788,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'anti-bullying-peace-poster',
+    kind: 'dienst',
     title: {
       de: 'Respekt-Kampagne & Schulfoyer-Ausstellung',
       en: 'Kindness & Inclusion School Poster Campaign'
@@ -720,6 +799,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '2 Treffen (Konzeption & Plakatgestaltung)',
       en: '2 Sessions (Conceptualization & Poster Atelier)'
     },
+    durationMin: 90,
+    durationMax: 120,
+    groupSize: { min: 4, max: 16 },
+    setting: 'drinnen',
+    occasion: 'treffen',
     materials: {
       de: ['Große Plakatkartons (DIN A2)', 'Acryl- und Filzstifte', 'Fotodrucke / Collagen-Material', 'Klebestreifen'],
       en: ['Large heavy poster boards (A2)', 'Acrylic paint pens & wide markers', 'Photo prints / collage media', 'Mounting tape']
@@ -763,6 +847,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'first-aid-care-pack',
+    kind: 'dienst',
     title: {
       de: 'Erste-Hilfe-Auffrischung & Notfall-Kits',
       en: 'First Aid Readiness & Household Safety Kits'
@@ -773,6 +858,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '1 Gruppenstunde (75–90 Min)',
       en: '1 Gathering (75–90 min)'
     },
+    durationMin: 60,
+    durationMax: 90,
+    groupSize: { min: 4, max: 16 },
+    setting: 'drinnen',
+    occasion: 'beides',
     materials: {
       de: ['Verbandskästen zum Üben (abgelaufen für Training)', 'Mullbinden, Pflaster, Dreiecktücher', 'Ziploc-Beutel für Mini-Kits', 'Notrufnummern-Kärtchen'],
       en: ['Practice first aid kits', 'Bandages, plasters, triangular slings', 'Ziploc pouches for pocket kits', 'Emergency contact wallet cards']
@@ -814,6 +904,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   },
   {
     id: 'community-blessing-podcast',
+    kind: 'dienst',
     title: {
       de: 'Vorbilder vor Ort: Audio-Interviews & Mini-Podcast',
       en: 'Local Pillars: Audio Portraits & Mini-Podcast'
@@ -824,6 +915,11 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       de: '2–3 Treffen',
       en: '2–3 Sessions'
     },
+    durationMin: 90,
+    durationMax: 180,
+    groupSize: { min: 3, max: 10 },
+    setting: 'drinnen',
+    occasion: 'camp',
     materials: {
       de: ['Smartphone mit Diktier-App & externem Mikrofon', 'Frageleitfaden', 'Laptop für einfachen Schnitt (z.B. Audacity)', 'Kopfhörer'],
       en: ['Smartphone audio recorder with lavalier mic', 'Interview script', 'Laptop for basic audio editing (e.g. Audacity)', 'Headphones']

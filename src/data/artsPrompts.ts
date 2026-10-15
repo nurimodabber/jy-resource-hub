@@ -3,6 +3,7 @@ import { ArtsPrompt } from '../types';
 export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
   {
     id: 'breezes-two-roads-skit',
+    kind: 'kunst',
     title: {
       de: 'Theater: Die Weggabelung der Bestätigungen',
       en: 'Drama: The Fork in the Road of Confirmation'
@@ -12,6 +13,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Breezes of Confirmation'
     },
     artForm: 'drama',
+    duration: {
+      de: '45–60 Min',
+      en: '45–60 min'
+    },
+    durationMin: 45,
+    durationMax: 60,
+    groupSize: { min: 4, max: 20 },
+    setting: 'drinnen',
+    occasion: 'beides',
     theme: {
       de: 'Entscheidungen & Bestätigungen',
       en: 'Choices & Divine Confirmations'
@@ -47,10 +57,21 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
         'Why do confirmations usually arrive *after* one takes the first leap of faith rather than beforehand?',
         'How can co-animators and group peers serve as agents of confirmation for one another during discouragement?'
       ]
+    },
+    animatorTips: {
+      de: [
+        "Ermutigt dazu, reale Situationen aus dem Alltag der Jugendlichen darzustellen.",
+        "Wichtig ist nicht schauspielerische Perfektion, sondern die emotionale Ehrlichkeit der Figuren."
+],
+      en: [
+        "Encourage youth to draw from actual experiences in their daily environments.",
+        "Focus on emotional authenticity rather than theatrical perfection."
+]
     }
   },
   {
     id: 'straight-path-stepping-stones-mural',
+    kind: 'kunst',
     title: {
       de: 'Gemeinschafts-Wandbild: Trittsteine des geraden Pfades',
       en: 'Collaborative Mural: Stepping Stones of the Straight Path'
@@ -60,6 +81,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Walking the Straight Path'
     },
     artForm: 'collaborative_mural',
+    duration: {
+      de: '60–90 Min',
+      en: '60–90 min'
+    },
+    durationMin: 60,
+    durationMax: 90,
+    groupSize: { min: 4, max: 20 },
+    setting: 'drinnen',
+    occasion: 'camp',
     theme: {
       de: 'Wahrhaftigkeit & Geradlinigkeit',
       en: 'Truthfulness & Steadfastness'
@@ -95,10 +125,21 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
         'What happens when a single stepping stone (e.g. truthfulness) is missing or unsteady beneath our feet?',
         'Which virtue comes most naturally to you, and which requires your highest daily vigilance?'
       ]
+    },
+    animatorTips: {
+      de: [
+        "Große Packpapierrolle auf dem Boden ausbreiten, damit alle gleichzeitig malen können.",
+        "Zwischendurch Schritte zurücktreten und das Gesamtkunstwerk gemeinsam betrachten."
+],
+      en: [
+        "Roll out large craft paper on the floor so everyone can work simultaneously.",
+        "Take pauses to step back together and appreciate how individual stones connect."
+]
     }
   },
   {
     id: 'power-word-rhythm-cypher',
+    kind: 'kunst',
     title: {
       de: 'Wort-Kraft: Spoken Word & Percussion-Cypher',
       en: 'Power of the Word: Spoken Word & Percussion Cypher'
@@ -108,6 +149,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Drawing on the Power of the Word'
     },
     artForm: 'music_poetry',
+    duration: {
+      de: '30–60 Min',
+      en: '30–60 min'
+    },
+    durationMin: 30,
+    durationMax: 60,
+    groupSize: { min: 4, max: 25 },
+    setting: 'beides',
+    occasion: 'beides',
     theme: {
       de: 'Geistige Schöpferkraft der Sprache',
       en: 'The Transformative Potency of Language'
@@ -143,10 +193,21 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
         'How does vocal rhythm and authentic conviction amplify the emotional resonance of words?',
         'How can we train our daily speech to be a source of solace and healing rather than careless harm?'
       ]
+    },
+    animatorTips: {
+      de: [
+        "Einfacher Grundrhythmus (Klatschen / Tischklopfen) genügt völlig als Basis.",
+        "Niemand muss reimen: Starke Schlüsselwörter im Takt rufen hat bereits enorme Wucht."
+],
+      en: [
+        "A simple steady pulse of claps or table beats is all that is needed.",
+        "Rhyming is optional: chanting powerful keywords in cadence has immense resonance."
+]
     }
   },
   {
     id: 'tableau-living-sculptures',
+    kind: 'kunst',
     title: {
       de: 'Standbilder: Lebendige Skulpturen von Tugenden',
       en: 'Living Sculptures: Frozen Tableaux of Virtues'
@@ -156,6 +217,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Walking the Straight Path'
     },
     artForm: 'drama',
+    duration: {
+      de: '30–45 Min',
+      en: '30–45 min'
+    },
+    durationMin: 30,
+    durationMax: 45,
+    groupSize: { min: 4, max: 25 },
+    setting: 'beides',
+    occasion: 'beides',
     theme: {
       de: 'Körpersprache & moralische Haltung',
       en: 'Body Language & Moral Posture'
@@ -191,10 +261,21 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
         'How deeply does our physical posture telegraph our inner spiritual state to those around us?',
         'What physical sensation occurs when transitioning from defensive isolation to open, humble service?'
       ]
+    },
+    animatorTips: {
+      de: [
+        "Kurzes Einfrieren für 10 Sekunden trainieren, damit der Raum zur Ruhe kommt.",
+        "Die Zuschauenden beschreiben lassen, was sie sehen, bevor die Spielenden erklären."
+],
+      en: [
+        "Practice freezing for 10 quiet seconds to build concentration.",
+        "Invite observers to describe what they perceive before actors explain."
+]
     }
   },
   {
     id: 'spirit-faith-clay-sculptures',
+    kind: 'kunst',
     title: {
       de: 'Ton-Metaphern: Das Gefäß des reinen Herzens',
       en: 'Clay Metaphors: Vessel of a Pure Heart'
@@ -204,6 +285,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Spirit of Faith'
     },
     artForm: 'visual_arts',
+    duration: {
+      de: '45–75 Min',
+      en: '45–75 min'
+    },
+    durationMin: 45,
+    durationMax: 75,
+    groupSize: { min: 3, max: 16 },
+    setting: 'drinnen',
+    occasion: 'beides',
     theme: {
       de: 'Reinheit des Herzens & Demut',
       en: 'Purity of Heart & Receptivity'
@@ -239,10 +329,21 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
         'What occurs when you pour precious water into a vessel already clogged with debris and stones?',
         'How do we practically empty our minds of prejudice, cynicism, and envy during ordinary school days?'
       ]
+    },
+    animatorTips: {
+      de: [
+        "Tisch mit Wachstuch oder Zeitung abdecken. Feuchte Tücher bereitstellen.",
+        "Betonen, dass Skulpturen symbolisch sein dürfen und nicht naturalistisch sein müssen."
+],
+      en: [
+        "Cover surfaces with craft paper or table cloths; keep damp cloths handy.",
+        "Emphasize that forms can be purely symbolic and abstract."
+]
     }
   },
   {
     id: 'drawing-miner-parable-comic',
+    kind: 'kunst',
     title: {
       de: 'Graphic Novel: Der Bergmann und die verborgenen Edelsteine',
       en: 'Graphic Novel: The Miner & The Hidden Gems'
@@ -252,6 +353,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Breezes of Confirmation'
     },
     artForm: 'visual_arts',
+    duration: {
+      de: '45–75 Min',
+      en: '45–75 min'
+    },
+    durationMin: 45,
+    durationMax: 75,
+    groupSize: { min: 3, max: 20 },
+    setting: 'drinnen',
+    occasion: 'treffen',
     theme: {
       de: 'Innewohnende Schätze des Menschen',
       en: 'Inherent Nobility & Hidden Gems'
@@ -287,10 +397,21 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
         'What hidden virtues lie buried within peers who appear prickly, aggressive, or defensive?',
         'How can our youth group operate like master miners committed to uncovering gems in one another?'
       ]
+    },
+    animatorTips: {
+      de: [
+        "Strichmännchen und einfache Symbole sind ausdrücklich erwünscht.",
+        "Der Fokus liegt auf der Botschaft und inneren Wandlung der Figur."
+],
+      en: [
+        "Stick figures and simple sketches are entirely welcome.",
+        "Keep the focus on the protagonist’s inner moral shift."
+]
     }
   },
   {
     id: 'interactive-songwriting-circle',
+    kind: 'kunst',
     title: {
       de: 'Liederschmiede: Zitate vertonen mit Akustikgitarre',
       en: 'Songwriting Atelier: Setting Scripture to Acoustic Melody'
@@ -300,6 +421,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Breezes of Confirmation & Walking the Straight Path'
     },
     artForm: 'music_poetry',
+    duration: {
+      de: '45–90 Min',
+      en: '45–90 min'
+    },
+    durationMin: 45,
+    durationMax: 90,
+    groupSize: { min: 4, max: 25 },
+    setting: 'beides',
+    occasion: 'camp',
     theme: {
       de: 'Lied & Andacht',
       en: 'Music & Devotional Elevation'
@@ -337,6 +467,16 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
         'Why does a melody lock sacred words into long-term memory far more effortlessly than dry repetition?',
         'In what way does wholesome, devotional music serve as spiritual sustenance for the soul?'
       ]
+    },
+    animatorTips: {
+      de: [
+        "Mit einem einfachen Refrain oder einer sich wiederholenden Textzeile beginnen.",
+        "Aufnahme auf dem Handy machen, damit die Gruppe ihr eigenes Lied später anhören kann."
+],
+      en: [
+        "Start with a simple repeated chorus phrase or quotation fragment.",
+        "Record the collective rendition on a phone so youth can revisit their creation."
+]
     }
   }
 ];

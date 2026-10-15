@@ -178,7 +178,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
             <button
               type="button"
               onClick={handleReset}
-              className="px-3.5 py-1.5 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[36px]"
+              className="px-3.5 py-1.5 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5 inline mr-1" />
               <span>{language === 'de' ? 'Neu beginnen' : 'Restart'}</span>
@@ -193,7 +193,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
               type="button"
               onClick={handlePrev}
               disabled={currentStep === 0}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[44px]"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>{language === 'de' ? 'Zurück' : 'Previous'}</span>
@@ -203,7 +203,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
               type="button"
               onClick={handleNext}
               disabled={isFinalStep}
-              className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-lg hover:bg-accent-hover disabled:opacity-30 transition-colors shadow-xs cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-lg hover:bg-accent-hover disabled:opacity-30 transition-colors shadow-xs cursor-pointer min-h-[44px]"
             >
               <span>{language === 'de' ? 'Nächste Stufe' : 'Next Step'}</span>
               <ChevronRight className="w-4 h-4" />
@@ -213,7 +213,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
               <button
                 type="button"
                 onClick={() => setIsPeeking(!isPeeking)}
-                className="flex items-center gap-1.5 px-3 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
+                className="flex items-center gap-1.5 px-3 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
                 title={isPeeking ? (language === 'de' ? 'Verbergen' : 'Hide') : (language === 'de' ? 'Kurz spicken' : 'Peek')}
               >
                 {isPeeking ? <EyeOff className="w-3.5 h-3.5 text-accent-text" /> : <Eye className="w-3.5 h-3.5" />}
@@ -224,7 +224,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
             <button
               type="button"
               onClick={handleReset}
-              className="p-2 border border-border bg-surface text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+              className="p-2 border border-border bg-surface text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Reset"
             >
               <RotateCcw className="w-3.5 h-3.5" />

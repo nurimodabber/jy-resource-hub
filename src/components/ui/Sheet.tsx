@@ -64,7 +64,7 @@ export const Sheet: React.FC<SheetProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60  transition-opacity"
+        className="fixed inset-0 bg-black/60 transition-opacity duration-220 ease-out"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -74,17 +74,17 @@ export const Sheet: React.FC<SheetProps> = ({
         <div
           ref={sheetRef}
           tabIndex={-1}
-          className="fixed inset-x-0 bottom-0 z-10 max-h-[90vh] bg-surface rounded-t-2xl border-t border-border shadow-apple-modal flex flex-col animate-in slide-in-from-bottom duration-250 outline-hidden safe-bottom"
+          className="fixed inset-x-0 bottom-0 z-10 max-h-[90vh] bg-surface rounded-t-sheet shadow-2 border-0 flex flex-col animate-in slide-in-from-bottom duration-220 ease-out outline-hidden safe-bottom"
         >
           {/* Mobile Handle Bar */}
           <div className="w-12 h-1.5 bg-black/20 dark:bg-white/20 rounded-full mx-auto mt-3 shrink-0" />
 
           {/* Header */}
           {(title || showCloseButton) && (
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border-subtle shrink-0">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
               <div>
                 {title && (
-                  <h2 id="sheet-title" className="text-base sm:text-lg font-semibold text-text">
+                  <h2 id="sheet-title" className="text-lg font-bold text-text">
                     {title}
                   </h2>
                 )}
@@ -93,8 +93,8 @@ export const Sheet: React.FC<SheetProps> = ({
                 )}
               </div>
               {showCloseButton && (
-                <IconButton label="Schließen" onClick={onClose} size="sm">
-                  <X className="w-4 h-4" />
+                <IconButton label="Schließen" onClick={onClose} size="sm" variant="ghost">
+                  <X className="w-4 h-4" strokeWidth={1.75} />
                 </IconButton>
               )}
             </div>
@@ -109,13 +109,13 @@ export const Sheet: React.FC<SheetProps> = ({
         <div
           ref={sheetRef}
           tabIndex={-1}
-          className="relative z-10 w-full max-w-md h-full bg-surface border-l border-border shadow-apple-modal flex flex-col animate-in slide-in-from-right duration-250 outline-hidden"
+          className="relative z-10 w-full max-w-md h-full bg-surface shadow-2 border-0 flex flex-col animate-in slide-in-from-right duration-220 ease-out outline-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-border-subtle shrink-0">
+          <div className="flex items-center justify-between p-5 border-b border-border shrink-0">
             <div>
               {title && (
-                <h2 id="sheet-title" className="text-lg font-semibold text-text">
+                <h2 id="sheet-title" className="text-lg font-bold text-text">
                   {title}
                 </h2>
               )}
@@ -124,8 +124,8 @@ export const Sheet: React.FC<SheetProps> = ({
               )}
             </div>
             {showCloseButton && (
-              <IconButton label="Schließen" onClick={onClose} size="sm">
-                <X className="w-4 h-4" />
+              <IconButton label="Schließen" onClick={onClose} size="sm" variant="ghost">
+                <X className="w-4 h-4" strokeWidth={1.75} />
               </IconButton>
             )}
           </div>

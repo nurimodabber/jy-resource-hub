@@ -1,5 +1,25 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, Compass, BookOpen, Clock, Palette, Music, Layers, X, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import {
+  Search,
+  Compass,
+  BookOpen,
+  Clock,
+  Palette,
+  Music,
+  Layers,
+  Calendar,
+  Bookmark,
+  Settings,
+  X,
+  ArrowRight,
+  Crown,
+  Eye,
+  Users,
+  Timer,
+  Lightbulb,
+  MessageSquareQuote,
+  type LucideIcon,
+} from 'lucide-react';
 import { Language } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { QUOTES_DATA } from '../data/quotes';
@@ -13,16 +33,18 @@ export interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   language: Language;
-  onNavigate: (type: 'game' | 'quote' | 'method' | 'service' | 'art' | 'song' | 'tool', id: string) => void;
+  onNavigate: (type: 'game' | 'quote' | 'method' | 'service' | 'art' | 'song' | 'tool' | 'page', id: string) => void;
+  onOpenSettings?: () => void;
 }
 
 interface SearchResult {
   id: string;
-  type: 'game' | 'quote' | 'method' | 'service' | 'art' | 'song';
+  type: 'game' | 'quote' | 'method' | 'service' | 'art' | 'song' | 'tool' | 'page';
+  groupName: string;
   title: string;
   subtitle: string;
   badge: string;
-  category?: 'cooperative' | 'competitive' | 'social' | 'energizer' | 'service' | 'arts' | 'devotional' | 'study';
+  icon: LucideIcon;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
@@ -30,21 +52,22 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onClose,
   language,
   onNavigate,
+  onOpenSettings,
 }) => {
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isDe = language === 'de';
 
-  // Focus input when opened
   useEffect(() => {
     if (isOpen) {
       setQuery('');
       setSelectedIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setTimeout(() => inputRef.current?.focus(), 60);
     }
   }, [isOpen]);
 
-  // Global keyboard shortcut (⌘K, Ctrl+K, or /)
+  // Global keyboard shortcut (⌘K or Ctrl+K)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -61,202 +84,259 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Search logic across all resources with bilingual matching
   const results = useMemo<SearchResult[]>(() => {
     const q = query.trim().toLowerCase();
+
+    // Tools dataset
+    const TOOLS_SEARCH = [
+      { id: 'empire', title: 'Empire', desc: isDe ? 'Begriffe vorlesen und Reiche verfolgen' : 'Categories and kingdoms game', icon: Crown },
+      { id: 'roles', title: isDe ? 'Rollenverteiler' : 'Role dealer', desc: isDe ? 'Geheime Rollen für Spion, Werwölfe etc.' : 'Secret roles for spy, werewolf etc.', icon: Eye },
+      { id: 'teams', title: isDe ? 'Teams & Zweiergruppen' : 'Teams & pairs', desc: isDe ? 'Zufällig und fair Gruppen einteilen' : 'Random and balanced team builder', icon: Users },
+      { id: 'timer', title: 'Timer', desc: isDe ? 'Große Countdown-Anzeige mit Ton' : 'Large countdown display with chime', icon: Timer },
+      { id: 'finder', title: isDe ? 'Spielfinder' : 'Game finder', desc: isDe ? 'Passende Spiele nach Zeit & Gruppengröße' : 'Filter games by time & size', icon: Compass },
+      { id: 'ideas', title: isDe ? 'Impulse' : 'Prompts', desc: isDe ? 'Sortierkriterien, Geschichten und Regeln' : 'Line-up criteria and story starters', icon: Lightbulb },
+      { id: 'cards', title: isDe ? 'Gesprächskarten' : 'Conversation cards', desc: isDe ? 'Fragen und Zitate für den Kreis' : 'Questions and quotes for group circles', icon: MessageSquareQuote },
+    ];
+
+    // Static Pages
+    const PAGES_SEARCH = [
+      { id: 'planner', title: isDe ? 'Treffen (Ablauf-Planer)' : 'Gatherings (Meeting Planner)', desc: isDe ? 'Treffen mit Andacht, Zitat und Spiel vorbereiten' : 'Prepare meetings with prayer, quote and game', icon: Calendar },
+      { id: 'saved', title: isDe ? 'Gemerkt (Merkliste)' : 'Saved Items', desc: isDe ? 'Deine gespeicherten Favoriten auf einen Blick' : 'All your bookmarked favorites in one place', icon: Bookmark },
+      { id: 'settings', title: isDe ? 'Einstellungen' : 'Settings', desc: isDe ? 'Darstellung, Sprache, Gruppe und Sicherung' : 'Appearance, language, group and backup', icon: Settings },
+    ];
+
     if (!q) {
-      // Default suggestions: 3 popular games, 2 top quotes, 2 methods
+      // Default recommended quick-links
       return [
+        {
+          id: 'planner',
+          type: 'page',
+          groupName: isDe ? 'Seiten' : 'Pages',
+          title: isDe ? 'Treffen planen' : 'Plan a gathering',
+          subtitle: isDe ? 'Geführter Ablauf für deine Gruppe' : 'Guided structure for your group meeting',
+          badge: isDe ? 'Seite' : 'Page',
+          icon: Calendar,
+        },
         {
           id: GAMES_DATA[0].id,
           type: 'game',
+          groupName: isDe ? 'Spiele' : 'Games',
           title: GAMES_DATA[0].title[language],
           subtitle: GAMES_DATA[0].summary[language],
-          badge: language === 'de' ? 'Spiel' : 'Game',
-          category: 'cooperative',
+          badge: isDe ? 'Spiel' : 'Game',
+          icon: Compass,
         },
         {
-          id: GAMES_DATA[1].id,
-          type: 'game',
-          title: GAMES_DATA[1].title[language],
-          subtitle: GAMES_DATA[1].summary[language],
-          badge: language === 'de' ? 'Spiel' : 'Game',
-          category: 'social',
+          id: 'timer',
+          type: 'tool',
+          groupName: isDe ? 'Werkzeuge' : 'Tools',
+          title: 'Timer',
+          subtitle: isDe ? 'Große Countdown-Anzeige' : 'Clean countdown display',
+          badge: isDe ? 'Werkzeug' : 'Tool',
+          icon: Timer,
         },
         {
           id: QUOTES_DATA[0].id,
           type: 'quote',
+          groupName: isDe ? 'Zitate' : 'Quotes',
           title: QUOTES_DATA[0].theme[language],
           subtitle: language === 'de' ? QUOTES_DATA[0].textDe : QUOTES_DATA[0].textEn,
-          badge: language === 'de' ? 'Zitat' : 'Quote',
-          category: 'study',
-        },
-        {
-          id: QUOTE_METHODS_DATA[0].id,
-          type: 'method',
-          title: QUOTE_METHODS_DATA[0].name[language],
-          subtitle: QUOTE_METHODS_DATA[0].summary[language],
-          badge: language === 'de' ? 'Methode' : 'Method',
-          category: 'study',
+          badge: isDe ? 'Zitat' : 'Quote',
+          icon: BookOpen,
         },
       ];
     }
 
     const items: SearchResult[] = [];
 
-    // 1. Search Games
-    GAMES_DATA.forEach(g => {
+    // 1. Pages
+    PAGES_SEARCH.forEach((p) => {
+      if (p.title.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)) {
+        items.push({
+          id: p.id,
+          type: 'page',
+          groupName: isDe ? 'Seiten' : 'Pages',
+          title: p.title,
+          subtitle: p.desc,
+          badge: isDe ? 'Seite' : 'Page',
+          icon: p.icon,
+        });
+      }
+    });
+
+    // 2. Tools
+    TOOLS_SEARCH.forEach((tool) => {
+      if (tool.title.toLowerCase().includes(q) || tool.desc.toLowerCase().includes(q)) {
+        items.push({
+          id: tool.id,
+          type: 'tool',
+          groupName: isDe ? 'Werkzeuge' : 'Tools',
+          title: tool.title,
+          subtitle: tool.desc,
+          badge: isDe ? 'Werkzeug' : 'Tool',
+          icon: tool.icon,
+        });
+      }
+    });
+
+    // 3. Games
+    GAMES_DATA.forEach((g) => {
       const matchDe = g.title.de.toLowerCase().includes(q) || g.summary.de.toLowerCase().includes(q);
       const matchEn = g.title.en.toLowerCase().includes(q) || g.summary.en.toLowerCase().includes(q);
       if (matchDe || matchEn) {
         items.push({
           id: g.id,
           type: 'game',
+          groupName: isDe ? 'Spiele' : 'Games',
           title: g.title[language],
           subtitle: g.summary[language],
-          badge: language === 'de' ? 'Spiel' : 'Game',
-          category: g.category === 'social_deduction' ? 'social' : g.category,
+          badge: isDe ? 'Spiel' : 'Game',
+          icon: Compass,
         });
       }
     });
 
-    // 2. Search Quotes
-    QUOTES_DATA.forEach(quote => {
-      const matchDe = quote.theme.de.toLowerCase().includes(q) || quote.textDe.toLowerCase().includes(q) || quote.book.de.toLowerCase().includes(q) || quote.keywords.some(k => k.toLowerCase().includes(q));
+    // 4. Quotes
+    QUOTES_DATA.forEach((quote) => {
+      const matchDe = quote.theme.de.toLowerCase().includes(q) || quote.textDe.toLowerCase().includes(q) || quote.book.de.toLowerCase().includes(q) || quote.keywords.some((k) => k.toLowerCase().includes(q));
       const matchEn = quote.theme.en.toLowerCase().includes(q) || quote.textEn.toLowerCase().includes(q) || quote.book.en.toLowerCase().includes(q);
       if (matchDe || matchEn) {
         items.push({
           id: quote.id,
           type: 'quote',
+          groupName: isDe ? 'Zitate' : 'Quotes',
           title: quote.theme[language],
           subtitle: language === 'de' ? quote.textDe : quote.textEn,
-          badge: language === 'de' ? 'Zitat' : 'Quote',
-          category: 'study',
+          badge: isDe ? 'Zitat' : 'Quote',
+          icon: BookOpen,
         });
       }
     });
 
-    // 3. Search Methods
-    QUOTE_METHODS_DATA.forEach(m => {
+    // 5. Quote Methods
+    QUOTE_METHODS_DATA.forEach((m) => {
       const matchDe = m.name.de.toLowerCase().includes(q) || m.summary.de.toLowerCase().includes(q);
       const matchEn = m.name.en.toLowerCase().includes(q) || m.summary.en.toLowerCase().includes(q);
       if (matchDe || matchEn) {
         items.push({
           id: m.id,
           type: 'method',
+          groupName: isDe ? 'Lernmethoden' : 'Methods',
           title: m.name[language],
           subtitle: m.summary[language],
-          badge: language === 'de' ? 'Methode' : 'Method',
-          category: 'study',
+          badge: isDe ? 'Methode' : 'Method',
+          icon: Clock,
         });
       }
     });
 
-    // 4. Search Service & Arts
-    SERVICE_PROJECTS_DATA.forEach(sp => {
+    // 6. Service Projects
+    SERVICE_PROJECTS_DATA.forEach((sp) => {
       const matchDe = sp.title.de.toLowerCase().includes(q) || sp.objective.de.toLowerCase().includes(q);
       const matchEn = sp.title.en.toLowerCase().includes(q) || sp.objective.en.toLowerCase().includes(q);
       if (matchDe || matchEn) {
         items.push({
           id: sp.id,
           type: 'service',
+          groupName: isDe ? 'Dienst' : 'Service',
           title: sp.title[language],
           subtitle: sp.objective[language],
-          badge: language === 'de' ? 'Dienst' : 'Service',
-          category: 'service',
+          badge: isDe ? 'Dienst' : 'Service',
+          icon: Layers,
         });
       }
     });
 
-    ARTS_PROMPTS_DATA.forEach(art => {
+    // 7. Arts Prompts
+    ARTS_PROMPTS_DATA.forEach((art) => {
       const matchDe = art.title.de.toLowerCase().includes(q) || art.description.de.toLowerCase().includes(q) || art.theme.de.toLowerCase().includes(q);
       const matchEn = art.title.en.toLowerCase().includes(q) || art.description.en.toLowerCase().includes(q) || art.theme.en.toLowerCase().includes(q);
       if (matchDe || matchEn) {
         items.push({
           id: art.id,
           type: 'art',
+          groupName: isDe ? 'Kunst' : 'Arts',
           title: art.title[language],
           subtitle: art.description[language],
-          badge: language === 'de' ? 'Kunst' : 'Arts',
-          category: 'arts',
+          badge: isDe ? 'Kunst' : 'Art',
+          icon: Palette,
         });
       }
     });
 
-    // 5. Search Songs
-    DEVOTIONAL_SONGS_DATA.forEach(song => {
+    // 8. Songs
+    DEVOTIONAL_SONGS_DATA.forEach((song) => {
       const matchDe = song.title.de.toLowerCase().includes(q) || song.theme.de.toLowerCase().includes(q);
       const matchEn = song.title.en.toLowerCase().includes(q) || song.theme.en.toLowerCase().includes(q);
       if (matchDe || matchEn) {
         items.push({
           id: song.id,
           type: 'song',
+          groupName: isDe ? 'Lieder' : 'Songs',
           title: song.title[language],
           subtitle: song.theme[language],
-          badge: language === 'de' ? 'Lied' : 'Song',
-          category: 'devotional',
+          badge: isDe ? 'Lied' : 'Song',
+          icon: Music,
         });
       }
     });
 
-    return items.slice(0, 15);
-  }, [query, language]);
+    return items.slice(0, 20);
+  }, [query, language, isDe]);
 
-  // Keyboard navigation through search results
+  const handleSelect = useCallback((selected: SearchResult) => {
+    if (selected.id === 'settings' && onOpenSettings) {
+      onClose();
+      onOpenSettings();
+    } else {
+      onNavigate(selected.type, selected.id);
+      onClose();
+    }
+  }, [onOpenSettings, onNavigate, onClose]);
+
+  // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSelectedIndex(prev => (prev + 1) % Math.max(results.length, 1));
+        setSelectedIndex((prev) => (prev + 1) % Math.max(results.length, 1));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedIndex(prev => (prev - 1 + results.length) % Math.max(results.length, 1));
+        setSelectedIndex((prev) => (prev - 1 + results.length) % Math.max(results.length, 1));
       } else if (e.key === 'Enter' && results[selectedIndex]) {
         e.preventDefault();
         const selected = results[selectedIndex];
-        onNavigate(selected.type, selected.id);
-        onClose();
+        handleSelect(selected);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, results, selectedIndex, onNavigate, onClose]);
+  }, [isOpen, results, selectedIndex, handleSelect]);
 
   if (!isOpen) return null;
 
-  const getTypeIcon = (type: SearchResult['type']) => {
-    switch (type) {
-      case 'game': return <Compass className="w-4 h-4 text-emerald-500" />;
-      case 'quote': return <BookOpen className="w-4 h-4 text-blue-500" />;
-      case 'method': return <Clock className="w-4 h-4 text-amber-500" />;
-      case 'service': return <Layers className="w-4 h-4 text-teal-500" />;
-      case 'art': return <Palette className="w-4 h-4 text-purple-500" />;
-      case 'song': return <Music className="w-4 h-4 text-cyan-500" />;
-    }
-  };
-
   return (
     <div
-      className="fixed inset-0 z-70 flex items-start justify-center p-3 sm:p-6 sm:pt-20 overflow-y-auto"
+      className="fixed inset-0 z-70 flex items-end sm:items-start justify-center p-0 sm:p-6 sm:pt-20 overflow-y-auto"
       role="dialog"
       aria-modal="true"
-      aria-label="Schnellsuche / Command Palette"
+      aria-label="Schnellsuche"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60  transition-opacity"
+        className="fixed inset-0 bg-black/60 transition-opacity duration-150 ease-out"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Palette Modal */}
-      <div className="relative w-full max-w-2xl bg-surface rounded-3xl border border-border shadow-apple-modal overflow-hidden z-10 flex flex-col animate-in fade-in zoom-in-95 duration-150 outline-hidden">
+      {/* Modal / Mobile Sheet Panel */}
+      <div className="relative w-full max-w-2xl bg-surface rounded-t-sheet sm:rounded-dialog shadow-2 border-0 overflow-hidden z-10 flex flex-col max-h-[92vh] sm:max-h-[80vh] animate-in slide-in-from-bottom sm:zoom-in-95 duration-150 ease-out outline-hidden safe-bottom">
         {/* Input Bar */}
-        <div className="flex items-center px-4 sm:px-6 py-4 border-b border-border-subtle gap-3">
-          <Search className="w-5 h-5 text-text-tertiary shrink-0" />
+        <div className="flex items-center px-4 sm:px-6 py-4 border-b border-border gap-3 bg-surface">
+          <Search className="w-5 h-5 text-text-tertiary shrink-0" strokeWidth={1.75} />
           <input
             ref={inputRef}
             type="text"
@@ -265,83 +345,84 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            placeholder={language === 'de' ? 'Spiele, Zitate, Methoden, Dienst oder Lieder suchen...' : 'Search games, quotes, methods, service or songs...'}
-            className="w-full bg-transparent text-sm sm:text-base text-text placeholder:text-text-tertiary outline-hidden"
+            placeholder={isDe ? 'Spiele, Zitate, Methoden, Dienst, Werkzeuge suchen...' : 'Search games, quotes, methods, service, tools...'}
+            className="w-full bg-transparent text-base text-text placeholder:text-text-tertiary outline-hidden"
           />
           {query ? (
             <button
+              type="button"
               onClick={() => setQuery('')}
               className="p-1 rounded-full text-text-tertiary hover:text-text"
               aria-label="Suche löschen"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" strokeWidth={1.75} />
             </button>
           ) : (
-            <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-2xs tabular-nums bg-surface-2 text-text-tertiary border border-border-subtle">
+            <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-control text-2xs tabular-nums bg-surface-2 text-text-tertiary">
               ESC
             </kbd>
           )}
         </div>
 
         {/* Results List */}
-        <div className="max-h-[60vh] overflow-y-auto p-2 sm:p-3 custom-scrollbar divide-y divide-border-subtle/50">
+        <div className="overflow-y-auto p-2 sm:p-3 custom-scrollbar divide-y divide-border/60">
           {results.length === 0 ? (
             <div className="py-12 text-center text-text-secondary text-sm">
-              <p>{language === 'de' ? 'Keine Treffer gefunden.' : 'No results found.'}</p>
-              <p className="text-xs text-text-tertiary mt-1">
-                {language === 'de' ? 'Versuche es mit einem anderen Begriff auf Deutsch oder Englisch.' : 'Try a different term in German or English.'}
-              </p>
+              <p>{isDe ? `Keine Treffer für „${query}“.` : `No results for "${query}".`}</p>
             </div>
           ) : (
             results.map((item, idx) => {
+              const Icon = item.icon;
               const isSelected = idx === selectedIndex;
               return (
                 <div
                   key={`${item.type}-${item.id}`}
-                  onClick={() => {
-                    onNavigate(item.type, item.id);
-                    onClose();
-                  }}
+                  onClick={() => handleSelect(item)}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all duration-100 ${
+                  className={`flex items-center justify-between p-3 rounded-control cursor-pointer transition-colors duration-100 ease-out ${
                     isSelected
-                      ? 'bg-surface-2 text-text shadow-xs'
+                      ? 'bg-surface-2 text-text'
                       : 'hover:bg-surface-2/60 text-text-secondary'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0 pr-2">
-                    <div className="w-8 h-8 rounded-xl bg-surface border border-border-subtle flex items-center justify-center shrink-0 shadow-2xs">
-                      {getTypeIcon(item.type)}
+                    <div className="w-9 h-9 rounded-control bg-accent-subtle text-accent-text flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4" strokeWidth={1.75} />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-sm text-text truncate">
                           {item.title}
                         </span>
-                        <Badge category={item.category || 'neutral'} size="sm">
-                          {item.badge}
+                        <Badge category="neutral" size="sm">
+                          {item.groupName}
                         </Badge>
                       </div>
-                      <p className="text-xs text-text-tertiary truncate font-serif italic max-w-md">
+                      <p className="text-xs text-text-tertiary truncate max-w-md mt-0.5">
                         {item.subtitle}
                       </p>
                     </div>
                   </div>
 
-                  <ArrowRight className={`w-4 h-4 shrink-0 transition-opacity ${isSelected ? 'opacity-100 text-accent' : 'opacity-0'}`} />
+                  <ArrowRight
+                    className={`w-4 h-4 shrink-0 transition-opacity duration-150 ${
+                      isSelected ? 'opacity-100 text-accent' : 'opacity-0'
+                    }`}
+                    strokeWidth={1.75}
+                  />
                 </div>
               );
             })
           )}
         </div>
 
-        {/* Footer info */}
-        <div className="px-4 py-2.5 bg-surface-2 border-t border-border-subtle flex items-center justify-between text-2xs text-text-tertiary">
-          <span>{results.length} {language === 'de' ? 'Ergebnisse' : 'results'}</span>
+        {/* Footer info bar */}
+        <div className="px-4 py-2.5 bg-surface-2/60 border-t border-border flex items-center justify-between text-2xs text-text-tertiary">
+          <span>{results.length} {isDe ? 'Ergebnisse' : 'results'}</span>
           <div className="hidden sm:flex items-center gap-3">
-            <span>↑↓ {language === 'de' ? 'Navigieren' : 'Navigate'}</span>
-            <span>↵ {language === 'de' ? 'Auswählen' : 'Select'}</span>
-            <span>ESC {language === 'de' ? 'Schließen' : 'Close'}</span>
+            <span>↑↓ {isDe ? 'Navigieren' : 'Navigate'}</span>
+            <span>↵ {isDe ? 'Auswählen' : 'Select'}</span>
+            <span>ESC {isDe ? 'Schließen' : 'Close'}</span>
           </div>
         </div>
       </div>

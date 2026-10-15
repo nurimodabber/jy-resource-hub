@@ -83,7 +83,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
             type="button"
             onClick={handleEraseMoreWords}
             disabled={allHidden}
-            className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-xs transition-colors shadow-xs cursor-pointer min-h-[40px] disabled:opacity-40"
+            className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-xs transition-colors shadow-xs cursor-pointer min-h-[44px] disabled:opacity-40"
           >
             <Eraser className="w-3.5 h-3.5" />
             <span>{t.eraseNextWord}</span>
@@ -92,7 +92,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
           <button
             type="button"
             onClick={handleResetChalkboard}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[40px]"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px]"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{t.resetBoard}</span>

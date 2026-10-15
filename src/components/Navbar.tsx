@@ -10,14 +10,14 @@ interface NavbarProps {
   language: Language;
   favoriteCount: number;
   onOpenCommandPalette: () => void;
-  onOpenMore: () => void;
+  onOpenSettings: () => void;
 }
 
-export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes' | 'tabPlanner' | 'tabServiceArts' | 'tabTools' }[] = [
+export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes' | 'tabServiceArts' | 'tabPlanner' | 'tabTools' }[] = [
   { id: 'games', href: '/games', key: 'tabGames' },
   { id: 'quotes', href: '/quotes', key: 'tabQuotes' },
-  { id: 'planner', href: '/planner', key: 'tabPlanner' },
   { id: 'service-arts', href: '/service-arts', key: 'tabServiceArts' },
+  { id: 'planner', href: '/treffen', key: 'tabPlanner' },
   { id: 'tools', href: '/tools', key: 'tabTools' },
 ];
 
@@ -26,7 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   language,
   favoriteCount,
   onOpenCommandPalette,
-  onOpenMore,
+  onOpenSettings,
 }) => {
   const t = UI_TRANSLATIONS[language];
   const [isMac, setIsMac] = useState(true);
@@ -36,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     setIsMac(/Mac|iPod|iPhone|iPad/.test(navigator.platform || navigator.userAgent));
   }, []);
 
-  // Phone landscape: hide the header while scrolling down
+  // Phone landscape: hide header while scrolling down
   useEffect(() => {
     let last = window.pageYOffset;
     const onScroll = () => {
@@ -49,26 +49,27 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const iconBtn =
-    'inline-flex items-center justify-center gap-2 h-10 min-w-[40px] px-2.5 rounded-xl text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors';
-
   return (
     <header
-      className={`sticky top-0 z-40 bg-surface border-b border-border print:hidden safe-top transition-transform duration-200 ${
+      className={`sticky top-0 z-40 bg-surface/95 backdrop-blur-none border-b border-border print:hidden safe-top transition-transform duration-200 ${
         isHidden ? 'short:-translate-y-full' : ''
       }`}
     >
-      <div className="max-w-6xl mx-auto px-3 sm:px-6 flex items-center h-14 short:h-11 gap-3">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center h-16 short:h-12 justify-between gap-3">
+        {/* Left: Logo & Site Title */}
         <Link
           to="/"
-          className="flex items-center gap-2 shrink-0 min-h-[44px] rounded-xl"
+          className="flex items-center gap-2.5 shrink-0 min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent outline-hidden"
           aria-label={`${t.siteTitle} – ${t.tabHome}`}
         >
-          <Logo className="w-7 h-7 short:w-5 short:h-5" />
-          <span className="font-semibold text-base tracking-tight text-text whitespace-nowrap">{t.siteTitle}</span>
+          <Logo className="w-8 h-8 short:w-6 short:h-6 shrink-0" />
+          <span className="hidden min-[360px]:inline-block font-bold text-base tracking-tight text-text whitespace-nowrap">
+            {t.siteTitle}
+          </span>
         </Link>
 
-        <nav className="hidden lg:flex short:hidden items-center gap-1 ml-4" aria-label="Hauptnavigation">
+        {/* Center: Desktop Navigation (hidden below 1024px) */}
+        <nav className="hidden lg:flex short:hidden items-center gap-1" aria-label="Hauptnavigation">
           {NAV_ITEMS.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -76,44 +77,71 @@ export const Navbar: React.FC<NavbarProps> = ({
                 key={item.id}
                 to={item.href}
                 aria-current={isActive ? 'page' : undefined}
-                className={`relative px-3 h-14 inline-flex items-center text-sm whitespace-nowrap transition-colors ${
-                  isActive ? 'text-text font-semibold' : 'text-text-secondary hover:text-text'
+                className={`relative px-3.5 py-2 rounded-control text-sm whitespace-nowrap transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
+                  isActive
+                    ? 'text-accent-text font-bold bg-accent-subtle/60'
+                    : 'text-text-secondary hover:text-text hover:bg-surface-2'
                 }`}
               >
                 {t[item.key]}
-                {isActive && <span className="absolute left-3 right-3 bottom-0 h-0.5 bg-accent" />}
               </Link>
             );
           })}
         </nav>
 
-        <div className="flex items-center gap-1 ml-auto">
+        {/* Right: Search, Saved, Settings */}
+        <div className="flex items-center gap-2">
+          {/* Desktop Search trigger button */}
           <button
             type="button"
             onClick={onOpenCommandPalette}
-            className="hidden lg:flex items-center gap-2 h-10 w-52 px-3 rounded-xl border border-border bg-surface-2 text-sm text-text-secondary hover:text-text transition-colors"
+            className="hidden lg:flex items-center gap-2.5 h-10 w-52 px-3.5 rounded-control bg-surface-2 text-sm text-text-secondary hover:text-text hover:bg-surface-2/80 transition-colors duration-150 ease-out border-0 outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={t.cmdKSearch}
           >
-            <Search className="w-4 h-4 shrink-0" />
-            <span className="flex-1 text-left truncate">{language === 'de' ? 'Suchen' : 'Search'}</span>
-            <kbd className="text-2xs px-1.5 py-0.5 rounded-lg border border-border bg-surface text-text-tertiary">
-              {isMac ? '⌘K' : 'Strg K'}
+            <Search className="w-4 h-4 text-text-tertiary shrink-0" strokeWidth={1.75} />
+            <span className="flex-1 text-left truncate">{language === 'de' ? 'Suchen...' : 'Search...'}</span>
+            <kbd className="text-2xs px-1.5 py-0.5 rounded-control bg-surface shadow-1 font-semibold text-text-tertiary tabular-nums">
+              {isMac ? '⌘K' : 'Ctrl K'}
             </kbd>
           </button>
 
-          <button type="button" onClick={onOpenCommandPalette} className={`lg:hidden ${iconBtn}`} aria-label={language === 'de' ? 'Suchen' : 'Search'}>
-            <Search className="w-5 h-5" />
+          {/* Mobile Search button */}
+          <button
+            type="button"
+            onClick={onOpenCommandPalette}
+            className="lg:hidden w-11 h-11 rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label={language === 'de' ? 'Suche öffnen' : 'Open search'}
+          >
+            <Search className="w-5 h-5" strokeWidth={1.75} />
           </button>
 
-          <Link to="/saved" className={iconBtn} aria-label={`${t.savedItems}${favoriteCount ? ` (${favoriteCount})` : ''}`}>
-            <Bookmark className={`w-5 h-5 ${activeTab === 'saved' ? 'text-accent fill-current' : ''}`} />
-            <span className="hidden sm:inline">{t.savedItems}</span>
-            {favoriteCount > 0 && <span className="text-xs tabular-nums text-text-tertiary">{favoriteCount}</span>}
+          {/* Saved Items */}
+          <Link
+            to="/saved"
+            className="relative w-11 h-11 rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label={`${t.savedItems}${favoriteCount > 0 ? ` (${favoriteCount})` : ''}`}
+          >
+            <Bookmark
+              className={`w-5 h-5 transition-colors ${
+                activeTab === 'saved' || favoriteCount > 0 ? 'text-accent fill-current' : ''
+              }`}
+              strokeWidth={1.75}
+            />
+            {favoriteCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-chip bg-accent text-accent-contrast text-2xs font-bold tabular-nums flex items-center justify-center leading-none">
+                {favoriteCount}
+              </span>
+            )}
           </Link>
 
-          <button type="button" onClick={onOpenMore} className={`hidden lg:inline-flex ${iconBtn}`} aria-label={t.tabSettings}>
-            <Settings className="w-5 h-5" />
-            <span className="hidden xl:inline">{t.tabSettings}</span>
+          {/* Settings button */}
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            className="w-11 h-11 rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label={t.tabSettings}
+          >
+            <Settings className="w-5 h-5" strokeWidth={1.75} />
           </button>
         </div>
       </div>
