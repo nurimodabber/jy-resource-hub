@@ -28,14 +28,14 @@ export function SegmentedControl<T extends string = string>({
   };
 
   const itemHeightStyles = {
-    sm: 'min-h-[40px] sm:min-h-[32px] px-3 py-1',
-    md: 'min-h-[44px] sm:min-h-[36px] px-3.5 py-1.5',
+    sm: 'min-h-[36px] px-3.5 py-1.5',
+    md: 'min-h-[44px] px-4 py-2',
   };
 
   return (
     <div
       role="tablist"
-      className={`inline-flex items-center bg-surface-2 p-1 rounded-xl border border-border-subtle max-w-full overflow-x-auto custom-scrollbar ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center bg-surface-2 p-1 rounded-chip border-0 max-w-full overflow-x-auto no-scrollbar ${sizeStyles[size]} ${className}`}
     >
       {options.map((option) => {
         const isSelected = value === option.id;
@@ -46,9 +46,9 @@ export function SegmentedControl<T extends string = string>({
             type="button"
             aria-selected={isSelected}
             onClick={() => onChange(option.id)}
-            className={`inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150 outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none shrink-0 gap-1.5 ${itemHeightStyles[size]} ${
+            className={`inline-flex items-center justify-center rounded-chip font-medium transition-all duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none shrink-0 gap-2 border-0 ${itemHeightStyles[size]} ${
               isSelected
-                ? 'bg-surface text-text border border-border font-semibold'
+                ? 'bg-surface text-text shadow-1 font-semibold'
                 : 'text-text-secondary hover:text-text'
             }`}
           >
@@ -56,8 +56,8 @@ export function SegmentedControl<T extends string = string>({
             <span className="truncate">{option.label}</span>
             {typeof option.count === 'number' && (
               <span
-                className={`text-2xs px-1.5 py-0.5 rounded-lg tabular-nums ${
-                  isSelected ? 'bg-black/5 dark:bg-white/10 text-text' : 'text-text-tertiary'
+                className={`text-xs px-2 py-0.5 rounded-chip tabular-nums font-semibold ${
+                  isSelected ? 'bg-surface-2 text-text' : 'bg-surface/60 text-text-tertiary'
                 }`}
               >
                 {option.count}

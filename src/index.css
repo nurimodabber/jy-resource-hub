@@ -4,59 +4,94 @@
 
 :root {
   color-scheme: light;
-  --bg: #F6F5F2;
+  --bg: #F7F9FC;
   --surface: #FFFFFF;
-  --surface-2: #F0EEE9;
+  --surface-2: #EEF2F8;
   --surface-raised: #FFFFFF;
-  --text: #1B1A17;
-  --text-secondary: #55514A;
-  --text-tertiary: #6B675F;
-  --border: rgba(27, 26, 23, 0.14);
-  --border-subtle: rgba(27, 26, 23, 0.07);
+  --border: #E3E8F0;
+  --border-subtle: #EEF2F8;
+  --text: #142033;
+  --text-secondary: #4A5568;
+  --text-tertiary: #5F6B7C;
 
-  /* One brand hue: burnt orange. Everything else is neutral. */
-  --brand: #1B1A17;
-  --brand-hover: #B4540A;
-  --accent: #B4540A;
-  --accent-hover: #9A4708;
+  --accent: #1F6FEB;
+  --accent-hover: #1859C4;
+  --accent-subtle: #E8F0FE;
+  --accent-text: #1850B8;
   --accent-contrast: #FFFFFF;
-  --accent-text: #8F4308;
-  --accent-subtle: #FBEFE4;
+  --highlight: #F5B82E;
+  --success: #167448;
+  --success-subtle: #E6F4EA;
+  --danger: #C13333;
 
-  /* Semantic: success only */
-  --sage: #2F7D4F;
-  --sage-subtle: rgba(47, 125, 79, 0.10);
+  /* Aliases for backwards compatibility */
+  --brand: var(--accent);
+  --brand-hover: var(--accent-hover);
+  --sage: var(--success);
+  --sage-subtle: var(--success-subtle);
+  --cat-bg: var(--surface-2);
+  --cat-text: var(--text-secondary);
 
-  /* Category tokens collapsed to neutral: colour never encodes category */
-  --cat-bg: #F0EEE9;
-  --cat-text: #55514A;
+  /* Radius tokens */
+  --r-chip: 9999px;
+  --r-control: 14px;
+  --r-card: 20px;
+  --r-sheet: 28px;
+  --r-dialog: 24px;
+
+  /* Elevation tokens */
+  --shadow-1: 0 1px 2px rgba(20, 32, 51, 0.06);
+  --shadow-2: 0 8px 24px rgba(20, 32, 51, 0.08);
+
+  /* Motion */
+  --transition-fast: 150ms ease-out;
+  --transition-sheet: 220ms ease-out;
 }
 
 .dark {
   color-scheme: dark;
-  --bg: #151412;
-  --surface: #1D1C19;
-  --surface-2: #262420;
-  --surface-raised: #2E2C27;
-  --text: #F1EFEA;
-  --text-secondary: #B8B3A8;
-  --text-tertiary: #8F8A7F;
-  --border: rgba(255, 255, 255, 0.14);
-  --border-subtle: rgba(255, 255, 255, 0.07);
+  --bg: #0E1626;
+  --surface: #162036;
+  --surface-2: #1E2A44;
+  --surface-raised: #202D49;
+  --border: #2A3858;
+  --border-subtle: #1E2A44;
+  --text: #EEF2FA;
+  --text-secondary: #AAB6CC;
+  --text-tertiary: #8D9AB3;
 
-  --brand: #F1EFEA;
-  --brand-hover: #E58A45;
-  --accent: #E58A45;
-  --accent-hover: #F0A066;
-  --accent-contrast: #1A1208;
-  --accent-text: #F0A066;
-  --accent-subtle: rgba(229, 138, 69, 0.14);
+  --accent: #6FA3FF;
+  --accent-hover: #8DB8FF;
+  --accent-subtle: #1B2E55;
+  --accent-text: #A9C8FF;
+  --accent-contrast: #0A1426;
+  --highlight: #F5B82E;
+  --success: #4FC08A;
+  --success-subtle: #123824;
+  --danger: #FF8A8A;
 
-  --sage: #6FCF97;
-  --sage-subtle: rgba(111, 207, 151, 0.12);
+  /* Aliases for backwards compatibility */
+  --brand: var(--accent);
+  --brand-hover: var(--accent-hover);
+  --sage: var(--success);
+  --sage-subtle: var(--success-subtle);
+  --cat-bg: var(--surface-2);
+  --cat-text: var(--text-secondary);
 
-  --cat-bg: #262420;
-  --cat-text: #B8B3A8;
+  /* Radius tokens */
+  --r-chip: 9999px;
+  --r-control: 14px;
+  --r-card: 20px;
+  --r-sheet: 28px;
+  --r-dialog: 24px;
+
+  /* Elevation tokens */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.50);
+
+  /* Motion */
+  --transition-fast: 150ms ease-out;
+  --transition-sheet: 220ms ease-out;
 }
 
 @layer base {

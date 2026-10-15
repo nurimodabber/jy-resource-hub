@@ -88,15 +88,15 @@ export const Dialog: React.FC<DialogProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-60 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-60 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? 'dialog-title' : undefined}
       aria-describedby={description ? 'dialog-desc' : undefined}
     >
-      {/* Backdrop (Darkened and blurred, covers entire viewport above header) */}
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60  transition-opacity"
+        className="fixed inset-0 bg-black/60 transition-opacity duration-150 ease-out"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -105,19 +105,19 @@ export const Dialog: React.FC<DialogProps> = ({
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`relative w-full ${maxWidthClasses[maxWidth]} bg-surface rounded-2xl border border-border shadow-apple-modal overflow-hidden z-10 my-auto flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] animate-in fade-in zoom-in-95 duration-200 outline-hidden`}
+        className={`relative w-full ${maxWidthClasses[maxWidth]} bg-surface rounded-dialog shadow-2 border-0 overflow-hidden z-10 my-auto flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] animate-in fade-in zoom-in-95 duration-150 ease-out outline-hidden`}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-5 sm:p-6 border-b border-border-subtle bg-surface sticky top-0 z-10 shrink-0">
+          <div className="flex items-center justify-between p-5 sm:p-6 border-b border-border bg-surface sticky top-0 z-10 shrink-0">
             <div>
               {title && (
-                <h2 id="dialog-title" className="text-lg sm:text-xl font-semibold tracking-tight text-text">
+                <h2 id="dialog-title" className="text-xl font-bold tracking-tight text-text">
                   {title}
                 </h2>
               )}
               {description && (
-                <p id="dialog-desc" className="text-xs sm:text-sm text-text-secondary mt-0.5">
+                <p id="dialog-desc" className="text-sm text-text-secondary mt-1">
                   {description}
                 </p>
               )}
@@ -130,7 +130,7 @@ export const Dialog: React.FC<DialogProps> = ({
                 variant="ghost"
                 className="text-text-secondary hover:text-text -mr-2"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" strokeWidth={1.75} />
               </IconButton>
             )}
           </div>

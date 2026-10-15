@@ -24,6 +24,7 @@ const ImpressumView = lazy(() => import('./components/ImpressumView').then(m => 
 const DatenschutzView = lazy(() => import('./components/DatenschutzView').then(m => ({ default: m.DatenschutzView })));
 const SavedView = lazy(() => import('./components/SavedView').then(m => ({ default: m.SavedView })));
 const NotFoundView = lazy(() => import('./components/NotFoundView').then(m => ({ default: m.NotFoundView })));
+const GalleryView = lazy(() => import('./components/ui/Gallery').then(m => ({ default: m.Gallery })));
 
 const RouteLoading: React.FC = () => (
   <div className="flex items-center justify-center py-24 min-h-[300px]" role="status" aria-label="Loading">
@@ -291,6 +292,8 @@ export const AppContent: React.FC = () => {
                 />
               }
             />
+
+            <Route path="/_design" element={<GalleryView />} />
 
             {/* Real 404 Route */}
             <Route path="*" element={<NotFoundView language={language} />} />

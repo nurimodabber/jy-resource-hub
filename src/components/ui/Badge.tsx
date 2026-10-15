@@ -1,12 +1,8 @@
 import React from 'react';
 
-/**
- * One static label style. Colour never encodes category; the `category`
- * prop is kept only so existing call sites keep compiling.
- */
 export type BadgeCategory =
   | 'cooperative' | 'social' | 'competitive' | 'energizer'
-  | 'service' | 'arts' | 'devotional' | 'study' | 'neutral' | 'accent';
+  | 'service' | 'arts' | 'devotional' | 'study' | 'neutral' | 'accent' | 'success' | 'danger';
 
 export interface BadgeProps {
   category?: BadgeCategory;
@@ -23,16 +19,29 @@ export const Badge: React.FC<BadgeProps> = ({
   className = '',
   size = 'md',
 }) => {
-  const tone =
-    category === 'accent'
-      ? 'bg-accent-subtle text-accent-text'
-      : 'bg-surface-2 text-text-secondary';
-  const sizeStyles = {
-    sm: 'text-2xs px-2 py-0.5 gap-1',
-    md: 'text-xs px-2.5 py-1 gap-1.5',
+  const toneMap: Record<BadgeCategory, string> = {
+    accent: 'bg-accent-subtle text-accent-text',
+    success: 'bg-success/15 text-success',
+    danger: 'bg-danger/15 text-danger',
+    neutral: 'bg-surface-2 text-text-secondary',
+    cooperative: 'bg-surface-2 text-text-secondary',
+    social: 'bg-surface-2 text-text-secondary',
+    competitive: 'bg-surface-2 text-text-secondary',
+    energizer: 'bg-surface-2 text-text-secondary',
+    service: 'bg-surface-2 text-text-secondary',
+    arts: 'bg-surface-2 text-text-secondary',
+    devotional: 'bg-surface-2 text-text-secondary',
+    study: 'bg-surface-2 text-text-secondary',
   };
+
+  const tone = toneMap[category] || 'bg-surface-2 text-text-secondary';
+  const sizeStyles = {
+    sm: 'text-xs px-2.5 py-0.5 gap-1',
+    md: 'text-xs px-3 py-1 gap-1.5',
+  };
+
   return (
-    <span className={`inline-flex items-center font-medium rounded-lg ${sizeStyles[size]} ${tone} ${className}`}>
+    <span className={`inline-flex items-center font-medium rounded-chip ${sizeStyles[size]} ${tone} ${className}`}>
       {icon && <span className="shrink-0">{icon}</span>}
       <span className="truncate">{children}</span>
     </span>
