@@ -210,7 +210,7 @@ export interface ArtsPrompt {
 
 export type ActivityItem = ServiceProject | ArtsPrompt;
 
-export type SessionSlotType = 'warmup' | 'devotional' | 'study' | 'arts_discussion' | 'service' | 'closing';
+export type SessionSlotType = 'warmup' | 'devotional' | 'study' | 'arts_discussion' | 'service' | 'closing' | 'custom';
 
 export interface SessionSlot {
   id: string;
@@ -238,5 +238,7 @@ export interface SessionPlan {
   createdAt: number;
   updatedAt: number;
   slots: SessionSlot[];
+  startTime?: string;
+  targetDurationMinutes?: number;
 }
 

@@ -253,7 +253,7 @@ export const AppContent: React.FC = () => {
             />
 
             <Route
-              path="/planner"
+              path="/treffen"
               element={
                 <SessionBuilder
                   language={language}
@@ -263,6 +263,10 @@ export const AppContent: React.FC = () => {
                   favorites={favorites}
                 />
               }
+            />
+            <Route
+              path="/planner"
+              element={<Navigate to="/treffen" replace />}
             />
 
             <Route
