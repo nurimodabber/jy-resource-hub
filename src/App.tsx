@@ -65,7 +65,9 @@ export const AppContent: React.FC = () => {
     return 'home';
   }, [location.pathname]);
 
-  const isGameDetail = location.pathname.startsWith('/games/') && location.pathname !== '/games';
+  const isDetailPage =
+    (location.pathname.startsWith('/games/') && location.pathname !== '/games') ||
+    (location.pathname.startsWith('/service-arts/') && location.pathname !== '/service-arts');
 
   const searchQuery = '';
   const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);
@@ -268,6 +270,8 @@ export const AppContent: React.FC = () => {
                 <ServiceArtsView
                   language={language}
                   searchQuery={searchQuery}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
                   onAddToPlanner={handleAddToPlanner}
                 />
               }
@@ -278,6 +282,8 @@ export const AppContent: React.FC = () => {
                 <ServiceArtsView
                   language={language}
                   searchQuery={searchQuery}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
                   onAddToPlanner={handleAddToPlanner}
                 />
               }
@@ -321,7 +327,7 @@ export const AppContent: React.FC = () => {
       </main>
 
       {/* Mobile Portrait Bottom Tab Bar */}
-      {!isGameDetail && (
+      {!isDetailPage && (
         <BottomTabBar
           activeTab={activeTab}
           onSelectTab={handleTabChange}

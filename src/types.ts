@@ -157,12 +157,25 @@ export type ServiceProjectCategory =
 
 export type ServiceProjectScope = 'quick' | 'medium' | 'deep';
 
+export type ActivityKind = 'dienst' | 'kunst';
+export type ActivitySetting = 'drinnen' | 'draussen' | 'beides';
+export type ActivityOccasion = 'treffen' | 'camp' | 'beides';
+
 export interface ServiceProject {
   id: string;
+  kind: 'dienst';
   title: LocalizedString;
   category: ServiceProjectCategory;
   scope: ServiceProjectScope;
   duration: LocalizedString;
+  durationMin: number;
+  durationMax: number;
+  groupSize: {
+    min: number;
+    max: number;
+  };
+  setting: ActivitySetting;
+  occasion: ActivityOccasion;
   materials: LocalizedArray;
   objective: LocalizedString;
   steps: LocalizedArray;
@@ -174,15 +187,28 @@ export type ArtForm = 'drama' | 'music_poetry' | 'visual_arts' | 'collaborative_
 
 export interface ArtsPrompt {
   id: string;
+  kind: 'kunst';
   title: LocalizedString;
   book: LocalizedString;
   artForm: ArtForm;
   theme: LocalizedString;
   description: LocalizedString;
+  durationMin: number;
+  durationMax: number;
+  duration: LocalizedString;
+  groupSize: {
+    min: number;
+    max: number;
+  };
+  setting: ActivitySetting;
+  occasion: ActivityOccasion;
   materials: LocalizedArray;
   guidingSteps: LocalizedArray;
   reflectionPrompts: LocalizedArray;
+  animatorTips?: LocalizedArray;
 }
+
+export type ActivityItem = ServiceProject | ArtsPrompt;
 
 export type SessionSlotType = 'warmup' | 'devotional' | 'study' | 'arts_discussion' | 'service' | 'closing';
 
