@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark } from 'lucide-react';
+import { Users, Clock, Bookmark } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -13,31 +13,95 @@ interface GameCardProps {
 
 export const gameMeta = (game: Game, language: Language) => {
   const t = UI_TRANSLATIONS[language];
-  const energy = game.energyLevel === 'high' ? t.filterHighEnergy : game.energyLevel === 'medium' ? t.filterMediumEnergy : t.filterCalmEnergy;
+  const energy =
+    game.energyLevel === 'high'
+      ? t.filterHighEnergy
+      : game.energyLevel === 'medium'
+      ? t.filterMediumEnergy
+      : t.filterCalmEnergy;
   return [`${game.groupSize.min}–${game.groupSize.max} ${t.peopleSuffix}`, game.durationMinutes, energy];
 };
 
-/** Fixed meta order everywhere: group size, duration, energy. */
+export const EnergyDots: React.FC<{ energyLevel: Game['energyLevel']; label: string }> = ({
+  energyLevel,
+  label,
+}) => {
+  const filledCount = energyLevel === 'high' ? 3 : energyLevel === 'medium' ? 2 : 1;
+  return (
+    <span className="inline-flex items-center gap-1" title={label} aria-label={label}>
+      {[0, 1, 2].map((idx) => (
+        <span
+          key={idx}
+          className={`w-1.5 h-1.5 rounded-full transition-colors ${
+            idx < filledCount ? 'bg-accent' : 'bg-border-strong opacity-40'
+          }`}
+          aria-hidden="true"
+        />
+      ))}
+      <span className="sr-only">{label}</span>
+    </span>
+  );
+};
+
 export const GameCard: React.FC<GameCardProps> = ({ game, language, isFavorite, onToggleFavorite }) => {
   const t = UI_TRANSLATIONS[language];
+  const subtitle = game.subtitle ? game.subtitle[language] : null;
+  const energyLabel =
+    game.energyLevel === 'high'
+      ? t.filterHighEnergy
+      : game.energyLevel === 'medium'
+      ? t.filterMediumEnergy
+      : t.filterCalmEnergy;
+
   return (
-    <div className="relative h-full flex items-stretch bg-surface border border-border rounded-xl hover:border-text-tertiary transition-colors">
-      <Link to={`/games/${game.id}`} className="flex-1 min-w-0 p-4 pr-12 rounded-xl">
-        <h3 className="text-base font-semibold text-text leading-snug line-clamp-2">{game.title[language]}</h3>
-        <p className="text-sm text-text-secondary mt-1 line-clamp-2">{game.summary[language]}</p>
-        <p className="text-xs text-text-tertiary mt-2 tabular-nums">{gameMeta(game, language).join(' · ')}</p>
+    <div className="group relative h-full flex flex-col justify-between bg-surface border border-border rounded-card hover:border-border-strong hover:shadow-card transition-all p-4">
+      <Link to={`/games/${game.id}`} className="block flex-1 min-w-0 pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-control">
+        <h3 className="text-base font-semibold text-text leading-snug line-clamp-2 group-hover:text-accent-text transition-colors">
+          {game.title[language]}
+        </h3>
+        {subtitle ? (
+          <p className="text-xs text-text-secondary line-clamp-1 mt-0.5">
+            {subtitle}
+          </p>
+        ) : (
+          <span className="block h-4 mt-0.5" aria-hidden="true" />
+        )}
       </Link>
+
+      {/* Top right bookmark button: touch target min 44x44px */}
       <button
         type="button"
         onClick={(e) => onToggleFavorite(game.id, e)}
         aria-pressed={isFavorite}
         aria-label={`${t.savedItems}: ${game.title[language]}`}
-        className={`absolute top-1.5 right-1.5 w-10 h-10 inline-flex items-center justify-center rounded-lg hover:bg-surface-2 ${
-          isFavorite ? 'text-accent-text' : 'text-text-tertiary'
+        className={`absolute top-2 right-2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control hover:bg-surface-2 transition-colors ${
+          isFavorite ? 'text-accent' : 'text-text-tertiary hover:text-text'
         }`}
       >
         <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
       </button>
+
+      {/* Meta row with icons and 3-dot energy meter */}
+      <div className="flex items-center gap-3 pt-3 mt-2 border-t border-border/50 text-xs text-text-tertiary tabular-nums">
+        <div className="inline-flex items-center gap-1.5 shrink-0" title={`${t.filterGroupSize}: ${game.groupSize.min}–${game.groupSize.max} ${t.peopleSuffix}`}>
+          <Users className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
+          <span>{game.groupSize.min}–{game.groupSize.max}</span>
+        </div>
+
+        <span className="text-border" aria-hidden="true">·</span>
+
+        <div className="inline-flex items-center gap-1.5 shrink-0" title={`${t.filterDuration}: ${game.durationMinutes}`}>
+          <Clock className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
+          <span>{game.durationMinutes}</span>
+        </div>
+
+        <span className="text-border" aria-hidden="true">·</span>
+
+        <div className="inline-flex items-center gap-1.5 ml-auto shrink-0" title={`${t.filterEnergy}: ${energyLabel}`}>
+          <EnergyDots energyLevel={game.energyLevel} label={`${t.filterEnergy}: ${energyLabel}`} />
+          <span className="text-[11px] text-text-secondary">{energyLabel}</span>
+        </div>
+      </div>
     </div>
   );
 };

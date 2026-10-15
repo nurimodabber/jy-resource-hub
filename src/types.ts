@@ -14,11 +14,15 @@ export interface LocalizedArray {
   en: string[];
 }
 
+export type GamePurpose = 'kennenlernen' | 'energie' | 'zusammenarbeit' | 'ruhe' | 'raten';
+
 export interface Game {
   id: string;
   title: LocalizedString;
+  subtitle?: LocalizedString;
   category: GameCategory;
   energyLevel: EnergyLevel;
+  purpose: GamePurpose;
   groupSize: {
     min: number;
     max: number;
@@ -26,6 +30,8 @@ export interface Game {
   prepLevel: PrepLevel;
   materials: LocalizedArray;
   durationMinutes: string;
+  durationMin: number;
+  durationMax: number;
   space: LocalizedString;
   summary: LocalizedString;
   idea: LocalizedString;

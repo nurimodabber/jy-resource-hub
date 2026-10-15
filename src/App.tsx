@@ -65,6 +65,8 @@ export const AppContent: React.FC = () => {
     return 'home';
   }, [location.pathname]);
 
+  const isGameDetail = location.pathname.startsWith('/games/') && location.pathname !== '/games';
+
   const searchQuery = '';
   const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -319,11 +321,13 @@ export const AppContent: React.FC = () => {
       </main>
 
       {/* Mobile Portrait Bottom Tab Bar */}
-      <BottomTabBar
-        activeTab={activeTab}
-        onSelectTab={handleTabChange}
-        language={language}
-      />
+      {!isGameDetail && (
+        <BottomTabBar
+          activeTab={activeTab}
+          onSelectTab={handleTabChange}
+          language={language}
+        />
+      )}
 
       {/* Settings Sheet (Appearance, Language, Group, Backup, Offline) */}
       <SettingsSheet
