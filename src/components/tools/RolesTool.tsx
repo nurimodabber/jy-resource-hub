@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight, RotateCcw, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Language } from '../../types';
 import {
   SPY_PACKS,
@@ -11,38 +11,14 @@ import {
   KILLER_VARIANTS,
   NoOneOutVariant,
 } from '../../data/roleContent';
-import { useLocalState } from '../../hooks/useLocalState';
 import { useWakeLock } from '../../hooks/useWakeLock';
 import { shuffle } from '../../utils/random';
-import { NAMES_KEY, parseNames } from '../../utils/groupNames';
+import { loadPresentNames } from '../../utils/groupNames';
 import { tr, Panel, Label, ChoiceChips, primaryBtn, secondaryBtn, chipCls } from './common';
 import { PassAround } from './PassAround';
+import { GroupManager } from './GroupManager';
 
 type Game = 'spy' | 'whoami' | 'werewolf' | 'killer';
-
-const useNames = () => {
-  const [text, setText] = useLocalState<string>(NAMES_KEY, '');
-  const names = useMemo(() => parseNames(text), [text]);
-  return { text, setText, names };
-};
-
-const NamesField: React.FC<{ language: Language; text: string; onChange: (s: string) => void; count: number }> = ({ language, text, onChange, count }) => {
-  const L = tr(language);
-  return (
-    <div>
-      <Label htmlFor="roles-names">{L('Mitspielende (ein Name pro Zeile oder mit Komma)', 'Players (one name per line or comma-separated)')}</Label>
-      <textarea
-        id="roles-names"
-        rows={3}
-        value={text}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full p-3 rounded-xl bg-surface-2 border border-border text-sm"
-        placeholder="Amin, Leyla, Jonas, Maya"
-      />
-      <p className="text-xs text-text-tertiary mt-1 tabular-nums">{L(`${count} Personen`, `${count} players`)}</p>
-    </div>
-  );
-};
 
 const VariantPicker: React.FC<{ language: Language; variants: NoOneOutVariant[]; value: string | null; onChange: (id: string | null) => void }> = ({
   language,
@@ -59,14 +35,14 @@ const VariantPicker: React.FC<{ language: Language; variants: NoOneOutVariant[];
         <ChoiceChips
           value={value}
           onChange={onChange}
-          allLabel={L('Klassisch', 'Classic')}
+          allLabel={L('Klassisch (mit Ausscheiden)', 'Classic (with elimination)')}
           options={variants.map((x) => ({ id: x.id, label: x.name[language] }))}
         />
       </div>
       {v && (
-        <div className="p-4 rounded-xl bg-surface-2 border border-border text-sm">
-          <p className="text-text mb-2">{v.summary[language]}</p>
-          <ul className="list-disc pl-5 space-y-1 text-text-secondary">
+        <div className="p-4 rounded-card bg-accent-subtle border border-accent/30 text-xs space-y-1.5">
+          <p className="font-bold text-accent-text">{v.summary[language]}</p>
+          <ul className="list-disc pl-4 space-y-1 text-text-secondary">
             {v.rules[language].flatMap((r) => r.split('|')).map((r, i) => (
               <li key={i}>{r}</li>
             ))}
@@ -77,15 +53,46 @@ const VariantPicker: React.FC<{ language: Language; variants: NoOneOutVariant[];
   );
 };
 
-/* ---------------- Spy ---------------- */
-const SpyGame: React.FC<{ language: Language }> = ({ language }) => {
+/* ---------------- Spy with Timer & Voting Helper ---------------- */
+const SpyGame: React.FC<{ language: Language; names: string[] }> = ({ language, names }) => {
   const L = tr(language);
-  const { text, setText, names } = useNames();
   const [packId, setPackId] = useState(SPY_PACKS[0]?.id ?? '');
   const [phase, setPhase] = useState<'setup' | 'deal' | 'play'>('setup');
   const [deal, setDeal] = useState<{ location: string; roles: string[]; spy: number } | null>(null);
   const [revealed, setRevealed] = useState(false);
+
+  // Round timer state (default 8 minutes / 480 seconds)
+  const [timerDuration, setTimerDuration] = useState(480);
+  const [secondsLeft, setSecondsLeft] = useState(480);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const endRef = useRef(0);
+
+  // Voting helper
+  const [accused, setAccused] = useState<string | null>(null);
+
   useWakeLock(phase !== 'setup');
+
+  useEffect(() => {
+    if (!timerRunning || phase !== 'play') return;
+    const interval = setInterval(() => {
+      const left = Math.max(0, Math.ceil((endRef.current - Date.now()) / 1000));
+      setSecondsLeft(left);
+      if (left === 0) {
+        setTimerRunning(false);
+        try {
+          navigator.vibrate?.([200, 100, 200]);
+        } catch {
+          /* ignore */
+        }
+      }
+    }, 250);
+    return () => clearInterval(interval);
+  }, [timerRunning, phase]);
+
+  const startTimer = () => {
+    endRef.current = Date.now() + secondsLeft * 1000;
+    setTimerRunning(true);
+  };
 
   const start = () => {
     const pack = SPY_PACKS.find((p) => p.id === packId) ?? SPY_PACKS[0];
@@ -93,67 +100,177 @@ const SpyGame: React.FC<{ language: Language }> = ({ language }) => {
     const roles = shuffle(loc.roles).map((r) => r[language]);
     setDeal({ location: loc.name[language], roles, spy: Math.floor(Math.random() * names.length) });
     setRevealed(false);
+    setSecondsLeft(timerDuration);
+    setTimerRunning(false);
+    setAccused(null);
     setPhase('deal');
   };
 
-  if (phase === 'setup')
+  if (phase === 'setup') {
     return (
       <div className="space-y-4">
         <Panel className="space-y-4">
-          <NamesField language={language} text={text} onChange={setText} count={names.length} />
           <div>
             <Label>{L('Themenpaket', 'Pack')}</Label>
-            <ChoiceChips value={packId} onChange={(id) => id && setPackId(id)} options={SPY_PACKS.map((p) => ({ id: p.id, label: p.name[language] }))} />
+            <ChoiceChips
+              value={packId}
+              onChange={(id) => id && setPackId(id)}
+              options={SPY_PACKS.map((p) => ({ id: p.id, label: p.name[language] }))}
+            />
+          </div>
+
+          <div>
+            <Label>{L('Rundenzeit', 'Round duration')}</Label>
+            <div className="flex gap-2">
+              {[300, 480, 600].map((sec) => (
+                <button
+                  key={sec}
+                  type="button"
+                  onClick={() => {
+                    setTimerDuration(sec);
+                    setSecondsLeft(sec);
+                  }}
+                  className={chipCls(timerDuration === sec)}
+                >
+                  {sec / 60} Min.
+                </button>
+              ))}
+            </div>
           </div>
         </Panel>
-        <button type="button" onClick={start} disabled={names.length < 3} className={`${primaryBtn} w-full`}>
-          {L('Karten verteilen', 'Deal cards')}
+
+        <button
+          type="button"
+          onClick={start}
+          disabled={names.length < 3}
+          className={`${primaryBtn} w-full`}
+        >
+          {L('Karten verteilen', 'Deal cards')} ({names.length} {L('Personen', 'players')})
         </button>
-        {names.length < 3 && <p className="text-xs text-text-tertiary">{L('Mindestens 3 Personen.', 'At least 3 players.')}</p>}
+        {names.length < 3 && (
+          <p className="text-xs text-text-tertiary">
+            {L('Mindestens 3 anwesende Personen in „Meine Gruppe“ erforderlich.', 'At least 3 present players required.')}
+          </p>
+        )}
       </div>
     );
+  }
 
-  if (phase === 'deal' && deal)
+  if (phase === 'deal' && deal) {
     return (
       <PassAround
         language={language}
         players={names}
-        doneLabel={L('Runde starten', 'Start round')}
-        onDone={() => setPhase('play')}
+        doneLabel={L('Runde starten (Timer läuft)', 'Start round (Timer on)')}
+        onDone={() => {
+          setPhase('play');
+          endRef.current = Date.now() + secondsLeft * 1000;
+          setTimerRunning(true);
+        }}
         renderCard={(i) =>
           i === deal.spy ? (
-            <p className="text-3xl font-semibold text-accent-text">{L('Du bist der Spion', 'You are the spy')}</p>
+            <div className="p-6 rounded-card bg-accent-subtle border border-accent/30 space-y-2">
+              <span className="text-2xs font-bold uppercase tracking-wider text-accent-text">🕵️ Geheime Rolle</span>
+              <p className="text-3xl font-extrabold text-accent-text">{L('Du bist der Spion!', 'You are the spy!')}</p>
+              <p className="text-xs text-text-secondary mt-2">
+                {L('Du kennst den Ort nicht. Höre aufmerksam zu und versuche herauszufinden, wo ihr seid, ohne dich zu verraten.', 'You do not know the location. Listen carefully and deduce it without blowing your cover.')}
+              </p>
+            </div>
           ) : (
-            <div>
-              <p className="text-xs text-text-tertiary">{L('Ort', 'Location')}</p>
-              <p className="text-3xl font-semibold text-text">{deal.location}</p>
-              <p className="text-sm text-text-secondary mt-3">{L('Deine Rolle', 'Your role')}: {deal.roles[i % deal.roles.length]}</p>
+            <div className="p-6 rounded-card bg-surface-2 border border-border space-y-2">
+              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">{L('Geheimer Ort', 'Secret Location')}</span>
+              <p className="text-3xl font-extrabold text-text">{deal.location}</p>
+              <p className="text-xs text-text-secondary mt-2">
+                {L('Deine Rolle', 'Your role')}: <strong className="text-text">{deal.roles[i % deal.roles.length]}</strong>
+              </p>
             </div>
           )
         }
       />
     );
+  }
+
+  const fmtMinSec = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   return (
     <div className="space-y-4">
-      <Panel className="text-center py-8">
-        <p className="text-lg font-semibold">{L('Die Runde läuft', 'The round is on')}</p>
-        <p className="text-sm text-text-secondary mt-1 max-w-sm mx-auto">
-          {L('Stellt euch reihum Fragen zum Ort. Wer glaubt, den Spion zu kennen, darf eine Abstimmung verlangen.', 'Take turns asking each other questions about the location. Anyone who thinks they know the spy may call a vote.')}
-        </p>
-        {revealed && deal && (
-          <p className="mt-5 text-sm">
-            {L('Ort', 'Location')}: <strong>{deal.location}</strong> · {L('Spion', 'Spy')}: <strong>{names[deal.spy]}</strong>
+      {/* Timer & Round Status */}
+      <Panel className="text-center py-6 space-y-4">
+        <div>
+          <span className="text-2xs font-bold uppercase tracking-wider text-accent-text">
+            {L('Die Runde läuft', 'The round is on')}
+          </span>
+          <div className="text-5xl sm:text-6xl font-mono font-extrabold text-text tabular-nums my-2">
+            {fmtMinSec(secondsLeft)}
+          </div>
+          <p className="text-xs text-text-secondary max-w-sm mx-auto">
+            {L('Stellt euch reihum Fragen zum Ort. Wer glaubt, den Spion zu kennen, darf eine Abstimmung verlangen.', 'Take turns asking questions about the location. Anyone who suspects the spy may call a vote.')}
+          </p>
+        </div>
+
+        <div className="flex justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => (timerRunning ? setTimerRunning(false) : startTimer())}
+            className="px-4 py-2 rounded-control bg-accent text-accent-contrast font-bold text-xs"
+          >
+            {timerRunning ? L('Timer Pause', 'Pause timer') : L('Timer Start', 'Resume timer')}
+          </button>
+        </div>
+      </Panel>
+
+      {/* Voting Helper ("Abstimmungshilfe") */}
+      <Panel className="space-y-3">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-text">
+          {L('Abstimmungshilfe: Wer wird verdächtigt?', 'Voting Helper: Who is accused?')}
+        </h4>
+        <div className="flex flex-wrap gap-2">
+          {names.map((person) => (
+            <button
+              key={person}
+              type="button"
+              onClick={() => setAccused(accused === person ? null : person)}
+              className={chipCls(accused === person)}
+            >
+              {person}
+            </button>
+          ))}
+        </div>
+        {accused && (
+          <p className="text-xs text-text-secondary bg-surface-2 p-3 rounded-control border border-border">
+            {L(
+              `Stimmt jetzt alle ab: Wer glaubt, dass ${accused} der Spion ist? Wenn eine Mehrheit dafür stimmt, muss ${accused} die Identität enthüllen.`,
+              `Vote now: Who believes ${accused} is the spy? If a majority agrees, ${accused} must reveal their identity.`
+            )}
           </p>
         )}
       </Panel>
+
+      {/* Resolution */}
+      {revealed && deal && (
+        <Panel className="text-center py-4 bg-accent-subtle border border-accent/30">
+          <p className="text-sm font-bold text-accent-text">
+            {L('Ort', 'Location')}: <strong className="text-text">{deal.location}</strong> · {L('Spion war', 'Spy was')}: <strong className="text-text">{names[deal.spy]}</strong>
+          </p>
+        </Panel>
+      )}
+
       <div className="flex gap-2">
-        <button type="button" onClick={() => setRevealed(true)} disabled={revealed} className={`${secondaryBtn} flex-1`}>
-          {L('Auflösen', 'Reveal')}
+        <button
+          type="button"
+          onClick={() => setRevealed(true)}
+          disabled={revealed}
+          className={`${secondaryBtn} flex-1`}
+        >
+          {L('Spion & Ort auflösen', 'Reveal')}
         </button>
-        <button type="button" onClick={() => setPhase('setup')} className={`${primaryBtn} flex-1`}>
+        <button
+          type="button"
+          onClick={() => setPhase('setup')}
+          className={`${primaryBtn} flex-1`}
+        >
           <RotateCcw className="w-4 h-4" />
-          {L('Neue Runde', 'New round')}
+          <span>{L('Neue Runde', 'New round')}</span>
         </button>
       </div>
     </div>
@@ -161,9 +278,8 @@ const SpyGame: React.FC<{ language: Language }> = ({ language }) => {
 };
 
 /* ---------------- Who am I ---------------- */
-const WhoAmIGame: React.FC<{ language: Language }> = ({ language }) => {
+const WhoAmIGame: React.FC<{ language: Language; names: string[] }> = ({ language, names }) => {
   const L = tr(language);
-  const { text, setText, names } = useNames();
   const [packId, setPackId] = useState(WHO_AM_I_PACKS[0]?.id ?? '');
   const [deal, setDeal] = useState<string[] | null>(null);
   const [done, setDone] = useState(false);
@@ -175,59 +291,72 @@ const WhoAmIGame: React.FC<{ language: Language }> = ({ language }) => {
     setDone(false);
   };
 
-  if (!deal)
+  if (!deal) {
     return (
       <div className="space-y-4">
         <Panel className="space-y-4">
-          <NamesField language={language} text={text} onChange={setText} count={names.length} />
           <div>
             <Label>{L('Themenpaket', 'Pack')}</Label>
             <ChoiceChips
               value={packId}
               onChange={(id) => id && setPackId(id)}
-              options={WHO_AM_I_PACKS.map((p) => ({ id: p.id, label: `${p.name[language]} · ${'●'.repeat(p.difficulty)}` }))}
+              options={WHO_AM_I_PACKS.map((p) => ({
+                id: p.id,
+                label: `${p.name[language]} · ${'●'.repeat(p.difficulty)}`,
+              }))}
             />
           </div>
         </Panel>
-        <button type="button" onClick={start} disabled={names.length < 2} className={`${primaryBtn} w-full`}>
-          {L('Begriffe verteilen', 'Deal terms')}
+        <button
+          type="button"
+          onClick={start}
+          disabled={names.length < 2}
+          className={`${primaryBtn} w-full`}
+        >
+          {L('Begriffe verteilen', 'Deal terms')} ({names.length} {L('Personen', 'players')})
         </button>
         <p className="text-xs text-text-tertiary">
           {L('Jede Person bekommt einen Begriff, den alle anderen sehen, nur sie selbst nicht. Schreibt ihn auf einen Zettel und klebt ihn auf die Stirn.', 'Each person gets a term that everyone else sees but they do not. Write it on a sticky note and stick it on their forehead.')}
         </p>
       </div>
     );
+  }
 
-  if (!done)
+  if (!done) {
     return (
       <PassAround
         language={language}
         players={names}
-        doneLabel={L('Fertig', 'Done')}
-        hiddenHint={(n) => L(`Alle außer ${n} schauen. Handy zeigen an`, `Everyone except ${n} looks. Show the phone to`)}
+        doneLabel={L('Fertig (Alle Zettel sind geklebt)', 'Done')}
+        hiddenHint={(n) => L(`Alle außer ${n} schauen. Handy zeigen an`, `Everyone except ${n} looks. Show phone to`)}
         onDone={() => setDone(true)}
         renderCard={(i) => (
-          <div>
-            <p className="text-xs text-text-tertiary">{L('Der Begriff für den Zettel', 'The term for the note')}</p>
-            <p className="text-3xl font-semibold text-text">{deal[i]}</p>
+          <div className="p-6 rounded-card bg-surface-2 border border-border">
+            <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary mb-1">
+              {L('Der Begriff für den Zettel auf der Stirn', 'The term for their forehead')}
+            </p>
+            <p className="text-3xl font-extrabold text-text">{deal[i]}</p>
           </div>
         )}
       />
     );
+  }
 
   return (
     <Panel className="text-center py-8 space-y-4">
-      <p className="text-lg font-semibold">{L('Alle haben ihren Zettel', 'Everyone has a note')}</p>
-      <p className="text-sm text-text-secondary">{L('Stellt reihum Ja-Nein-Fragen, bis ihr euren Begriff erraten habt.', 'Take turns asking yes-or-no questions until you guess your term.')}</p>
+      <p className="text-lg font-bold">{L('Alle haben ihren Zettel', 'Everyone has a note')}</p>
+      <p className="text-xs text-text-secondary max-w-md mx-auto">
+        {L('Stellt reihum Ja-Nein-Fragen, bis ihr euren Begriff erraten habt. Bei einem „Ja“ darf man noch einmal fragen.', 'Take turns asking yes-or-no questions until you guess your term.')}
+      </p>
       <button type="button" onClick={() => setDeal(null)} className={secondaryBtn}>
         <RotateCcw className="w-4 h-4" />
-        {L('Neue Runde', 'New round')}
+        <span>{L('Neue Runde', 'New round')}</span>
       </button>
     </Panel>
   );
 };
 
-/* ---------------- Werewolf ---------------- */
+/* ---------------- Werewolf with Narrator & Quick Setup ---------------- */
 const roleOfStep = (id: string): string | null => {
   if (id.includes('amor')) return 'amor';
   if (id.includes('beschuetzer')) return 'beschuetzer';
@@ -237,24 +366,21 @@ const roleOfStep = (id: string): string | null => {
   return null;
 };
 
-const recommended = (n: number): string[] => {
-  const wolves = Math.max(1, Math.round(n / 4));
-  const out: string[] = Array(wolves).fill('werwolf');
-  if (n >= 7) out.push('seherin');
-  if (n >= 8) out.push('hexe');
-  if (n >= 9) out.push('jaeger');
-  while (out.length < n) out.push('dorfbewohner');
-  return out.slice(0, n);
-};
-
-const WerewolfGame: React.FC<{ language: Language }> = ({ language }) => {
+const WerewolfGame: React.FC<{ language: Language; names: string[] }> = ({ language, names }) => {
   const L = tr(language);
-  const { text, setText, names } = useNames();
   const [phase, setPhase] = useState<'setup' | 'deal' | 'narrate'>('setup');
   const [cards, setCards] = useState<string[]>([]);
   const [variant, setVariant] = useState<string | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
   const [night, setNight] = useState(1);
+
+  // Quick Role Config
+  const [wolvesCount, setWolvesCount] = useState(() => Math.max(1, Math.round(names.length / 4)));
+  const [amorEnabled, setAmorEnabled] = useState(true);
+  const [hexeEnabled, setHexeEnabled] = useState(true);
+  const [seherinEnabled, setSeherinEnabled] = useState(true);
+  const [jaegerEnabled, setJaegerEnabled] = useState(false);
+
   useWakeLock(phase === 'narrate');
 
   const used = useMemo(() => new Set(cards), [cards]);
@@ -275,34 +401,110 @@ const WerewolfGame: React.FC<{ language: Language }> = ({ language }) => {
   const roleName = (id: string) => WEREWOLF_ROLES.find((r) => r.id === id)?.name[language] ?? id;
 
   const start = () => {
-    setCards(shuffle(recommended(names.length)));
+    const roles: string[] = Array(wolvesCount).fill('werwolf');
+    if (seherinEnabled) roles.push('seherin');
+    if (hexeEnabled) roles.push('hexe');
+    if (amorEnabled) roles.push('amor');
+    if (jaegerEnabled) roles.push('jaeger');
+    while (roles.length < names.length) roles.push('dorfbewohner');
+
+    setCards(shuffle(roles.slice(0, names.length)));
     setPhase('deal');
   };
 
-  if (phase === 'setup')
+  if (phase === 'setup') {
     return (
       <div className="space-y-4">
         <Panel className="space-y-4">
-          <NamesField language={language} text={text} onChange={setText} count={names.length} />
-          <VariantPicker language={language} variants={WEREWOLF_VARIANTS} value={variant} onChange={setVariant} />
+          <h4 className="text-xs font-bold uppercase tracking-wider text-text">
+            {L('Schnellkonfiguration der Rollen', 'Quick Role Setup')}
+          </h4>
+
+          {/* Wolves Stepper */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-text">🐺 {L('Werwölfe', 'Werewolves')}</span>
+            <div className="flex items-center gap-1 bg-surface-2 rounded-control p-1">
+              <button
+                type="button"
+                onClick={() => setWolvesCount(Math.max(1, wolvesCount - 1))}
+                className="w-8 h-8 rounded-control bg-surface font-bold text-xs"
+              >
+                -
+              </button>
+              <span className="text-xs font-bold px-2 tabular-nums">{wolvesCount}</span>
+              <button
+                type="button"
+                onClick={() => setWolvesCount(Math.min(Math.floor(names.length / 2), wolvesCount + 1))}
+                className="w-8 h-8 rounded-control bg-surface font-bold text-xs"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          {/* Special Roles Toggles */}
+          <div className="flex flex-wrap gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setSeherinEnabled(!seherinEnabled)}
+              className={chipCls(seherinEnabled)}
+            >
+              🔮 {L('Seherin', 'Seer')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setHexeEnabled(!hexeEnabled)}
+              className={chipCls(hexeEnabled)}
+            >
+              🧙‍♀️ {L('Hexe', 'Witch')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setAmorEnabled(!amorEnabled)}
+              className={chipCls(amorEnabled)}
+            >
+              💘 {L('Amor', 'Cupid')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setJaegerEnabled(!jaegerEnabled)}
+              className={chipCls(jaegerEnabled)}
+            >
+              🏹 {L('Jäger', 'Hunter')}
+            </button>
+          </div>
+
+          <VariantPicker
+            language={language}
+            variants={WEREWOLF_VARIANTS}
+            value={variant}
+            onChange={setVariant}
+          />
         </Panel>
-        <button type="button" onClick={start} disabled={names.length < 6} className={`${primaryBtn} w-full`}>
-          {L('Rollen verteilen', 'Deal roles')}
+
+        <button
+          type="button"
+          onClick={start}
+          disabled={names.length < 5}
+          className={`${primaryBtn} w-full`}
+        >
+          {L('Rollen geheim verteilen', 'Deal secret roles')} ({names.length} {L('Personen', 'players')})
         </button>
-        <p className="text-xs text-text-tertiary">
-          {names.length < 6
-            ? L('Ab 6 Personen. Die Rollen werden passend zur Gruppengröße gewählt.', 'From 6 players. Roles are chosen to fit the group size.')
-            : L('Die Rollen werden passend zur Gruppengröße gewählt.', 'Roles are chosen to fit the group size.')}
-        </p>
+        {names.length < 5 && (
+          <p className="text-xs text-text-tertiary">
+            {L('Mindestens 5 anwesende Personen in „Meine Gruppe“ empfohlen.', 'At least 5 present players recommended.')}
+          </p>
+        )}
       </div>
     );
+  }
 
-  if (phase === 'deal')
+  if (phase === 'deal') {
     return (
       <PassAround
         language={language}
         players={names}
-        doneLabel={L('Spielleitung übernimmt', 'Narrator takes over')}
+        doneLabel={L('Spielleitung übernimmt Erzähler-Modus', 'Narrator takes over')}
         onDone={() => {
           setStepIdx(0);
           setNight(1);
@@ -311,14 +513,20 @@ const WerewolfGame: React.FC<{ language: Language }> = ({ language }) => {
         renderCard={(i) => {
           const role = WEREWOLF_ROLES.find((r) => r.id === cards[i]);
           return (
-            <div>
-              <p className="text-3xl font-semibold text-text">{role?.name[language]}</p>
-              <p className="text-sm text-text-secondary mt-3 max-w-md mx-auto">{role?.description[language]}</p>
+            <div className="p-6 rounded-card bg-surface-2 border border-border space-y-2">
+              <p className="text-2xs font-bold uppercase tracking-wider text-accent-text">
+                {role?.team === 'wolves' ? (language === 'de' ? 'Wölfe' : 'Wolves') : (language === 'de' ? 'Dorfbewohner' : 'Villagers')}
+              </p>
+              <p className="text-3xl font-extrabold text-text">{role?.name[language]}</p>
+              <p className="text-xs text-text-secondary mt-3 max-w-md mx-auto leading-relaxed">
+                {role?.description[language]}
+              </p>
             </div>
           );
         }}
       />
     );
+  }
 
   const next = () => {
     if (step?.id === 'day-naechste-nacht') {
@@ -331,45 +539,57 @@ const WerewolfGame: React.FC<{ language: Language }> = ({ language }) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-secondary">
-        <span className="tabular-nums">{L(`Nacht ${night}`, `Night ${night}`)}</span>
-        <span>{L('Im Spiel', 'In play')}: {[...used].map(roleName).join(', ')}</span>
+      {/* Night Header */}
+      <div className="flex flex-wrap items-center justify-between text-xs text-text-secondary">
+        <span className="font-bold text-accent-text">
+          {L(`Nacht ${night}`, `Night ${night}`)}
+        </span>
+        <span>
+          {L('Im Spiel', 'In play')}: {[...used].map(roleName).join(', ')}
+        </span>
       </div>
-      <Panel className="py-8 sm:py-12">
-        <p className="text-xs text-text-tertiary mb-1">
-          {step?.phase === 'night' ? L('Nacht', 'Night') : L('Tag', 'Day')} · <span className="tabular-nums">{stepIdx + 1} / {steps.length}</span>
+
+      {/* Large Narrator Card */}
+      <Panel className="py-8 sm:py-12 text-center space-y-4">
+        <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+          {step?.phase === 'night' ? '🌙 ' + L('Nacht', 'Night') : '☀️ ' + L('Tag', 'Day')} · {stepIdx + 1} / {steps.length}
+        </span>
+        <h2 className="text-2xl font-bold text-text">{step?.title[language]}</h2>
+        <p className="text-xl sm:text-2xl leading-relaxed text-text font-serif italic max-w-lg mx-auto">
+          „{step?.script[language]}“
         </p>
-        <h2 className="text-2xl font-semibold text-text mb-4">{step?.title[language]}</h2>
-        <p className="text-xl sm:text-2xl leading-relaxed text-text text-balance">{step?.script[language]}</p>
       </Panel>
-      {variant && (
-        <details className="text-sm border border-border rounded-xl bg-surface p-3">
-          <summary className="cursor-pointer font-medium">{WEREWOLF_VARIANTS.find((v) => v.id === variant)?.name[language]}</summary>
-          <ul className="list-disc pl-5 mt-2 space-y-1 text-text-secondary">
-            {WEREWOLF_VARIANTS.find((v) => v.id === variant)?.rules[language].flatMap((r) => r.split('|')).map((r, i) => <li key={i}>{r}</li>)}
-          </ul>
-        </details>
-      )}
+
+      {/* Controls */}
       <div className="flex gap-2">
-        <button type="button" onClick={() => setStepIdx(Math.max(0, stepIdx - 1))} disabled={stepIdx === 0} className={secondaryBtn} aria-label={L('Zurück', 'Back')}>
+        <button
+          type="button"
+          onClick={() => setStepIdx(Math.max(0, stepIdx - 1))}
+          disabled={stepIdx === 0}
+          className={secondaryBtn}
+        >
           <ChevronLeft className="w-4 h-4" />
         </button>
         <button type="button" onClick={next} className={`${primaryBtn} flex-1`}>
-          {step?.id === 'day-naechste-nacht' ? L('Nächste Nacht', 'Next night') : L('Weiter', 'Next')}
+          <span>{step?.id === 'day-naechste-nacht' ? L('Nächste Nacht', 'Next night') : L('Weiter', 'Next')}</span>
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
-      <button type="button" onClick={() => setPhase('setup')} className="text-sm text-text-secondary underline">
-        {L('Spiel beenden', 'End game')}
+
+      <button
+        type="button"
+        onClick={() => setPhase('setup')}
+        className="text-xs text-text-tertiary hover:text-text underline block mx-auto pt-2"
+      >
+        {L('Runde beenden & zurück', 'End game and return')}
       </button>
     </div>
   );
 };
 
-/* ---------------- Killer ---------------- */
-const KillerGame: React.FC<{ language: Language }> = ({ language }) => {
+/* ---------------- Killer Game with Variants ---------------- */
+const KillerGame: React.FC<{ language: Language; names: string[] }> = ({ language, names }) => {
   const L = tr(language);
-  const { text, setText, names } = useNames();
   const [variant, setVariant] = useState<string | null>(KILLER_VARIANTS[0]?.id ?? null);
   const [cards, setCards] = useState<string[] | null>(null);
   const [dealt, setDealt] = useState(false);
@@ -380,21 +600,35 @@ const KillerGame: React.FC<{ language: Language }> = ({ language }) => {
     setDealt(false);
   };
 
-  if (!cards)
+  if (!cards) {
     return (
       <div className="space-y-4">
         <Panel className="space-y-4">
-          <NamesField language={language} text={text} onChange={setText} count={names.length} />
-          <VariantPicker language={language} variants={KILLER_VARIANTS} value={variant} onChange={setVariant} />
+          <VariantPicker
+            language={language}
+            variants={KILLER_VARIANTS}
+            value={variant}
+            onChange={setVariant}
+          />
         </Panel>
-        <button type="button" onClick={start} disabled={names.length < 4} className={`${primaryBtn} w-full`}>
-          {L('Rollen verteilen', 'Deal roles')}
+        <button
+          type="button"
+          onClick={start}
+          disabled={names.length < 4}
+          className={`${primaryBtn} w-full`}
+        >
+          {L('Rollen verteilen', 'Deal roles')} ({names.length} {L('Personen', 'players')})
         </button>
-        {names.length < 4 && <p className="text-xs text-text-tertiary">{L('Mindestens 4 Personen.', 'At least 4 players.')}</p>}
+        {names.length < 4 && (
+          <p className="text-xs text-text-tertiary">
+            {L('Mindestens 4 anwesende Personen in „Meine Gruppe“ erforderlich.', 'At least 4 present players required.')}
+          </p>
+        )}
       </div>
     );
+  }
 
-  if (!dealt)
+  if (!dealt) {
     return (
       <PassAround
         language={language}
@@ -404,52 +638,104 @@ const KillerGame: React.FC<{ language: Language }> = ({ language }) => {
         renderCard={(i) => {
           const role = KILLER_ROLES.find((r) => r.id === cards[i]);
           return (
-            <div>
-              <p className="text-3xl font-semibold text-text">{role?.name[language]}</p>
-              <p className="text-sm text-text-secondary mt-3 max-w-md mx-auto">{role?.description[language]}</p>
+            <div className="p-6 rounded-card bg-surface-2 border border-border space-y-2">
+              <p className="text-3xl font-extrabold text-text">{role?.name[language]}</p>
+              <p className="text-xs text-text-secondary mt-2 max-w-md mx-auto leading-relaxed">
+                {role?.description[language]}
+              </p>
             </div>
           );
         }}
       />
     );
+  }
 
   return (
     <div className="space-y-4">
-      <Panel className="text-center py-8">
-        <p className="text-lg font-semibold">{L('Das Spiel läuft', 'The game is on')}</p>
-        <p className="text-sm text-text-secondary mt-1">{L('Alle schauen sich im Kreis an. Der Detektiv hat drei Versuche.', 'Everyone looks around the circle. The detective has three guesses.')}</p>
+      <Panel className="text-center py-8 space-y-3">
+        <p className="text-lg font-bold">{L('Das Spiel läuft', 'The game is on')}</p>
+        <p className="text-xs text-text-secondary max-w-md mx-auto">
+          {L('Alle schauen sich im Kreis an. Der Detektiv hat drei Versuche, den Mörder zu entlarven, bevor dieser alle Mitspielenden erwischt hat.', 'Everyone watches each other in the circle. The detective has three guesses.')}
+        </p>
       </Panel>
-      {variant && <VariantPicker language={language} variants={KILLER_VARIANTS} value={variant} onChange={setVariant} />}
-      <button type="button" onClick={() => setCards(null)} className={`${secondaryBtn} w-full`}>
+      <button
+        type="button"
+        onClick={() => setCards(null)}
+        className={`${secondaryBtn} w-full`}
+      >
         <RotateCcw className="w-4 h-4" />
-        {L('Neue Runde', 'New round')}
+        <span>{L('Neue Runde', 'New round')}</span>
       </button>
     </div>
   );
 };
 
+/* ---------------- Main RolesTool ---------------- */
 export const RolesTool: React.FC<{ language: Language }> = ({ language }) => {
   const L = tr(language);
+  const [names, setNames] = useState<string[]>(() => loadPresentNames());
   const [game, setGame] = useState<Game>('spy');
+  const [showHelp, setShowHelp] = useState(false);
+
   const games: { id: Game; label: string }[] = [
     { id: 'spy', label: L('Spion', 'Spy') },
     { id: 'whoami', label: L('Wer bin ich?', 'Who am I?') },
     { id: 'werewolf', label: L('Werwölfe', 'Werewolf') },
     { id: 'killer', label: L('Mörder', 'Killer') },
   ];
+
   return (
     <div className="space-y-5">
+      {/* "So geht's" Expandable Help */}
+      <div className="bg-surface-2 rounded-card border border-border p-4">
+        <button
+          type="button"
+          onClick={() => setShowHelp(!showHelp)}
+          className="w-full flex items-center justify-between text-xs font-semibold text-text cursor-pointer"
+        >
+          <div className="flex items-center gap-2">
+            <HelpCircle className="w-4 h-4 text-accent-text" />
+            <span>{L('So geht’s: Rollenverteiler für Gesellschaftsspiele', 'How it works: Role Dealer')}</span>
+          </div>
+          {showHelp ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+        {showHelp && (
+          <p className="text-xs text-text-secondary mt-2 leading-relaxed">
+            {L(
+              'Verteilt geheime Spielkarten ohne Kartenspiel. Das Handy wird reihum weitergegeben. Jede Person sieht nur ihre eigene Rolle – sicher vor fremden Blicken.',
+              'Deals secret game roles without physical playing cards. The phone is passed around in the circle. Each player only sees their private card.'
+            )}
+          </p>
+        )}
+      </div>
+
+      {/* 1. Group Manager */}
+      <GroupManager
+        language={language}
+        onNamesChange={(presentList) => setNames(presentList)}
+      />
+
+      {/* 2. Game Tabs */}
       <div className="flex flex-wrap gap-2" role="tablist">
         {games.map((g) => (
-          <button key={g.id} type="button" role="tab" aria-selected={game === g.id} onClick={() => setGame(g.id)} className={chipCls(game === g.id)}>
+          <button
+            key={g.id}
+            type="button"
+            role="tab"
+            aria-selected={game === g.id}
+            onClick={() => setGame(g.id)}
+            className={chipCls(game === g.id)}
+          >
             {g.label}
           </button>
         ))}
       </div>
-      {game === 'spy' && <SpyGame language={language} />}
-      {game === 'whoami' && <WhoAmIGame language={language} />}
-      {game === 'werewolf' && <WerewolfGame language={language} />}
-      {game === 'killer' && <KillerGame language={language} />}
+
+      {/* 3. Game Content */}
+      {game === 'spy' && <SpyGame language={language} names={names} />}
+      {game === 'whoami' && <WhoAmIGame language={language} names={names} />}
+      {game === 'werewolf' && <WerewolfGame language={language} names={names} />}
+      {game === 'killer' && <KillerGame language={language} names={names} />}
     </div>
   );
 };

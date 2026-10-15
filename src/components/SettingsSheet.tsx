@@ -7,16 +7,14 @@ import {
   Printer,
   Music,
   CheckCircle2,
-  X,
-  Plus,
-  Users,
 } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { useTheme, Theme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { exportLocalData, importLocalData, clearLocalData, downloadText } from '../utils/backup';
-import { Sheet, SegmentedControl, Button, Tag, Input } from './ui';
+import { Sheet, SegmentedControl, Button } from './ui';
+import { GroupManager } from './tools/GroupManager';
 
 export interface SettingsSheetProps {
   isOpen: boolean;
@@ -38,16 +36,14 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   const { showToast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Group members state
-  const [members, setMembers] = useState<string[]>(() => {
+  // Draft setting
+  const [hideDrafts, setHideDrafts] = useState<boolean>(() => {
     try {
-      const saved = localStorage.getItem('jy_group_members');
-      return saved ? JSON.parse(saved) : [];
+      return localStorage.getItem('jy_hide_drafts') === 'true';
     } catch {
-      return [];
+      return false;
     }
   });
-  const [newMemberName, setNewMemberName] = useState('');
 
   // Offline service worker state
   const [isOfflineReady, setIsOfflineReady] = useState(false);
@@ -58,24 +54,18 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
     }
   }, []);
 
-  const handleAddMember = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const name = newMemberName.trim();
-    if (!name) return;
-    if (members.includes(name)) {
-      showToast({ text: language === 'de' ? 'Name bereits vorhanden' : 'Name already exists' });
-      return;
+  const handleToggleDrafts = (val: boolean) => {
+    setHideDrafts(val);
+    try {
+      localStorage.setItem('jy_hide_drafts', val ? 'true' : 'false');
+    } catch {
+      /* ignore */
     }
-    const updated = [...members, name];
-    setMembers(updated);
-    localStorage.setItem('jy_group_members', JSON.stringify(updated));
-    setNewMemberName('');
-  };
-
-  const handleRemoveMember = (nameToRemove: string) => {
-    const updated = members.filter((m) => m !== nameToRemove);
-    setMembers(updated);
-    localStorage.setItem('jy_group_members', JSON.stringify(updated));
+    showToast({
+      text: language === 'de'
+        ? (val ? 'Entwürfe werden ausgeblendet' : 'Entwürfe werden angezeigt')
+        : (val ? 'Draft content hidden' : 'Draft content shown'),
+    });
   };
 
   const handleExport = () => {
@@ -145,54 +135,35 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
           />
         </section>
 
-        {/* 3. Meine Gruppe */}
+        {/* 3. Entwürfe Filter */}
         <section className="space-y-2 pt-2 border-t border-border">
           <div className="flex items-center justify-between">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-                {t.settingsMyGroup}
+                {t.settingsHideDrafts}
               </label>
-              <p className="text-xs text-text-secondary mt-0.5">{t.settingsMyGroupHint}</p>
+              <p className="text-xs text-text-secondary mt-0.5">
+                {t.settingsHideDraftsHint}
+              </p>
             </div>
-            <Users className="w-4 h-4 text-text-tertiary shrink-0" strokeWidth={1.75} />
+            <label className="relative inline-flex items-center cursor-pointer min-h-[44px]">
+              <input
+                type="checkbox"
+                checked={hideDrafts}
+                onChange={(e) => handleToggleDrafts(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-surface-2 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[12px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
+            </label>
           </div>
-
-          <form onSubmit={handleAddMember} className="flex gap-2 pt-1">
-            <Input
-              value={newMemberName}
-              onChange={(e) => setNewMemberName(e.target.value)}
-              placeholder={t.settingsMyGroupPlaceholder}
-              className="flex-1"
-            />
-            <Button type="submit" variant="secondary" size="md" icon={<Plus className="w-4 h-4" strokeWidth={1.75} />}>
-              {t.settingsAddName}
-            </Button>
-          </form>
-
-          {members.length > 0 ? (
-            <div className="flex flex-wrap gap-2 pt-2">
-              {members.map((name) => (
-                <Tag key={name} category="neutral" className="pr-1.5 flex items-center gap-1.5 text-sm">
-                  <span>{name}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveMember(name)}
-                    className="w-4 h-4 rounded-full hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center text-text-tertiary hover:text-text"
-                    aria-label={`${name} entfernen`}
-                  >
-                    <X className="w-3 h-3" strokeWidth={1.75} />
-                  </button>
-                </Tag>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-text-tertiary italic pt-1">
-              {language === 'de' ? 'Noch keine Namen hinterlegt. Trage Namen ein, um sie in Werkzeugen zu nutzen.' : 'No names saved yet. Enter names to use in group tools.'}
-            </p>
-          )}
         </section>
 
-        {/* 4. Daten & Sicherung */}
+        {/* 4. Meine Gruppe */}
+        <section className="space-y-2 pt-2 border-t border-border">
+          <GroupManager language={language} compact={true} />
+        </section>
+
+        {/* 5. Daten & Sicherung */}
         <section className="space-y-2 pt-2 border-t border-border">
           <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
             {t.settingsData}
@@ -267,7 +238,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
           </div>
         </section>
 
-        {/* 5. Über die Seite & Offline Status */}
+        {/* 6. Über die Seite & Offline Status */}
         <section className="pt-2 border-t border-border space-y-3">
           <div className="flex items-center justify-between text-xs text-text-secondary">
             <span>{t.settingsVersion}</span>
