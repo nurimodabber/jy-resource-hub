@@ -9,9 +9,8 @@ import { BahaiSongsModal } from './components/BahaiSongsModal';
 import { DocumentHead } from './components/DocumentHead';
 import { ToastProvider } from './context/ToastContext';
 import { PlannerProvider } from './context/PlannerContext';
-import { Language, NavTab, SessionSlot,  } from './types';
+import { Language, NavTab, SessionSlot } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
-import { Loader2 } from 'lucide-react';
 
 // Lazy-loaded routes for code-splitting
 const HomeView = lazy(() => import('./components/HomeView').then(m => ({ default: m.HomeView })));
@@ -27,11 +26,14 @@ const NotFoundView = lazy(() => import('./components/NotFoundView').then(m => ({
 const GalleryView = lazy(() => import('./components/ui/Gallery').then(m => ({ default: m.Gallery })));
 
 const RouteLoading: React.FC = () => (
-  <div className="flex items-center justify-center py-24 min-h-[300px]" role="status" aria-label="Loading">
-    <div className="flex flex-col items-center gap-3 text-text-secondary text-sm">
-      <Loader2 className="w-6 h-6 animate-spin text-accent" />
-      <span>Wird geladen...</span>
+  <div className="max-w-4xl mx-auto py-8 space-y-6 animate-pulse" role="status" aria-label="Laden">
+    <div className="h-8 bg-surface-2 rounded-control w-1/3" />
+    <div className="h-4 bg-surface-2 rounded-control w-2/3" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+      <div className="h-28 bg-surface-2 rounded-card" />
+      <div className="h-28 bg-surface-2 rounded-card" />
     </div>
+    <div className="h-44 bg-surface-2 rounded-card mt-6" />
   </div>
 );
 

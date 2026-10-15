@@ -240,5 +240,6 @@ export interface SessionPlan {
   slots: SessionSlot[];
   startTime?: string;
   targetDurationMinutes?: number;
+  date?: string;
 }
 
