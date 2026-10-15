@@ -102,7 +102,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
           <button
             type="button"
             onClick={pickRandomCodeWords}
-            className="flex items-center gap-1.5 px-3 py-1 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors border border-border cursor-pointer min-h-[32px]"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors border border-border cursor-pointer min-h-[44px]"
           >
             <Shuffle className="w-3 h-3 text-accent-text" />
             <span>{t.newCodeWords}</span>

@@ -145,7 +145,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={() => setShowFullText(!showFullText)}
-              className="px-3 py-1.5 bg-surface text-text hover:bg-surface-2 rounded-xl text-xs font-semibold border border-border transition-colors shrink-0 cursor-pointer min-h-[36px]"
+              className="px-3 py-1.5 bg-surface text-text hover:bg-surface-2 rounded-xl text-xs font-semibold border border-border transition-colors shrink-0 cursor-pointer min-h-[44px]"
             >
               <Eye className="w-3.5 h-3.5 inline mr-1" />
               <span>{showFullText ? (language === 'de' ? 'Verbergen' : 'Hide') : (language === 'de' ? 'Volltext prüfen' : 'Check text')}</span>
@@ -166,7 +166,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={handleTogglePlay}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[40px]"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[44px]"
             >
               {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
               <span>{isPlaying ? (language === 'de' ? 'Pause' : 'Pause') : (language === 'de' ? 'Starten' : 'Start')}</span>
@@ -175,7 +175,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={handleReset}
-              className="p-2.5 rounded-full border border-border bg-surface text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
+              className="p-2.5 rounded-full border border-border bg-surface text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Reset"
             >
               <RotateCcw className="w-4 h-4" />

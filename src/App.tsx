@@ -67,7 +67,8 @@ export const AppContent: React.FC = () => {
 
   const isDetailPage =
     (location.pathname.startsWith('/games/') && location.pathname !== '/games') ||
-    (location.pathname.startsWith('/service-arts/') && location.pathname !== '/service-arts');
+    (location.pathname.startsWith('/service-arts/') && location.pathname !== '/service-arts') ||
+    (location.pathname.startsWith('/quotes/') && location.pathname !== '/quotes');
 
   const searchQuery = '';
   const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);

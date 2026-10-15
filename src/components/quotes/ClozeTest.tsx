@@ -226,7 +226,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
             <button
               type="button"
               onClick={initBlanks}
-              className="px-3.5 py-1.5 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[36px]"
+              className="px-3.5 py-1.5 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5 inline mr-1" />
               <span>{language === 'de' ? 'Noch einmal' : 'Play again'}</span>
@@ -242,7 +242,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                 type="button"
                 onClick={() => setIsChecked(true)}
                 disabled={!allFilled}
-                className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-lg hover:bg-accent-hover disabled:opacity-40 transition-colors shadow-xs cursor-pointer min-h-[36px]"
+                className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-lg hover:bg-accent-hover disabled:opacity-40 transition-colors shadow-xs cursor-pointer min-h-[44px]"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>{language === 'de' ? 'Prüfen' : 'Check'}</span>
@@ -253,7 +253,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
               type="button"
               onClick={handleHint}
               disabled={isAllCorrect || blankIndices.every((i) => !!filledWords[i])}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[44px]"
               title={language === 'de' ? 'Ein Wort aufdecken' : 'Reveal one word'}
             >
               <HelpCircle className="w-3.5 h-3.5 text-accent-text" />
@@ -263,7 +263,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
             <button
               type="button"
               onClick={initBlanks}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>{language === 'de' ? 'Neu mischen' : 'Reset'}</span>
@@ -301,7 +301,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                   type="button"
                   disabled={isExhausted}
                   onClick={() => handleSelectWordForBlank(word)}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-medium border shadow-xs transition-all select-none cursor-pointer min-h-[36px] ${
+                  className={`px-3.5 py-2 rounded-lg text-xs font-medium border shadow-xs transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center ${
                     isExhausted
                       ? 'opacity-30 border-border bg-surface-2 text-text-tertiary pointer-events-none'
                       : 'bg-surface-2 hover:bg-surface-raised border-border text-text  hover:border-accent'
