@@ -24,6 +24,7 @@ const DatenschutzView = lazy(() => import('./components/DatenschutzView').then(m
 const SavedView = lazy(() => import('./components/SavedView').then(m => ({ default: m.SavedView })));
 const NotFoundView = lazy(() => import('./components/NotFoundView').then(m => ({ default: m.NotFoundView })));
 const GalleryView = lazy(() => import('./components/ui/Gallery').then(m => ({ default: m.Gallery })));
+const ProposalView = lazy(() => import('./components/ProposalView').then(m => ({ default: m.ProposalView })));
 
 const RouteLoading: React.FC = () => (
   <div className="max-w-4xl mx-auto py-8 space-y-6 animate-pulse" role="status" aria-label="Laden">
@@ -323,6 +324,11 @@ export const AppContent: React.FC = () => {
                   onBack={() => handleTabChange('home')}
                 />
               }
+            />
+
+            <Route
+              path="/vorschlagen"
+              element={<ProposalView language={language} />}
             />
 
             <Route path="/_design" element={<GalleryView />} />

@@ -38,6 +38,8 @@ export interface Game {
   rules: LocalizedArray;
   animatorTips: LocalizedArray;
   isFavoriteDefault?: boolean;
+  status?: 'draft';
+  submittedBy?: string;
 }
 
 export type QuotePhase = 1 | 2 | 3;
@@ -181,6 +183,8 @@ export interface ServiceProject {
   steps: LocalizedArray;
   reflectionQuestions: LocalizedArray;
   animatorTips: LocalizedArray;
+  status?: 'draft';
+  submittedBy?: string;
 }
 
 export type ArtForm = 'drama' | 'music_poetry' | 'visual_arts' | 'collaborative_mural';
@@ -206,6 +210,8 @@ export interface ArtsPrompt {
   guidingSteps: LocalizedArray;
   reflectionPrompts: LocalizedArray;
   animatorTips?: LocalizedArray;
+  status?: 'draft';
+  submittedBy?: string;
 }
 
 export type ActivityItem = ServiceProject | ArtsPrompt;
