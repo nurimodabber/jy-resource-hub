@@ -1209,6 +1209,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             return (
               <div
                 key={slot.id}
+                data-slot-id={slot.id}
                 className="bg-surface rounded-card border border-border p-4 sm:p-5 shadow-xs transition-colors hover:border-accent/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 {/* Left: Clock Time Pill + Content */}

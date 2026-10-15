@@ -14,6 +14,7 @@ import {
   Plus,
   Trash2,
   AlertCircle,
+  WifiOff,
 } from 'lucide-react';
 import { Language } from '../types';
 import { tr, Panel, Label, primaryBtn, secondaryBtn } from './tools/common';
@@ -69,6 +70,18 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
   const [createdIssueUrl, setCreatedIssueUrl] = useState<string | null>(null);
 
   const [mountTime] = useState(() => Date.now());
+  const [isOnline, setIsOnline] = useState(() => (typeof navigator !== 'undefined' ? navigator.onLine : true));
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const [formData, setFormData] = useState<FormState>(() => {
     try {
@@ -206,6 +219,17 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
     const error = validateForm();
     if (error) {
       setSubmitError(error);
+      return;
+    }
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      setMailtoFallback(generateMailtoUrl());
+      setSubmitError(
+        L(
+          'Du bist offline. Dein Entwurf bleibt im Browser gespeichert – du kannst ihn jetzt als E-Mail absenden oder später übermitteln.',
+          'You are offline. Your draft remains saved locally – you can send it via email now or submit later.'
+        )
+      );
       return;
     }
 
@@ -448,6 +472,26 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
           ) : (
             /* Main Input Form */
             <form onSubmit={handleSubmit} className="space-y-6">
+              {!isOnline && (
+                <div
+                  role="status"
+                  className="p-4 rounded-card bg-surface-2 border border-border text-xs text-text flex items-start gap-3"
+                >
+                  <WifiOff className="w-5 h-5 shrink-0 text-text-tertiary mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-bold text-text">
+                      {L('Du bist gerade offline', 'You are currently offline')}
+                    </p>
+                    <p className="text-text-secondary leading-relaxed">
+                      {L(
+                        'Dein Entwurf bleibt sicher lokal in diesem Browser gespeichert. Sobald du wieder online bist, kannst du ihn absenden – oder direkt per E-Mail vorbereiten.',
+                        'Your draft is safely saved locally in this browser. You can submit it once back online – or prepare it via email now.'
+                      )}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Honeypot field (hidden from genuine users) */}
               <div className="hidden" aria-hidden="true">
                 <label htmlFor="hp_website">Website</label>

@@ -353,6 +353,11 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode; language: La
   }, []);
 
   const loadPresetIntoPlan = useCallback((slots: SessionSlot[], presetName: string, targetDuration = 75, startTime = '17:00') => {
+    const preparedSlots: SessionSlot[] = slots.map((s, idx) => ({
+      ...s,
+      id: s.id || `slot-preset-${Date.now()}-${idx}`,
+    }));
+
     setPlans((prev) => {
       const active = prev.find((p) => p.id === activePlanId);
       if (active && active.slots.length === 0) {
@@ -361,7 +366,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode; language: La
             ? {
                 ...p,
                 name: presetName,
-                slots: JSON.parse(JSON.stringify(slots)),
+                slots: preparedSlots,
                 targetDurationMinutes: targetDuration,
                 startTime: startTime || p.startTime || '17:00',
                 updatedAt: Date.now(),
@@ -375,7 +380,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode; language: La
         name: presetName,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        slots: JSON.parse(JSON.stringify(slots)),
+        slots: preparedSlots,
         targetDurationMinutes: targetDuration,
         startTime: startTime || '17:00',
       };

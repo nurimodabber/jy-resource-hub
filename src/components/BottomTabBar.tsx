@@ -22,7 +22,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
     { id: 'games', label: t.tabGames, href: '/games', icon: Compass },
     { id: 'quotes', label: t.tabQuotes, href: '/quotes', icon: BookOpen },
     { id: 'service-arts', label: t.tabServiceArts, href: '/service-arts', icon: Palette },
-    { id: 'planner', label: t.tabPlanner, href: '/planner', icon: Calendar },
+    { id: 'planner', label: t.tabPlanner, href: '/treffen', icon: Calendar },
     { id: 'tools', label: t.tabTools, href: '/tools', icon: Layers },
   ];
 

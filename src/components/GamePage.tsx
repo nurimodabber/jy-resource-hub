@@ -372,7 +372,7 @@ export const GamePage: React.FC<GamePageProps> = ({
       text: L('Zum Treffen hinzugefügt', 'Added to gathering'),
       action: {
         label: L('Treffen öffnen', 'Open gathering'),
-        onClick: () => navigate('/planner'),
+        onClick: () => navigate('/treffen'),
       },
       undo: {
         label: L('Rückgängig', 'Undo'),

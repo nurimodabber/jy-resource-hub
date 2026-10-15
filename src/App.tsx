@@ -59,7 +59,7 @@ export const AppContent: React.FC = () => {
     if (root === 'home' || root === '') return 'home';
     if (root === 'games') return 'games';
     if (root === 'quotes') return 'quotes';
-    if (root === 'planner') return 'planner';
+    if (root === 'planner' || root === 'treffen') return 'planner';
     if (root === 'service-arts') return 'service-arts';
     if (root === 'tools') return 'tools';
     if (root === 'saved') return 'saved';
@@ -118,6 +118,8 @@ export const AppContent: React.FC = () => {
     setShowOnlyFavorites(false);
     if (tab === 'home') {
       navigate('/');
+    } else if (tab === 'planner') {
+      navigate('/treffen');
     } else {
       navigate(`/${tab}`);
     }
@@ -126,7 +128,7 @@ export const AppContent: React.FC = () => {
 
   const handleAddToPlanner = (slot: SessionSlot) => {
     setSlotToAddToPlanner(slot);
-    navigate('/planner');
+    navigate('/treffen');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

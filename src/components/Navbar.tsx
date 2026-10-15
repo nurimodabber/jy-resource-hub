@@ -17,7 +17,7 @@ export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes
   { id: 'games', href: '/games', key: 'tabGames' },
   { id: 'quotes', href: '/quotes', key: 'tabQuotes' },
   { id: 'service-arts', href: '/service-arts', key: 'tabServiceArts' },
-  { id: 'planner', href: '/planner', key: 'tabPlanner' },
+  { id: 'planner', href: '/treffen', key: 'tabPlanner' },
   { id: 'tools', href: '/tools', key: 'tabTools' },
 ];
 
@@ -79,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 aria-current={isActive ? 'page' : undefined}
                 className={`relative px-3.5 py-2 rounded-control text-sm whitespace-nowrap transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive
-                    ? 'text-accent font-semibold bg-accent-subtle/50'
+                    ? 'text-accent-text font-bold bg-accent-subtle/60'
                     : 'text-text-secondary hover:text-text hover:bg-surface-2'
                 }`}
               >
