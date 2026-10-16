@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Palette, Calendar, Layers, PlusCircle, type LucideIcon } from 'lucide-react';
+import { Compass, BookOpen, Palette, Calendar, Layers, type LucideIcon } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -25,12 +25,11 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
     { id: 'service-arts', label: t.tabServiceArtsShort, ariaLabel: t.tabServiceArts, href: '/service-arts', icon: Palette },
     { id: 'planner', label: t.tabPlanner, ariaLabel: t.tabPlanner, href: '/treffen', icon: Calendar },
     { id: 'tools', label: t.tabTools, ariaLabel: t.tabTools, href: '/tools', icon: Layers },
-    { id: 'vorschlagen', label: t.tabProposalShort, ariaLabel: t.tabProposal, href: '/vorschlagen', icon: PlusCircle },
   ];
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-surface/96 backdrop-blur-md border-t border-line shadow-2 lg:hidden short:hidden safe-bottom print:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-line shadow-2 lg:hidden short:hidden safe-bottom print:hidden"
       aria-label="Mobile Navigation"
     >
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-1">
