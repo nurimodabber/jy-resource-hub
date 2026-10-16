@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   Play, Pause, RotateCcw, Check, Copy, Trash2, Clock,
   ArrowUp, ArrowDown, Plus, ChevronRight, ChevronLeft, X,
@@ -621,23 +621,44 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
     setIsRunningMode(true);
   };
 
-  const handleNextBlock = () => {
+  const handleNextBlock = useCallback(() => {
     if (currentBlockIndex < slots.length - 1) {
       const nextIdx = currentBlockIndex + 1;
       setCurrentBlockIndex(nextIdx);
       setTimerSecondsLeft(slots[nextIdx].durationMinutes * 60);
       setIsTimerActive(true);
     }
-  };
+  }, [currentBlockIndex, slots]);
 
-  const handlePrevBlock = () => {
+  const handlePrevBlock = useCallback(() => {
     if (currentBlockIndex > 0) {
       const prevIdx = currentBlockIndex - 1;
       setCurrentBlockIndex(prevIdx);
       setTimerSecondsLeft(slots[prevIdx].durationMinutes * 60);
       setIsTimerActive(true);
     }
-  };
+  }, [currentBlockIndex, slots]);
+
+  // Keyboard navigation for live mode (ArrowRight / Space = next, ArrowLeft = prev, Escape = exit)
+  useEffect(() => {
+    if (!isRunningMode) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept if user is typing in an input/textarea
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key === 'Escape') {
+        setIsRunningMode(false);
+      } else if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        handleNextBlock();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrevBlock();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isRunningMode, handleNextBlock, handlePrevBlock]);
 
   const handleApplyPreset = (preset: GatheringPreset) => {
     loadPresetIntoPlan(
