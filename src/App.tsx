@@ -541,7 +541,7 @@ export const AppContent: React.FC = () => {
       )}
 
       {!isBeamerMode && (
-        <footer className="border-t border-border mt-8 py-6 text-xs text-text-secondary print:hidden safe-bottom mb-20 lg:mb-0">
+        <footer className="border-t border-line mt-12 py-8 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:mb-0">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
             <p className="text-text-tertiary">{t.footerNote}</p>
             <div className="flex flex-wrap items-center justify-center gap-3">
