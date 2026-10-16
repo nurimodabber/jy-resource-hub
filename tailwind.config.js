@@ -69,6 +69,18 @@ export default {
           text: 'rgb(var(--accent-text-rgb) / <alpha-value>)',
           ink: 'rgb(var(--accent-ink-rgb) / <alpha-value>)',
         },
+        word: {
+          DEFAULT: 'rgb(var(--word-rgb) / <alpha-value>)',
+          hover: 'rgb(var(--word-hover-rgb) / <alpha-value>)',
+          subtle: 'rgb(var(--word-subtle-rgb) / <alpha-value>)',
+          text: 'rgb(var(--word-rgb) / <alpha-value>)',
+        },
+        action: {
+          DEFAULT: 'rgb(var(--action-rgb) / <alpha-value>)',
+          hover: 'rgb(var(--action-hover-rgb) / <alpha-value>)',
+          subtle: 'rgb(var(--action-subtle-rgb) / <alpha-value>)',
+          contrast: 'rgb(var(--action-contrast-rgb) / <alpha-value>)',
+        },
         e: {
           ruhig: 'rgb(var(--e-ruhig-rgb) / <alpha-value>)',
           mittel: 'rgb(var(--e-mittel-rgb) / <alpha-value>)',
