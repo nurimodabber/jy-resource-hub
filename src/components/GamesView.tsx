@@ -178,7 +178,10 @@ export const GamesView: React.FC<GamesViewProps> = ({
           </div>
         </div>
         <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
-          {t.gamesHeaderDesc}
+          {L(
+            `${GAMES_DATA.length} Spiele für den Kreis, die Wiese und den Gruppenraum.`,
+            `${GAMES_DATA.length} games for the circle, lawn, and group room.`
+          )}
         </p>
       </header>
 
@@ -265,12 +268,62 @@ export const GamesView: React.FC<GamesViewProps> = ({
         })}
       </div>
 
+      {/* Quick Ort filter chips (Drinnen / Draußen) */}
+      <div
+        className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-3 mb-4 select-none"
+        role="group"
+        aria-label={L('Ort', 'Setting')}
+      >
+        <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary mr-1 shrink-0">
+          {L('Ort:', 'Setting:')}
+        </span>
+        <button
+          type="button"
+          onClick={() => updateFilters({ ...filters, ort: null })}
+          className={`px-3 py-1 rounded-chip text-xs font-semibold transition-colors min-h-[32px] cursor-pointer ${
+            !filters.ort ? 'bg-action text-action-contrast' : 'bg-surface-2 text-text hover:bg-surface-2/80'
+          }`}
+        >
+          {L('Alle', 'All')}
+        </button>
+        <button
+          type="button"
+          onClick={() => updateFilters({ ...filters, ort: filters.ort === 'drinnen' ? null : 'drinnen' })}
+          className={`px-3 py-1 rounded-chip text-xs font-semibold transition-colors min-h-[32px] cursor-pointer ${
+            filters.ort === 'drinnen' ? 'bg-action text-action-contrast' : 'bg-surface-2 text-text hover:bg-surface-2/80'
+          }`}
+        >
+          {L('Drinnen', 'Indoors')}
+        </button>
+        <button
+          type="button"
+          onClick={() => updateFilters({ ...filters, ort: filters.ort === 'draussen' ? null : 'draussen' })}
+          className={`px-3 py-1 rounded-chip text-xs font-semibold transition-colors min-h-[32px] cursor-pointer ${
+            filters.ort === 'draussen' ? 'bg-action text-action-contrast' : 'bg-surface-2 text-text hover:bg-surface-2/80'
+          }`}
+        >
+          {L('Draußen', 'Outdoors')}
+        </button>
+      </div>
+
       {/* 4. Active removable filter chips */}
-      {(activeFilterCount > 0 || filters.wirkung) && (
+      {(activeFilterCount > 0 || filters.wirkung || filters.ort) && (
         <div className="flex flex-wrap items-center gap-2 mb-6 pt-1">
           <span className="text-xs font-bold text-text-tertiary uppercase tracking-wider mr-1">
             {t.activeFiltersLabel}:
           </span>
+
+          {filters.ort && (
+            <button
+              type="button"
+              onClick={() => updateFilters({ ...filters, ort: null })}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control border border-line bg-surface-2 text-text text-xs font-semibold hover:border-action transition-colors"
+              aria-label={L('Ort Filter entfernen', 'Remove setting filter')}
+            >
+              <span>{L('Ort', 'Setting')}: {filters.ort === 'drinnen' ? L('Drinnen', 'Indoors') : L('Draußen', 'Outdoors')}</span>
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
 
           {filters.wirkung && (
             <button
@@ -365,7 +418,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
               language={language}
               isFavorite={favorites.includes(game.id)}
               onToggleFavorite={onToggleFavorite}
-              userGroupSize={userGroupSize}
+              userGroupSize={filters.personen || userGroupSize}
             />
           ))}
         </div>
@@ -495,6 +548,27 @@ export const GamesView: React.FC<GamesViewProps> = ({
                 label={t.filterNoMaterial}
               />
             </div>
+          </div>
+
+          {/* Ort (Drinnen / Draußen) */}
+          <div className="space-y-2 pt-1 border-t border-border">
+            <label className="text-sm font-semibold text-text">
+              {L('Ort / Spielfläche', 'Setting')}
+            </label>
+            <SegmentedControl
+              options={[
+                { id: 'all', label: L('Alle', 'All') },
+                { id: 'drinnen', label: L('Drinnen', 'Indoors') },
+                { id: 'draussen', label: L('Draußen', 'Outdoors') },
+              ]}
+              value={filters.ort || 'all'}
+              onChange={(val) =>
+                updateFilters({
+                  ...filters,
+                  ort: val === 'all' ? null : (val as 'drinnen' | 'draussen'),
+                })
+              }
+            />
           </div>
 
           {/* Sortierung (Select: Passend, Kürzeste zuerst, Gruppengröße) */}

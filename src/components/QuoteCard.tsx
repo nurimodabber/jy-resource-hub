@@ -31,9 +31,8 @@ export const isPrayerQuote = (quote: QuoteItem): boolean => {
 
 export const formatQuoteSection = (section?: string): string | undefined => {
   if (!section) return undefined;
-  const cleaned = section.replace(/\/\s*$/, '').trim();
-  if (!cleaned) return undefined;
-  if (/^(lektion|lesson|einheit|unit|gebet|prayer)\s*$/i.test(cleaned)) {
+  const cleaned = section.replace(/[/:\-—–\s]+$/, '').trim();
+  if (!cleaned || /^(lektion|lesson|einheit|unit|gebet|prayer)[/:\-—–\s]*$/i.test(cleaned)) {
     return undefined;
   }
   return cleaned;
