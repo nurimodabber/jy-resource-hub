@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
@@ -59,7 +58,6 @@ const STORAGE_DRAFT_KEY = 'jy_submit_draft';
 
 export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
   const L = tr(language);
-  const navigate = useNavigate();
   const { showToast } = useToast();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -300,21 +298,23 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
     <div className="max-w-3xl mx-auto pb-28 space-y-6">
       {/* Header */}
       <div>
-        <button
-          type="button"
-          onClick={() => (step > 1 ? setStep((s) => (s === 3 ? 2 : 1)) : navigate(-1))}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-secondary hover:text-text mb-3 cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>{L('Zurück', 'Back')}</span>
-        </button>
+        {step > 1 && (
+          <button
+            type="button"
+            onClick={() => setStep((s) => (s === 3 ? 2 : 1))}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-secondary hover:text-text mb-3 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>{L('Zurück zu Schritt', 'Back to step')} {step - 1}</span>
+          </button>
+        )}
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text">
           {L('Vorschlag einreichen', 'Submit proposal')}
         </h1>
         <p className="text-xs sm:text-sm text-text-secondary mt-1 max-w-prose leading-relaxed">
           {L(
-            'Teile erprobte Spiele, Dienstprojekte oder künstlerische Aktivitäten mit anderen Animatoren. Alle Vorschläge werden vor der Veröffentlichung geprüft.',
-            'Share proven games, service projects, or creative activities with other animators. All submissions are reviewed before publishing.'
+            'Du hast ein Spiel oder Projekt, das fehlt? Schick es uns. Teile erprobte Spiele, Dienstprojekte oder künstlerische Aktivitäten mit anderen Animatoren – alle Vorschläge werden vor der Veröffentlichung geprüft.',
+            "Have a game or project idea that's missing? Send it to us. Share proven games, service projects, or creative activities with other animators – all submissions are reviewed before publishing."
           )}
         </p>
       </div>

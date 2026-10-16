@@ -84,6 +84,7 @@ export const AppContent: React.FC = () => {
     if (root === 'planner' || root === 'treffen') return 'planner';
     if (root === 'service-arts') return 'service-arts';
     if (root === 'tools') return 'tools';
+    if (root === 'vorschlagen') return 'vorschlagen';
     if (root === 'saved') return 'saved';
     if (root === 'impressum') return 'impressum';
     if (root === 'datenschutz') return 'datenschutz';

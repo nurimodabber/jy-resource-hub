@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Palette, Calendar, Layers, type LucideIcon } from 'lucide-react';
+import { Compass, BookOpen, Palette, Calendar, Layers, PlusCircle, type LucideIcon } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -25,6 +25,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
     { id: 'service-arts', label: t.tabServiceArtsShort, ariaLabel: t.tabServiceArts, href: '/service-arts', icon: Palette },
     { id: 'planner', label: t.tabPlanner, ariaLabel: t.tabPlanner, href: '/treffen', icon: Calendar },
     { id: 'tools', label: t.tabTools, ariaLabel: t.tabTools, href: '/tools', icon: Layers },
+    { id: 'vorschlagen', label: t.tabProposalShort, ariaLabel: t.tabProposal, href: '/vorschlagen', icon: PlusCircle },
   ];
 
   return (
@@ -46,7 +47,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
               className="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 select-none transition-colors group rounded-control focus-visible:ring-2 focus-visible:ring-accent"
             >
               <div
-                className={`flex items-center justify-center px-3.5 py-1 rounded-chip transition-colors duration-150 ease-out ${
+                className={`flex items-center justify-center px-2.5 py-1 rounded-chip transition-colors duration-150 ease-out ${
                   isActive
                     ? 'bg-accent-subtle text-accent-text'
                     : 'text-text-secondary group-hover:text-text'

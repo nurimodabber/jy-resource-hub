@@ -108,7 +108,7 @@ async function runTests() {
       });
     });
 
-    assert(touchTargets.length === 5, `Bottom nav bar renders exactly 5 main tabs (got ${touchTargets.length})`);
+    assert(touchTargets.length === 6, `Bottom nav bar renders exactly 6 main tabs (got ${touchTargets.length})`);
     for (const target of touchTargets) {
       assert(target.ok, `Bottom nav target "${target.text}": ${target.width}x${target.height}px >= 44x44px`);
     }

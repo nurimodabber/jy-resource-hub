@@ -1,5 +1,4 @@
-import React from 'react';
-import { Compass, BookOpen, Palette, Calendar, Layers } from 'lucide-react';
+import { Compass, BookOpen, Palette, Calendar, Layers, PlusCircle } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { Logo } from './Logo';
@@ -23,6 +22,7 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
     { id: 'service-arts' as NavTab, label: t.tabServiceArts, icon: Palette },
     { id: 'planner' as NavTab, label: t.tabPlanner, icon: Calendar },
     { id: 'tools' as NavTab, label: t.tabTools, icon: Layers },
+    { id: 'vorschlagen' as NavTab, label: t.tabProposal, icon: PlusCircle },
   ];
 
   return (

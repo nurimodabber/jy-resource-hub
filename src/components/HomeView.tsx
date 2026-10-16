@@ -656,24 +656,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
           )}
         </div>
       </section>
-
-      {/* 9. Vorschlag einreichen (Ruhige Zeile am Ende, bündig zum Footer) */}
-      <footer className="pt-4 border-t border-border">
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-text-secondary bg-surface-2/60 rounded-card p-4">
-          <p>
-            {L(
-              'Du hast ein Spiel oder Projekt, das fehlt? Schick es uns.',
-              "Have a game or project idea that's missing? Send it to us."
-            )}
-          </p>
-          <Link
-            to="/vorschlagen"
-            className="font-bold text-accent-text hover:underline shrink-0"
-          >
-            {L('Vorschlag einreichen', 'Submit proposal')} →
-          </Link>
-        </div>
-      </footer>
     </div>
   );
 };

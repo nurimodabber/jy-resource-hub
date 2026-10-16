@@ -551,6 +551,8 @@ const de = {
     greetingEvening: 'Guten Abend',
     treffenStartDisabledHint: 'Wähle zuerst eine Vorlage oder füge einen Baustein hinzu.',
     installAppCta: 'Installieren',
+    tabProposal: 'Vorschlagen',
+    tabProposalShort: 'Vorschlag',
 };
 
 export type TKey = keyof typeof de;
@@ -1106,6 +1108,8 @@ const en: Record<TKey, string> = {
     greetingEvening: 'Good evening',
     treffenStartDisabledHint: 'Select a template or add a block first.',
     installAppCta: 'Install',
+    tabProposal: 'Submit',
+    tabProposalShort: 'Submit',
 };
 
 export const UI_TRANSLATIONS: Record<Language, Record<TKey, string>> = { de, en };

@@ -126,10 +126,10 @@ async function run() {
     },
     {
       path: '/vorschlagen',
-      priority: '0.6',
+      priority: '0.8',
       title: 'Vorschlag einreichen — Junior Youth Hub',
       description:
-        'Reiche ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Junior Youth Hub ein.',
+        'Du hast ein Spiel oder Projekt, das fehlt? Schick es uns: Reiche ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Junior Youth Hub ein.',
       ogType: 'website',
       ogQuery: 'type=section&title=Vorschlag+einreichen',
     },
