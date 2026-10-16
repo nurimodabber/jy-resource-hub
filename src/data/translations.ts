@@ -44,20 +44,20 @@ const de = {
     homeNoMaterials: 'Ohne Material',
     homeSurpriseMe: 'Überrasch mich',
     homeMatchesFound: 'Sofort-Empfehlungen',
-    homeNoMatches: 'Keine direkten Treffer für diese Filterkombination. Versuche "Ohne Material" abzuwählen oder klicke auf "Überrasch mich"!',
+    homeNoMatches: 'Keine Treffer für diese Filter. Setze Filter zurück oder wähle „Überrasch mich“.',
     homeFeaturedQuoteTitle: 'Zitat des Tages',
     homeFeaturedQuoteSubtitle: 'Gemeinsam lesen und vertiefen',
     homeTryMethod: 'Methode im Studio öffnen',
     homeExploreAllGames: 'Alle Spiele entdecken',
     homeExploreAllQuotes: 'Zitatesammlung & Methoden',
     homeExplorePlanner: 'Stunde zusammenstellen',
-    homeCommunityStats: '35 Spiele · 51 Zitate · 50 Lernmethoden · Dienst- und Kunstprojekte',
+    homeCommunityStats: 'Spiele, Zitate, Lernmethoden und Projekte für deine Gruppe',
     homeRecentOrFavorites: 'Deine gemerkten Favoriten',
 
     // Share & More Sheet
     shareBtn: 'Teilen',
     shareOnWhatsApp: 'Per WhatsApp teilen',
-    shareSuccess: 'Link kopiert!',
+    shareSuccess: 'Link kopiert',
     shareGameText: 'Hey, schau dir dieses Spiel für unsere JG an:',
     shareQuoteText: 'Schau dir dieses Zitat an:',
     shareMethodText: 'Schau dir diese Lernmethode an:',
@@ -73,7 +73,7 @@ const de = {
 
     // Games Section
     gamesHeaderTitle: 'Spiele',
-    gamesHeaderDesc: '35 Spiele für den Kreis, die Wiese und den Gruppenraum.',
+    gamesHeaderDesc: 'Spiele für den Kreis, die Wiese und den Gruppenraum.',
     filterAll: 'Alle',
     filterCooperative: 'Kooperativ',
     filterCompetitive: 'Wettkampf / Duelle',
@@ -253,7 +253,7 @@ const de = {
     boardSubtitle: 'Nutze diesen interaktiven Modus direkt auf dem Tablet, Laptop oder Beamer, um gemeinsam mit der Gruppe schrittweise Wörter verschwinden zu lassen.',
     eraseNextWord: 'Nächste Wörter ausblenden',
     resetBoard: 'Tafel zurücksetzen',
-    allWordsHidden: 'Alle Wörter wurden gelöscht! Jetzt spricht die Gruppe komplett aus dem Kopf.',
+    allWordsHidden: 'Alle Wörter sind ausgeblendet. Nun spricht die Gruppe aus dem Gedächtnis.',
     wordsRemaining: 'Wörter sichtbar',
 
     // 2. First-Letter
@@ -261,19 +261,19 @@ const de = {
     eraseInitialsBtn: 'Buchstaben schrittweise löschen',
     resetInitials: 'Initialen wiederherstellen',
     tapWordHint: 'Klicke auf ein Wort, um es aufzudecken oder zu verbergen.',
-    allInitialsHidden: 'Alle Anfangsbuchstaben gelöscht – nur noch Bindestriche als Taktmaß!',
+    allInitialsHidden: 'Alle Anfangsbuchstaben gelöscht – nur noch Bindestriche als Taktmaß.',
 
     // 3. Word Puzzle
     wordPuzzleSubtitle: 'Setze das Zitat Wort für Wort zusammen. Ideal für Einzel- oder Gruppen-Tablets am Beamer.',
-    puzzleCompleted: 'Ausgezeichnet! Das Zitat ist vollständig. Jetzt laut im Chor rezitieren!',
+    puzzleCompleted: 'Das Zitat ist vollständig. Nun gemeinsam laut rezitieren.',
     clickTilePrompt: 'Verfügbare Wort-Bausteine (Klicken zum Anfügen):',
     resetPuzzle: 'Neu mischen',
     undoWord: 'Rückgängig',
 
     // 4. Imposter / Fehler-Detektor
-    imposterSubtitle: 'Ein heimlicher Fehler hat sich in den Text eingeschlichen! Findet das falsche Wort und klickt darauf.',
-    imposterFound: 'Volltreffer! Du hast den Fehler entlarvt und das Original-Wort wiederhergestellt.',
-    imposterWrong: 'Dieses Wort ist originalgetreu. Suche weiter!',
+    imposterSubtitle: 'Ein verändertes Wort hat sich in den Text eingeschlichen. Finde das falsche Wort und klicke darauf.',
+    imposterFound: 'Gefunden. Das ursprüngliche Wort ist wiederhergestellt.',
+    imposterWrong: 'Dieses Wort ist originalgetreu. Suche weiter.',
     nextImposter: 'Neuen Fehler erzeugen',
 
     // 5. Metronome Pacer
@@ -284,7 +284,7 @@ const de = {
     soundToggle: 'Audio-Klick',
 
     // 6. Code Clicker
-    codeClickerSubtitle: 'Aktionswörter dürfen nicht gesprochen werden, sondern müssen durch gleichzeitiges Klatschen (👏) oder Schnipsen (🫰) ersetzt werden!',
+    codeClickerSubtitle: 'Aktionswörter werden nicht gesprochen, sondern durch gleichzeitiges Klatschen oder Schnipsen ersetzt.',
     codeWordsLabel: 'Signalwörter (Schweigen & Klatschen):',
     newCodeWords: 'Zufällige Wörter wählen',
 
@@ -295,7 +295,7 @@ const de = {
     startTimer: 'Start',
     stopTimer: 'Stopp',
     resetTimer: 'Zurücksetzen',
-    recordBeaten: 'Neuer Gruppenrekord aufgestellt! 🎉',
+    recordBeaten: 'Neuer Gruppenrekord aufgestellt.',
 
     // Session Planner & Devotionals
     plannerHeaderTitle: 'Ablauf- & Andachtsplaner',
@@ -390,7 +390,7 @@ const de = {
     treffenSlotRemoved: 'Baustein entfernt',
     treffenUndo: 'Rückgängig',
     treffenCopyAgenda: 'Ablauf kopieren',
-    treffenCopied: 'Kopiert!',
+    treffenCopied: 'Kopiert',
 
     // Toolkits
     toolkitsHeaderTitle: 'Praxis-Toolkits',
@@ -445,7 +445,7 @@ const de = {
     artFormLabel: 'Kunstform',
     projectScopeLabel: 'Zeitrahmen',
     addToPlanner: 'In den Ablaufplaner übernehmen',
-    addedToPlannerSuccess: 'Zum aktuellen Ablaufplaner hinzugefügt!',
+    addedToPlannerSuccess: 'Zum aktuellen Ablaufplaner hinzugefügt',
     copiedProject: 'Projekt-Leitfaden kopiert',
     settingLabel: 'Umgebung',
     settingDrinnen: 'Drinnen',
@@ -502,12 +502,12 @@ const de = {
     shuffleTeamsBtn: 'Teams jetzt auslosen',
     teamLabel: 'Team',
     copyTeamsBtn: 'Teams kopieren',
-    teamsCopied: 'Teams in die Zwischenablage kopiert!',
+    teamsCopied: 'Teams kopiert',
     timerTitle: 'Aktivitäts- & Reflexions-Timer',
     timerDesc: 'Ruhiger, minimalistischer Countdown für Spiele, Staffelläufe, Gruppenarbeiten oder stille Meditationen.',
     pauseTimer: 'Pause',
     resumeTimer: 'Fortsetzen',
-    timerFinished: 'Die Zeit ist um!',
+    timerFinished: 'Die Zeit ist um',
     soundToggleLabel: 'Signalton',
     timer1Min: '1 Min',
     timer3Min: '3 Min',
@@ -601,20 +601,20 @@ const en: Record<TKey, string> = {
     homeNoMaterials: 'No Materials Only',
     homeSurpriseMe: 'Surprise Me',
     homeMatchesFound: 'Instant Matches',
-    homeNoMatches: 'No direct matches found for this combination. Try unchecking "No Materials" or tap "Surprise Me"!',
+    homeNoMatches: 'No direct matches found. Try clearing filters or choose "Surprise Me".',
     homeFeaturedQuoteTitle: 'Featured Scripture Quote',
     homeFeaturedQuoteSubtitle: 'Read and study together',
     homeTryMethod: 'Open method in Studio',
     homeExploreAllGames: 'Browse all games',
     homeExploreAllQuotes: 'Quotes library & methods',
     homeExplorePlanner: 'Build session plan',
-    homeCommunityStats: '35 games · 51 quotes · 50 study methods · Service and arts projects',
+    homeCommunityStats: 'Games, quotes, study methods, and projects for your group',
     homeRecentOrFavorites: 'Your Saved Favorites',
 
     // Share & More Sheet
     shareBtn: 'Share',
     shareOnWhatsApp: 'Share on WhatsApp',
-    shareSuccess: 'Link copied!',
+    shareSuccess: 'Link copied',
     shareGameText: 'Hey, check out this game for our JY group:',
     shareQuoteText: 'Check out this scripture quote:',
     shareMethodText: 'Check out this memorisation method:',
@@ -630,7 +630,7 @@ const en: Record<TKey, string> = {
 
     // Games Section
     gamesHeaderTitle: 'Games',
-    gamesHeaderDesc: '35 games for the circle, the field, and the youth room.',
+    gamesHeaderDesc: 'Games for the circle, the field, and the room.',
     filterAll: 'All',
     filterCooperative: 'Cooperative',
     filterCompetitive: 'Competitive / Duels',
@@ -810,7 +810,7 @@ const en: Record<TKey, string> = {
     boardSubtitle: 'Use this interactive board on a tablet, laptop, or projector to progressively blank out words with your group.',
     eraseNextWord: 'Blank Out Next Words',
     resetBoard: 'Reset Board',
-    allWordsHidden: 'All words are now hidden! The group recites entirely from memory.',
+    allWordsHidden: 'All words are now hidden. The group recites entirely from memory.',
     wordsRemaining: 'words visible',
 
     // 2. First-Letter
@@ -818,19 +818,19 @@ const en: Record<TKey, string> = {
     eraseInitialsBtn: 'Progressively erase initials',
     resetInitials: 'Restore initials',
     tapWordHint: 'Tap any word to reveal or hide it.',
-    allInitialsHidden: 'All initial letters cleared – only dash placeholders remain!',
+    allInitialsHidden: 'All initial letters cleared – only dash placeholders remain.',
 
     // 3. Word Puzzle
     wordPuzzleSubtitle: 'Assemble the scrambled word tiles in the correct sequence. Ideal for projector or group tablets.',
-    puzzleCompleted: 'Outstanding! The passage is fully assembled. Recite it together in unison!',
+    puzzleCompleted: 'The passage is fully assembled. Recite together in unison.',
     clickTilePrompt: 'Available Word Tiles (Tap to append):',
     resetPuzzle: 'Reshuffle',
     undoWord: 'Undo',
 
     // 4. Imposter / Fehler-Detektor
-    imposterSubtitle: 'A sneaky decoy has been slipped into the text! Spot the fake word and tap it.',
-    imposterFound: 'Bullseye! You spotted the imposter and restored the authentic word.',
-    imposterWrong: 'This word is authentic to the original text. Keep searching!',
+    imposterSubtitle: 'An altered word slipped into the text. Spot the incorrect word and tap it.',
+    imposterFound: 'Found. The original word is restored.',
+    imposterWrong: 'This word belongs to the original text. Keep searching.',
     nextImposter: 'Generate new imposter',
 
     // 5. Metronome Pacer
@@ -841,7 +841,7 @@ const en: Record<TKey, string> = {
     soundToggle: 'Audio Tick',
 
     // 6. Code Clicker
-    codeClickerSubtitle: 'Trigger words must not be spoken aloud, but replaced with simultaneous clapping (👏) or snapping (🫰)!',
+    codeClickerSubtitle: 'Trigger words must not be spoken aloud, but replaced with simultaneous clapping or snapping.',
     codeWordsLabel: 'Signal Words (Silence & Action):',
     newCodeWords: 'Pick random words',
 
@@ -852,7 +852,7 @@ const en: Record<TKey, string> = {
     startTimer: 'Start',
     stopTimer: 'Stop',
     resetTimer: 'Reset',
-    recordBeaten: 'New group record established! 🎉',
+    recordBeaten: 'New group record established.',
 
     // Session Planner & Devotionals
     plannerHeaderTitle: 'Session & Devotional Planner',
@@ -947,7 +947,7 @@ const en: Record<TKey, string> = {
     treffenSlotRemoved: 'Block removed',
     treffenUndo: 'Undo',
     treffenCopyAgenda: 'Copy agenda',
-    treffenCopied: 'Copied!',
+    treffenCopied: 'Copied',
 
     // Toolkits
     toolkitsHeaderTitle: 'Field Toolkits',
@@ -1002,7 +1002,7 @@ const en: Record<TKey, string> = {
     artFormLabel: 'Art Form',
     projectScopeLabel: 'Time Scope',
     addToPlanner: 'Add to Session Plan',
-    addedToPlannerSuccess: 'Added to current session plan!',
+    addedToPlannerSuccess: 'Added to current session plan',
     copiedProject: 'Project guide copied to clipboard',
     settingLabel: 'Setting',
     settingDrinnen: 'Indoors',
@@ -1059,12 +1059,12 @@ const en: Record<TKey, string> = {
     shuffleTeamsBtn: 'Shuffle Teams Now',
     teamLabel: 'Team',
     copyTeamsBtn: 'Copy Teams',
-    teamsCopied: 'Teams copied to clipboard!',
+    teamsCopied: 'Teams copied to clipboard',
     timerTitle: 'Activity & Reflection Timer',
     timerDesc: 'Clean, distraction-free countdown for games, timed stations, team challenges, or silent reflection.',
     pauseTimer: 'Pause',
     resumeTimer: 'Resume',
-    timerFinished: 'Time is up!',
+    timerFinished: 'Time is up',
     soundToggleLabel: 'Chime Sound',
     timer1Min: '1 min',
     timer3Min: '3 min',
