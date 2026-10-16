@@ -4,6 +4,9 @@ import {
   Search, X, SlidersHorizontal, BookOpen, Zap, Layers,
   ArrowRight, Laptop, Play
 } from 'lucide-react';
+import '@fontsource/lora/latin-400.css';
+import '@fontsource/lora/latin-600.css';
+import '@fontsource/lora/latin-400-italic.css';
 import { QuotePhase, QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { QUOTES_DATA, JUNIOR_YOUTH_BOOKS } from '../data/quotes';
@@ -18,21 +21,21 @@ import { usePlanner } from '../context/PlannerContext';
 import { useToast } from '../context/ToastContext';
 
 // Quote Card & Detail
-import { QuoteCard, isPrayerQuote } from './QuoteCard';
+import { QuoteCard, isPrayerQuote, formatQuoteSection } from './QuoteCard';
 import { QuoteDetail } from './QuoteDetail';
 
-// 11 Interactive Practice Simulators
-import { Chalkboard } from './quotes/Chalkboard';
-import { FirstLetterBoard } from './quotes/FirstLetterBoard';
-import { ClozeTest } from './quotes/ClozeTest';
-import { WordPuzzle } from './quotes/WordPuzzle';
-import { ImposterDetector } from './quotes/ImposterDetector';
-import { TypeRecall } from './quotes/TypeRecall';
-import { CumulativeCascade } from './quotes/CumulativeCascade';
-import { MetronomePacer } from './quotes/MetronomePacer';
-import { CodeClicker } from './quotes/CodeClicker';
-import { SpeedRunTimer } from './quotes/SpeedRunTimer';
-import { FlashReader } from './quotes/FlashReader';
+// 11 Interactive Practice Simulators (lazy-loaded on studio tab)
+const Chalkboard = React.lazy(() => import('./quotes/Chalkboard').then(m => ({ default: m.Chalkboard })));
+const FirstLetterBoard = React.lazy(() => import('./quotes/FirstLetterBoard').then(m => ({ default: m.FirstLetterBoard })));
+const ClozeTest = React.lazy(() => import('./quotes/ClozeTest').then(m => ({ default: m.ClozeTest })));
+const WordPuzzle = React.lazy(() => import('./quotes/WordPuzzle').then(m => ({ default: m.WordPuzzle })));
+const ImposterDetector = React.lazy(() => import('./quotes/ImposterDetector').then(m => ({ default: m.ImposterDetector })));
+const TypeRecall = React.lazy(() => import('./quotes/TypeRecall').then(m => ({ default: m.TypeRecall })));
+const CumulativeCascade = React.lazy(() => import('./quotes/CumulativeCascade').then(m => ({ default: m.CumulativeCascade })));
+const MetronomePacer = React.lazy(() => import('./quotes/MetronomePacer').then(m => ({ default: m.MetronomePacer })));
+const CodeClicker = React.lazy(() => import('./quotes/CodeClicker').then(m => ({ default: m.CodeClicker })));
+const SpeedRunTimer = React.lazy(() => import('./quotes/SpeedRunTimer').then(m => ({ default: m.SpeedRunTimer })));
+const FlashReader = React.lazy(() => import('./quotes/FlashReader').then(m => ({ default: m.FlashReader })));
 
 interface QuotesViewProps {
   searchQuery?: string;
@@ -109,12 +112,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     return 'studio';
   });
 
-  // Filters for Quotes Catalog
-  const [localSearch, setLocalSearch] = useState('');
-  const [selectedBook, setSelectedBook] = useState<string>('all');
-  const [selectedSection, setSelectedSection] = useState<string>('all');
-  const [selectedTopic, setSelectedTopic] = useState<QuoteGeneralTopic | 'all'>('all');
-  const [onlyPrayers, setOnlyPrayers] = useState<boolean>(false);
+  // Filters for Quotes Catalog (initialized from URL searchParams)
+  const [localSearch, setLocalSearch] = useState(() => searchParams.get('q') || '');
+  const [selectedBook, setSelectedBook] = useState<string>(() => searchParams.get('buch') || 'all');
+  const [selectedSection, setSelectedSection] = useState<string>(() => searchParams.get('lektion') || 'all');
+  const [selectedTopic, setSelectedTopic] = useState<QuoteGeneralTopic | 'all'>(
+    () => (searchParams.get('thema') as QuoteGeneralTopic) || 'all'
+  );
+  const [onlyPrayers, setOnlyPrayers] = useState<boolean>(() => searchParams.get('gebete') === '1');
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   // Active Quote in Practice Studio
@@ -204,8 +209,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         if (b !== selectedBook) return false;
       }
 
-      if (selectedSection !== 'all' && quote.section) {
-        if (quote.section[language] !== selectedSection) return false;
+      if (selectedSection !== 'all') {
+        if (formatQuoteSection(quote.section?.[language]) !== selectedSection) return false;
       }
 
       return true;
@@ -230,8 +235,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     const set = new Set<string>();
     QUOTES_DATA.forEach((q) => {
       const b = q.mainBook ? q.mainBook[language] : q.book[language].split(',')[0].trim();
-      if (b === selectedBook && q.section) {
-        set.add(q.section[language]);
+      const sec = formatQuoteSection(q.section?.[language]);
+      if (b === selectedBook && sec) {
+        set.add(sec);
       }
     });
     return Array.from(set);
@@ -421,7 +427,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 <button
                   type="button"
                   onClick={() => setLocalSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text p-1 min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer"
+                  aria-label={language === 'de' ? 'Suche löschen' : 'Clear search'}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text p-1 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer rounded-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -444,59 +451,64 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               <span className="text-text-tertiary">{language === 'de' ? 'Aktive Filter:' : 'Active filters:'}</span>
 
               {selectedBook !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <button
+                  type="button"
+                  onClick={() => { setSelectedBook('all'); setSelectedSection('all'); }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                >
                   <span>{selectedBook}</span>
-                  <X
-                    className="w-3.5 h-3.5 cursor-pointer hover:text-accent"
-                    onClick={() => { setSelectedBook('all'); setSelectedSection('all'); }}
-                  />
-                </span>
+                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
+                </button>
               )}
 
               {selectedSection !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <button
+                  type="button"
+                  onClick={() => setSelectedSection('all')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                >
                   <span>{selectedSection}</span>
-                  <X
-                    className="w-3.5 h-3.5 cursor-pointer hover:text-accent"
-                    onClick={() => setSelectedSection('all')}
-                  />
-                </span>
+                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
+                </button>
               )}
 
               {selectedTopic !== 'all' && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <button
+                  type="button"
+                  onClick={() => setSelectedTopic('all')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                >
                   <span>{selectedTopic}</span>
-                  <X
-                    className="w-3.5 h-3.5 cursor-pointer hover:text-accent"
-                    onClick={() => setSelectedTopic('all')}
-                  />
-                </span>
+                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
+                </button>
               )}
 
               {onlyPrayers && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <button
+                  type="button"
+                  onClick={() => setOnlyPrayers(false)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                >
                   <span>{t.filterOnlyPrayers}</span>
-                  <X
-                    className="w-3.5 h-3.5 cursor-pointer hover:text-accent"
-                    onClick={() => setOnlyPrayers(false)}
-                  />
-                </span>
+                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
+                </button>
               )}
 
               {localSearch && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-text">
+                <button
+                  type="button"
+                  onClick={() => setLocalSearch('')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                >
                   <span>„{localSearch}“</span>
-                  <X
-                    className="w-3.5 h-3.5 cursor-pointer hover:text-accent"
-                    onClick={() => setLocalSearch('')}
-                  />
-                </span>
+                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
+                </button>
               )}
 
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="text-2xs text-text-tertiary hover:text-accent underline ml-1 cursor-pointer"
+                className="text-2xs text-text-tertiary hover:text-accent underline ml-1 px-2 py-1 min-h-[36px] cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-lg"
               >
                 {language === 'de' ? 'Alle zurücksetzen' : 'Reset all'}
               </button>
@@ -728,39 +740,41 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
               {/* Active Hosted Simulator */}
               <div className="bg-surface rounded-3xl border border-border p-4 sm:p-6 shadow-xs">
-                {activeTool === 'chalkboard' && (
-                  <Chalkboard quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'firstLetter' && (
-                  <FirstLetterBoard quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'cloze' && (
-                  <ClozeTest quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'wordPuzzle' && (
-                  <WordPuzzle quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'imposter' && (
-                  <ImposterDetector quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'typeRecall' && (
-                  <TypeRecall quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'cascade' && (
-                  <CumulativeCascade quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'metronome' && (
-                  <MetronomePacer quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'codeClicker' && (
-                  <CodeClicker quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'speedRun' && (
-                  <SpeedRunTimer quote={practiceQuote} language={language} />
-                )}
-                {activeTool === 'flashReader' && (
-                  <FlashReader quote={practiceQuote} language={language} />
-                )}
+                <React.Suspense fallback={<div className="h-48 animate-pulse bg-surface-2 rounded-2xl" />}>
+                  {activeTool === 'chalkboard' && (
+                    <Chalkboard quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'firstLetter' && (
+                    <FirstLetterBoard quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'cloze' && (
+                    <ClozeTest quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'wordPuzzle' && (
+                    <WordPuzzle quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'imposter' && (
+                    <ImposterDetector quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'typeRecall' && (
+                    <TypeRecall quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'cascade' && (
+                    <CumulativeCascade quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'metronome' && (
+                    <MetronomePacer quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'codeClicker' && (
+                    <CodeClicker quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'speedRun' && (
+                    <SpeedRunTimer quote={practiceQuote} language={language} />
+                  )}
+                  {activeTool === 'flashReader' && (
+                    <FlashReader quote={practiceQuote} language={language} />
+                  )}
+                </React.Suspense>
               </div>
             </div>
           )}
@@ -971,7 +985,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 }`}
               >
                 <div className="flex items-center justify-between text-2xs text-text-tertiary mb-1">
-                  <span>{q.book[language]} {q.section ? `· ${q.section[language]}` : ''}</span>
+                  <span>{q.book[language]}{formatQuoteSection(q.section?.[language]) ? ` · ${formatQuoteSection(q.section?.[language])}` : ''}</span>
                   <span className="font-semibold text-text">{q.theme[language]}</span>
                 </div>
                 <p className="font-serif text-xs line-clamp-2 text-text">

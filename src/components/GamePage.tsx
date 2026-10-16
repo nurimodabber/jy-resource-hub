@@ -411,7 +411,7 @@ export const GamePage: React.FC<GamePageProps> = ({
   };
 
   return (
-    <article className="max-w-5xl mx-auto pb-28 lg:pb-16 px-4 sm:px-6">
+    <article className="max-w-5xl mx-auto pb-36 lg:pb-16 px-4 sm:px-6">
       {/* Back to games list */}
       <div className="mb-4 print:hidden">
         <Link
@@ -698,8 +698,8 @@ export const GamePage: React.FC<GamePageProps> = ({
         </aside>
       </div>
 
-      {/* Fixed bottom action bar on Mobile (<1024px) */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-surface/95 border-t border-border p-3 safe-bottom shadow-2 flex items-center gap-2 print:hidden">
+      {/* Fixed bottom action bar on Mobile (<1024px) above BottomTabBar */}
+      <div className="lg:hidden fixed bottom-16 inset-x-0 z-30 bg-surface backdrop-blur-md border-t border-border p-3 shadow-2 flex items-center gap-2 print:hidden">
         <Button
           variant="primary"
           size="md"

@@ -63,3 +63,27 @@ export const loadPresentNames = (): string[] => {
   // If present map doesn't have an entry for a name, default to true
   return names.filter((n) => present[n] !== false);
 };
+
+export const GROUP_TITLE_KEY = 'jy_group_title';
+
+export const loadGroupTitle = (): string => {
+  try {
+    return (localStorage.getItem(GROUP_TITLE_KEY) || '').trim();
+  } catch {
+    return '';
+  }
+};
+
+export const saveGroupTitle = (title: string): void => {
+  try {
+    const trimmed = title.trim();
+    if (trimmed) {
+      localStorage.setItem(GROUP_TITLE_KEY, trimmed);
+    } else {
+      localStorage.removeItem(GROUP_TITLE_KEY);
+    }
+  } catch {
+    // ignore
+  }
+};
+

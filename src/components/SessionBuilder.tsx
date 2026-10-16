@@ -4,7 +4,7 @@ import {
   ArrowUp, ArrowDown, Plus, ChevronRight, ChevronLeft, X,
   Download, Share2, CheckSquare, Square, BookOpen, Music,
   HeartHandshake, Palette, Smile, AlertTriangle, ExternalLink,
-  Calendar, Edit2, Search, SunMedium, Sparkles
+  Calendar, Edit2, Search, SunMedium, Sparkles, GripVertical
 } from 'lucide-react';
 import {
   Language, SessionSlot, SessionSlotType, SessionPlan, LocalizedString
@@ -460,6 +460,11 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
   const [timerSecondsLeft, setTimerSecondsLeft] = useState(0);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const wakeLockRef = useRef<{ release: () => Promise<void> } | null>(null);
+
+  // Drag & Drop + Keyboard Reordering State
+  const [draggedSlotIndex, setDraggedSlotIndex] = useState<number | null>(null);
+  const [dragOverSlotIndex, setDragOverSlotIndex] = useState<number | null>(null);
+  const [reorderAnnouncement, setReorderAnnouncement] = useState<string>('');
 
   // Packed checklist items in localStorage
   const packedStorageKey = useMemo(() => `jy_packed_items_${activePlan?.id || 'default'}`, [activePlan?.id]);
@@ -1014,33 +1019,42 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
           </div>
 
           {/* Primary Action: "Treffen starten" */}
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <button
-              type="button"
-              disabled={slots.length === 0}
-              onClick={handleStartRunMode}
-              className="px-4 py-2.5 rounded-control bg-accent text-accent-contrast hover:bg-accent-hover font-bold text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Play className="w-4 h-4 fill-current" />
-              <span>{t.treffenStartLive}</span>
-            </button>
+          <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                disabled={slots.length === 0}
+                title={slots.length === 0 ? t.treffenStartDisabledHint : undefined}
+                aria-describedby={slots.length === 0 ? 'treffen-start-hint' : undefined}
+                onClick={handleStartRunMode}
+                className="px-4 py-2.5 rounded-control bg-accent text-accent-contrast hover:bg-accent-hover font-bold text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                <span>{t.treffenStartLive}</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setIsTemplateDialogOpen(true)}
-              className="px-3.5 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px]"
-            >
-              {t.treffenChoosePreset}
-            </button>
+              <button
+                type="button"
+                onClick={() => setIsTemplateDialogOpen(true)}
+                className="px-3.5 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px]"
+              >
+                {t.treffenChoosePreset}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setIsMyPlansOpen(true)}
-              className="px-3 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-medium text-text-secondary hover:text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>{t.treffenMyPlans}</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => setIsMyPlansOpen(true)}
+                className="px-3 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-medium text-text-secondary hover:text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>{t.treffenMyPlans}</span>
+              </button>
+            </div>
+            {slots.length === 0 && (
+              <p id="treffen-start-hint" className="text-2xs text-text-secondary">
+                {t.treffenStartDisabledHint}
+              </p>
+            )}
           </div>
 
         </div>
@@ -1111,7 +1125,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
               <button
                 type="button"
                 onClick={() => setIsPackingListOpen(true)}
-                className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-2xs flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]"
               >
                 <CheckSquare className="w-3.5 h-3.5 text-accent-text" />
                 <span>{t.treffenPackingList} {gatheredMaterials.length > 0 && `(${gatheredMaterials.length})`}</span>
@@ -1120,7 +1134,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
               <button
                 type="button"
                 onClick={() => setIsShareModalOpen(true)}
-                className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-2xs flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]"
               >
                 <Share2 className="w-3.5 h-3.5 text-text-tertiary" />
                 <span>{t.treffenSharePlan}</span>
@@ -1129,7 +1143,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-2xs flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]"
               >
                 <Download className="w-3.5 h-3.5 text-text-tertiary" />
                 <span>{t.treffenPrintPlan}</span>
@@ -1193,7 +1207,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             <button
               type="button"
               onClick={() => handleAddBlankSlot('devotional')}
-              className="text-xs font-medium text-text-tertiary hover:text-text transition-colors underline cursor-pointer"
+              className="text-xs font-medium text-text-tertiary hover:text-text transition-colors underline cursor-pointer min-h-[36px] px-2"
             >
               {t.treffenPresetEmptyDesc} ({t.treffenPresetEmpty})
             </button>
@@ -1201,20 +1215,96 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
         </div>
       ) : (
         /* ==================================================== */
-        /* 4. VERTICAL TIMELINE OF SESSION SLOTS */
+        /* 4. VERTICAL TIMELINE OF SESSION SLOTS (Drag & Drop + Keyboard ArrowUp/ArrowDown) */
         /* ==================================================== */
         <div className="space-y-3 print:hidden">
+          <div className="sr-only" aria-live="polite" aria-atomic="true">
+            {reorderAnnouncement}
+          </div>
           {slots.map((slot, index) => {
             const timeRange = getSlotTimeRange(startTime, index, slots);
+            const isDragged = draggedSlotIndex === index;
+            const isDragOver = dragOverSlotIndex === index && draggedSlotIndex !== index;
+
+            const handleMoveSlot = (fromIdx: number, toIdx: number) => {
+              if (toIdx < 0 || toIdx >= slots.length || fromIdx === toIdx) return;
+              reorderSlots(fromIdx, toIdx);
+              setReorderAnnouncement(
+                language === 'de'
+                  ? `Baustein „${slot.title.de}“ auf Position ${toIdx + 1} verschoben.`
+                  : `Moved "${slot.title.en}" to position ${toIdx + 1}.`
+              );
+            };
+
             return (
               <div
                 key={slot.id}
                 data-slot-id={slot.id}
-                className="bg-surface rounded-card border border-border p-4 sm:p-5 shadow-xs transition-colors hover:border-accent/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                draggable
+                onDragStart={(e) => {
+                  setDraggedSlotIndex(index);
+                  e.dataTransfer.effectAllowed = 'move';
+                  e.dataTransfer.setData('text/plain', String(index));
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  if (dragOverSlotIndex !== index) {
+                    setDragOverSlotIndex(index);
+                  }
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const fromIdx = draggedSlotIndex !== null ? draggedSlotIndex : Number(e.dataTransfer.getData('text/plain'));
+                  if (!isNaN(fromIdx) && fromIdx !== index) {
+                    handleMoveSlot(fromIdx, index);
+                  }
+                  setDraggedSlotIndex(null);
+                  setDragOverSlotIndex(null);
+                }}
+                onDragEnd={() => {
+                  setDraggedSlotIndex(null);
+                  setDragOverSlotIndex(null);
+                }}
+                onKeyDown={(e) => {
+                  const tag = (e.target as HTMLElement)?.tagName;
+                  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+                  if (e.key === 'ArrowUp' && index > 0) {
+                    e.preventDefault();
+                    handleMoveSlot(index, index - 1);
+                  } else if (e.key === 'ArrowDown' && index < slots.length - 1) {
+                    e.preventDefault();
+                    handleMoveSlot(index, index + 1);
+                  }
+                }}
+                className={`bg-surface rounded-card border p-4 sm:p-5 shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                  isDragged
+                    ? 'opacity-50 border-accent'
+                    : isDragOver
+                    ? 'border-accent ring-2 ring-accent/30'
+                    : 'border-border hover:border-accent/40'
+                }`}
               >
-                {/* Left: Clock Time Pill + Content */}
-                <div className="flex items-start gap-3.5 min-w-0 flex-1">
-                  
+                {/* Left: Drag Handle + Clock Time Pill + Content */}
+                <div className="flex items-start gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+                  {/* Accessible Drag / Keyboard Reorder Handle */}
+                  <button
+                    type="button"
+                    aria-label={
+                      language === 'de'
+                        ? `Baustein ${index + 1} (${slot.title.de}) verschieben – Pfeiltasten hoch/runter oder ziehen`
+                        : `Reorder block ${index + 1} (${slot.title.en}) – use Up/Down arrow keys or drag`
+                    }
+                    title={
+                      language === 'de'
+                        ? 'Ziehen oder mit Pfeiltasten ↑/↓ sortieren'
+                        : 'Drag or use ↑/↓ arrow keys to reorder'
+                    }
+                    className="min-w-[36px] min-h-[44px] flex items-center justify-center rounded-control text-text-tertiary hover:text-text hover:bg-surface-2 cursor-grab active:cursor-grabbing shrink-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </button>
+
                   {/* Time Badge (Calculated from Start Time) */}
                   <div className="flex flex-col items-center justify-center shrink-0 w-20 py-1 px-1.5 rounded-control bg-surface-2 border border-border text-center">
                     <span className="text-xs font-mono font-bold text-text whitespace-nowrap">
@@ -1278,7 +1368,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                       onClick={() => updateSlot(slot.id, { durationMinutes: Math.max(5, slot.durationMinutes - 5) })}
                       size="sm"
                       variant="ghost"
-                      className="text-text hover:bg-surface font-bold text-sm min-h-[36px] min-w-[36px]"
+                      className="text-text hover:bg-surface font-bold text-sm"
                     >
                       -
                     </IconButton>
@@ -1290,7 +1380,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                       onClick={() => updateSlot(slot.id, { durationMinutes: slot.durationMinutes + 5 })}
                       size="sm"
                       variant="ghost"
-                      className="text-text hover:bg-surface font-bold text-sm min-h-[36px] min-w-[36px]"
+                      className="text-text hover:bg-surface font-bold text-sm"
                     >
                       +
                     </IconButton>
@@ -1300,7 +1390,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                   <button
                     type="button"
                     onClick={() => handleOpenPicker(slot.id)}
-                    className="px-3 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[40px]"
+                    className="px-3 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px]"
                   >
                     {t.treffenSwapResource}
                   </button>
@@ -1310,7 +1400,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                     <IconButton
                       label={t.treffenMoveUp}
                       disabled={index === 0}
-                      onClick={() => reorderSlots(index, index - 1)}
+                      onClick={() => handleMoveSlot(index, index - 1)}
                       size="sm"
                       variant="ghost"
                       className="text-text-tertiary hover:text-text disabled:opacity-20"
@@ -1320,7 +1410,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                     <IconButton
                       label={t.treffenMoveDown}
                       disabled={index === slots.length - 1}
-                      onClick={() => reorderSlots(index, index + 1)}
+                      onClick={() => handleMoveSlot(index, index + 1)}
                       size="sm"
                       variant="ghost"
                       className="text-text-tertiary hover:text-text disabled:opacity-20"

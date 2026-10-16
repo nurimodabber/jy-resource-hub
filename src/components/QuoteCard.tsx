@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { Bookmark, ArrowRight, MoreVertical, Copy, Check, Share2, Plus, Heart } from 'lucide-react';
+import '@fontsource/lora/latin-400.css';
+import '@fontsource/lora/latin-400-italic.css';
+import '@fontsource/lora/latin-600.css';
 import { QuoteItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { IconButton } from './ui/IconButton';
@@ -26,6 +29,16 @@ export const isPrayerQuote = (quote: QuoteItem): boolean => {
   );
 };
 
+export const formatQuoteSection = (section?: string): string | undefined => {
+  if (!section) return undefined;
+  const cleaned = section.replace(/\/\s*$/, '').trim();
+  if (!cleaned) return undefined;
+  if (/^(lektion|lesson|einheit|unit|gebet|prayer)\s*$/i.test(cleaned)) {
+    return undefined;
+  }
+  return cleaned;
+};
+
 export const QuoteCard: React.FC<QuoteCardProps> = ({
   quote,
   language,
@@ -44,7 +57,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   const isPrayer = isPrayerQuote(quote);
   const text = language === 'de' ? quote.textDe : quote.textEn;
   const bookName = quote.mainBook ? quote.mainBook[language] : quote.book[language].split(',')[0].trim();
-  const sectionName = quote.section ? quote.section[language] : undefined;
+  const sectionName = formatQuoteSection(quote.section ? quote.section[language] : undefined);
 
   const handleCopy = (e?: React.MouseEvent) => {
     e?.stopPropagation();

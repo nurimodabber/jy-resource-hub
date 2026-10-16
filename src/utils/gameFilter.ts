@@ -28,16 +28,16 @@ const ENERGY_TO_URL: Record<EnergyLevel, string> = {
 export const parseGameFilters = (searchParams: URLSearchParams): GameFilterState => {
   const q = searchParams.get('q') || searchParams.get('suche') || undefined;
   
-  const personenRaw = searchParams.get('personen');
+  const personenRaw = searchParams.get('personen') || searchParams.get('gruppe');
   const personen = personenRaw && !isNaN(Number(personenRaw)) ? Number(personenRaw) : null;
 
-  const dauerRaw = searchParams.get('dauer');
+  const dauerRaw = searchParams.get('dauer') || searchParams.get('zeit');
   const dauer = dauerRaw && !isNaN(Number(dauerRaw)) ? Number(dauerRaw) : null;
 
   const energieRaw = searchParams.get('energie')?.toLowerCase();
   const energie = energieRaw && ENERGY_URL_MAP[energieRaw] ? ENERGY_URL_MAP[energieRaw] : null;
 
-  const wirkungRaw = searchParams.get('wirkung')?.toLowerCase() as GamePurpose | undefined;
+  const wirkungRaw = (searchParams.get('wirkung') || searchParams.get('kategorie'))?.toLowerCase() as GamePurpose | undefined;
   const validPurposes: GamePurpose[] = ['kennenlernen', 'energie', 'zusammenarbeit', 'ruhe', 'raten'];
   const wirkung = wirkungRaw && validPurposes.includes(wirkungRaw) ? wirkungRaw : null;
 

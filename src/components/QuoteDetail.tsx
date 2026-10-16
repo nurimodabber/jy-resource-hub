@@ -13,7 +13,7 @@ import { IconButton } from './ui/IconButton';
 import { useToast } from '../context/ToastContext';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { shareResource } from '../utils/share';
-import { isPrayerQuote } from './QuoteCard';
+import { isPrayerQuote, formatQuoteSection } from './QuoteCard';
 
 interface QuoteDetailProps {
   quote: QuoteItem;
@@ -70,7 +70,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
 
   const text = language === 'de' ? activeQuote.textDe : activeQuote.textEn;
   const bookName = activeQuote.mainBook ? activeQuote.mainBook[language] : activeQuote.book[language].split(',')[0].trim();
-  const sectionName = activeQuote.section ? activeQuote.section[language] : undefined;
+  const sectionName = formatQuoteSection(activeQuote.section ? activeQuote.section[language] : undefined);
 
   // Keep screen awake during reading mode
   useWakeLock(isReadingMode);
@@ -171,7 +171,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
   ];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-28 pt-2">
+    <div className="max-w-4xl mx-auto space-y-8 pb-36 lg:pb-24 pt-2">
       {/* Top Header Navigation */}
       <div className="flex items-center justify-between gap-4">
         <Button
@@ -395,7 +395,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
                         <Button
                           variant="secondary"
                           onClick={() => onPracticeTool(activeQuote, toolId)}
-                          className="shrink-0 min-h-[36px] text-xs px-2.5 py-1"
+                          className="shrink-0 min-h-[44px] text-xs px-3 py-1.5"
                         >
                           <Play className="w-3 h-3 mr-1" />
                           <span>{t.practiceTextLink}</span>
@@ -410,8 +410,8 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
         </section>
       )}
 
-      {/* Sticky Bottom Action Bar on Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-md border-t border-border p-3 safe-bottom shadow-lg">
+      {/* Sticky Bottom Action Bar above Mobile Navigation */}
+      <div className="fixed bottom-16 lg:bottom-0 left-0 right-0 z-30 bg-surface backdrop-blur-md border-t border-border p-3 lg:safe-bottom shadow-2 print:hidden">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5">
             <IconButton

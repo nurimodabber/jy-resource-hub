@@ -54,11 +54,11 @@ export const GamesView: React.FC<GamesViewProps> = ({
     setFilters(parsed);
   }, [searchParams]);
 
-  // Update URL whenever filters change
-  const updateFilters = (newFilters: GameFilterState) => {
+  // Update URL whenever filters change (push history for discrete filter actions, replace for text typing)
+  const updateFilters = (newFilters: GameFilterState, replaceHistory = false) => {
     setFilters(newFilters);
     const params = serializeGameFilters(newFilters);
-    setSearchParams(params, { replace: true });
+    setSearchParams(params, { replace: replaceHistory });
   };
 
   // If a single game ID is passed in route: /games/:id
@@ -158,15 +158,17 @@ export const GamesView: React.FC<GamesViewProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto pb-20 px-4 sm:px-6">
-      {/* 1. Header: H1, one sentence, count */}
+      {/* 1. Header: H1, one sentence, live count */}
       <header className="mb-6">
         <div className="flex items-baseline gap-3 flex-wrap">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
             {t.tabGames}
           </h1>
-          <Badge category="neutral" size="md">
-            {GAMES_DATA.length} {t.gamesFound}
-          </Badge>
+          <div aria-live="polite" aria-atomic="true">
+            <Badge category="neutral" size="md">
+              {filteredGames.length} {t.gamesFound}
+            </Badge>
+          </div>
         </div>
         <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
           {t.gamesHeaderDesc}
@@ -185,21 +187,24 @@ export const GamesView: React.FC<GamesViewProps> = ({
             type="search"
             value={filters.q || ''}
             onChange={(e) =>
-              updateFilters({
-                ...filters,
-                q: e.target.value || undefined,
-              })
+              updateFilters(
+                {
+                  ...filters,
+                  q: e.target.value || undefined,
+                },
+                true
+              )
             }
             placeholder={L('Spiel suchen...', 'Search games...')}
             aria-label={L('Spiel suchen', 'Search games')}
-            className="w-full h-11 pl-10 pr-10 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+            className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
           />
           {filters.q && (
             <button
               type="button"
               onClick={() => updateFilters({ ...filters, q: undefined })}
               aria-label={L('Suche löschen', 'Clear search')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control"
+              className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
             >
               <X className="w-4 h-4" />
             </button>
@@ -233,7 +238,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
       {/* 3. Horizontal single-line scrollable chip row for PURPOSE (Wirkung) */}
       <div
         className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-3 mb-4 select-none"
-        role="tablist"
+        role="group"
         aria-label={t.purposeLabel}
       >
         {PURPOSES.map((p) => {
@@ -343,6 +348,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
       )}
 
       {/* 5. Games Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}
+      <h2 className="sr-only">{t.tabGames}</h2>
       {filteredGames.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 min-[1120px]:grid-cols-3 gap-4">
           {filteredGames.map((game) => (

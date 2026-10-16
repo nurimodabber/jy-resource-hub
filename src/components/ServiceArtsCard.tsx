@@ -48,7 +48,11 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
       ? t.settingDraussen
       : t.settingBeides;
 
-  const durationStr = activity.duration ? activity.duration[language] : `${activity.durationMin}–${activity.durationMax} Min`;
+  const shortDurationStr =
+    activity.durationMin === activity.durationMax
+      ? `${activity.durationMin} ${language === 'de' ? 'Min' : 'min'}`
+      : `${activity.durationMin}–${activity.durationMax} ${language === 'de' ? 'Min' : 'min'}`;
+  const fullDurationTitle = activity.duration ? activity.duration[language] : shortDurationStr;
 
   return (
     <div className="group relative h-full flex flex-col justify-between bg-surface border border-border rounded-card hover:border-border-strong hover:shadow-card transition-all p-4">
@@ -69,7 +73,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
 
         <Link
           to={`/service-arts/${activity.id}`}
-          className="block flex-1 min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-control"
+          className="block flex-1 min-w-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control"
         >
           <h3 className="text-base font-semibold text-text leading-snug line-clamp-2 group-hover:text-accent-text transition-colors">
             {activity.title[language]}
@@ -86,7 +90,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         onClick={(e) => onToggleFavorite(activity.id, e)}
         aria-pressed={isFavorite}
         aria-label={`${t.savedItems}: ${activity.title[language]}`}
-        className={`absolute top-2 right-2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control hover:bg-surface-2 transition-colors ${
+        className={`absolute top-2 right-2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control hover:bg-surface-2 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
           isFavorite ? 'text-accent' : 'text-text-tertiary hover:text-text'
         }`}
       >
@@ -97,10 +101,10 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
       <div className="flex items-center gap-3 pt-3 mt-3 border-t border-border/50 text-xs text-text-tertiary tabular-nums">
         <div
           className="inline-flex items-center gap-1.5 shrink-0"
-          title={`${t.filterDuration}: ${durationStr}`}
+          title={`${t.filterDuration}: ${fullDurationTitle}`}
         >
           <Clock className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
-          <span className="truncate max-w-[120px]">{durationStr}</span>
+          <span>{shortDurationStr}</span>
         </div>
 
         <span className="text-border" aria-hidden="true">·</span>
