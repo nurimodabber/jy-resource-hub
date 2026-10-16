@@ -28,7 +28,7 @@ const de = {
 
     // Home Section ("Was brauchst du heute?")
     homeHeroTitle: 'Was brauchst du heute?',
-    homeHeroSubtitle: 'Finde in wenigen Klicks die passende Aktivität für deine Juniorjugendgruppe.',
+    homeHeroSubtitle: 'Passende Spiele, Zitate und Projekte für deine Juniorjugendgruppe.',
     homeGroupSizeLabel: 'Gruppengröße',
     homeGroupSmall: '< 8 Jugendliche',
     homeGroupMedium: '8–15 Jugendliche',
@@ -46,12 +46,12 @@ const de = {
     homeMatchesFound: 'Sofort-Empfehlungen',
     homeNoMatches: 'Keine direkten Treffer für diese Filterkombination. Versuche "Ohne Material" abzuwählen oder klicke auf "Überrasch mich"!',
     homeFeaturedQuoteTitle: 'Zitat des Tages',
-    homeFeaturedQuoteSubtitle: 'Gemeinsam verinnerlichen mit passender Lernmethode',
+    homeFeaturedQuoteSubtitle: 'Gemeinsam lesen und vertiefen',
     homeTryMethod: 'Methode im Studio öffnen',
     homeExploreAllGames: 'Alle Spiele entdecken',
     homeExploreAllQuotes: 'Zitatesammlung & Methoden',
     homeExplorePlanner: 'Stunde zusammenstellen',
-    homeCommunityStats: '29 kuratierte Spiele · 51 Zitate · 50 Lernmethoden · Bereit für deine nächste JG-Stunde',
+    homeCommunityStats: '35 Spiele · 51 Zitate · 50 Lernmethoden · Dienst- und Kunstprojekte',
     homeRecentOrFavorites: 'Deine gemerkten Favoriten',
 
     // Share & More Sheet
@@ -72,8 +72,8 @@ const de = {
     themeDark: 'Dunkel',
 
     // Games Section
-    gamesHeaderTitle: 'Erprobte Gruppenspiele',
-    gamesHeaderDesc: 'Fokussiert auf 11- bis 15-Jährige. Spiele mit echter Dynamik, Witz, Taktik und authentischer Zusammenarbeit.',
+    gamesHeaderTitle: 'Spiele',
+    gamesHeaderDesc: '35 Spiele für den Kreis, die Wiese und den Gruppenraum.',
     filterAll: 'Alle',
     filterCooperative: 'Kooperativ',
     filterCompetitive: 'Wettkampf / Duelle',
@@ -331,7 +331,7 @@ const de = {
 
     // Phase 05 Treffen-Assistent
     treffenTitle: 'Treffen',
-    treffenSubtitle: 'Plane und leite deine Gruppenstunden und Camp-Abende.',
+    treffenSubtitle: 'Abläufe für 75 bis 120 Minuten planen und leiten.',
     treffenStartLive: 'Treffen starten',
     treffenExitLive: 'Treffen beenden',
     treffenNextBlock: 'Nächster Baustein',
@@ -418,8 +418,8 @@ const de = {
     deepeningQuestionsLabel: 'Vertiefende Impulse',
 
     // Service & Arts
-    serviceArtsHeaderTitle: 'Gemeindedienst & Kreativer Ausdruck',
-    serviceArtsHeaderDesc: 'Die zwei tragenden Säulen des Programms: Konkrete soziale Aktionen für 11- bis 15-Jährige und künstlerische Vertiefungen der gelernten Texte.',
+    serviceArtsHeaderTitle: 'Dienst & Kunst',
+    serviceArtsHeaderDesc: 'Dienstprojekte und kreative Vertiefung.',
     subtabServiceProjects: 'Dienstprojekte',
     subtabArtsPrompts: 'Kunst & Theater',
     catAll: 'Alle Bereiche',
@@ -585,7 +585,7 @@ const en: Record<TKey, string> = {
 
     // Home Section ("What do you need today?")
     homeHeroTitle: 'What do you need today?',
-    homeHeroSubtitle: 'Find the right field-tested activity for your junior youth group in seconds.',
+    homeHeroSubtitle: 'Find matching games, sacred quotes, and service projects for your youth group.',
     homeGroupSizeLabel: 'Group Size',
     homeGroupSmall: '< 8 Youth',
     homeGroupMedium: '8–15 Youth',
@@ -603,12 +603,12 @@ const en: Record<TKey, string> = {
     homeMatchesFound: 'Instant Matches',
     homeNoMatches: 'No direct matches found for this combination. Try unchecking "No Materials" or tap "Surprise Me"!',
     homeFeaturedQuoteTitle: 'Featured Scripture Quote',
-    homeFeaturedQuoteSubtitle: 'Memorize together with a matching practice method',
+    homeFeaturedQuoteSubtitle: 'Read and study together',
     homeTryMethod: 'Open method in Studio',
     homeExploreAllGames: 'Browse all games',
     homeExploreAllQuotes: 'Quotes library & methods',
     homeExplorePlanner: 'Build session plan',
-    homeCommunityStats: '29 curated games · 51 quotes · 50 memorisation methods · ready for your next session',
+    homeCommunityStats: '35 games · 51 quotes · 50 study methods · Service and arts projects',
     homeRecentOrFavorites: 'Your Saved Favorites',
 
     // Share & More Sheet
@@ -629,8 +629,8 @@ const en: Record<TKey, string> = {
     themeDark: 'Dark',
 
     // Games Section
-    gamesHeaderTitle: 'Field-Tested Group Games',
-    gamesHeaderDesc: 'Curated specifically for 11–15 year olds. Real energy, wit, tactics, and genuine team cooperation.',
+    gamesHeaderTitle: 'Games',
+    gamesHeaderDesc: '35 games for the circle, the field, and the youth room.',
     filterAll: 'All',
     filterCooperative: 'Cooperative',
     filterCompetitive: 'Competitive / Duels',
@@ -888,7 +888,7 @@ const en: Record<TKey, string> = {
 
     // Phase 05 Treffen-Assistent
     treffenTitle: 'Gatherings',
-    treffenSubtitle: 'Plan and guide your youth gatherings and camp evenings.',
+    treffenSubtitle: 'Plan and guide gatherings from 75 to 120 minutes.',
     treffenStartLive: 'Start Gathering',
     treffenExitLive: 'Exit Gathering',
     treffenNextBlock: 'Next Block',
@@ -975,8 +975,8 @@ const en: Record<TKey, string> = {
     deepeningQuestionsLabel: 'Follow-Up Inquiries',
 
     // Service & Arts
-    serviceArtsHeaderTitle: 'Community Service & Creative Expression',
-    serviceArtsHeaderDesc: 'The twin foundational pillars of the junior youth program: tangible neighborhood social action and creative artistic explorations of sacred text.',
+    serviceArtsHeaderTitle: 'Service & Arts',
+    serviceArtsHeaderDesc: 'Service projects and creative explorations for the group.',
     subtabServiceProjects: 'Service Projects',
     subtabArtsPrompts: 'Arts & Drama',
     catAll: 'All Areas',
