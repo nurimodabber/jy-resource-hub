@@ -4,7 +4,7 @@ import {
   ArrowUp, ArrowDown, Plus, ChevronRight, ChevronLeft, X,
   Download, Share2, CheckSquare, Square, BookOpen, Music,
   HeartHandshake, Palette, Smile, AlertTriangle, ExternalLink,
-  Calendar, Edit2, Search, SunMedium, Sparkles, GripVertical
+  Calendar, Edit2, Search, SunMedium, Sparkles, GripVertical, Bookmark
 } from 'lucide-react';
 import {
   Language, SessionSlot, SessionSlotType, SessionPlan, LocalizedString
@@ -109,7 +109,7 @@ function encodePlanToShareUrl(plan: SessionPlan): string {
   // safe b64 in browser
   const b64 = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (_, p1) => String.fromCharCode(parseInt(p1, 16))));
   const url = new URL(window.location.origin + '/treffen');
-  url.searchParams.set('plan', b64);
+  url.hash = `plan=${b64}`;
   return url.toString();
 }
 
@@ -154,7 +154,7 @@ export interface GatheringPreset {
 export const GATHERING_PRESETS: GatheringPreset[] = [
   {
     id: 'standard-75',
-    name: { de: 'Normales Treffen (75 Min)', en: 'Standard Gathering (75 min)' },
+    name: { de: 'Treffen (75 Min)', en: 'Gathering (75 min)' },
     desc: {
       de: 'Andacht 10, Zitat und Lernen 20, Spiel 15, Dienst oder Kunst 20, Abschluss 10.',
       en: 'Devotion 10, quote & study 20, game 15, service or arts 20, closing 10.'
@@ -451,6 +451,52 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
   const [isPackingListOpen, setIsPackingListOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
+  // Custom templates and duplicate previous plan
+  const [customTemplates, setCustomTemplates] = useState<Array<{ id: string; name: string; targetDuration: number; slots: SessionSlot[] }>>(() => {
+    try {
+      const raw = localStorage.getItem('jy_custom_templates');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const previousPlan = useMemo(() => {
+    return plans.find((p) => p.id !== activePlan?.id && p.slots.length > 0);
+  }, [plans, activePlan?.id]);
+
+  const handleDuplicatePrevious = () => {
+    if (!previousPlan || !activePlan) return;
+    const clonedSlots: SessionSlot[] = previousPlan.slots.map((s, idx) => ({
+      ...JSON.parse(JSON.stringify(s)),
+      id: `slot-dup-${Date.now()}-${idx}`,
+    }));
+    loadPresetIntoPlan(
+      clonedSlots,
+      language === 'de' ? `${previousPlan.name} (Wdh.)` : `${previousPlan.name} (Repeat)`,
+      previousPlan.targetDurationMinutes
+    );
+    showToast({ text: language === 'de' ? 'Ablauf vom letzten Treffen übernommen' : 'Copied agenda from previous gathering' });
+  };
+
+  const handleSaveAsCustomTemplate = () => {
+    if (!activePlan || activePlan.slots.length === 0) return;
+    try {
+      const newTmpl = {
+        id: 'tmpl-' + Date.now(),
+        name: activePlan.name,
+        targetDuration: totalMinutes || 75,
+        slots: activePlan.slots,
+      };
+      const updated = [newTmpl, ...customTemplates];
+      localStorage.setItem('jy_custom_templates', JSON.stringify(updated));
+      setCustomTemplates(updated);
+      showToast({ text: language === 'de' ? 'Als eigene Vorlage gespeichert' : 'Saved as custom template' });
+    } catch {
+      /* ignore */
+    }
+  };
+
   // Resource preview modal state
   const [previewItem, setPreviewItem] = useState<{
     type: 'game' | 'quote' | 'song' | 'service' | 'art' | 'method';
@@ -497,8 +543,9 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
 
   // URL Import check on initial mount
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const planParam = params.get('plan');
+    const planParam = window.location.hash.startsWith('#plan=')
+      ? window.location.hash.slice('#plan='.length)
+      : new URLSearchParams(window.location.search).get('plan');
     if (planParam) {
       const imported = decodePlanFromShareParam(planParam);
       if (imported && imported.slots.length > 0) {
@@ -510,9 +557,8 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
         );
         setActivePlanId(created.id);
         showToast({ text: t.treffenPlanImported });
-        // remove parameter from URL cleanly
-        const cleanUrl = window.location.pathname;
-        window.history.replaceState({}, '', cleanUrl);
+        // remove parameter/hash from URL cleanly
+        window.history.replaceState({}, '', window.location.pathname);
       }
     }
   }, [createNewPlan, setActivePlanId, showToast, t.treffenPlanImported]);
@@ -893,21 +939,21 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
   };
 
   // Add a blank slot of specific type
-  const handleAddBlankSlot = (type: SessionSlotType) => {
+  const handleAddBlankSlot = (type: SessionSlotType, defaultDuration: number = 15, customTitle?: { de: string; en: string }) => {
     const titles: Record<SessionSlotType, { de: string; en: string }> = {
       devotional: { de: 'Andacht & Gebet', en: 'Devotion & Prayer' },
-      study: { de: 'Zitatestudium & Lernen', en: 'Text Study & Practice' },
+      study: { de: 'Zitat & Reflexion', en: 'Quote & Study' },
       warmup: { de: 'Spiel & Energizer', en: 'Game & Energizer' },
-      service: { de: 'Gemeindedienst', en: 'Community Service' },
-      arts_discussion: { de: 'Kreatives Gestalten & Kunst', en: 'Creative Expression & Arts' },
-      closing: { de: 'Abschlusskreis & Reflexion', en: 'Closing Circle & Reflection' },
+      service: { de: 'Dienstprojekt', en: 'Service Project' },
+      arts_discussion: { de: 'Kunst & Theater', en: 'Arts & Drama' },
+      closing: { de: 'Abschlusskreis', en: 'Closing Circle' },
       custom: { de: 'Freier Baustein', en: 'Custom Block' },
     };
     addSlotToPlan({
       type,
-      title: titles[type] || { de: 'Neuer Baustein', en: 'New Block' },
+      title: customTitle || titles[type] || { de: 'Neuer Baustein', en: 'New Block' },
       description: { de: '', en: '' },
-      durationMinutes: 15,
+      durationMinutes: defaultDuration,
     });
     showToast({ text: t.treffenSlotAdded });
   };
@@ -989,17 +1035,17 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
       {/* 2. PLAN HEADER & TOOLBAR (Screen View) */}
       {/* ==================================================== */}
       <div className="bg-surface rounded-card border border-border p-5 sm:p-6 shadow-xs print:hidden space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           
           {/* Plan Title & Renaming */}
-          <div className="space-y-1 flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-accent-text">
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-action">
                 {t.treffenTitle}
               </span>
-              <span className="text-text-tertiary">•</span>
+              <span className="text-text-tertiary" aria-hidden="true">•</span>
               <span className="text-xs font-medium text-text-secondary">
-                {slots.length} {language === 'de' ? 'Bausteine' : 'blocks'} · {totalMinutes} Min.
+                {slots.length} {language === 'de' ? 'Bausteine' : 'blocks'}{totalMinutes > 0 ? ` · ${totalMinutes} Min.` : ''}
               </span>
             </div>
 
@@ -1010,7 +1056,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
                   autoFocus
-                  className="px-3.5 py-1.5 text-base font-bold rounded-control bg-surface-2 border border-border text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                  className="px-3.5 py-1.5 text-base font-bold rounded-control bg-surface-2 border border-border text-text focus:outline-hidden focus:ring-2 focus:ring-action"
                 />
                 <button
                   type="button"
@@ -1020,14 +1066,14 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                     }
                     setIsRenaming(false);
                   }}
-                  className="px-3 py-2 rounded-control bg-accent text-accent-contrast text-xs font-bold cursor-pointer"
+                  className="px-3 py-2 rounded-control bg-action text-action-contrast text-xs font-bold cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-text tracking-tight truncate">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-text tracking-tight">
                   {activePlan?.name || (language === 'de' ? 'Mein Treffen' : 'My Gathering')}
                 </h1>
                 <IconButton
@@ -1049,7 +1095,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             </p>
           </div>
 
-          {/* Primary Action: "Treffen starten" */}
+          {/* Primary Action: "Treffen starten" & Toolbar */}
           <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
             <div className="flex flex-wrap items-center gap-2">
               <button
@@ -1058,24 +1104,36 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 title={slots.length === 0 ? t.treffenStartDisabledHint : undefined}
                 aria-describedby={slots.length === 0 ? 'treffen-start-hint' : undefined}
                 onClick={handleStartRunMode}
-                className="px-4 py-2.5 rounded-control bg-accent text-accent-contrast hover:bg-accent-hover font-bold text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-4 py-2.5 rounded-control bg-action text-action-contrast hover:opacity-90 font-bold text-xs flex items-center gap-2 shadow-xs transition-opacity cursor-pointer min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Play className="w-4 h-4 fill-current" />
                 <span>{t.treffenStartLive}</span>
               </button>
+
+              {slots.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleSaveAsCustomTemplate}
+                  title={language === 'de' ? 'Als eigene Vorlage speichern' : 'Save as custom template'}
+                  className="px-3 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5"
+                >
+                  <Bookmark className="w-4 h-4 text-action" />
+                  <span className="hidden sm:inline">{language === 'de' ? 'Als Vorlage merken' : 'Save template'}</span>
+                </button>
+              )}
 
               <button
                 type="button"
                 onClick={() => setIsTemplateDialogOpen(true)}
                 className="px-3.5 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px]"
               >
-                {t.treffenChoosePreset}
+                {language === 'de' ? 'Vorlagen' : 'Templates'}
               </button>
 
               <button
                 type="button"
                 onClick={() => setIsMyPlansOpen(true)}
-                className="px-3 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-medium text-text-secondary hover:text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5"
+                className="px-3.5 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-medium text-text-secondary hover:text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5"
               >
                 <Calendar className="w-4 h-4" />
                 <span>{t.treffenMyPlans}</span>
@@ -1185,61 +1243,177 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
       </div>
 
       {/* ==================================================== */}
-      {/* 3. EMPTY STATE: 4 GUIDED PRESETS (No empty void) */}
+      {/* 3. EMPTY STATE: OPEN-ENDED INVITATION & BLOCK LIBRARY */}
       {/* ==================================================== */}
       {slots.length === 0 ? (
-        <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs text-center space-y-6 print:hidden">
-          <div className="max-w-md mx-auto space-y-2">
-            <h2 className="text-lg sm:text-xl font-bold text-text flex items-center justify-center gap-2">
-              <Clock className="w-5 h-5 text-accent-text shrink-0" />
-              <span>{language === 'de' ? 'Ablauf mit einem Klick starten' : 'Start your gathering with one tap'}</span>
+        <div className="bg-surface rounded-card border border-border p-6 sm:p-8 shadow-xs space-y-6 print:hidden">
+          <div className="max-w-xl mx-auto text-center space-y-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-text">
+              {language === 'de' ? 'Was steht bei eurem nächsten Treffen an?' : "What's planned for your next gathering?"}
             </h2>
-            <p className="text-xs sm:text-sm text-text-secondary">
+            <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
               {language === 'de'
-                ? 'Wähle einen erprobten Ablauf. Jeder Baustein lässt sich danach mit einem Fingertipp anpassen.'
-                : 'Choose a proven gathering arc. Every block can be tailored with a single tap.'}
+                ? 'Stelle euren Ablauf flexibel aus den Bausteinen zusammen – mit oder ohne feste Minuten.'
+                : 'Assemble your agenda flexibly from building blocks – with or without fixed minutes.'}
             </p>
           </div>
 
-          {/* 4 Large Preset Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-w-3xl mx-auto text-left">
-            {GATHERING_PRESETS.map((preset) => (
+          {/* Quick Add Bausteine Grid */}
+          <div className="space-y-3">
+            <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary text-center">
+              {language === 'de' ? 'Baustein direkt hinzufügen:' : 'Add a building block:'}
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 max-w-3xl mx-auto">
               <button
-                key={preset.id}
                 type="button"
-                onClick={() => handleApplyPreset(preset)}
-                className="p-4 sm:p-5 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-accent/40 text-left transition-all flex flex-col justify-between group min-h-[140px] cursor-pointer"
+                onClick={() => handleAddBlankSlot('devotional', 10)}
+                className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <div className="space-y-2 w-full">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-bold text-text group-hover:text-accent transition-colors">
-                      {preset.name[language]}
-                    </span>
-                    <span className="text-2xs font-mono font-bold px-2 py-0.5 rounded-control bg-surface border border-line text-text-secondary shrink-0">
-                      {preset.targetDuration} Min.
-                    </span>
-                  </div>
-                  {renderPresetRhythmBar(preset.slots)}
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    {preset.desc[language]}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1.5 text-2xs font-semibold text-accent-text mt-3">
-                  <span>{language === 'de' ? 'Vorlage übernehmen' : 'Apply template'}</span>
-                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                <span className="p-1.5 rounded-control bg-surface text-action shrink-0 group-hover:scale-105 transition-transform">
+                  <BookOpen className="w-4 h-4" />
+                </span>
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
+                    {language === 'de' ? 'Andacht & Gebet' : 'Devotion & Prayer'}
+                  </span>
+                  <span className="text-2xs text-text-tertiary">10 Min.</span>
                 </div>
               </button>
-            ))}
+
+              <button
+                type="button"
+                onClick={() => handleAddBlankSlot('study', 15)}
+                className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
+              >
+                <span className="p-1.5 rounded-control bg-surface text-action shrink-0 group-hover:scale-105 transition-transform">
+                  <Sparkles className="w-4 h-4" />
+                </span>
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
+                    {language === 'de' ? 'Zitat & Reflexion' : 'Quote & Study'}
+                  </span>
+                  <span className="text-2xs text-text-tertiary">15 Min.</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAddBlankSlot('study', 20, { de: 'Juniorjugend-Buch', en: 'Junior Youth Book' })}
+                className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
+              >
+                <span className="p-1.5 rounded-control bg-surface text-word shrink-0 group-hover:scale-105 transition-transform">
+                  <BookOpen className="w-4 h-4" />
+                </span>
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
+                    {language === 'de' ? 'JY-Buch Studium' : 'JY Book Study'}
+                  </span>
+                  <span className="text-2xs text-text-tertiary">20 Min.</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAddBlankSlot('warmup', 15)}
+                className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
+              >
+                <span className="p-1.5 rounded-control bg-surface text-e-lebhaft shrink-0 group-hover:scale-105 transition-transform">
+                  <Smile className="w-4 h-4" />
+                </span>
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
+                    {language === 'de' ? 'Spiel & Energizer' : 'Game & Energizer'}
+                  </span>
+                  <span className="text-2xs text-text-tertiary">15 Min.</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAddBlankSlot('service', 20)}
+                className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
+              >
+                <span className="p-1.5 rounded-control bg-surface text-e-ruhig shrink-0 group-hover:scale-105 transition-transform">
+                  <HeartHandshake className="w-4 h-4" />
+                </span>
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
+                    {language === 'de' ? 'Dienstprojekt' : 'Service Project'}
+                  </span>
+                  <span className="text-2xs text-text-tertiary">20 Min.</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAddBlankSlot('arts_discussion', 20)}
+                className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
+              >
+                <span className="p-1.5 rounded-control bg-surface text-e-ruhig shrink-0 group-hover:scale-105 transition-transform">
+                  <Palette className="w-4 h-4" />
+                </span>
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
+                    {language === 'de' ? 'Kunst & Theater' : 'Arts & Drama'}
+                  </span>
+                  <span className="text-2xs text-text-tertiary">20 Min.</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAddBlankSlot('custom', 10, { de: 'Pause & Snack', en: 'Break & Snack' })}
+                className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
+              >
+                <span className="p-1.5 rounded-control bg-surface text-text-secondary shrink-0 group-hover:scale-105 transition-transform">
+                  <Clock className="w-4 h-4" />
+                </span>
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
+                    {language === 'de' ? 'Pause & Snack' : 'Break & Snack'}
+                  </span>
+                  <span className="text-2xs text-text-tertiary">10 Min.</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAddBlankSlot('closing', 10)}
+                className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
+              >
+                <span className="p-1.5 rounded-control bg-surface text-e-mittel shrink-0 group-hover:scale-105 transition-transform">
+                  <Check className="w-4 h-4" />
+                </span>
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
+                    {language === 'de' ? 'Abschlusskreis' : 'Closing Circle'}
+                  </span>
+                  <span className="text-2xs text-text-tertiary">10 Min.</span>
+                </div>
+              </button>
+            </div>
           </div>
 
-          {/* Blank start option */}
-          <div className="pt-2">
+          {/* Alternative Optionen: Wie letztes Mal & Vorlagen */}
+          <div className="pt-4 border-t border-border flex flex-wrap items-center justify-center gap-3">
+            {previousPlan && (
+              <button
+                type="button"
+                onClick={handleDuplicatePrevious}
+                className="px-4 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors flex items-center gap-2 min-h-[40px] cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4 text-action" />
+                <span>{language === 'de' ? 'Wie letztes Mal übernehmen' : 'Repeat last agenda'}</span>
+              </button>
+            )}
+
             <button
               type="button"
-              onClick={() => handleAddBlankSlot('devotional')}
-              className="text-xs font-medium text-text-tertiary hover:text-text transition-colors underline cursor-pointer min-h-[36px] px-2"
+              onClick={() => setIsTemplateDialogOpen(true)}
+              className="px-4 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors flex items-center gap-2 min-h-[40px] cursor-pointer"
             >
-              {t.treffenPresetEmptyDesc} ({t.treffenPresetEmpty})
+              <Sparkles className="w-4 h-4 text-action" />
+              <span>{language === 'de' ? 'Beispiele & Vorlagen ansehen' : 'See sample presets'}</span>
             </button>
           </div>
         </div>
@@ -1623,6 +1797,85 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             </button>
           </div>
         </div>
+      </div>
+    )}
+
+      {/* Treffen-Nachbereitung (Review Notes) */}
+      {activePlan && slots.length > 0 && (
+        <div className="bg-surface rounded-card border border-border p-5 sm:p-6 shadow-xs space-y-4 print:hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CheckSquare className="w-4 h-4 text-action" />
+              <h3 className="text-sm font-bold text-text">
+                {language === 'de' ? 'Treffen-Nachbereitung' : 'Gathering Review'}
+              </h3>
+            </div>
+            <span className="text-2xs text-text-tertiary">
+              {language === 'de' ? 'Wird mit dem Treffen gespeichert' : 'Saved with gathering'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-text-secondary">
+                {language === 'de' ? 'Was lief gut?' : 'What went well?'}
+              </label>
+              <textarea
+                value={activePlan.review?.whatWentWell || ''}
+                onChange={(e) => {
+                  updatePlanMeta(activePlan.id, {
+                    review: {
+                      ...activePlan.review,
+                      whatWentWell: e.target.value,
+                    },
+                  });
+                }}
+                rows={3}
+                placeholder={language === 'de' ? 'Highlights, schöne Dynamik…' : 'Highlights, good dynamics…'}
+                className="w-full text-xs p-2.5 rounded-control bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-action"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-text-secondary">
+                {language === 'de' ? 'Was nehmen wir mit?' : 'Key insights?'}
+              </label>
+              <textarea
+                value={activePlan.review?.insights || ''}
+                onChange={(e) => {
+                  updatePlanMeta(activePlan.id, {
+                    review: {
+                      ...activePlan.review,
+                      insights: e.target.value,
+                    },
+                  });
+                }}
+                rows={3}
+                placeholder={language === 'de' ? 'Gedanken der Jugendlichen, Beobachtungen…' : 'Youth reflections, observations…'}
+                className="w-full text-xs p-2.5 rounded-control bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-action"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-text-secondary">
+                {language === 'de' ? 'Nächste Schritte' : 'Next steps'}
+              </label>
+              <textarea
+                value={activePlan.review?.nextSteps || ''}
+                onChange={(e) => {
+                  updatePlanMeta(activePlan.id, {
+                    review: {
+                      ...activePlan.review,
+                      nextSteps: e.target.value,
+                    },
+                  });
+                }}
+                rows={3}
+                placeholder={language === 'de' ? 'Vorbereitung fürs nächste Mal, Anrufe…' : 'Prep for next time, follow-ups…'}
+                className="w-full text-xs p-2.5 rounded-control bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-action"
+              />
+            </div>
+          </div>
         </div>
       )}
 
@@ -2023,31 +2276,86 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
       <Dialog
         isOpen={isTemplateDialogOpen}
         onClose={() => setIsTemplateDialogOpen(false)}
-        title={t.treffenChoosePreset}
-        description={language === 'de' ? 'Wähle eine erprobte Struktur für dein Treffen.' : 'Choose a proven gathering framework.'}
+        title={language === 'de' ? 'Vorlagen & Inspiration' : 'Templates & Inspiration'}
+        description={language === 'de' ? 'Wähle einen Ablauf als Ausgangspunkt oder greife auf deine gespeicherten Vorlagen zu.' : 'Choose a starting framework or access your saved templates.'}
         maxWidth="lg"
       >
-        <div className="space-y-3 pt-2">
-          {GATHERING_PRESETS.map((preset) => (
-            <div
-              key={preset.id}
-              onClick={() => handleApplyPreset(preset)}
-              className="p-4 sm:p-5 rounded-card bg-surface-2 hover:bg-surface-raised border border-line hover:border-accent/40 transition-colors cursor-pointer flex flex-col justify-between group"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <h4 className="text-sm font-bold text-text group-hover:text-accent transition-colors">
-                  {preset.name[language]}
-                </h4>
-                <span className="text-2xs font-mono font-bold px-2 py-0.5 rounded-control bg-surface border border-line text-text-secondary shrink-0">
-                  {preset.targetDuration} Min.
-                </span>
+        <div className="space-y-4 pt-2">
+          {/* Custom Templates Section */}
+          {customTemplates.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-2xs font-bold uppercase tracking-wider text-action px-1">
+                {language === 'de' ? 'Eigene Vorlagen' : 'Your Custom Templates'}
+              </h4>
+              <div className="space-y-2">
+                {customTemplates.map((tmpl) => (
+                  <div
+                    key={tmpl.id}
+                    className="p-3.5 rounded-card bg-surface-2 hover:bg-surface-raised border border-line hover:border-action transition-colors flex items-center justify-between gap-3 group"
+                  >
+                    <div
+                      onClick={() => {
+                        loadPresetIntoPlan(tmpl.slots, tmpl.name, tmpl.targetDuration);
+                        setIsTemplateDialogOpen(false);
+                      }}
+                      className="flex-1 cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-bold text-text group-hover:text-action transition-colors">
+                          {tmpl.name}
+                        </span>
+                        <span className="text-2xs font-mono font-bold px-2 py-0.5 rounded-control bg-surface border border-line text-text-secondary shrink-0">
+                          {tmpl.slots.length} {language === 'de' ? 'Bausteine' : 'blocks'}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const updated = customTemplates.filter((t) => t.id !== tmpl.id);
+                        setCustomTemplates(updated);
+                        localStorage.setItem('jy_custom_templates', JSON.stringify(updated));
+                      }}
+                      className="p-1.5 rounded-control text-text-tertiary hover:text-danger transition-colors cursor-pointer"
+                      title={language === 'de' ? 'Vorlage löschen' : 'Delete template'}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
               </div>
-              {renderPresetRhythmBar(preset.slots)}
-              <p className="text-xs text-text-secondary leading-relaxed">
-                {preset.desc[language]}
-              </p>
             </div>
-          ))}
+          )}
+
+          {/* Inspiration Presets */}
+          <div className="space-y-2">
+            <h4 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-1">
+              {language === 'de' ? 'Beispiele & Inspiration' : 'Sample Presets'}
+            </h4>
+            <div className="space-y-2.5">
+              {GATHERING_PRESETS.map((preset) => (
+                <div
+                  key={preset.id}
+                  onClick={() => handleApplyPreset(preset)}
+                  className="p-4 sm:p-5 rounded-card bg-surface-2 hover:bg-surface-raised border border-line hover:border-action transition-colors cursor-pointer flex flex-col justify-between group"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <h5 className="text-sm font-bold text-text group-hover:text-action transition-colors">
+                      {preset.name[language]}
+                    </h5>
+                    <span className="text-2xs font-mono font-bold px-2 py-0.5 rounded-control bg-surface border border-line text-text-secondary shrink-0">
+                      {preset.targetDuration} Min.
+                    </span>
+                  </div>
+                  {renderPresetRhythmBar(preset.slots)}
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    {preset.desc[language]}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </Dialog>
 

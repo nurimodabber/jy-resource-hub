@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { SessionPlan, SessionSlot, Language } from '../types';
+import { SessionPlan, SessionSlot, SessionReview, Language } from '../types';
 
 interface PlannerContextType {
   plans: SessionPlan[];
@@ -9,7 +9,7 @@ interface PlannerContextType {
   createNewPlan: (name?: string, slots?: SessionSlot[], targetDuration?: number, startTime?: string) => SessionPlan;
   deletePlan: (id: string) => void;
   renamePlan: (id: string, name: string) => void;
-  updatePlanMeta: (id: string, meta: { name?: string; startTime?: string; targetDurationMinutes?: number }) => void;
+  updatePlanMeta: (id: string, meta: { name?: string; startTime?: string; targetDurationMinutes?: number; date?: string; review?: SessionReview }) => void;
   duplicatePlan: (id: string) => SessionPlan;
   addSlotToPlan: (slotData: Omit<SessionSlot, 'id'>, planId?: string) => { slotId: string; planId: string; undo: () => void };
   updateSlot: (slotId: string, updates: Partial<SessionSlot>) => void;
@@ -122,7 +122,7 @@ export const PlannerProvider: React.FC<{ children: React.ReactNode; language: La
     return newPlan;
   }, [language, plans.length]);
 
-  const updatePlanMeta = useCallback((id: string, meta: { name?: string; startTime?: string; targetDurationMinutes?: number }) => {
+  const updatePlanMeta = useCallback((id: string, meta: { name?: string; startTime?: string; targetDurationMinutes?: number; date?: string; review?: SessionReview }) => {
     setPlans((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...meta, updatedAt: Date.now() } : p))
     );
