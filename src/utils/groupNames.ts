@@ -87,3 +87,18 @@ export const saveGroupTitle = (title: string): void => {
   }
 };
 
+export const loadActiveGroupCount = (): number | null => {
+  try {
+    const present = loadPresentNames();
+    if (present.length > 0) return present.length;
+    const all = loadGroupNames();
+    if (all.length > 0) return all.length;
+    const saved = localStorage.getItem('jy_group_size');
+    if (saved && !isNaN(Number(saved))) return Number(saved);
+  } catch {
+    // ignore
+  }
+  return null;
+};
+
+

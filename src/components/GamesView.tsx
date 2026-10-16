@@ -22,6 +22,7 @@ import {
   countActiveFilters,
   GameFilterState,
 } from '../utils/gameFilter';
+import { loadActiveGroupCount } from '../utils/groupNames';
 import { tr } from './tools/common';
 
 interface GamesViewProps {
@@ -39,6 +40,12 @@ export const GamesView: React.FC<GamesViewProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const t = UI_TRANSLATIONS[language];
   const L = tr(language);
+
+  // User active group size from settings/presence
+  const [userGroupSize, setUserGroupSize] = useState<number | null>(() => loadActiveGroupCount());
+  useEffect(() => {
+    setUserGroupSize(loadActiveGroupCount());
+  }, []);
 
   // Filter sheet visibility state
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
@@ -269,7 +276,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
             <button
               type="button"
               onClick={() => updateFilters({ ...filters, wirkung: null })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control border border-line bg-surface-2 text-text text-xs font-semibold hover:border-accent transition-colors"
               aria-label={`${t.purposeLabel} Filter entfernen`}
             >
               <span>{t.purposeLabel}: {PURPOSES.find((p) => p.id === filters.wirkung)?.label}</span>
@@ -281,7 +288,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
             <button
               type="button"
               onClick={() => updateFilters({ ...filters, personen: null })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control border border-line bg-surface-2 text-text text-xs font-semibold hover:border-accent transition-colors"
               aria-label={`${t.filterGroupSize} Filter entfernen`}
             >
               <span>{t.filterGroupSize}: {filters.personen}</span>
@@ -293,7 +300,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
             <button
               type="button"
               onClick={() => updateFilters({ ...filters, dauer: null })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control border border-line bg-surface-2 text-text text-xs font-semibold hover:border-accent transition-colors"
               aria-label={`${t.filterDuration} Filter entfernen`}
             >
               <span>{t.filterDuration}: ≤ {filters.dauer} Min</span>
@@ -305,7 +312,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
             <button
               type="button"
               onClick={() => updateFilters({ ...filters, energie: null })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control border border-line bg-surface-2 text-text text-xs font-semibold hover:border-accent transition-colors"
               aria-label={`${t.filterEnergy} Filter entfernen`}
             >
               <span>{t.filterEnergy}: {filters.energie === 'calm' ? t.filterCalmEnergy : filters.energie === 'medium' ? t.filterMediumEnergy : t.filterHighEnergy}</span>
@@ -317,7 +324,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
             <button
               type="button"
               onClick={() => updateFilters({ ...filters, material: null })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control border border-line bg-surface-2 text-text text-xs font-semibold hover:border-accent transition-colors"
               aria-label={`${t.filterNoMaterial} Filter entfernen`}
             >
               <span>{t.filterNoMaterial}</span>
@@ -329,7 +336,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
             <button
               type="button"
               onClick={() => updateFilters({ ...filters, sort: 'match' })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control border border-line bg-surface-2 text-text text-xs font-semibold hover:border-accent transition-colors"
               aria-label={`${t.filterSort} Filter entfernen`}
             >
               <span>{t.filterSort}: {filters.sort === 'duration' ? t.sortDuration : t.sortGroupSize}</span>
@@ -358,6 +365,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
               language={language}
               isFavorite={favorites.includes(game.id)}
               onToggleFavorite={onToggleFavorite}
+              userGroupSize={userGroupSize}
             />
           ))}
         </div>
