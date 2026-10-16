@@ -18,7 +18,7 @@ export const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(({
     <button
       ref={ref}
       type="button"
-      className={`inline-flex items-center shrink-0 px-4 py-2 min-h-[44px] sm:min-h-[38px] rounded-chip text-sm font-medium transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none gap-2 border-0 ${
+      className={`inline-flex items-center shrink-0 px-4 py-2 min-h-[44px] rounded-chip text-sm font-medium transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none gap-2 border-0 ${
         selected
           ? 'bg-accent-subtle text-accent-text font-semibold'
           : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-2/80'

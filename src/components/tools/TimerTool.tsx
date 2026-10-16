@@ -131,8 +131,31 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
   const currentDurationTotal = timerMode === 'standard' ? total : (intervalPhase === 'work' ? intervalWork : intervalRest);
   const pct = currentDurationTotal > 0 ? Math.max(0, Math.min(1, remaining / currentDurationTotal)) : 0;
 
+  // Screen reader announcement at sensible intervals (full minutes, 30s, 10s, 5..1s, 0s)
+  const srAnnouncement = (() => {
+    if (!running && remaining === 0) {
+      return L('Zeit abgelaufen', 'Time is up');
+    }
+    if (!running) return '';
+    if (remaining > 0 && remaining % 60 === 0 && remaining !== currentDurationTotal) {
+      const mins = remaining / 60;
+      return mins === 1
+        ? L('Noch 1 Minute', '1 minute remaining')
+        : L(`Noch ${mins} Minuten`, `${mins} minutes remaining`);
+    }
+    if (remaining === 30 || remaining === 10 || (remaining <= 5 && remaining >= 1)) {
+      return L(`Noch ${remaining} Sekunden`, `${remaining} seconds remaining`);
+    }
+    return '';
+  })();
+
   return (
     <div className="space-y-6 text-center">
+      {/* Polite Screen Reader Live Announcement at sensible intervals */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {srAnnouncement}
+      </div>
+
       {/* "So geht's" Expandable Help */}
       <div className="bg-surface-2 rounded-card border border-border p-4 text-left">
         <button

@@ -495,7 +495,7 @@ async function runTests() {
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
     let t1Taps = 0;
-    const findGameBtn = page.locator('button:has-text("Spiel finden"), button:has-text("Find a game")').first();
+    const findGameBtn = page.locator('a:has-text("Spiel finden"), button:has-text("Spiel finden"), a:has-text("Find a game"), button:has-text("Find a game")').first();
     if (await findGameBtn.isVisible()) {
       await findGameBtn.click();
       t1Taps++;
