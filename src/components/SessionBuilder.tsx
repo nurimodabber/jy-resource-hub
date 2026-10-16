@@ -62,6 +62,16 @@ function getSlotTimeRange(startTimeStr: string, slotIndex: number, slots: Sessio
   };
 }
 
+export const SLOT_CATEGORY_THEME: Record<SessionSlotType, { color: string; label: { de: string; en: string }; hex: string }> = {
+  devotional: { color: 'bg-accent text-accent-contrast', hex: '#D4AE5C', label: { de: 'Andacht', en: 'Devotion' } },
+  study: { color: 'bg-[#7DB6C9] text-white', hex: '#7DB6C9', label: { de: 'Zitat', en: 'Text study' } },
+  warmup: { color: 'bg-[#E58A6B] text-white', hex: '#E58A6B', label: { de: 'Spiel', en: 'Game' } },
+  service: { color: 'bg-[#B9C46A] text-[#1A1406]', hex: '#B9C46A', label: { de: 'Dienst', en: 'Service' } },
+  arts_discussion: { color: 'bg-[#B9C46A] text-[#1A1406]', hex: '#B9C46A', label: { de: 'Kunst', en: 'Arts' } },
+  closing: { color: 'bg-[#6E7F76] text-white', hex: '#6E7F76', label: { de: 'Abschluss', en: 'Closing' } },
+  custom: { color: 'bg-[#889890] text-white', hex: '#889890', label: { de: 'Frei', en: 'Custom' } },
+};
+
 // ----------------------------------------------------
 // URL ENCODE / DECODE HELPERS FOR PLAN SHARING
 // ----------------------------------------------------
@@ -662,6 +672,27 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
     }
   };
 
+  // Mini rhythm bar for presets
+  const renderPresetRhythmBar = (presetSlots: Array<Omit<SessionSlot, 'id'>>) => {
+    const presetTotal = presetSlots.reduce((sum, s) => sum + s.durationMinutes, 0) || 1;
+    return (
+      <div className="w-full h-2 rounded-full overflow-hidden flex gap-0.5 bg-surface-2 border border-line/40 my-2">
+        {presetSlots.map((s, idx) => {
+          const theme = SLOT_CATEGORY_THEME[s.type] || SLOT_CATEGORY_THEME.custom;
+          const widthPct = (s.durationMinutes / presetTotal) * 100;
+          return (
+            <div
+              key={idx}
+              style={{ width: `${widthPct}%`, backgroundColor: theme.hex }}
+              title={`${s.title[language] || s.title.de}: ${s.durationMinutes} Min.`}
+              className="h-full transition-all"
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
   // Resolve materials across all slots in active plan
   const gatheredMaterials = useMemo(() => {
     const list: Array<{ name: string; sourceTitle: string; id: string }> = [];
@@ -1179,15 +1210,16 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleApplyPreset(preset)}
                 className="p-4 sm:p-5 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-accent/40 text-left transition-all flex flex-col justify-between group min-h-[140px] cursor-pointer"
               >
-                <div className="space-y-1.5">
+                <div className="space-y-2 w-full">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-bold text-text group-hover:text-accent transition-colors">
                       {preset.name[language]}
                     </span>
-                    <span className="text-2xs font-bold px-2 py-0.5 rounded-chip bg-accent-subtle text-accent-text shrink-0">
+                    <span className="text-2xs font-mono font-bold px-2 py-0.5 rounded-control bg-surface border border-line text-text-secondary shrink-0">
                       {preset.targetDuration} Min.
                     </span>
                   </div>
+                  {renderPresetRhythmBar(preset.slots)}
                   <p className="text-xs text-text-secondary leading-relaxed">
                     {preset.desc[language]}
                   </p>
@@ -1213,9 +1245,93 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
         </div>
       ) : (
         /* ==================================================== */
-        /* 4. VERTICAL TIMELINE OF SESSION SLOTS (Drag & Drop + Keyboard ArrowUp/ArrowDown) */
+        /* 4. PROPORTIONAL TIMELINE & VERTICAL SLOTS (Drag & Drop + Keyboard ArrowUp/ArrowDown) */
         /* ==================================================== */
-        <div className="space-y-3 print:hidden">
+        <div className="space-y-4 print:hidden">
+          {/* Proportional Session Timeline Bar */}
+          <div className="bg-surface rounded-card border border-line p-4 sm:p-5 shadow-xs space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-2xs uppercase tracking-wider text-text-tertiary font-bold">
+                  {language === 'de' ? 'Ablauf-Rhythmus' : 'Gathering Arc'}
+                </span>
+                <span className="text-text-tertiary">·</span>
+                <span className="font-mono font-semibold text-text">
+                  {startTime} – {minutesToTimeString(parseTimeToMinutes(startTime) + totalMinutes)}
+                </span>
+              </div>
+              <span className="font-mono text-2xs text-text-secondary">
+                {totalMinutes} / {targetDuration} Min.
+              </span>
+            </div>
+
+            {/* The Proportional Segmented Bar */}
+            <div
+              role="region"
+              aria-label={language === 'de' ? 'Proportionale Zeitachse des Treffens' : 'Proportional gathering timeline'}
+              className="relative w-full h-11 rounded-control overflow-hidden flex gap-1 bg-surface-2 p-1 border border-line"
+            >
+              {slots.map((slot, idx) => {
+                const widthPct = (slot.durationMinutes / (totalMinutes || 1)) * 100;
+                const theme = SLOT_CATEGORY_THEME[slot.type] || SLOT_CATEGORY_THEME.custom;
+                const times = getSlotTimeRange(startTime, idx, slots);
+                return (
+                  <button
+                    key={slot.id}
+                    type="button"
+                    onClick={() => {
+                      const el = document.querySelector(`[data-slot-id="${slot.id}"]`);
+                      if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.classList.add('ring-2', 'ring-accent');
+                        setTimeout(() => el.classList.remove('ring-2', 'ring-accent'), 1500);
+                      }
+                    }}
+                    title={`${slot.title[language] || slot.title.de} (${times.start}–${times.end}, ${slot.durationMinutes} Min.)`}
+                    style={{ width: `${widthPct}%`, minWidth: '28px' }}
+                    className="group relative h-full rounded-xs transition-all hover:brightness-110 flex items-center justify-center px-1 overflow-hidden focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+                  >
+                    <div
+                      className="absolute inset-0 opacity-90 group-hover:opacity-100 transition-opacity"
+                      style={{ backgroundColor: theme.hex }}
+                    />
+                    <div className="relative z-10 text-center truncate px-0.5 pointer-events-none">
+                      <span className="text-2xs font-mono font-bold leading-none text-white drop-shadow-xs block truncate">
+                        {widthPct > 10 ? `${slot.durationMinutes}′` : ''}
+                      </span>
+                      {widthPct > 16 && (
+                        <span className="text-3xs font-sans font-medium leading-none text-white/90 drop-shadow-xs block truncate mt-0.5">
+                          {theme.label[language]}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Legend pills under the timeline */}
+            <div className="flex flex-wrap items-center gap-3 pt-1 text-2xs text-text-secondary font-mono">
+              {Array.from(new Set(slots.map((s) => s.type))).map((type) => {
+                const theme = SLOT_CATEGORY_THEME[type] || SLOT_CATEGORY_THEME.custom;
+                const count = slots.filter((s) => s.type === type).length;
+                const typeMins = slots.filter((s) => s.type === type).reduce((sum, s) => sum + s.durationMinutes, 0);
+                return (
+                  <div key={type} className="inline-flex items-center gap-1.5">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full inline-block shrink-0"
+                      style={{ backgroundColor: theme.hex }}
+                    />
+                    <span>
+                      {theme.label[language]}: <strong className="text-text font-bold">{typeMins}′</strong> ({count})
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-3">
           <div className="sr-only" aria-live="polite" aria-atomic="true">
             {reorderAnnouncement}
           </div>
@@ -1223,6 +1339,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             const timeRange = getSlotTimeRange(startTime, index, slots);
             const isDragged = draggedSlotIndex === index;
             const isDragOver = dragOverSlotIndex === index && draggedSlotIndex !== index;
+            const theme = SLOT_CATEGORY_THEME[slot.type] || SLOT_CATEGORY_THEME.custom;
 
             const handleMoveSlot = (fromIdx: number, toIdx: number) => {
               if (toIdx < 0 || toIdx >= slots.length || fromIdx === toIdx) return;
@@ -1275,12 +1392,13 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                     handleMoveSlot(index, index + 1);
                   }
                 }}
+                style={{ borderLeftColor: theme.hex, borderLeftWidth: '4px' }}
                 className={`bg-surface rounded-card border p-4 sm:p-5 shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                   isDragged
                     ? 'opacity-50 border-accent'
                     : isDragOver
                     ? 'border-accent ring-2 ring-accent/30'
-                    : 'border-border hover:border-accent/40'
+                    : 'border-line hover:border-accent/40'
                 }`}
               >
                 {/* Left: Drag Handle + Clock Time Pill + Content */}
@@ -1504,6 +1622,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
               <span>{language === 'de' ? 'Ablauf leeren' : 'Clear plan'}</span>
             </button>
           </div>
+        </div>
         </div>
       )}
 
@@ -1913,17 +2032,18 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             <div
               key={preset.id}
               onClick={() => handleApplyPreset(preset)}
-              className="p-4 sm:p-5 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-accent/40 transition-colors cursor-pointer flex flex-col justify-between group"
+              className="p-4 sm:p-5 rounded-card bg-surface-2 hover:bg-surface-raised border border-line hover:border-accent/40 transition-colors cursor-pointer flex flex-col justify-between group"
             >
               <div className="flex items-center justify-between gap-2">
                 <h4 className="text-sm font-bold text-text group-hover:text-accent transition-colors">
                   {preset.name[language]}
                 </h4>
-                <span className="text-2xs font-bold px-2 py-0.5 rounded-chip bg-accent-subtle text-accent-text shrink-0">
+                <span className="text-2xs font-mono font-bold px-2 py-0.5 rounded-control bg-surface border border-line text-text-secondary shrink-0">
                   {preset.targetDuration} Min.
                 </span>
               </div>
-              <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
+              {renderPresetRhythmBar(preset.slots)}
+              <p className="text-xs text-text-secondary leading-relaxed">
                 {preset.desc[language]}
               </p>
             </div>
