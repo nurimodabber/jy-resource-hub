@@ -515,9 +515,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             </div>
           )}
 
-          {/* Grid of Quote Cards: 1 col on mobile, 2 col on desktop, clean calm surface */}
+          {/* Masonry Columns of Quote Cards: 1 col on mobile, 2 cols on desktop */}
           {filteredQuotes.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="columns-1 md:columns-2 gap-5 [column-fill:_balance]">
               {filteredQuotes.map((quote) => (
                 <QuoteCard
                   key={quote.id}

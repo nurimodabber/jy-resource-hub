@@ -238,6 +238,13 @@ export interface SessionPreset {
   slots: SessionSlot[];
 }
 
+export interface SessionReview {
+  whatWentWell?: string;
+  insights?: string;
+  nextSteps?: string;
+  savedAt?: string;
+}
+
 export interface SessionPlan {
   id: string;
   name: string;
@@ -247,5 +254,6 @@ export interface SessionPlan {
   startTime?: string;
   targetDurationMinutes?: number;
   date?: string;
+  review?: SessionReview;
 }
 

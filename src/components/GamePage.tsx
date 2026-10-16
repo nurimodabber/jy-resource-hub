@@ -137,8 +137,8 @@ const PlayMode: React.FC<{ game: Game; language: Language; onClose: () => void }
 
   return (
     <div
-      className={`fixed inset-0 z-70 flex flex-col safe-top safe-bottom select-none transition-colors duration-150 ${
-        isBeamerContrast ? 'bg-black text-white' : 'bg-surface text-text'
+      className={`fixed inset-0 z-70 flex flex-col safe-top safe-bottom select-none transition-colors duration-120 ${
+        isBeamerContrast ? 'bg-black text-white' : 'bg-bg text-text'
       }`}
       role="dialog"
       aria-modal="true"
@@ -147,18 +147,18 @@ const PlayMode: React.FC<{ game: Game; language: Language; onClose: () => void }
       onTouchEnd={onTouchEnd}
     >
       {/* Top step progress bar */}
-      <div className="w-full h-1.5 bg-border/40 shrink-0">
+      <div className="w-full h-1.5 bg-line shrink-0">
         <div
-          className="h-full bg-accent transition-all duration-200 ease-out"
+          className="h-full bg-accent transition-all duration-180 ease-out"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
 
       {/* Top Bar Controls */}
-      <header className="flex items-center justify-between px-4 sm:px-8 h-16 border-b border-border/60 shrink-0 gap-2">
+      <header className="flex items-center justify-between px-4 sm:px-8 h-16 border-b border-line shrink-0 gap-2">
         <div className="min-w-0 flex items-center gap-3">
-          <p className="text-sm font-semibold truncate">{game.title[language]}</p>
-          <span className="text-xs px-2.5 py-0.5 rounded-chip bg-surface-2 text-text-secondary tabular-nums shrink-0">
+          <p className="text-sm font-bold truncate">{game.title[language]}</p>
+          <span className="text-xs px-2.5 py-0.5 rounded-control bg-surface-2 text-text font-mono font-semibold shrink-0">
             {L('Schritt', 'Step')} {stepIndex + 1} / {steps.length}
           </span>
         </div>
@@ -172,7 +172,7 @@ const PlayMode: React.FC<{ game: Game; language: Language; onClose: () => void }
             className={`min-h-[40px] px-2.5 rounded-control text-xs font-semibold border transition-colors ${
               isBeamerContrast
                 ? 'bg-white text-black border-white'
-                : 'bg-surface-2 text-text-secondary border-border hover:text-text'
+                : 'bg-surface-2 text-text-secondary border-line hover:text-text'
             }`}
             title={L('Beamer-Kontrast umschalten', 'Toggle beamer high contrast')}
           >
@@ -180,7 +180,7 @@ const PlayMode: React.FC<{ game: Game; language: Language; onClose: () => void }
           </button>
 
           {/* Font size adjustments */}
-          <div className="inline-flex items-center bg-surface-2 rounded-control p-0.5 border border-border">
+          <div className="inline-flex items-center bg-surface-2 rounded-control p-0.5 border border-line">
             <button
               type="button"
               onClick={() => setFontSizeOffset((v) => Math.max(-1, v - 1))}
@@ -519,16 +519,26 @@ export const GamePage: React.FC<GamePageProps> = ({
                 return (
                   <li
                     key={idx}
-                    className={`flex items-start gap-3 p-3.5 rounded-card border transition-all ${
+                    className={`flex items-start gap-3.5 p-4 rounded-card border transition-all ${
                       isChecked
-                        ? 'bg-surface-2/60 border-border opacity-70'
-                        : 'bg-surface border-border hover:border-border-strong'
+                        ? 'bg-surface-2/60 border-line opacity-65'
+                        : 'bg-surface border-line hover:border-accent/60'
                     }`}
                   >
+                    {/* Large Mono Number */}
+                    <span
+                      className={`font-mono text-xl sm:text-2xl font-bold select-none leading-none pt-0.5 shrink-0 w-7 text-right ${
+                        isChecked ? 'text-text-tertiary' : 'text-accent'
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+
                     <button
                       type="button"
                       onClick={() => toggleStepCheck(idx)}
-                      className="mt-0.5 min-w-[28px] min-h-[28px] flex items-center justify-center text-text-tertiary hover:text-accent focus-visible:outline-none print:hidden"
+                      className="mt-0.5 min-w-[28px] min-h-[28px] flex items-center justify-center text-text-tertiary hover:text-accent focus-visible:outline-none print:hidden shrink-0"
                       aria-label={`${L('Schritt', 'Step')} ${idx + 1} ${
                         isChecked ? L('als erledigt markiert', 'checked') : L('abhaken', 'mark as checked')
                       }`}
@@ -541,14 +551,9 @@ export const GamePage: React.FC<GamePageProps> = ({
                     </button>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold text-text-tertiary tabular-nums">
-                          {L('Schritt', 'Step')} {idx + 1}
-                        </span>
-                      </div>
                       <p
                         className={`text-sm sm:text-base leading-relaxed ${
-                          isChecked ? 'line-through text-text-secondary' : 'text-text'
+                          isChecked ? 'line-through text-text-secondary' : 'text-text font-normal'
                         }`}
                       >
                         {rule}
@@ -560,20 +565,20 @@ export const GamePage: React.FC<GamePageProps> = ({
             </ol>
           </section>
 
-          {/* Section 4: Tipps für Animatoren als einklappbarer Block */}
+          {/* Section 4: Tipps für Animatoren als abgesetzter Kasten */}
           {game.animatorTips[language].length > 0 && (
-            <section className="mb-8 rounded-card border border-border bg-surface-2 p-5">
+            <section className="mb-8 rounded-card border border-line bg-surface-2 p-5 sm:p-6 space-y-3">
               <button
                 type="button"
                 onClick={() => setIsTipsOpen(!isTipsOpen)}
                 className="w-full flex items-center justify-between text-left print:hidden"
                 aria-expanded={isTipsOpen}
               >
-                <h2 className="text-base font-semibold text-text">
+                <h2 className="text-base font-bold text-text">
                   {t.animatorTipsTitle}
                 </h2>
                 <ChevronDown
-                  className={`w-5 h-5 text-text-secondary transition-transform duration-200 ${
+                  className={`w-5 h-5 text-text-secondary transition-transform duration-150 ${
                     isTipsOpen ? 'rotate-180' : ''
                   }`}
                 />
@@ -585,12 +590,12 @@ export const GamePage: React.FC<GamePageProps> = ({
 
               {(isTipsOpen || typeof window !== 'undefined') && (
                 <ul
-                  className={`list-disc pl-5 mt-3 space-y-2 text-sm text-text-secondary ${
+                  className={`list-disc pl-5 space-y-2 text-sm text-text-secondary leading-relaxed ${
                     isTipsOpen ? 'block' : 'hidden print:block'
                   }`}
                 >
                   {game.animatorTips[language].map((tip, i) => (
-                    <li key={i} className="leading-relaxed">
+                    <li key={i}>
                       {tip}
                     </li>
                   ))}

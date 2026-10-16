@@ -541,22 +541,22 @@ export const AppContent: React.FC = () => {
       )}
 
       {!isBeamerMode && (
-        <footer className="border-t border-border mt-8 py-6 text-xs text-text-secondary print:hidden safe-bottom mb-20 lg:mb-0">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+        <footer className="border-t border-line mt-12 py-8 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:mb-0">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
             <p className="text-text-tertiary">{t.footerNote}</p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text transition-colors min-h-[36px] px-1">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+              <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text transition-colors min-h-[36px] py-1">
                 {t.impressumTitle}
               </button>
-              <span>·</span>
-              <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text transition-colors min-h-[36px] px-1">
+              <span className="text-text-tertiary hidden sm:inline" aria-hidden="true">·</span>
+              <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text transition-colors min-h-[36px] py-1">
                 {t.datenschutzTitle}
               </button>
-              <span>·</span>
-              <button type="button" onClick={() => navigate('/vorschlagen')} className="hover:text-text transition-colors min-h-[36px] px-1">
+              <span className="text-text-tertiary hidden sm:inline" aria-hidden="true">·</span>
+              <button type="button" onClick={() => navigate('/vorschlagen')} className="hover:text-text transition-colors min-h-[36px] py-1">
                 {t.settingsSubmitProposal}
               </button>
-              <span>·</span>
+              <span className="text-text-tertiary hidden sm:inline" aria-hidden="true">·</span>
               <span className="text-text-tertiary">© 2026 {t.siteTitle}</span>
             </div>
           </div>

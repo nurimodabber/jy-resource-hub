@@ -178,6 +178,26 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
     .map((id) => TOOLS.find((x) => x.id === id))
     .filter((x): x is ToolDef => !!x);
 
+  const getActiveToolBadge = (id: string): string | null => {
+    try {
+      if (id === 'scoreboard') {
+        const stored = localStorage.getItem('jy_scoreboard_teams');
+        if (stored) {
+          const teams = JSON.parse(stored);
+          if (Array.isArray(teams)) {
+            const totalScore = teams.reduce((acc: number, t: { score?: number }) => acc + (t.score || 0), 0);
+            if (totalScore > 0) {
+              return `${totalScore} Pkt.`;
+            }
+          }
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    return null;
+  };
+
   return (
     <div className="max-w-4xl mx-auto pb-28 space-y-8">
       {/* Header */}
@@ -209,18 +229,18 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
                   to={`/tools/${x.id}`}
                   className="flex items-center gap-3 p-3.5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all duration-150 group"
                 >
-                  <div className="w-9 h-9 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Icon className="w-4 h-4" strokeWidth={2} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-text text-sm truncate group-hover:text-accent-text transition-colors">
+                    <p className="font-bold text-text text-sm truncate group-hover:text-accent transition-colors">
                       {x.title[language === 'de' ? 0 : 1]}
                     </p>
                     <p className="text-xs text-text-tertiary truncate">
                       {x.desc[language === 'de' ? 0 : 1]}
                     </p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent-text shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
                 </Link>
               );
             })}
@@ -242,23 +262,31 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {groupTools.map((x) => {
                   const Icon = x.icon;
+                  const activeBadge = getActiveToolBadge(x.id);
                   return (
                     <Link
                       key={x.id}
                       to={`/tools/${x.id}`}
                       className="flex items-start gap-4 p-4 sm:p-5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-1 transition-all duration-150 group cursor-pointer"
                     >
-                      <div className="w-11 h-11 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform mt-0.5">
+                      <div className="w-11 h-11 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform mt-0.5">
                         <Icon className="w-5 h-5" strokeWidth={2} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="font-bold text-text text-base group-hover:text-accent-text transition-colors">
+                          <p className="font-bold text-text text-base group-hover:text-accent transition-colors">
                             {x.title[language === 'de' ? 0 : 1]}
                           </p>
-                          <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent-text shrink-0" />
+                          <div className="flex items-center gap-2 shrink-0">
+                            {activeBadge && (
+                              <span className="font-mono text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-accent">
+                                {activeBadge}
+                              </span>
+                            )}
+                            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
+                          </div>
                         </div>
-                        <p className="text-xs sm:text-sm text-text-secondary mt-1 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-text-secondary mt-1 leading-relaxed line-clamp-1">
                           {x.desc[language === 'de' ? 0 : 1]}
                         </p>
                       </div>

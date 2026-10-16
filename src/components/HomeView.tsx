@@ -7,11 +7,6 @@ import {
   Clock,
   Play,
   Bookmark,
-  Crown,
-  Eye,
-  Users,
-  Timer,
-  Sparkles,
   ChevronRight,
   X,
   Smartphone,
@@ -19,8 +14,15 @@ import {
   Palette,
   HeartHandshake,
   History,
+  Timer as TimerIcon,
+  Users as UsersIcon,
+  Eye as EyeIcon,
+  Award,
+  BookOpen,
+  Plus,
+  Minus,
+  Sparkles,
 } from 'lucide-react';
-import '@fontsource/lora/latin-400.css';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { QUOTES_DATA } from '../data/quotes';
@@ -30,6 +32,14 @@ import { usePlanner } from '../context/PlannerContext';
 import { stripQuotes } from '../utils/random';
 import { loadRecentViews } from '../utils/recentViews';
 import { loadGroupTitle } from '../utils/groupNames';
+import { getBadiDate } from '../utils/badiCalendar';
+import {
+  loadBookProgress,
+  saveBookProgress,
+  getBookById,
+  JY_BOOKS,
+  type BookProgress,
+} from '../utils/bookProgress';
 import { tr, Panel, Label, Stepper, ChoiceChips, primaryBtn } from './tools/common';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -54,7 +64,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
   const navigate = useNavigate();
   const { activePlan, addSlotToPlan } = usePlanner();
 
-  // PWA Install banner state (mobile only, respects standalone & permanent dismissal)
+  // PWA Install banner state (mobile only)
   const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallBanner, setShowInstallBanner] = useState<boolean>(() => {
     try {
@@ -149,36 +159,60 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
   const [isQuoteExpanded, setIsQuoteExpanded] = useState(false);
 
   // Active plan stats
-  const slotCount = activePlan?.slots.length ?? 0;
-  const totalMinutes = activePlan?.slots.reduce((sum, s) => sum + s.durationMinutes, 0) ?? 0;
+  const slotCount = activePlan?.slots?.length ?? 0;
+  const totalMinutes = activePlan?.slots?.reduce((sum, s) => sum + s.durationMinutes, 0) ?? 0;
   const todayStr = new Date().toISOString().slice(0, 10);
   const isPlanToday = Boolean(activePlan?.date && activePlan.date === todayStr);
 
-  // Recent viewed items (max 3) and optional group title
+  // Recent viewed items and group title
   const [recentViews] = useState(() => loadRecentViews());
   const [groupTitle] = useState(() => loadGroupTitle());
+
+  // Dates: Gregorian & Badí'
+  const badiDate = React.useMemo(() => getBadiDate(new Date()), []);
+  const gregorianFormatted = React.useMemo(() => {
+    return new Date().toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+  }, [language]);
+
+  // Book progress state
+  const [bookProgress, setBookProgress] = useState<BookProgress | null>(() => loadBookProgress());
+  const [isSelectingBook, setIsSelectingBook] = useState(false);
+  const activeBook = bookProgress ? getBookById(bookProgress.bookId) : null;
+
+  const handleUpdateLesson = (delta: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!bookProgress || !activeBook) return;
+    const nextLesson = Math.max(1, Math.min(activeBook.totalLessons, bookProgress.lesson + delta));
+    const updated: BookProgress = { ...bookProgress, lesson: nextLesson };
+    saveBookProgress(updated);
+    setBookProgress(updated);
+  };
+
+  const handleSelectBook = (bookId: string) => {
+    const updated: BookProgress = { bookId, lesson: 1 };
+    saveBookProgress(updated);
+    setBookProgress(updated);
+    setIsSelectingBook(false);
+  };
 
   // Time-of-day greeting
   const currentHour = new Date().getHours();
   const baseGreeting =
     currentHour < 11
-      ? t.greetingMorning
-      : currentHour < 18
-      ? t.greetingAfternoon
-      : t.greetingEvening;
+      ? (language === 'de' ? 'Guten Morgen' : 'Good morning')
+      : currentHour < 17
+      ? (language === 'de' ? 'Guten Tag' : 'Good afternoon')
+      : (language === 'de' ? 'Guten Abend' : 'Good evening');
   const fullGreeting = groupTitle ? `${baseGreeting}, ${groupTitle}` : baseGreeting;
 
   // Fixed selection for Service & Arts
   const sampleService = SERVICE_PROJECTS_DATA[0];
   const sampleArt = ARTS_PROMPTS_DATA[0];
-
-  // Quick Tools
-  const quickTools = [
-    { to: '/tools/empire', label: 'Empire', icon: Crown },
-    { to: '/tools/roles', label: L('Rollen', 'Roles'), icon: Eye },
-    { to: '/tools/teams', label: L('Teams', 'Teams'), icon: Users },
-    { to: '/tools/timer', label: L('Timer', 'Timer'), icon: Timer },
-  ];
 
   const handleUseQuoteAsDevotional = () => {
     if (!quote) return;
@@ -206,15 +240,15 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
     : rawQuoteText;
 
   return (
-    <div className="max-w-4xl mx-auto pb-8 space-y-7">
+    <div className="max-w-4xl mx-auto pb-10 space-y-7">
       {/* 1. Installationshinweis (PWA Prompt – Mobile only) */}
       {showInstallBanner && (
         <aside
           aria-label={L('Installationshinweis', 'Install banner')}
-          className="md:hidden flex items-center justify-between gap-2 px-3.5 py-2 rounded-control bg-accent-subtle text-text text-xs border border-accent/25 animate-in fade-in duration-200"
+          className="md:hidden flex items-center justify-between gap-2 px-3.5 py-2 rounded-control bg-accent/10 text-text text-xs border border-accent/25 animate-in fade-in duration-200"
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Smartphone className="w-4 h-4 text-accent-text shrink-0" />
+            <Smartphone className="w-4 h-4 text-accent shrink-0" />
             <p className="line-clamp-2">
               {L(
                 'Tipp: Zum Startbildschirm hinzufügen, um die Seite wie eine App und offline zu nutzen.',
@@ -227,7 +261,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               <button
                 type="button"
                 onClick={handleNativeInstall}
-                className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-accent text-accent-contrast font-bold text-2xs cursor-pointer"
+                className="px-2.5 py-1.5 min-h-[36px] rounded-full bg-accent text-accent-contrast font-bold text-2xs cursor-pointer"
               >
                 {t.installAppCta}
               </button>
@@ -244,41 +278,43 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         </aside>
       )}
 
-      {/* 2. Kopf (Context-aware Time-of-Day Greeting + accessible context) */}
-      <header className="space-y-1">
+      {/* 2. Begrüßung ("Guten Abend" + Untertitel + dezentes Datum & Badí'-Datum) */}
+      <header className="space-y-1.5">
         {isPlanToday && (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-chip text-2xs font-extrabold uppercase tracking-wider bg-accent text-accent-contrast">
+          <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-accent text-accent-contrast">
             <Clock className="w-3 h-3" />
             {L('Heute anstehend', 'Scheduled for today')}
           </span>
         )}
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text">
           {slotCount > 0
-            ? L(`${fullGreeting} · Weiter mit deinem Treffen`, `${fullGreeting} · Continue your gathering`)
+            ? `${fullGreeting} · ${L('Weiter mit deinem Treffen', 'Continue your gathering')}`
             : fullGreeting}
-          <span className="sr-only">
-            {L(
-              ' – Junior Youth Hub: Spiele, heilige Zitate und Werkzeuge für deine Juniorjugendgruppe',
-              ' – Junior Youth Hub: Games, sacred scripture, and tools for your junior youth group'
-            )}
-          </span>
         </h1>
         <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
           {slotCount > 0
             ? L(
-                `Dein Entwurf für „${activePlan?.name}“ (${totalMinutes} Min, ${slotCount} Bausteine) wartet auf dich.`,
-                `Your draft for "${activePlan?.name}" (${totalMinutes} min, ${slotCount} blocks) is ready.`
+                `Dein Entwurf für „${activePlan?.name}“ (${totalMinutes} Min., ${slotCount} Bausteine) wartet auf dich.`,
+                `Your draft for "${activePlan?.name}" (${totalMinutes} min., ${slotCount} blocks) is ready.`
               )
             : L(
                 'Spiele, heilige Zitate und Werkzeuge für deine Juniorjugendgruppe.',
                 'Games, sacred scripture, and tools for your junior youth group.'
               )}
         </p>
+        {/* Dezente Datumszeile (Gregorianisch & Badí') */}
+        <p className="text-2xs sm:text-xs text-text-tertiary flex flex-wrap items-center gap-x-2 pt-0.5">
+          <span>{gregorianFormatted}</span>
+          <span className="text-border" aria-hidden="true">·</span>
+          <span className="text-word font-medium">
+            {language === 'de' ? badiDate.formattedDe : badiDate.formattedEn}
+          </span>
+        </p>
       </header>
 
-      {/* 3. Zwei große Einstiege */}
+      {/* 3. Die zwei großen CTA-Kacheln ("Treffen vorbereiten" & "Spiel finden") */}
       <nav aria-label={L('Haupteinstiege', 'Main navigation')} className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        {/* Hauptaktion: Treffen vorbereiten */}
+        {/* Hauptaktion: Treffen vorbereiten (blau hervorgehoben) */}
         <Link
           to="/treffen"
           className="rounded-card bg-accent text-accent-contrast p-4 sm:p-5 shadow-1 hover:bg-accent-hover transition-all duration-150 flex items-center justify-between group cursor-pointer"
@@ -288,7 +324,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               <span>{L('Treffen vorbereiten', 'Prepare gathering')}</span>
               <Sparkles className="w-4 h-4 text-accent-contrast shrink-0" />
             </div>
-            <p className="text-xs text-accent-contrast leading-tight">
+            <p className="text-xs text-accent-contrast/90 leading-tight">
               {L('Ablauf planen, Bausteine zusammenstellen', 'Plan agenda, assemble building blocks')}
             </p>
           </div>
@@ -297,47 +333,46 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
           </div>
         </Link>
 
-        {/* Sekundäraktion: Spiel finden (Real Link with href="/tools/finder", toggles compact finder on unmodified left click) */}
+        {/* Sekundäraktion: Spiel finden */}
         <Link
-          to="/tools/finder"
-          aria-expanded={showCompactFinder}
+          to="/games"
           onClick={(e) => {
-            if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && e.button === 0) {
+            if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
               e.preventDefault();
-              setShowCompactFinder((prev) => !prev);
+              setShowCompactFinder(!showCompactFinder);
             }
           }}
-          className="rounded-card bg-surface border border-border p-4 sm:p-5 shadow-xs hover:border-accent hover:bg-surface-2 transition-all duration-150 flex items-center justify-between group cursor-pointer text-left"
+          className="rounded-card bg-surface border border-border p-4 sm:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex items-center justify-between group cursor-pointer"
         >
           <div className="space-y-0.5 min-w-0 pr-2">
-            <div className="flex items-center gap-1.5 font-bold text-base sm:text-lg text-text group-hover:text-accent-text tracking-tight transition-colors">
+            <div className="flex items-center gap-1.5 font-bold text-base sm:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
               <span>{L('Spiel finden', 'Find a game')}</span>
-              <Compass className="w-4 h-4 text-accent-text shrink-0" />
+              <Compass className="w-4 h-4 text-accent shrink-0" />
             </div>
             <p className="text-xs text-text-secondary leading-tight">
               {L('Gruppengröße & Zeit eingeben', 'Pick group size & time')}
             </p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-surface-2 text-text flex items-center justify-center shrink-0 group-hover:bg-accent-subtle group-hover:text-accent-text transition-colors">
+          <div className="w-10 h-10 rounded-full bg-surface-2 text-text flex items-center justify-center shrink-0 group-hover:bg-accent/15 group-hover:text-accent transition-colors">
             <ArrowRight className="w-5 h-5" />
           </div>
         </Link>
       </nav>
 
-      {/* 4. Spielfinder kompakt (nur 2 Eingaben, öffnet /games?...) */}
+      {/* 4. Spielfinder kompakt (nur bei Klick auf "Spiel finden") */}
       {showCompactFinder && (
         <section aria-label={L('Kompakter Spielfinder', 'Compact game finder')} className="animate-in fade-in duration-200">
-          <Panel className="space-y-4 border border-accent/30 bg-surface">
+          <Panel className="space-y-4 border border-accent/30 bg-surface rounded-card p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-text flex items-center gap-2">
-                <Compass className="w-4 h-4 text-accent-text" />
+                <Compass className="w-4 h-4 text-accent" />
                 <span>{L('Schneller Spielfinder', 'Quick game finder')}</span>
               </h2>
               <button
                 type="button"
                 onClick={() => setShowCompactFinder(false)}
                 aria-label={L('Spielfinder schließen', 'Close game finder')}
-                className="text-text-tertiary hover:text-text min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-xs cursor-pointer"
+                className="text-text-tertiary hover:text-text min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-xs cursor-pointer"
               >
                 ✕
               </button>
@@ -373,7 +408,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
             <button
               type="button"
               onClick={handleSearchGames}
-              className={`${primaryBtn} w-full`}
+              className={`${primaryBtn} w-full rounded-full`}
             >
               <span>{L('Passende Spiele anzeigen', 'Show matching games')}</span>
               <ArrowRight className="w-4 h-4" />
@@ -382,17 +417,17 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         </section>
       )}
 
-      {/* 5. Heute: Zitat des Tages im Lesestil (Phase 04) */}
+      {/* 5. Heute: Zitat des Tages als Karte im ALT-Stil */}
       {quote && (
         <section aria-label={L('Zitat des Tages', 'Quote of the day')} className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
-              <QuoteIcon className="w-3.5 h-3.5 text-accent-text" />
+              <QuoteIcon className="w-3.5 h-3.5 text-word" />
               <span>{L('Heute · Zitat des Tages', 'Today · Quote of the day')}</span>
             </h2>
             <Link
               to={`/quotes/${quote.id}`}
-              className="text-xs font-semibold text-accent-text hover:underline"
+              className="text-xs font-semibold text-accent hover:underline"
             >
               {L('Im Lesemodus', 'Reading mode')} →
             </Link>
@@ -407,7 +442,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               <button
                 type="button"
                 onClick={() => setIsQuoteExpanded(!isQuoteExpanded)}
-                className="text-xs font-semibold text-accent-text hover:underline cursor-pointer min-h-[36px]"
+                className="text-xs font-semibold text-accent hover:underline cursor-pointer min-h-[36px]"
               >
                 {isQuoteExpanded ? L('Weniger anzeigen', 'Show less') : L('Weiterlesen', 'Read more')}
               </button>
@@ -422,13 +457,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                 <button
                   type="button"
                   onClick={handleUseQuoteAsDevotional}
-                  className="px-3.5 py-2 rounded-control bg-accent-subtle hover:bg-accent-subtle/80 text-accent-text text-xs font-bold transition-colors cursor-pointer min-h-[44px]"
+                  className="px-4 py-2 rounded-full bg-accent/15 hover:bg-accent/25 text-accent text-xs font-bold transition-colors cursor-pointer min-h-[44px]"
                 >
                   {L('Als Andacht verwenden', 'Use in devotion')}
                 </button>
                 <Link
                   to={`/quotes/${quote.id}`}
-                  className="px-3.5 py-2 rounded-control bg-surface-2 hover:bg-surface-raised text-text text-xs font-semibold transition-colors cursor-pointer min-h-[44px] flex items-center"
+                  className="px-4 py-2 rounded-full bg-surface-2 hover:bg-surface-2/80 text-text text-xs font-semibold transition-colors cursor-pointer min-h-[44px] flex items-center"
                 >
                   {L('Lesen', 'Read')}
                 </Link>
@@ -438,7 +473,106 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         </section>
       )}
 
-      {/* 6. Dienst und Kunst (Zwei feste Beispiele: eines je Art, kompakte Dauer) */}
+      {/* 6. Werkzeug-Bereich: aus NEU mit großen Live-Werten und ALT-Rundungen */}
+      <section aria-label={t.tabTools} className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-text tracking-tight">
+              {t.tabTools}
+            </h2>
+            <p className="text-xs text-text-tertiary">
+              {L('Live-Helfer für Handy und Beamer in der Gruppe', 'Live tools for phone and projector in the group')}
+            </p>
+          </div>
+          <Link to="/tools" className="text-xs font-semibold text-accent hover:underline">
+            {L('Alle Werkzeuge', 'All tools')} →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Link
+            to="/tools/timer"
+            className="p-4 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                {L('Uhr', 'Timer')}
+              </span>
+              <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                <TimerIcon className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-2xl font-extrabold font-mono text-text tabular-nums">
+              05:00
+            </div>
+            <p className="text-2xs text-text-secondary mt-1">
+              {L('Timer & Signalton', 'Timer & chime')}
+            </p>
+          </Link>
+
+          <Link
+            to="/tools/teams"
+            className="p-4 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                {L('Gruppen', 'Groups')}
+              </span>
+              <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                <UsersIcon className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-2xl font-extrabold font-mono text-text">
+              2 Teams
+            </div>
+            <p className="text-2xs text-text-secondary mt-1">
+              {L('Faire Zufallsteams', 'Fair random teams')}
+            </p>
+          </Link>
+
+          <Link
+            to="/tools/roles"
+            className="p-4 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                {L('Spielleitung', 'Roles')}
+              </span>
+              <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                <EyeIcon className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-2xl font-extrabold font-mono text-text">
+              4 Rollen
+            </div>
+            <p className="text-2xs text-text-secondary mt-1">
+              {L('Geheime Identitäten', 'Secret roles')}
+            </p>
+          </Link>
+
+          <Link
+            to="/tools/scoreboard"
+            className="p-4 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all group flex flex-col justify-between"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                {L('Stand', 'Score')}
+              </span>
+              <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+                <Award className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-2xl font-extrabold font-mono text-text">
+              Punkte
+            </div>
+            <p className="text-2xs text-text-secondary mt-1">
+              {L('Stationen & Runden', 'Stations & rounds')}
+            </p>
+          </Link>
+        </div>
+      </section>
+
+      {/* 7. Dienst & Kunst (2 Karten im ALT-Stil) */}
       <section aria-label={L('Dienst & Kunst', 'Service & Arts')} className="space-y-3">
         <div className="flex items-center justify-between">
           <div>
@@ -451,7 +585,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
           </div>
           <Link
             to="/service-arts"
-            className="text-xs font-semibold text-accent-text hover:underline"
+            className="text-xs font-semibold text-accent hover:underline"
           >
             {L('Alle ansehen', 'See all')} →
           </Link>
@@ -466,7 +600,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded-chip text-2xs font-extrabold uppercase tracking-wider bg-accent-subtle text-accent-text flex items-center gap-1 shrink-0">
+                  <span className="px-2.5 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-accent/15 text-accent flex items-center gap-1 shrink-0">
                     <HeartHandshake className="w-3 h-3" />
                     <span>{L('Dienstprojekt', 'Service Project')}</span>
                   </span>
@@ -474,7 +608,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                     {sampleService.durationMin}–{sampleService.durationMax} {L('Min', 'min')}
                   </span>
                 </div>
-                <h3 className="font-bold text-text text-base group-hover:text-accent-text transition-colors">
+                <h3 className="font-bold text-text text-base group-hover:text-accent transition-colors">
                   {sampleService.title[language]}
                 </h3>
                 <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
@@ -483,7 +617,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               </div>
               <div className="pt-3 mt-3 border-t border-border flex items-center justify-between text-xs text-text-tertiary">
                 <span>{sampleService.groupSize.min}–{sampleService.groupSize.max} {L('Personen', 'people')}</span>
-                <span className="font-semibold text-accent-text group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                <span className="font-semibold text-accent group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
                   {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
                 </span>
               </div>
@@ -498,7 +632,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded-chip text-2xs font-extrabold uppercase tracking-wider bg-accent-subtle text-accent-text flex items-center gap-1 shrink-0">
+                  <span className="px-2.5 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-accent/15 text-accent flex items-center gap-1 shrink-0">
                     <Palette className="w-3 h-3" />
                     <span>{L('Kunst & Theater', 'Arts & Drama')}</span>
                   </span>
@@ -506,7 +640,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                     {sampleArt.durationMin}–{sampleArt.durationMax} {L('Min', 'min')}
                   </span>
                 </div>
-                <h3 className="font-bold text-text text-base group-hover:text-accent-text transition-colors">
+                <h3 className="font-bold text-text text-base group-hover:text-accent transition-colors">
                   {sampleArt.title[language]}
                 </h3>
                 <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
@@ -515,7 +649,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               </div>
               <div className="pt-3 mt-3 border-t border-border flex items-center justify-between text-xs text-text-tertiary">
                 <span>{sampleArt.groupSize.min}–{sampleArt.groupSize.max} {L('Personen', 'people')}</span>
-                <span className="font-semibold text-accent-text group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                <span className="font-semibold text-accent group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
                   {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
                 </span>
               </div>
@@ -524,139 +658,176 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         </div>
       </section>
 
-      {/* 7. Werkzeuge (Vier Kacheln & Alle ansehen) */}
-      <section aria-label={t.tabTools} className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-text tracking-tight">{t.tabTools}</h2>
-            <p className="text-xs text-text-tertiary">
-              {L('Live-Helfer für Handy und Beamer in der Gruppe', 'Live tools for phone and projector in the group')}
-            </p>
-          </div>
-          <Link to="/tools" className="text-xs font-semibold text-accent-text hover:underline">
-            {L('Alle ansehen', 'See all')} →
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {quickTools.map((q) => {
-            const Icon = q.icon;
-            return (
-              <Link
-                key={q.to}
-                to={q.to}
-                className="flex flex-col items-center text-center p-4 rounded-card border border-border bg-surface hover:border-accent hover:shadow-xs transition-all duration-150 group cursor-pointer"
-              >
-                <div className="w-10 h-10 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform mb-2">
-                  <Icon className="w-5 h-5" strokeWidth={2} />
-                </div>
-                <span className="font-bold text-text text-sm group-hover:text-accent-text transition-colors">
-                  {q.label}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 8. Dein Bereich: Nächstes Treffen, Gemerkt & Zuletzt angesehen */}
+      {/* 8. Dein Bereich: 3 Kacheln (Nächstes Treffen / Gemerkt / Buch-Fortschritt) */}
       <section aria-label={L('Dein Bereich', 'Your workspace')} className="space-y-3">
         <h2 className="text-base sm:text-lg font-bold text-text tracking-tight">
           {L('Dein Bereich', 'Your workspace')}
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Nächstes Treffen */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Kachel 1: Nächstes Treffen */}
           <Link
             to={isPlanToday && slotCount > 0 ? '/treffen?live=true' : '/treffen'}
             className="flex items-center gap-3 p-4 rounded-card border border-border bg-surface hover:border-accent hover:shadow-xs transition-all duration-150 group"
           >
-            <div className="w-10 h-10 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0">
               {isPlanToday && slotCount > 0 ? <Play className="w-5 h-5 fill-current" /> : <Calendar className="w-5 h-5" />}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-1">
-                <p className="font-bold text-text text-sm truncate group-hover:text-accent-text transition-colors">
+                <p className="font-bold text-text text-sm truncate group-hover:text-accent transition-colors">
                   {slotCount > 0 ? activePlan?.name : L('Nächstes Treffen', 'Next gathering')}
                 </p>
-                {slotCount > 0 && (
-                  <span className="text-2xs font-semibold px-2 py-0.5 rounded-chip bg-surface-2 text-text-secondary shrink-0 tabular-nums">
-                    {totalMinutes} min
-                  </span>
-                )}
               </div>
               <p className="text-xs text-text-secondary mt-0.5">
                 {slotCount > 0
-                  ? isPlanToday
-                    ? L('Treffen jetzt starten', 'Start gathering now')
-                    : L(`${slotCount} Bausteine vorbereitet`, `${slotCount} blocks planned`)
-                  : L('Noch kein Ablauf geplant – Vorlage wählen', 'No agenda planned yet – choose a template')}
+                  ? `${slotCount} ${L('Bausteine', 'blocks')} · ${totalMinutes} min`
+                  : L('Noch kein Ablauf geplant', 'No agenda planned yet')}
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent-text shrink-0" />
+            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
           </Link>
 
-          {/* Gemerkt */}
+          {/* Kachel 2: Gemerkt */}
           <Link
             to="/saved"
             className="flex items-center gap-3 p-4 rounded-card border border-border bg-surface hover:border-accent hover:shadow-xs transition-all duration-150 group"
           >
-            <div className="w-10 h-10 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0">
               <Bookmark className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-text text-sm truncate group-hover:text-accent-text transition-colors">
+              <p className="font-bold text-text text-sm truncate group-hover:text-accent transition-colors">
                 {t.savedItems}
               </p>
               <p className="text-xs text-text-secondary mt-0.5 tabular-nums">
                 {favorites.length > 0
                   ? `${favorites.length} ${L('gemerkte Inhalte', 'saved items')}`
-                  : L('Spiele, Zitate und Projekte für später merken', 'Save games, quotes, and projects for later')}
+                  : L('Spiele, Zitate und Projekte merken', 'Save items for later')}
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent-text shrink-0" />
+            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
           </Link>
+
+          {/* Kachel 3: Buch-Fortschritt (im gleichen Kachel-Stil!) */}
+          <div className="flex items-center justify-between gap-3 p-4 rounded-card border border-border bg-surface hover:border-accent hover:shadow-xs transition-all duration-150 group">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-10 h-10 rounded-full bg-word/15 text-word flex items-center justify-center shrink-0">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setIsSelectingBook(!isSelectingBook)}
+                  className="font-bold text-text text-sm truncate group-hover:text-accent text-left block w-full transition-colors cursor-pointer"
+                >
+                  {activeBook ? activeBook.title[language] : L('Juniorjugend-Buch', 'JY Book')}
+                </button>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  {activeBook
+                    ? `${L('Lektion', 'Lesson')} ${bookProgress?.lesson || 1} / ${activeBook.totalLessons}`
+                    : L('Buch auswählen', 'Select book')}
+                </p>
+              </div>
+            </div>
+
+            {/* Stepper buttons right inside the card */}
+            {activeBook && (
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={(e) => handleUpdateLesson(-1, e)}
+                  disabled={!bookProgress || bookProgress.lesson <= 1}
+                  aria-label={L('Vorherige Lektion', 'Previous lesson')}
+                  className="w-7 h-7 rounded-full bg-surface-2 hover:bg-surface-2/80 disabled:opacity-30 text-text flex items-center justify-center text-xs font-bold transition-opacity cursor-pointer"
+                >
+                  <Minus className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleUpdateLesson(1, e)}
+                  disabled={!bookProgress || bookProgress.lesson >= activeBook.totalLessons}
+                  aria-label={L('Nächste Lektion', 'Next lesson')}
+                  className="w-7 h-7 rounded-full bg-surface-2 hover:bg-surface-2/80 disabled:opacity-30 text-text flex items-center justify-center text-xs font-bold transition-opacity cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Zuletzt angesehen */}
-        <div className="space-y-2 pt-1">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
-            <History className="w-3.5 h-3.5 text-accent-text" />
-            <span>{L('Zuletzt angesehen', 'Recently viewed')}</span>
-          </h3>
-          {recentViews.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              {recentViews.map((item) => (
-                <Link
-                  key={`rec-${item.id}`}
-                  to={item.path}
-                  className="flex items-center gap-2.5 p-3 rounded-card bg-surface border border-border hover:bg-surface-2 hover:border-accent transition-colors group"
+        {/* Book Selector Popover / Drawer if toggled */}
+        {isSelectingBook && (
+          <div className="p-4 rounded-card border border-border bg-surface-2 space-y-2 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between text-xs font-bold text-text mb-2">
+              <span>{L('Aktuelles Juniorjugend-Buch wählen:', 'Select current book:')}</span>
+              <button
+                type="button"
+                onClick={() => setIsSelectingBook(false)}
+                className="text-text-tertiary hover:text-text cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {JY_BOOKS.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => handleSelectBook(b.id)}
+                  className={`p-2.5 rounded-control border text-left text-xs transition-colors cursor-pointer ${
+                    bookProgress?.bookId === b.id
+                      ? 'bg-accent/15 border-accent text-accent font-bold'
+                      : 'bg-surface border-border text-text hover:border-text-secondary'
+                  }`}
                 >
-                  <div className="w-8 h-8 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 text-xs">
-                    {item.type === 'game' ? <Compass className="w-4 h-4" /> : item.type === 'quote' ? <QuoteIcon className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-text text-xs truncate group-hover:text-accent-text">
-                      {item.title[language]}
-                    </p>
-                    {item.subtitle && (
-                      <p className="text-2xs text-text-tertiary truncate">{item.subtitle[language]}</p>
-                    )}
-                  </div>
-                </Link>
+                  <span className="block truncate">{b.title[language]}</span>
+                  <span className="text-2xs text-text-tertiary">{b.totalLessons} {L('Lektionen', 'lessons')}</span>
+                </button>
               ))}
             </div>
-          ) : (
-            <div className="flex items-center justify-between gap-3 p-3.5 rounded-card bg-surface border border-border text-xs text-text-secondary">
-              <span>{L('Noch keine Inhalte geöffnet. Entdecke Spiele oder Zitate für deine Gruppe.', 'No items opened yet. Explore games or quotes for your group.')}</span>
-              <Link to="/games" className="font-bold text-accent-text hover:underline shrink-0">
-                {t.tabGames} →
+          </div>
+        )}
+      </section>
+
+      {/* 9. Zuletzt angesehen (wie in ALT) */}
+      <section aria-label={L('Zuletzt angesehen', 'Recently viewed')} className="space-y-2">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
+          <History className="w-3.5 h-3.5 text-accent" />
+          <span>{L('Zuletzt angesehen', 'Recently viewed')}</span>
+        </h3>
+        {recentViews.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            {recentViews.map((item) => (
+              <Link
+                key={`rec-${item.id}`}
+                to={item.path}
+                className="flex items-center gap-2.5 p-3 rounded-card bg-surface border border-border hover:bg-surface-2 hover:border-accent transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 text-xs">
+                  {item.type === 'game' ? <Compass className="w-4 h-4 text-accent" /> : item.type === 'quote' ? <QuoteIcon className="w-4 h-4 text-word" /> : <Sparkles className="w-4 h-4 text-accent" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-text text-xs truncate group-hover:text-accent">
+                    {item.title[language]}
+                  </p>
+                  {item.subtitle && (
+                    <p className="text-2xs text-text-tertiary truncate">{item.subtitle[language]}</p>
+                  )}
+                </div>
               </Link>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-3 p-3.5 rounded-card bg-surface border border-border text-xs text-text-secondary">
+            <span>{L('Noch keine Inhalte geöffnet. Entdecke Spiele oder Zitate für deine Gruppe.', 'No items opened yet. Explore games or quotes for your group.')}</span>
+            <Link to="/games" className="font-bold text-accent hover:underline shrink-0">
+              {t.tabGames} →
+            </Link>
+          </div>
+        )}
       </section>
     </div>
   );
 };
-

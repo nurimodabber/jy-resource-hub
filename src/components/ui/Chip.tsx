@@ -18,10 +18,10 @@ export const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(({
     <button
       ref={ref}
       type="button"
-      className={`inline-flex items-center shrink-0 px-4 py-2 min-h-[44px] rounded-chip text-sm font-medium transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none gap-2 border-0 ${
+      className={`inline-flex items-center shrink-0 px-3.5 py-1.5 min-h-[44px] rounded-control text-sm transition-all duration-120 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none gap-2 ${
         selected
-          ? 'bg-accent-subtle text-accent-text font-semibold'
-          : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-2/80'
+          ? 'bg-accent text-accent-ink font-bold border border-accent shadow-xs'
+          : 'bg-surface text-text-secondary border border-line hover:border-text-secondary hover:text-text'
       } ${className}`}
       {...props}
     >
@@ -29,8 +29,8 @@ export const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(({
       <span>{children}</span>
       {typeof count === 'number' && (
         <span
-          className={`text-xs px-2 py-0.5 rounded-chip tabular-nums font-semibold ${
-            selected ? 'bg-accent/15 text-accent-text' : 'bg-surface text-text-tertiary'
+          className={`text-xs px-1.5 py-0.5 rounded-control font-mono font-semibold ${
+            selected ? 'bg-accent-ink/20 text-accent-ink' : 'bg-surface-2 text-text-secondary'
           }`}
         >
           {count}

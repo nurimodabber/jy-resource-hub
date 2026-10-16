@@ -56,7 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-surface backdrop-blur-md border-b border-border print:hidden safe-top transition-transform duration-200 ${
+      className={`sticky top-0 z-40 bg-surface/96 backdrop-blur-md border-b border-line print:hidden safe-top transition-transform duration-200 ${
         isHidden ? 'short:-translate-y-full' : ''
       }`}
     >
@@ -82,9 +82,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 key={item.id}
                 to={item.href}
                 aria-current={isActive ? 'page' : undefined}
-                className={`relative px-3.5 py-2 min-h-[44px] inline-flex items-center rounded-control text-sm whitespace-nowrap transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`relative px-3.5 py-2 min-h-[44px] inline-flex items-center rounded-control text-sm whitespace-nowrap transition-colors duration-120 ease-out focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive
-                    ? 'text-accent-text font-bold bg-accent-subtle/60'
+                    ? 'text-accent font-bold bg-accent-subtle/80'
                     : 'text-text-secondary hover:text-text hover:bg-surface-2'
                 }`}
               >

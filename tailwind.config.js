@@ -17,13 +17,14 @@ export default {
     },
     extend: {
       borderRadius: {
-        chip: 'var(--r-chip)',
         control: 'var(--r-control)',
         card: 'var(--r-card)',
+        reading: 'var(--r-reading)',
+        chip: 'var(--r-chip)',
         sheet: 'var(--r-sheet)',
         dialog: 'var(--r-dialog)',
         // Semantic standard mappings to CSS variables
-        sm: 'var(--r-control)',
+        sm: 'var(--r-reading)',
         md: 'var(--r-control)',
         lg: 'var(--r-control)',
         xl: 'var(--r-control)',
@@ -31,7 +32,7 @@ export default {
         '3xl': 'var(--r-dialog)',
         't-2xl': 'var(--r-sheet)',
         't-sheet': 'var(--r-sheet)',
-        full: 'var(--r-chip)',
+        full: '9999px',
       },
       fontSize: {
         '2xs': ['12px', { lineHeight: '16px' }],
@@ -49,6 +50,7 @@ export default {
         surface: 'rgb(var(--surface-rgb) / <alpha-value>)',
         'surface-2': 'rgb(var(--surface-2-rgb) / <alpha-value>)',
         'surface-raised': 'rgb(var(--surface-raised-rgb) / <alpha-value>)',
+        line: 'rgb(var(--line-rgb) / <alpha-value>)',
         text: {
           DEFAULT: 'rgb(var(--text-rgb) / <alpha-value>)',
           secondary: 'rgb(var(--text-secondary-rgb) / <alpha-value>)',
@@ -65,6 +67,24 @@ export default {
           contrast: 'rgb(var(--accent-contrast-rgb) / <alpha-value>)',
           subtle: 'rgb(var(--accent-subtle-rgb) / <alpha-value>)',
           text: 'rgb(var(--accent-text-rgb) / <alpha-value>)',
+          ink: 'rgb(var(--accent-ink-rgb) / <alpha-value>)',
+        },
+        word: {
+          DEFAULT: 'rgb(var(--word-rgb) / <alpha-value>)',
+          hover: 'rgb(var(--word-hover-rgb) / <alpha-value>)',
+          subtle: 'rgb(var(--word-subtle-rgb) / <alpha-value>)',
+          text: 'rgb(var(--word-rgb) / <alpha-value>)',
+        },
+        action: {
+          DEFAULT: 'rgb(var(--action-rgb) / <alpha-value>)',
+          hover: 'rgb(var(--action-hover-rgb) / <alpha-value>)',
+          subtle: 'rgb(var(--action-subtle-rgb) / <alpha-value>)',
+          contrast: 'rgb(var(--action-contrast-rgb) / <alpha-value>)',
+        },
+        e: {
+          ruhig: 'rgb(var(--e-ruhig-rgb) / <alpha-value>)',
+          mittel: 'rgb(var(--e-mittel-rgb) / <alpha-value>)',
+          lebhaft: 'rgb(var(--e-lebhaft-rgb) / <alpha-value>)',
         },
         highlight: 'rgb(var(--highlight-rgb) / <alpha-value>)',
         success: {
@@ -110,20 +130,36 @@ export default {
         none: 'none',
       },
       transitionDuration: {
+        '120': '120ms',
         '150': '150ms',
+        '180': '180ms',
         '220': '220ms',
       },
       fontFamily: {
         sans: [
-          '"Figtree"',
+          'Figtree',
           '-apple-system',
           'BlinkMacSystemFont',
           '"Segoe UI"',
           'Roboto',
           '"Helvetica Neue"',
+          'Arial',
           'sans-serif',
         ],
-        serif: ['"Lora"', 'Georgia', 'serif'],
+        serif: [
+          '"Literata Variable"',
+          '"Literata"',
+          'Georgia',
+          'serif',
+        ],
+        mono: [
+          '"Atkinson Hyperlegible Mono Variable"',
+          '"Atkinson Hyperlegible Mono"',
+          'ui-monospace',
+          'SFMono-Regular',
+          'Menlo',
+          'monospace',
+        ],
       },
       zIndex: {
         '60': '60',

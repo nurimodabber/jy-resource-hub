@@ -7,6 +7,7 @@ export interface GameFilterState {
   energie?: EnergyLevel | null; // 'calm' | 'medium' | 'high'
   wirkung?: GamePurpose | null; // 'kennenlernen' | 'energie' | 'zusammenarbeit' | 'ruhe' | 'raten'
   material?: 'ohne' | null; // 'ohne' means no materials required
+  ort?: 'drinnen' | 'draussen' | null;
   sort?: 'match' | 'duration' | 'groupSize';
 }
 
@@ -44,6 +45,9 @@ export const parseGameFilters = (searchParams: URLSearchParams): GameFilterState
   const matRaw = searchParams.get('material')?.toLowerCase();
   const material = matRaw === 'ohne' || matRaw === 'none' ? 'ohne' : null;
 
+  const ortRaw = searchParams.get('ort')?.toLowerCase();
+  const ort = ortRaw === 'drinnen' || ortRaw === 'draussen' ? ortRaw : null;
+
   const sortRaw = searchParams.get('sort')?.toLowerCase();
   const sort = sortRaw === 'duration' || sortRaw === 'groupSize' ? sortRaw : 'match';
 
@@ -54,6 +58,7 @@ export const parseGameFilters = (searchParams: URLSearchParams): GameFilterState
     energie,
     wirkung,
     material,
+    ort,
     sort,
   };
 };
@@ -66,6 +71,7 @@ export const serializeGameFilters = (filter: GameFilterState): URLSearchParams =
   if (filter.energie) params.set('energie', ENERGY_TO_URL[filter.energie]);
   if (filter.wirkung) params.set('wirkung', filter.wirkung);
   if (filter.material === 'ohne') params.set('material', 'ohne');
+  if (filter.ort) params.set('ort', filter.ort);
   if (filter.sort && filter.sort !== 'match') params.set('sort', filter.sort);
   return params;
 };
@@ -76,6 +82,7 @@ export const countActiveFilters = (filter: GameFilterState): number => {
   if (filter.dauer != null) count++;
   if (filter.energie != null) count++;
   if (filter.material === 'ohne') count++;
+  if (filter.ort != null) count++;
   if (filter.sort && filter.sort !== 'match') count++;
   return count;
 };
@@ -114,6 +121,17 @@ export const filterGames = (games: Game[], filter: GameFilterState, language: La
       // Also check materials array for German / English "Keine" / "None"
       const matsDe = g.materials.de.join(' ').toLowerCase();
       if (!matsDe.includes('keine') && g.prepLevel !== 'instant') return false;
+    }
+
+    // 6. Ort (Drinnen / Draußen)
+    if (filter.ort === 'draussen') {
+      const s = (g.space.de + ' ' + g.space.en).toLowerCase();
+      const isOutdoor = s.includes('draußen') || s.includes('draussen') || s.includes('rasen') || s.includes('wiese') || s.includes('überall') || s.includes('turnhalle');
+      if (!isOutdoor) return false;
+    } else if (filter.ort === 'drinnen') {
+      const s = (g.space.de + ' ' + g.space.en).toLowerCase();
+      const isOnlyOutdoor = s.includes('draußen / turnhalle') && !s.includes('raum') && !s.includes('saal');
+      if (isOnlyOutdoor) return false;
     }
 
     // 6. Textsuche

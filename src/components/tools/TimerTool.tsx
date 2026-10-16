@@ -209,36 +209,84 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
         </button>
       </div>
 
-      {/* Main Display: HUGE digits (>= 30vw on mobile, pure clean font-mono) */}
-      <div className="py-8 sm:py-14 border border-border rounded-card bg-surface relative shadow-xs">
-        {/* Phase pill if interval mode */}
-        {timerMode === 'interval' && (
-          <div className="mb-3">
-            <span className={`inline-flex items-center px-3 py-1 rounded-chip font-bold text-xs ${
-              intervalPhase === 'work' ? 'bg-accent-subtle text-accent-text' : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
-            }`}>
-              {intervalPhase === 'work' ? L(`Aktiv (Runde ${currentRound} / ${intervalRounds})`, `Active (Round ${currentRound} / ${intervalRounds})`) : L(`Pause (vor Runde ${currentRound + 1})`, `Rest (before round ${currentRound + 1})`)}
+      {/* Main Display: Calm Circular Progress Arc (3px stroke) + Mono Digits */}
+      <div className="py-6 flex flex-col items-center justify-center">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={running ? L('Pause', 'Pause') : L('Start', 'Start')}
+          className="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center rounded-full transition-transform active:scale-98 cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          {/* Circular SVG Track & Arc */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 300 300">
+            {/* Background subtle track */}
+            <circle
+              cx="150"
+              cy="150"
+              r="130"
+              fill="none"
+              stroke="var(--line)"
+              strokeWidth="3"
+            />
+            {/* Animated stroke progress arc */}
+            <circle
+              cx="150"
+              cy="150"
+              r="130"
+              fill="none"
+              stroke={
+                remaining <= 10 && remaining > 0 && running
+                  ? 'var(--e-lebhaft)'
+                  : intervalPhase === 'pause'
+                  ? 'var(--e-mittel)'
+                  : 'var(--accent)'
+              }
+              strokeWidth="3"
+              strokeDasharray={2 * Math.PI * 130}
+              strokeDashoffset={2 * Math.PI * 130 * (1 - pct)}
+              strokeLinecap="round"
+              transform="rotate(-90 150 150)"
+              className="transition-[stroke-dashoffset,stroke] duration-300"
+            />
+          </svg>
+
+          {/* Central Digits & Status */}
+          <div className="relative z-10 text-center px-4">
+            {timerMode === 'interval' && (
+              <span
+                className={`inline-block mb-1 text-2xs font-mono font-bold px-2 py-0.5 rounded-control ${
+                  intervalPhase === 'work'
+                    ? 'bg-accent/15 text-accent'
+                    : 'bg-[#B9C46A]/15 text-[#B9C46A]'
+                }`}
+              >
+                {intervalPhase === 'work'
+                  ? L(`Runde ${currentRound}/${intervalRounds}`, `Round ${currentRound}/${intervalRounds}`)
+                  : L('Pause', 'Rest')}
+              </span>
+            )}
+            <div
+              className={`font-mono font-bold tabular-nums tracking-tight select-none transition-colors text-5xl sm:text-6xl ${
+                remaining <= 10 && remaining > 0 && running
+                  ? 'text-[#E58A6B]'
+                  : remaining === 0
+                  ? 'text-accent'
+                  : 'text-text'
+              }`}
+              role="timer"
+              aria-live="off"
+            >
+              {fmt(remaining)}
+            </div>
+            <span className="text-2xs font-sans text-text-tertiary mt-2 block">
+              {running
+                ? L('Tippen für Pause', 'Tap to pause')
+                : remaining === 0
+                ? L('Fertig · Tippen für Neustart', 'Done · Tap to restart')
+                : L('Tippen zum Starten', 'Tap to start')}
             </span>
           </div>
-        )}
-
-        <div
-          className={`text-[30vw] sm:text-[9rem] leading-none font-extrabold font-mono tabular-nums tracking-tight select-none ${
-            remaining === 0 ? 'text-accent-text' : 'text-text'
-          }`}
-          role="timer"
-          aria-live="off"
-        >
-          {fmt(remaining)}
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mx-auto mt-6 h-2 w-2/3 max-w-md rounded-full bg-surface-2 overflow-hidden">
-          <div
-            className={`h-full transition-all duration-300 ${intervalPhase === 'pause' ? 'bg-emerald-500' : 'bg-accent'}`}
-            style={{ width: `${pct * 100}%` }}
-          />
-        </div>
+        </button>
       </div>
 
       {/* Main Controls Row */}
@@ -395,7 +443,13 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
               </span>
             )}
 
-            <div className="text-[28vw] sm:text-[14rem] leading-none font-mono font-black text-accent-text select-none tracking-tight">
+            <div
+              className={`text-[28vw] sm:text-[14rem] leading-none font-mono font-bold tabular-nums select-none tracking-tight transition-colors ${
+                remaining <= 10 && remaining > 0 && running
+                  ? 'text-[#E58A6B]'
+                  : 'text-accent'
+              }`}
+            >
               {fmt(remaining)}
             </div>
 

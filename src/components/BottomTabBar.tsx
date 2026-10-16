@@ -30,10 +30,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-surface backdrop-blur-md border-t border-border shadow-2 lg:hidden short:hidden safe-bottom print:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-line shadow-2 lg:hidden short:hidden safe-bottom print:hidden"
       aria-label="Mobile Navigation"
     >
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -44,20 +44,20 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
               onClick={() => onSelectTab(tab.id)}
               aria-label={tab.ariaLabel}
               aria-current={isActive ? 'page' : undefined}
-              className="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 select-none transition-colors group rounded-control focus-visible:ring-2 focus-visible:ring-accent"
+              className="relative flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 select-none transition-colors group focus-visible:ring-2 focus-visible:ring-accent rounded-control"
             >
               <div
-                className={`flex items-center justify-center px-2.5 py-1 rounded-chip transition-colors duration-150 ease-out ${
+                className={`flex items-center justify-center px-2 py-0.5 rounded-full transition-colors duration-150 ease-out ${
                   isActive
-                    ? 'bg-accent-subtle text-accent-text'
+                    ? 'bg-accent/15 text-accent'
                     : 'text-text-secondary group-hover:text-text'
                 }`}
               >
-                <Icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.75} />
+                <Icon className="w-5 h-5" strokeWidth={isActive ? 2.2 : 1.75} />
               </div>
               <span
-                className={`text-2xs whitespace-nowrap text-center mt-0.5 ${
-                  isActive ? 'text-accent-text font-bold' : 'text-text-secondary font-medium'
+                className={`text-[11px] whitespace-nowrap text-center mt-0.5 tracking-tight ${
+                  isActive ? 'text-accent font-bold' : 'text-text-secondary font-medium'
                 }`}
               >
                 {tab.label}
