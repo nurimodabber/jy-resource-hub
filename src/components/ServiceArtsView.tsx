@@ -447,6 +447,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       )}
 
       {/* 5. Activities Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}
+      <h2 className="sr-only">{t.tabServiceArts}</h2>
       {filteredList.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 min-[1120px]:grid-cols-3 gap-4">
           {filteredList.map((item) => (

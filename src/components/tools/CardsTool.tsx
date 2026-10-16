@@ -169,7 +169,7 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
           </h2>
 
           {/* Reverent quote display in Lora serif font */}
-          <div className="my-6 p-6 rounded-card bg-surface-2/60 border-l-4 border-accent">
+          <div className="my-6 p-6 rounded-card bg-surface-2/60 border border-border">
             <blockquote className="font-serif text-lg sm:text-xl text-text leading-relaxed italic">
               {formattedQuote}
             </blockquote>

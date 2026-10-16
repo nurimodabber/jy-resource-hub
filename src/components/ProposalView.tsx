@@ -311,7 +311,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text">
           {L('Vorschlag einreichen', 'Submit proposal')}
         </h1>
-        <p className="text-xs sm:text-sm text-text-secondary mt-1 max-w-prose leading-relaxed">
+        <p className="text-xs sm:text-sm text-text-secondary mt-1 max-w-lg leading-relaxed">
           {L(
             'Du hast ein Spiel oder Projekt, das fehlt? Schick es uns. Teile erprobte Spiele, Dienstprojekte oder künstlerische Aktivitäten mit anderen Animatoren – alle Vorschläge werden vor der Veröffentlichung geprüft.',
             "Have a game or project idea that's missing? Send it to us. Share proven games, service projects, or creative activities with other animators – all submissions are reviewed before publishing."
@@ -462,9 +462,9 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                 </div>
 
                 {formData.animatorTips && (
-                  <div className="p-4 rounded-control bg-surface-2 border-l-4 border-accent text-xs space-y-1">
+                  <div className="p-4 rounded-card bg-accent-subtle/30 border border-accent/20 text-xs space-y-1">
                     <span className="font-bold text-text block">{L('Tipp für Animatoren', 'Tip for animators')}</span>
-                    <p className="text-text-secondary">{formData.animatorTips}</p>
+                    <p className="text-text-secondary leading-relaxed">{formData.animatorTips}</p>
                   </div>
                 )}
               </Panel>

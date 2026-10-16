@@ -1159,11 +1159,9 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
       {slots.length === 0 ? (
         <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs text-center space-y-6 print:hidden">
           <div className="max-w-md mx-auto space-y-2">
-            <div className="w-12 h-12 rounded-card bg-surface-2 text-accent-text flex items-center justify-center mx-auto">
-              <Clock className="w-6 h-6" />
-            </div>
-            <h2 className="text-lg sm:text-xl font-bold text-text">
-              {language === 'de' ? 'Ablauf mit einem Klick starten' : 'Start your gathering with one tap'}
+            <h2 className="text-lg sm:text-xl font-bold text-text flex items-center justify-center gap-2">
+              <Clock className="w-5 h-5 text-accent-text shrink-0" />
+              <span>{language === 'de' ? 'Ablauf mit einem Klick starten' : 'Start your gathering with one tap'}</span>
             </h2>
             <p className="text-xs sm:text-sm text-text-secondary">
               {language === 'de'

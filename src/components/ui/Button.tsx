@@ -19,7 +19,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   disabled,
   ...props
 }, ref) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-control transition-colors duration-150 ease-out select-none outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-control transition-all duration-150 ease-out select-none outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 active:scale-[0.985] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100';
 
   const sizeStyles = {
     sm: 'text-xs px-3.5 py-1.5 min-h-[36px] gap-1.5',
