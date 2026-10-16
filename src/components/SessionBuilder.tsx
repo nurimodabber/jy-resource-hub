@@ -1056,7 +1056,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
       {/* 2. PLAN HEADER & TOOLBAR (Screen View) */}
       {/* ==================================================== */}
       <div className="bg-surface rounded-card border border-border p-5 sm:p-6 shadow-xs print:hidden space-y-4">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
           
           {/* Plan Title & Renaming */}
           <div className="space-y-1.5 flex-1 min-w-0">
@@ -1093,8 +1093,8 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-text tracking-tight">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-text tracking-tight break-words">
                   {activePlan?.name || (language === 'de' ? 'Mein Treffen' : 'My Gathering')}
                 </h1>
                 <IconButton
@@ -1105,19 +1105,19 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                   }}
                   size="sm"
                   variant="ghost"
-                  className="text-text-tertiary hover:text-text"
+                  className="text-text-tertiary hover:text-text cursor-pointer"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                 </IconButton>
               </div>
             )}
-            <p className="text-xs text-text-secondary line-clamp-1">
+            <p className="text-xs text-text-secondary">
               {t.treffenSubtitle}
             </p>
           </div>
 
           {/* Primary Action: "Treffen starten" & Toolbar */}
-          <div className="flex flex-col sm:items-end gap-1.5 shrink-0">
+          <div className="flex flex-col sm:items-start lg:items-end gap-1.5 shrink-0">
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
@@ -1290,14 +1290,14 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('devotional', 10)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <span className="p-1.5 rounded-control bg-surface text-action shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-accent/15 text-accent shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <BookOpen className="w-4 h-4" />
-                </span>
+                </div>
                 <div className="min-w-0">
                   <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
                     {language === 'de' ? 'Andacht & Gebet' : 'Devotion & Prayer'}
                   </span>
-                  <span className="text-2xs text-text-tertiary">10 Min.</span>
+                  <span className="text-2xs text-text-tertiary font-sans">10 Min.</span>
                 </div>
               </button>
 
@@ -1306,14 +1306,14 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('study', 15)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <span className="p-1.5 rounded-control bg-surface text-action shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-word/15 text-word shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <Sparkles className="w-4 h-4" />
-                </span>
+                </div>
                 <div className="min-w-0">
                   <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
                     {language === 'de' ? 'Zitat & Reflexion' : 'Quote & Study'}
                   </span>
-                  <span className="text-2xs text-text-tertiary">15 Min.</span>
+                  <span className="text-2xs text-text-tertiary font-sans">15 Min.</span>
                 </div>
               </button>
 
@@ -1322,14 +1322,14 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('study', 20, { de: 'Juniorjugend-Buch', en: 'Junior Youth Book' })}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <span className="p-1.5 rounded-control bg-surface text-word shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-word/15 text-word shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <BookOpen className="w-4 h-4" />
-                </span>
+                </div>
                 <div className="min-w-0">
                   <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
                     {language === 'de' ? 'JY-Buch Studium' : 'JY Book Study'}
                   </span>
-                  <span className="text-2xs text-text-tertiary">20 Min.</span>
+                  <span className="text-2xs text-text-tertiary font-sans">20 Min.</span>
                 </div>
               </button>
 
@@ -1338,14 +1338,14 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('warmup', 15)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <span className="p-1.5 rounded-control bg-surface text-e-lebhaft shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-e-lebhaft/15 text-e-lebhaft shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <Smile className="w-4 h-4" />
-                </span>
+                </div>
                 <div className="min-w-0">
                   <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
                     {language === 'de' ? 'Spiel & Energizer' : 'Game & Energizer'}
                   </span>
-                  <span className="text-2xs text-text-tertiary">15 Min.</span>
+                  <span className="text-2xs text-text-tertiary font-sans">15 Min.</span>
                 </div>
               </button>
 
@@ -1354,14 +1354,14 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('service', 20)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <span className="p-1.5 rounded-control bg-surface text-e-ruhig shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-success/15 text-success shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <HeartHandshake className="w-4 h-4" />
-                </span>
+                </div>
                 <div className="min-w-0">
                   <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
                     {language === 'de' ? 'Dienstprojekt' : 'Service Project'}
                   </span>
-                  <span className="text-2xs text-text-tertiary">20 Min.</span>
+                  <span className="text-2xs text-text-tertiary font-sans">20 Min.</span>
                 </div>
               </button>
 
@@ -1370,14 +1370,14 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('arts_discussion', 20)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <span className="p-1.5 rounded-control bg-surface text-e-ruhig shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-accent/15 text-accent shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <Palette className="w-4 h-4" />
-                </span>
+                </div>
                 <div className="min-w-0">
                   <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
                     {language === 'de' ? 'Kunst & Theater' : 'Arts & Drama'}
                   </span>
-                  <span className="text-2xs text-text-tertiary">20 Min.</span>
+                  <span className="text-2xs text-text-tertiary font-sans">20 Min.</span>
                 </div>
               </button>
 
@@ -1386,14 +1386,14 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('custom', 10, { de: 'Pause & Snack', en: 'Break & Snack' })}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <span className="p-1.5 rounded-control bg-surface text-text-secondary shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-surface text-text-secondary border border-border shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <Clock className="w-4 h-4" />
-                </span>
+                </div>
                 <div className="min-w-0">
                   <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
                     {language === 'de' ? 'Pause & Snack' : 'Break & Snack'}
                   </span>
-                  <span className="text-2xs text-text-tertiary">10 Min.</span>
+                  <span className="text-2xs text-text-tertiary font-sans">10 Min.</span>
                 </div>
               </button>
 
@@ -1402,14 +1402,14 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('closing', 10)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <span className="p-1.5 rounded-control bg-surface text-e-mittel shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-e-mittel/15 text-e-mittel shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <Check className="w-4 h-4" />
-                </span>
+                </div>
                 <div className="min-w-0">
                   <span className="block text-xs font-bold text-text truncate group-hover:text-action transition-colors">
                     {language === 'de' ? 'Abschlusskreis' : 'Closing Circle'}
                   </span>
-                  <span className="text-2xs text-text-tertiary">10 Min.</span>
+                  <span className="text-2xs text-text-tertiary font-sans">10 Min.</span>
                 </div>
               </button>
             </div>
