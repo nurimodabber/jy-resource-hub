@@ -178,83 +178,24 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
     .map((id) => TOOLS.find((x) => x.id === id))
     .filter((x): x is ToolDef => !!x);
 
-  const renderToolVisual = (id: string, Icon: LucideIcon, size: 'sm' | 'md' = 'md') => {
-    const dim = size === 'sm' ? 'w-9 h-9' : 'w-11 h-11';
-    switch (id) {
-      case 'timer':
-        return (
-          <div className={`${dim} rounded-control bg-surface-2 border border-line flex flex-col items-center justify-center shrink-0 group-hover:border-accent transition-colors`}>
-            <span className={`font-mono font-bold text-accent tabular-nums ${size === 'sm' ? 'text-2xs' : 'text-xs'}`}>05:00</span>
-            <span className="text-3xs text-text-tertiary uppercase font-mono leading-none">min</span>
-          </div>
-        );
-      case 'teams':
-        return (
-          <div className={`${dim} rounded-control bg-surface-2 border border-line p-1.5 flex flex-col justify-between shrink-0 group-hover:border-accent transition-colors`}>
-            <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#7DB6C9]" />
-              <span className="text-3xs font-mono font-bold text-text leading-none">Team A</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E58A6B]" />
-              <span className="text-3xs font-mono font-bold text-text leading-none">Team B</span>
-            </div>
-          </div>
-        );
-      case 'roles':
-        return (
-          <div className={`${dim} rounded-control bg-surface-2 border border-line p-1.5 flex flex-col justify-around shrink-0 group-hover:border-accent transition-colors`}>
-            <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-              <span className="w-4 h-1 rounded-xs bg-line" />
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#7DB6C9]" />
-              <span className="w-5 h-1 rounded-xs bg-line" />
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#B9C46A]" />
-              <span className="w-3 h-1 rounded-xs bg-line" />
-            </div>
-          </div>
-        );
-      case 'empire':
-        return (
-          <div className={`${dim} rounded-control bg-surface-2 border border-line flex flex-col items-center justify-center shrink-0 group-hover:border-accent transition-colors`}>
-            <Crown className="w-3.5 h-3.5 text-accent" />
-            <span className="font-mono text-3xs font-bold text-text-tertiary leading-none mt-0.5">3 · 4 · 2</span>
-          </div>
-        );
-      case 'scoreboard':
-        return (
-          <div className={`${dim} rounded-control bg-surface-2 border border-line flex flex-col items-center justify-center shrink-0 group-hover:border-accent transition-colors`}>
-            <span className={`font-mono font-bold text-text tabular-nums leading-none ${size === 'sm' ? 'text-2xs' : 'text-xs'}`}>+1</span>
-            <span className="font-mono text-3xs text-text-tertiary leading-none mt-0.5">12 pts</span>
-          </div>
-        );
-      case 'finder':
-        return (
-          <div className={`${dim} rounded-control bg-surface-2 border border-line flex flex-col items-center justify-center shrink-0 group-hover:border-accent transition-colors`}>
-            <span className={`font-mono font-bold text-text tabular-nums leading-none ${size === 'sm' ? 'text-2xs' : 'text-xs'}`}>2–40</span>
-            <span className="text-3xs text-text-tertiary font-mono leading-none mt-0.5">Pers.</span>
-          </div>
-        );
-      case 'cards':
-        return (
-          <div className={`${dim} rounded-control bg-surface-2 border border-line relative flex items-center justify-center shrink-0 group-hover:border-accent transition-colors`}>
-            <div className="w-4 h-5 rounded-xs border border-line bg-surface absolute translate-x-1 -translate-y-1" />
-            <div className="w-4 h-5 rounded-xs border border-accent bg-surface-2 relative flex items-center justify-center">
-              <span className="font-serif text-3xs text-accent">„“</span>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className={`${dim} rounded-control bg-surface-2 border border-line flex items-center justify-center shrink-0 group-hover:border-accent transition-colors`}>
-            <Icon className="w-4 h-4 text-accent" strokeWidth={1.75} />
-          </div>
-        );
+  const getActiveToolBadge = (id: string): string | null => {
+    try {
+      if (id === 'scoreboard') {
+        const stored = localStorage.getItem('jy_scoreboard_teams');
+        if (stored) {
+          const teams = JSON.parse(stored);
+          if (Array.isArray(teams)) {
+            const totalScore = teams.reduce((acc: number, t: { score?: number }) => acc + (t.score || 0), 0);
+            if (totalScore > 0) {
+              return `${totalScore} Pkt.`;
+            }
+          }
+        }
+      }
+    } catch {
+      /* ignore */
     }
+    return null;
   };
 
   return (
@@ -286,18 +227,20 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
                 <Link
                   key={`recent-${x.id}`}
                   to={`/tools/${x.id}`}
-                  className="flex items-center gap-3 p-3.5 rounded-card bg-surface border border-line hover:border-accent hover:shadow-xs transition-all duration-150 group"
+                  className="flex items-center gap-3 p-3.5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all duration-150 group"
                 >
-                  {renderToolVisual(x.id, Icon, 'sm')}
+                  <div className="w-9 h-9 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Icon className="w-4 h-4" strokeWidth={2} />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-text text-sm truncate group-hover:text-accent-text transition-colors">
+                    <p className="font-bold text-text text-sm truncate group-hover:text-accent transition-colors">
                       {x.title[language === 'de' ? 0 : 1]}
                     </p>
                     <p className="text-xs text-text-tertiary truncate">
                       {x.desc[language === 'de' ? 0 : 1]}
                     </p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent-text shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
                 </Link>
               );
             })}
@@ -319,21 +262,31 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {groupTools.map((x) => {
                   const Icon = x.icon;
+                  const activeBadge = getActiveToolBadge(x.id);
                   return (
                     <Link
                       key={x.id}
                       to={`/tools/${x.id}`}
-                      className="flex items-start gap-4 p-4 sm:p-5 rounded-card bg-surface border border-line hover:border-accent hover:shadow-1 transition-all duration-150 group cursor-pointer"
+                      className="flex items-start gap-4 p-4 sm:p-5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-1 transition-all duration-150 group cursor-pointer"
                     >
-                      {renderToolVisual(x.id, Icon, 'md')}
+                      <div className="w-11 h-11 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform mt-0.5">
+                        <Icon className="w-5 h-5" strokeWidth={2} />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="font-bold text-text text-base group-hover:text-accent-text transition-colors">
+                          <p className="font-bold text-text text-base group-hover:text-accent transition-colors">
                             {x.title[language === 'de' ? 0 : 1]}
                           </p>
-                          <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent-text shrink-0" />
+                          <div className="flex items-center gap-2 shrink-0">
+                            {activeBadge && (
+                              <span className="font-mono text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-accent">
+                                {activeBadge}
+                              </span>
+                            )}
+                            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
+                          </div>
                         </div>
-                        <p className="text-xs sm:text-sm text-text-secondary mt-1 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-text-secondary mt-1 leading-relaxed line-clamp-1">
                           {x.desc[language === 'de' ? 0 : 1]}
                         </p>
                       </div>
