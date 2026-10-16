@@ -137,13 +137,13 @@ export default {
       },
       fontFamily: {
         sans: [
-          '"Atkinson Hyperlegible Next Variable"',
-          '"Atkinson Hyperlegible Next"',
-          '"Atkinson Hyperlegible"',
+          'Figtree',
           '-apple-system',
           'BlinkMacSystemFont',
           '"Segoe UI"',
           'Roboto',
+          '"Helvetica Neue"',
+          'Arial',
           'sans-serif',
         ],
         serif: [
