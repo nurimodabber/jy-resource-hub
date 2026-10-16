@@ -13,6 +13,7 @@ import { IconButton } from './ui/IconButton';
 import { useToast } from '../context/ToastContext';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { shareResource } from '../utils/share';
+import { stripQuotes } from '../utils/random';
 import { isPrayerQuote, formatQuoteSection } from './QuoteCard';
 
 interface QuoteDetailProps {
@@ -163,12 +164,6 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
     touchStartXRef.current = null;
   };
 
-  const fontClasses = [
-    'text-xl sm:text-2xl leading-relaxed',
-    'text-2xl sm:text-3xl leading-relaxed',
-    'text-3xl sm:text-4xl leading-relaxed',
-    'text-4xl sm:text-5xl lg:text-6xl leading-tight',
-  ];
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-36 lg:pb-24 pt-2">
@@ -522,17 +517,33 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
             </div>
           </div>
 
-          {/* Central Sacred Text Area */}
+          {/* Central Sacred Text Area: pure black background, brass quotes, clamp up to 64px */}
           <div className="max-w-4xl mx-auto w-full my-auto py-8 text-center px-4">
-            <p className={`font-serif ${fontClasses[fontSizeStep]} leading-relaxed select-text`}>
-              „{text}“
-            </p>
-            <p className="mt-8 font-serif italic text-base sm:text-xl opacity-75">
+            <blockquote
+              className="font-serif leading-[1.55] select-text text-white font-normal"
+              style={{
+                fontSize:
+                  fontSizeStep === 3
+                    ? 'clamp(2rem, 5vw, 4rem)'
+                    : fontSizeStep === 2
+                    ? 'clamp(1.75rem, 4vw, 3rem)'
+                    : fontSizeStep === 1
+                    ? 'clamp(1.5rem, 3.2vw, 2.5rem)'
+                    : 'clamp(1.25rem, 2.5vw, 2rem)',
+                hyphens: 'auto',
+              }}
+              lang={language}
+            >
+              <span className="text-accent font-serif select-none mr-1" aria-hidden="true">{language === 'de' ? '„' : '“'}</span>
+              {stripQuotes(text)}
+              <span className="text-accent font-serif select-none ml-1" aria-hidden="true">{language === 'de' ? '“' : '”'}</span>
+            </blockquote>
+            <cite className="not-italic mt-8 font-serif italic text-base sm:text-xl text-white/75 block">
               — {activeQuote.source[language]}
-            </p>
-            <p className="mt-2 text-xs sm:text-sm opacity-60">
+            </cite>
+            <span className="mt-2 text-xs sm:text-sm text-white/50 block font-sans">
               {activeQuote.book[language]}
-            </p>
+            </span>
           </div>
 
           {/* Bottom Bar in Reading Mode: Prev / Next buttons and Hints */}

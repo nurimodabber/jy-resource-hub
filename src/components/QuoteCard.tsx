@@ -96,7 +96,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   return (
     <article
       onClick={() => onSelectQuote(quote)}
-      className="bg-surface rounded-2xl border border-border p-5 sm:p-6 transition-all duration-150 hover:border-text-secondary/40 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative"
+      className="break-inside-avoid bg-surface/80 rounded-card border border-line p-5 sm:p-6 mb-5 transition-all duration-120 hover:border-accent/60 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-xs"
       tabIndex={0}
       role="article"
       onKeyDown={(e) => {
@@ -108,29 +108,33 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         }
       }}
     >
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {/* Top small meta line: Source / Book & indicator */}
         <div className="flex items-center justify-between gap-2 text-xs text-text-tertiary">
-          <span className="font-medium truncate">
+          <span className="font-medium truncate font-sans">
             {bookName} {sectionName ? `· ${sectionName}` : ''}
           </span>
           {isPrayer && (
-            <span className="shrink-0 text-2xs font-semibold px-2 py-0.5 rounded-full bg-surface-2 text-text-secondary border border-border">
+            <span className="shrink-0 text-2xs font-semibold px-2 py-0.5 rounded-control bg-surface-2 text-text-secondary border border-line">
               {language === 'de' ? 'Gebet' : 'Prayer'}
             </span>
           )}
         </div>
 
-        {/* Holy Text in Lora Serif font (unaltered, up to 6 lines in list) */}
+        {/* Holy Text in Literata Serif font (unaltered, up to 6 lines in list) */}
         <div className="max-w-[680px]">
-          <p className="font-serif text-lg sm:text-xl leading-[1.6] sm:leading-[1.65] text-text line-clamp-6 select-text">
+          <p
+            className="font-serif text-lg sm:text-xl leading-relaxed text-text line-clamp-6 select-text"
+            lang={language}
+            style={{ hyphens: 'auto' }}
+          >
             „{text}“
           </p>
         </div>
 
         {/* Source underneath in text-secondary */}
-        <div className="pt-1">
-          <p className="text-xs sm:text-sm text-text-secondary font-serif italic">
+        <div>
+          <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium">
             — {quote.source[language]}
           </p>
         </div>
@@ -138,7 +142,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
 
       {/* Bottom Action Row */}
       <div
-        className="mt-6 pt-4 border-t border-border flex items-center justify-between gap-2 relative"
+        className="mt-5 pt-3.5 border-t border-line flex items-center justify-between gap-2 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-1.5 relative">
