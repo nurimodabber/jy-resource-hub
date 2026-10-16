@@ -541,6 +541,16 @@ const de = {
     backToServiceArts: '← Dienst & Kunst',
     backToTools: '← Werkzeuge',
     backToPlanner: '← Treffen',
+    tabServiceArtsShort: 'Dienst',
+    skipToContent: 'Zum Inhalt springen',
+    offlineBannerText: 'Offline-Modus – Alle geladenen und gemerkten Inhalte sind weiterhin verfügbar.',
+    beamerModeToggle: 'Beamer-Modus',
+    beamerModeExit: 'Beamer-Modus beenden',
+    greetingMorning: 'Guten Morgen',
+    greetingAfternoon: 'Guten Tag',
+    greetingEvening: 'Guten Abend',
+    treffenStartDisabledHint: 'Wähle zuerst eine Vorlage oder füge einen Baustein hinzu.',
+    installAppCta: 'Installieren',
 };
 
 export type TKey = keyof typeof de;
@@ -1086,6 +1096,16 @@ const en: Record<TKey, string> = {
     backToServiceArts: '← Service & Arts',
     backToTools: '← Tools',
     backToPlanner: '← Gatherings',
+    tabServiceArtsShort: 'Service',
+    skipToContent: 'Skip to main content',
+    offlineBannerText: 'Offline mode – All loaded and saved resources remain available.',
+    beamerModeToggle: 'Projector mode',
+    beamerModeExit: 'Exit projector mode',
+    greetingMorning: 'Good morning',
+    greetingAfternoon: 'Good afternoon',
+    greetingEvening: 'Good evening',
+    treffenStartDisabledHint: 'Select a template or add a block first.',
+    installAppCta: 'Install',
 };
 
 export const UI_TRANSLATIONS: Record<Language, Record<TKey, string>> = { de, en };

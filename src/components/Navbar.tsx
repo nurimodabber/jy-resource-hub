@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Bookmark, Settings } from 'lucide-react';
+import { Search, Bookmark, Settings, Monitor } from 'lucide-react';
 import { Logo } from './Logo';
 import { Language, NavTab } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -9,6 +9,8 @@ interface NavbarProps {
   activeTab: NavTab;
   language: Language;
   favoriteCount: number;
+  isBeamerMode?: boolean;
+  onToggleBeamerMode?: () => void;
   onOpenCommandPalette: () => void;
   onOpenSettings: () => void;
 }
@@ -25,6 +27,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   language,
   favoriteCount,
+  isBeamerMode = false,
+  onToggleBeamerMode,
   onOpenCommandPalette,
   onOpenSettings,
 }) => {
@@ -51,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-surface/95 backdrop-blur-none border-b border-border print:hidden safe-top transition-transform duration-200 ${
+      className={`sticky top-0 z-40 bg-surface backdrop-blur-md border-b border-border print:hidden safe-top transition-transform duration-200 ${
         isHidden ? 'short:-translate-y-full' : ''
       }`}
     >
@@ -59,7 +63,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Left: Logo & Site Title */}
         <Link
           to="/"
-          className="flex items-center gap-2.5 shrink-0 min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent outline-hidden"
+          className="flex items-center gap-2.5 shrink-0 min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent"
           aria-label={`${t.siteTitle} – ${t.tabHome}`}
         >
           <Logo className="w-8 h-8 short:w-6 short:h-6 shrink-0" />
@@ -77,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 key={item.id}
                 to={item.href}
                 aria-current={isActive ? 'page' : undefined}
-                className={`relative px-3.5 py-2 rounded-control text-sm whitespace-nowrap transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`relative px-3.5 py-2 min-h-[44px] inline-flex items-center rounded-control text-sm whitespace-nowrap transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent ${
                   isActive
                     ? 'text-accent-text font-bold bg-accent-subtle/60'
                     : 'text-text-secondary hover:text-text hover:bg-surface-2'
@@ -89,13 +93,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right: Search, Saved, Settings */}
-        <div className="flex items-center gap-2">
+        {/* Right: Search, Beamer, Saved, Settings */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Desktop Search trigger button */}
           <button
             type="button"
             onClick={onOpenCommandPalette}
-            className="hidden lg:flex items-center gap-2.5 h-10 w-52 px-3.5 rounded-control bg-surface-2 text-sm text-text-secondary hover:text-text hover:bg-surface-2/80 transition-colors duration-150 ease-out border-0 outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            className="hidden lg:flex items-center gap-2.5 h-11 w-48 xl:w-52 px-3.5 rounded-control bg-surface-2 text-sm text-text-secondary hover:text-text hover:bg-surface-2/80 transition-colors duration-150 ease-out border-0 focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={t.cmdKSearch}
           >
             <Search className="w-4 h-4 text-text-tertiary shrink-0" strokeWidth={1.75} />
@@ -109,16 +113,34 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenCommandPalette}
-            className="lg:hidden w-11 h-11 rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            className="lg:hidden w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={language === 'de' ? 'Suche öffnen' : 'Open search'}
           >
             <Search className="w-5 h-5" strokeWidth={1.75} />
           </button>
 
+          {/* Global Beamer Mode button */}
+          {onToggleBeamerMode && (
+            <button
+              type="button"
+              onClick={onToggleBeamerMode}
+              aria-pressed={isBeamerMode}
+              aria-label={`${t.beamerModeToggle} (B)`}
+              title={`${t.beamerModeToggle} (B)`}
+              className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent ${
+                isBeamerMode
+                  ? 'bg-accent text-accent-contrast'
+                  : 'text-text-secondary hover:text-text hover:bg-surface-2'
+              }`}
+            >
+              <Monitor className="w-5 h-5" strokeWidth={1.75} />
+            </button>
+          )}
+
           {/* Saved Items */}
           <Link
             to="/saved"
-            className="relative w-11 h-11 rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            className="relative w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={`${t.savedItems}${favoriteCount > 0 ? ` (${favoriteCount})` : ''}`}
           >
             <Bookmark
@@ -138,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenSettings}
-            className="w-11 h-11 rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={t.tabSettings}
           >
             <Settings className="w-5 h-5" strokeWidth={1.75} />

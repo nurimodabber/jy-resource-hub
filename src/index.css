@@ -5,24 +5,44 @@
 :root {
   color-scheme: light;
   --bg: #F7F9FC;
+  --bg-rgb: 247 249 252;
   --surface: #FFFFFF;
+  --surface-rgb: 255 255 255;
   --surface-2: #EEF2F8;
+  --surface-2-rgb: 238 242 248;
   --surface-raised: #FFFFFF;
+  --surface-raised-rgb: 255 255 255;
   --border: #E3E8F0;
+  --border-rgb: 227 232 240;
+  --border-strong: #CBD5E1;
+  --border-strong-rgb: 203 213 225;
   --border-subtle: #EEF2F8;
+  --border-subtle-rgb: 238 242 248;
   --text: #142033;
+  --text-rgb: 20 32 51;
   --text-secondary: #4A5568;
-  --text-tertiary: #5F6B7C;
+  --text-secondary-rgb: 74 85 104;
+  --text-tertiary: #4E5A6B;
+  --text-tertiary-rgb: 78 90 107;
 
   --accent: #1F6FEB;
+  --accent-rgb: 31 111 235;
   --accent-hover: #1859C4;
+  --accent-hover-rgb: 24 89 196;
   --accent-subtle: #E8F0FE;
+  --accent-subtle-rgb: 232 240 254;
   --accent-text: #1850B8;
+  --accent-text-rgb: 24 80 184;
   --accent-contrast: #FFFFFF;
+  --accent-contrast-rgb: 255 255 255;
   --highlight: #F5B82E;
+  --highlight-rgb: 245 184 46;
   --success: #167448;
+  --success-rgb: 22 116 72;
   --success-subtle: #E6F4EA;
+  --success-subtle-rgb: 230 244 234;
   --danger: #C13333;
+  --danger-rgb: 193 51 51;
 
   /* Aliases for backwards compatibility */
   --brand: var(--accent);
@@ -51,24 +71,44 @@
 .dark {
   color-scheme: dark;
   --bg: #0E1626;
+  --bg-rgb: 14 22 38;
   --surface: #162036;
+  --surface-rgb: 22 32 54;
   --surface-2: #1E2A44;
+  --surface-2-rgb: 30 42 68;
   --surface-raised: #202D49;
+  --surface-raised-rgb: 32 45 73;
   --border: #2A3858;
+  --border-rgb: 42 56 88;
+  --border-strong: #3B4E78;
+  --border-strong-rgb: 59 78 120;
   --border-subtle: #1E2A44;
+  --border-subtle-rgb: 30 42 68;
   --text: #EEF2FA;
-  --text-secondary: #AAB6CC;
-  --text-tertiary: #8D9AB3;
+  --text-rgb: 238 242 250;
+  --text-secondary: #BAC6DC;
+  --text-secondary-rgb: 186 198 220;
+  --text-tertiary: #A3B1CA;
+  --text-tertiary-rgb: 163 177 202;
 
   --accent: #6FA3FF;
+  --accent-rgb: 111 163 255;
   --accent-hover: #8DB8FF;
+  --accent-hover-rgb: 141 184 255;
   --accent-subtle: #1B2E55;
+  --accent-subtle-rgb: 27 46 85;
   --accent-text: #A9C8FF;
+  --accent-text-rgb: 169 200 255;
   --accent-contrast: #0A1426;
+  --accent-contrast-rgb: 10 20 38;
   --highlight: #F5B82E;
+  --highlight-rgb: 245 184 46;
   --success: #4FC08A;
+  --success-rgb: 79 192 138;
   --success-subtle: #123824;
+  --success-subtle-rgb: 18 56 36;
   --danger: #FF8A8A;
+  --danger-rgb: 255 138 138;
 
   /* Aliases for backwards compatibility */
   --brand: var(--accent);
@@ -92,6 +132,48 @@
   /* Motion */
   --transition-fast: 150ms ease-out;
   --transition-sheet: 220ms ease-out;
+}
+
+/* Global Beamer / Projector High-Contrast Mode */
+html.beamer-mode {
+  color-scheme: dark;
+  font-size: 19px;
+  --bg: #000000;
+  --bg-rgb: 0 0 0;
+  --surface: #080E1A;
+  --surface-rgb: 8 14 26;
+  --surface-2: #111C33;
+  --surface-2-rgb: 17 28 51;
+  --surface-raised: #162442;
+  --surface-raised-rgb: 22 36 66;
+  --border: #384D78;
+  --border-rgb: 56 77 120;
+  --border-strong: #5470A8;
+  --border-strong-rgb: 84 112 168;
+  --border-subtle: #1E2F52;
+  --border-subtle-rgb: 30 47 82;
+  --text: #FFFFFF;
+  --text-rgb: 255 255 255;
+  --text-secondary: #E2E8F0;
+  --text-secondary-rgb: 226 232 240;
+  --text-tertiary: #CBD5E1;
+  --text-tertiary-rgb: 203 213 225;
+  --accent: #7AB0FF;
+  --accent-rgb: 122 176 255;
+  --accent-hover: #9BC4FF;
+  --accent-hover-rgb: 155 196 255;
+  --accent-subtle: #172B54;
+  --accent-subtle-rgb: 23 43 84;
+  --accent-text: #B8D4FF;
+  --accent-text-rgb: 184 212 255;
+  --accent-contrast: #000000;
+  --accent-contrast-rgb: 0 0 0;
+}
+
+@media (min-width: 1024px) {
+  html.beamer-mode {
+    font-size: 21px;
+  }
 }
 
 @layer base {
@@ -118,8 +200,8 @@
     box-sizing: border-box;
   }
   :focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px !important;
   }
 }
 
@@ -158,6 +240,11 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce {
+    animation: none !important;
   }
 }
 
@@ -202,7 +289,7 @@
 
 /* Print is always light and clean */
 @media print {
-  :root, .dark {
+  :root, .dark, html.beamer-mode {
     color-scheme: light !important;
     --bg: #ffffff !important;
     --surface: #ffffff !important;
@@ -210,12 +297,11 @@
     --surface-raised: #ffffff !important;
     --text: #000000 !important;
     --text-secondary: #333333 !important;
-    --text-tertiary: #666666 !important;
+    --text-tertiary: #555555 !important;
     --border: rgba(0, 0, 0, 0.15) !important;
     --border-subtle: rgba(0, 0, 0, 0.08) !important;
   }
 }
-
 
 input[type='checkbox'], input[type='radio'] { accent-color: var(--accent); }
 kbd { font-family: inherit; }

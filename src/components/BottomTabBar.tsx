@@ -16,19 +16,20 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
   const tabs: {
     id: NavTab;
     label: string;
+    ariaLabel: string;
     href: string;
     icon: LucideIcon;
   }[] = [
-    { id: 'games', label: t.tabGames, href: '/games', icon: Compass },
-    { id: 'quotes', label: t.tabQuotes, href: '/quotes', icon: BookOpen },
-    { id: 'service-arts', label: t.tabServiceArts, href: '/service-arts', icon: Palette },
-    { id: 'planner', label: t.tabPlanner, href: '/treffen', icon: Calendar },
-    { id: 'tools', label: t.tabTools, href: '/tools', icon: Layers },
+    { id: 'games', label: t.tabGames, ariaLabel: t.tabGames, href: '/games', icon: Compass },
+    { id: 'quotes', label: t.tabQuotes, ariaLabel: t.tabQuotes, href: '/quotes', icon: BookOpen },
+    { id: 'service-arts', label: t.tabServiceArtsShort, ariaLabel: t.tabServiceArts, href: '/service-arts', icon: Palette },
+    { id: 'planner', label: t.tabPlanner, ariaLabel: t.tabPlanner, href: '/treffen', icon: Calendar },
+    { id: 'tools', label: t.tabTools, ariaLabel: t.tabTools, href: '/tools', icon: Layers },
   ];
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-none border-t border-border lg:hidden short:hidden safe-bottom print:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-surface backdrop-blur-md border-t border-border shadow-2 lg:hidden short:hidden safe-bottom print:hidden"
       aria-label="Mobile Navigation"
     >
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
@@ -40,8 +41,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
               key={tab.id}
               to={tab.href}
               onClick={() => onSelectTab(tab.id)}
+              aria-label={tab.ariaLabel}
               aria-current={isActive ? 'page' : undefined}
-              className="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 select-none transition-colors group"
+              className="flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 select-none transition-colors group rounded-control focus-visible:ring-2 focus-visible:ring-accent"
             >
               <div
                 className={`flex items-center justify-center px-3.5 py-1 rounded-chip transition-colors duration-150 ease-out ${
@@ -53,7 +55,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
                 <Icon className="w-5 h-5" strokeWidth={isActive ? 2 : 1.75} />
               </div>
               <span
-                className={`text-2xs truncate max-w-[64px] text-center mt-0.5 ${
+                className={`text-2xs whitespace-nowrap text-center mt-0.5 ${
                   isActive ? 'text-accent-text font-bold' : 'text-text-secondary font-medium'
                 }`}
               >
