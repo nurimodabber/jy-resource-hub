@@ -1,9 +1,32 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { renderOgSvg } from './api/og';
+
+const ogApiPlugin = (): Plugin => ({
+  name: 'jy-og-api-middleware',
+  configureServer(server) {
+    server.middlewares.use('/api/og', (req, res) => {
+      const url = new URL(req.url || '', 'http://localhost');
+      const svg = renderOgSvg(url.searchParams);
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
+      res.end(svg);
+    });
+  },
+  configurePreviewServer(server) {
+    server.middlewares.use('/api/og', (req, res) => {
+      const url = new URL(req.url || '', 'http://localhost');
+      const svg = renderOgSvg(url.searchParams);
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
+      res.end(svg);
+    });
+  },
+});
 
 export default defineConfig({
   base: '/',
-  plugins: [react()],
+  plugins: [react(), ogApiPlugin()],
   server: {
     port: 3000,
     open: false,

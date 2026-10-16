@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /_design
+Disallow: /api/
+
+Sitemap: https://jy-resource-hub.vercel.app/sitemap.xml

@@ -3,9 +3,22 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/home", "destination": "/index.html" },
+    { "source": "/games", "destination": "/games/index.html" },
+    { "source": "/games/:id", "destination": "/games/:id/index.html" },
+    { "source": "/quotes", "destination": "/quotes/index.html" },
+    { "source": "/quotes/:id", "destination": "/quotes/:id/index.html" },
+    { "source": "/treffen", "destination": "/treffen/index.html" },
+    { "source": "/planner", "destination": "/treffen/index.html" },
+    { "source": "/service-arts", "destination": "/service-arts/index.html" },
+    { "source": "/service-arts/:id", "destination": "/service-arts/:id/index.html" },
+    { "source": "/tools", "destination": "/tools/index.html" },
+    { "source": "/tools/:toolId", "destination": "/tools/:toolId/index.html" },
+    { "source": "/saved", "destination": "/saved/index.html" },
+    { "source": "/impressum", "destination": "/impressum/index.html" },
+    { "source": "/datenschutz", "destination": "/datenschutz/index.html" },
+    { "source": "/vorschlagen", "destination": "/vorschlagen/index.html" },
+    { "source": "/_design", "destination": "/index.html" }
   ]
 }
