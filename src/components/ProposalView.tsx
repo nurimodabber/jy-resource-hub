@@ -334,8 +334,38 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
         </p>
       </div>
 
-      {/* Step Indicator */}
-      <div className="flex items-center gap-2 text-xs font-semibold" aria-label="Fortschritt">
+      {/* Mobile Step Indicator */}
+      <div className="sm:hidden flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface border border-border" aria-label="Fortschritt">
+        <div>
+          <span className="text-2xs font-extrabold uppercase tracking-wider text-accent block">
+            {L(`Schritt ${step} von 3`, `Step ${step} of 3`)}
+          </span>
+          <span className="text-sm font-bold text-text">
+            {step === 1
+              ? L('Art wählen', 'Choose type')
+              : step === 2
+              ? L('Details & Ablauf', 'Details & Steps')
+              : L('Bestätigung', 'Confirmation')}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5" aria-hidden="true">
+          {[1, 2, 3].map((s) => (
+            <div
+              key={s}
+              className={`h-2 rounded-full transition-all duration-200 ${
+                s === step
+                  ? 'w-6 bg-accent'
+                  : s < step
+                  ? 'w-2.5 bg-accent/40'
+                  : 'w-2.5 bg-surface-2 border border-border'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop Step Indicator */}
+      <div className="hidden sm:flex items-center gap-2 text-xs font-semibold" aria-label="Fortschritt">
         <span className={`px-3 py-1 rounded-chip ${step === 1 ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary'}`}>
           1. {L('Art wählen', 'Choose type')}
         </span>

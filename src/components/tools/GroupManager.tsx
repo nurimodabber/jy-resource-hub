@@ -192,24 +192,24 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
               handleAddName();
             }
           }}
-          placeholder={L('Name hinzufügen (oder mehrere mit Komma)...', 'Add name (or comma-separated)...')}
+          placeholder={L('Name eingeben...', 'Enter name...')}
           className="flex-1 px-3.5 py-2 text-xs rounded-control bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
         />
         <button
           type="button"
           onClick={handleAddName}
           disabled={!newInput.trim()}
-          className="px-3.5 py-2 rounded-control bg-accent text-accent-contrast font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-3.5 py-2 rounded-control bg-accent text-accent-contrast font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer min-h-[44px] shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Plus className="w-4 h-4" />
           <span>{L('Hinzufügen', 'Add')}</span>
         </button>
       </div>
-      {!compact && (
-        <p className="text-2xs text-text-tertiary">
-          {L('Tipp: Ein Klick auf einen Namen schaltet zwischen anwesend und abwesend um. Alle Werkzeuge nutzen diese Liste.', 'Tip: Tap a name to toggle between present and absent. All tools share this group list.')}
-        </p>
-      )}
+      <p className="text-2xs text-text-tertiary">
+        {compact
+          ? L('Mehrere Namen können mit Komma getrennt werden.', 'Multiple names can be separated by commas.')
+          : L('Tipp: Ein Klick auf einen Namen schaltet zwischen anwesend und abwesend um. Mehrere Namen mit Komma trennen.', 'Tip: Tap a name to toggle between present and absent. Separate multiple names with commas.')}
+      </p>
     </Panel>
   );
 };

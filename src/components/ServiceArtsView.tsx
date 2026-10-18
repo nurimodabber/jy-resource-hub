@@ -467,7 +467,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       </div>
 
       {/* 3. Coherent Filter Bar directly underneath */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap w-full py-0.5 mb-4 select-none">
+      <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap sm:overflow-x-auto sm:no-scrollbar w-full py-0.5 mb-4 select-none">
         {!fixedKind && (
           <div className="mr-1 shrink-0">
             <SegmentedControl

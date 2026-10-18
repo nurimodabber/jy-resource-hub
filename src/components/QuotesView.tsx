@@ -516,7 +516,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
           </div>
 
           {/* 2. Coherent Single-Row Filter Bar directly underneath */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap w-full py-0.5 mb-2 select-none">
+          <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap sm:overflow-x-auto sm:no-scrollbar w-full py-0.5 mb-2 select-none">
             {/* Buch Dropdown */}
             <FilterPillDropdown
               label={language === 'de' ? 'Buch' : 'Book'}
