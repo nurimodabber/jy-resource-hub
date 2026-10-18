@@ -168,7 +168,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
           (item.kind === 'kunst' && (
             (selectedBook === 'breezes' && (item.book.en.includes('Breezes') || item.book.de.includes('Brise'))) ||
             (selectedBook === 'straight-path' && (item.book.en.includes('Straight Path') || item.book.de.includes('geraden Pfad'))) ||
-            (selectedBook === 'power-of-word' && (item.book.en.includes('Power of the Word') || item.book.de.includes('Kraft des Wortes'))) ||
+            (selectedBook === 'power-of-word' && (item.book.en.includes('Power of the Word') || item.book.de.includes('Macht der Worte') || item.book.de.includes('Kraft des Wortes'))) ||
             (selectedBook === 'spirit-of-faith' && (item.book.en.includes('Spirit of Faith') || item.book.de.includes('Geist des Glaubens')))
           ));
         if (!matchesBook) return false;

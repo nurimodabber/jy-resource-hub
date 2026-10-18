@@ -9,7 +9,7 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Drama: The Fork in the Road of Confirmation'
     },
     book: {
-      de: 'Brise der Bestätigung',
+      de: 'Brisen der Bestätigung',
       en: 'Breezes of Confirmation'
     },
     relatedBook: 'breezes',
@@ -78,7 +78,7 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Collaborative Mural: Stepping Stones of the Straight Path'
     },
     book: {
-      de: 'Den geraden Pfad beschreiten',
+      de: 'Den geraden Pfad gehen',
       en: 'Walking the Straight Path'
     },
     relatedBook: 'straight-path',
@@ -147,7 +147,7 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Power of the Word: Spoken Word & Percussion Cypher'
     },
     book: {
-      de: 'Die Kraft des Wortes nutzen',
+      de: 'Entdecke die Macht der Worte',
       en: 'Drawing on the Power of the Word'
     },
     relatedBook: 'power-of-word',
@@ -216,7 +216,7 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Living Sculptures: Frozen Tableaux of Virtues'
     },
     book: {
-      de: 'Den geraden Pfad beschreiten',
+      de: 'Den geraden Pfad gehen',
       en: 'Walking the Straight Path'
     },
     relatedBook: 'straight-path',
@@ -354,7 +354,7 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Graphic Novel: The Miner & The Hidden Gems'
     },
     book: {
-      de: 'Brise der Bestätigung',
+      de: 'Brisen der Bestätigung',
       en: 'Breezes of Confirmation'
     },
     relatedBook: 'breezes',
@@ -423,7 +423,7 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Songwriting Atelier: Setting Scripture to Acoustic Melody'
     },
     book: {
-      de: 'Brise der Bestätigung & Den geraden Pfad beschreiten',
+      de: 'Brisen der Bestätigung & Den geraden Pfad gehen',
       en: 'Breezes of Confirmation & Walking the Straight Path'
     },
     relatedBook: 'breezes',
