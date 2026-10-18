@@ -163,7 +163,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
   const quoteIndex = getDayOfYear() % QUOTES_DATA.length;
   const quote = QUOTES_DATA[quoteIndex];
   const quoteSong = quote ? getQuoteSong(quote.id, language) : undefined;
-  const [isQuoteExpanded, setIsQuoteExpanded] = useState(false);
 
   // Active plan stats
   const slotCount = activePlan?.slots?.length ?? 0;
@@ -257,11 +256,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
     }
   };
 
-  const rawQuoteText = quote ? (language === 'de' ? quote.textDe : quote.textEn) : '';
-  const isLongQuote = rawQuoteText.length > 220;
-  const displayedQuote = isLongQuote && !isQuoteExpanded
-    ? `${rawQuoteText.slice(0, 210)}…`
-    : rawQuoteText;
+  const quoteText = quote ? (language === 'de' ? quote.textDe : quote.textEn) : '';
 
   return (
     <div className="max-w-[1200px] w-full mx-auto pb-10 space-y-8 sm:space-y-10">
@@ -302,45 +297,45 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         </aside>
       )}
 
-      {/* 2. Top-Bereich: Auf Desktop (lg: >= 1024px) 2 Spalten (Hero links, Zitat des Tages rechts) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
-        {/* Linke Spalte: Begrüßung + 2 Haupt-CTAs (lg:col-span-7) */}
-        <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
-          <header className="space-y-1.5">
-            {isPlanToday && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-accent text-accent-contrast">
-                <Clock className="w-3 h-3" />
-                {L('Heute anstehend', 'Scheduled for today')}
-              </span>
-            )}
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text">
-              {slotCount > 0
-                ? `${fullGreeting} · ${L('Weiter mit deinem Treffen', 'Continue your gathering')}`
-                : fullGreeting}
-            </h1>
-            <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-              {slotCount > 0
-                ? L(
-                    `Dein Entwurf für „${activePlan?.name}“ (${totalMinutes} Min., ${slotCount} Bausteine) wartet auf dich.`,
-                    `Your draft for "${activePlan?.name}" (${totalMinutes} min., ${slotCount} blocks) is ready.`
-                  )
-                : L(
-                    'Spiele, heilige Zitate und Werkzeuge für deine Juniorjugendgruppe.',
-                    'Games, sacred scripture, and tools for your junior youth group.'
-                  )}
-            </p>
-            {/* Dezente Datumszeile (Gregorianisch & Badí') */}
-            <p className="text-2xs sm:text-xs text-text-tertiary flex flex-wrap items-center gap-x-2 pt-0.5">
-              <span>{gregorianFormatted}</span>
-              <span className="text-border" aria-hidden="true">·</span>
-              <span className="text-text-secondary font-medium">
-                {language === 'de' ? badiDate.formattedDe : badiDate.formattedEn}
-              </span>
-            </p>
-          </header>
+      {/* 2. Hero-Bereich: Begrüßung links, die zwei gestapelten CTAs rechts */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
+        {/* Linke Spalte: Begrüßung & Datum (lg:col-span-7) */}
+        <header className="lg:col-span-7 space-y-2">
+          {isPlanToday && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-accent text-accent-contrast">
+              <Clock className="w-3 h-3" />
+              {L('Heute anstehend', 'Scheduled for today')}
+            </span>
+          )}
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text">
+            {slotCount > 0
+              ? `${fullGreeting} · ${L('Weiter mit deinem Treffen', 'Continue your gathering')}`
+              : fullGreeting}
+          </h1>
+          <p className="text-xs sm:text-sm text-text-secondary leading-relaxed max-w-xl">
+            {slotCount > 0
+              ? L(
+                  `Dein Entwurf für „${activePlan?.name}“ (${totalMinutes} Min., ${slotCount} Bausteine) wartet auf dich.`,
+                  `Your draft for "${activePlan?.name}" (${totalMinutes} min., ${slotCount} blocks) is ready.`
+                )
+              : L(
+                  'Spiele, heilige Zitate und Werkzeuge für deine Juniorjugendgruppe.',
+                  'Games, sacred scripture, and tools for your junior youth group.'
+                )}
+          </p>
+          {/* Dezente Datumszeile (Gregorianisch & Badí') */}
+          <p className="text-2xs sm:text-xs text-text-tertiary flex flex-wrap items-center gap-x-2 pt-1">
+            <span>{gregorianFormatted}</span>
+            <span className="text-border" aria-hidden="true">·</span>
+            <span className="text-text-secondary font-medium">
+              {language === 'de' ? badiDate.formattedDe : badiDate.formattedEn}
+            </span>
+          </p>
+        </header>
 
-          {/* Die zwei großen CTA-Kacheln übereinander */}
-          <nav aria-label={L('Haupteinstiege', 'Main navigation')} className="flex flex-col gap-3 pt-1">
+        {/* Rechte Spalte: Die zwei großen CTA-Kacheln übereinander (lg:col-span-5) */}
+        <div className="lg:col-span-5 space-y-3">
+          <nav aria-label={L('Haupteinstiege', 'Main navigation')} className="flex flex-col gap-3">
             {/* Hauptaktion: Treffen vorbereiten */}
             <Link
               to="/treffen"
@@ -385,7 +380,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
 
           {/* Spielfinder kompakt (nur bei Klick auf "Spiel finden") */}
           {showCompactFinder && (
-            <section aria-label={L('Kompakter Spielfinder', 'Compact game finder')} className="animate-in fade-in duration-200 pt-1">
+            <section aria-label={L('Kompakter Spielfinder', 'Compact game finder')} className="animate-in fade-in duration-200">
               <Panel className="space-y-4 border border-accent/30 bg-surface rounded-card p-4 sm:p-5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold text-text flex items-center gap-2">
@@ -441,94 +436,82 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
             </section>
           )}
         </div>
-
-        {/* Rechte Spalte: Zitat des Tages (ruhig, dezent, ohne auffälligen Rahmen) */}
-        {quote && (
-          <div className="lg:col-span-5 flex flex-col justify-start">
-            <section
-              aria-label={L('Zitat des Tages', 'Quote of the day')}
-              className="p-5 sm:p-6 rounded-card bg-surface border border-line shadow-xs flex flex-col justify-between space-y-4"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
-                    <QuoteIcon className="w-3.5 h-3.5 text-accent" />
-                    <span>{L('Zitat des Tages', 'Quote of the day')}</span>
-                  </span>
-                  <Link
-                    to={`/quotes/${quote.id}`}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline whitespace-nowrap min-h-[44px] px-2 py-1.5 rounded-control focus-visible:ring-2 focus-visible:ring-accent"
-                  >
-                    <span>{L('Im Lesemodus', 'Reading mode')}</span>
-                    <ArrowRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                  </Link>
-                </div>
-
-                <blockquote className="font-serif text-base sm:text-lg text-text leading-relaxed">
-                  {language === 'de' ? `„${stripQuotes(displayedQuote)}“` : `“${stripQuotes(displayedQuote)}”`}
-                </blockquote>
-
-                {isLongQuote && (
-                  <button
-                    type="button"
-                    onClick={() => setIsQuoteExpanded(!isQuoteExpanded)}
-                    className="text-xs font-semibold text-accent hover:underline cursor-pointer min-h-[44px] inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control"
-                  >
-                    {isQuoteExpanded ? L('Weniger anzeigen', 'Show less') : L('Weiterlesen', 'Read more')}
-                  </button>
-                )}
-
-                <p className="text-xs text-text-secondary pt-0.5">
-                  {quote.source[language]}
-                </p>
-              </div>
-
-              {/* Aktionen als gleichmäßige Button-Gruppe (Mobil 2x2, Desktop Flex-Reihe) */}
-              <div className="pt-3 border-t border-line grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleUseQuoteAsDevotional}
-                  className="px-3.5 py-2.5 rounded-full bg-accent/15 hover:bg-accent/25 text-accent text-xs font-bold transition-colors cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                  <span className="whitespace-nowrap">{t.quoteAsDevotional}</span>
-                </button>
-                <Link
-                  to={`/quotes/${quote.id}`}
-                  className="px-3.5 py-2.5 rounded-full bg-surface-2 hover:bg-surface-3 text-text text-xs font-semibold transition-colors cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <BookOpen className="w-3.5 h-3.5 shrink-0" />
-                  <span>{L('Lesen', 'Read')}</span>
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleShareQuote}
-                  className="px-3 py-2.5 rounded-full border border-line hover:bg-surface-2 text-text-secondary hover:text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
-                  title={t.quoteShare}
-                  aria-label={t.quoteShare}
-                >
-                  <Share2 className="w-3.5 h-3.5 text-text-secondary shrink-0" />
-                  <span>{t.quoteShare}</span>
-                </button>
-                {quoteSong && (
-                  <a
-                    href={quoteSong.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-2.5 rounded-full border border-line hover:bg-surface-2 text-text-secondary hover:text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
-                    title={language === 'de' ? `Lied „${quoteSong.title}“ auf bahaisongs.com anhören` : `Listen to song "${quoteSong.title}" on bahaisongs.com`}
-                    aria-label={t.quoteSongAriaLabel}
-                  >
-                    <Music className="w-3.5 h-3.5 text-accent shrink-0" />
-                    <span>{t.quoteSongLink}</span>
-                    <ExternalLink className="w-3 h-3 text-text-tertiary shrink-0" />
-                  </a>
-                )}
-              </div>
-            </section>
-          </div>
-        )}
       </div>
+
+      {/* 3. Zitat des Tages: Breiter horizontaler Raum, damit der Text in 1-2 Zeilen fließt */}
+      {quote && (
+        <section
+          aria-label={L('Zitat des Tages', 'Quote of the day')}
+          className="p-5 sm:p-6 rounded-card bg-surface border border-line shadow-xs space-y-4"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
+              <QuoteIcon className="w-3.5 h-3.5 text-accent" />
+              <span>{L('Zitat des Tages', 'Quote of the day')}</span>
+            </span>
+            <Link
+              to={`/quotes/${quote.id}`}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline whitespace-nowrap min-h-[44px] px-2 py-1.5 rounded-control focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <span>{L('Im Lesemodus', 'Reading mode')}</span>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+            </Link>
+          </div>
+
+          <blockquote className="font-serif text-base sm:text-lg text-text leading-relaxed">
+            {language === 'de' ? `„${stripQuotes(quoteText)}“` : `“${stripQuotes(quoteText)}”`}
+          </blockquote>
+
+          {/* Untere Zeile: Quelle links, Aktions-Buttons rechts */}
+          <div className="pt-3 border-t border-line flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <p className="text-xs text-text-secondary font-medium">
+              {quote.source[language]}
+            </p>
+
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2">
+              <button
+                type="button"
+                onClick={handleUseQuoteAsDevotional}
+                className="px-3.5 py-2.5 rounded-full bg-accent/15 hover:bg-accent/25 text-accent text-xs font-bold transition-colors cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <span className="whitespace-nowrap">{t.quoteAsDevotional}</span>
+              </button>
+              <Link
+                to={`/quotes/${quote.id}`}
+                className="px-3.5 py-2.5 rounded-full bg-surface-2 hover:bg-surface-3 text-text text-xs font-semibold transition-colors cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                <span>{L('Lesen', 'Read')}</span>
+              </Link>
+              <button
+                type="button"
+                onClick={handleShareQuote}
+                className="px-3 py-2.5 rounded-full border border-line hover:bg-surface-2 text-text-secondary hover:text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                title={t.quoteShare}
+                aria-label={t.quoteShare}
+              >
+                <Share2 className="w-3.5 h-3.5 text-text-secondary shrink-0" />
+                <span>{t.quoteShare}</span>
+              </button>
+              {quoteSong && (
+                <a
+                  href={quoteSong.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2.5 rounded-full border border-line hover:bg-surface-2 text-text-secondary hover:text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
+                  title={language === 'de' ? `Lied „${quoteSong.title}“ auf bahaisongs.com anhören` : `Listen to song "${quoteSong.title}" on bahaisongs.com`}
+                  aria-label={t.quoteSongAriaLabel}
+                >
+                  <Music className="w-3.5 h-3.5 text-accent shrink-0" />
+                  <span>{t.quoteSongLink}</span>
+                  <ExternalLink className="w-3 h-3 text-text-tertiary shrink-0" />
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 3. Werkzeug-Bereich: auf Desktop eine Reihe, mobil 2x2 mit klarem Icon-Fokus */}
       <section aria-label={t.tabTools} className="space-y-3">
