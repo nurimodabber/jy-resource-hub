@@ -29,7 +29,7 @@ export const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(({
       <span>{children}</span>
       {typeof count === 'number' && (
         <span
-          className={`text-xs px-1.5 py-0.5 rounded-control font-mono font-semibold ${
+          className={`text-xs px-1.5 py-0.5 rounded-control tabular-nums font-semibold ${
             selected ? 'bg-accent-ink/20 text-accent-ink' : 'bg-surface-2 text-text-secondary'
           }`}
         >

@@ -328,11 +328,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               <span>{L('Treffen vorbereiten', 'Prepare gathering')}</span>
               <Sparkles className="w-4 h-4 text-accent-contrast shrink-0" />
             </div>
-            <p className="text-xs text-accent-contrast/90 leading-tight">
+            <p className="text-xs text-accent-contrast/95 font-medium leading-tight">
               {L('Ablauf planen, Bausteine zusammenstellen', 'Plan agenda, assemble building blocks')}
             </p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform">
+          <div className="w-10 h-10 rounded-full bg-accent-contrast/15 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform">
             <Calendar className="w-5 h-5 text-accent-contrast" />
           </div>
         </Link>
@@ -520,7 +520,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                 <TimerIcon className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl font-extrabold font-mono text-text tabular-nums">
+            <div className="text-2xl font-bold tracking-tight text-text tabular-nums">
               05:00
             </div>
             <p className="text-2xs text-text-secondary mt-1">
@@ -540,7 +540,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                 <UsersIcon className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl font-extrabold font-mono text-text">
+            <div className="text-2xl font-bold tracking-tight text-text tabular-nums">
               2 Teams
             </div>
             <p className="text-2xs text-text-secondary mt-1">
@@ -560,7 +560,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                 <EyeIcon className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl font-extrabold font-mono text-text">
+            <div className="text-2xl font-bold tracking-tight text-text tabular-nums">
               4 Rollen
             </div>
             <p className="text-2xs text-text-secondary mt-1">
@@ -580,7 +580,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                 <Award className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-2xl font-extrabold font-mono text-text">
+            <div className="text-2xl font-bold tracking-tight text-text">
               Punkte
             </div>
             <p className="text-2xs text-text-secondary mt-1">

@@ -306,7 +306,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
                           </p>
                           <div className="flex items-center gap-2 shrink-0">
                             {activeBadge && (
-                              <span className="font-mono text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-accent">
+                              <span className="tabular-nums text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-accent">
                                 {activeBadge}
                               </span>
                             )}

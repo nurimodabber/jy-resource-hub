@@ -41,14 +41,16 @@ export default {
         'base': ['16px', { lineHeight: '26px' }],
         'lg': ['18px', { lineHeight: '26px' }],
         'xl': ['20px', { lineHeight: '28px' }],
-        '2xl': ['22px', { lineHeight: '30px' }],
-        '3xl': ['24px', { lineHeight: '32px' }],
-        '4xl': ['clamp(1.75rem, 3.5vw, 2rem)', { lineHeight: 'clamp(2.25rem, 4vw, 2.5rem)' }],
+        '2xl': ['clamp(1.25rem, 2.5vw, 1.375rem)', { lineHeight: 'clamp(1.75rem, 3vw, 1.875rem)' }],
+        '3xl': ['clamp(1.375rem, 3vw, 1.625rem)', { lineHeight: 'clamp(1.875rem, 3.5vw, 2.125rem)' }],
+        '4xl': ['clamp(1.75rem, 3.5vw, 2.25rem)', { lineHeight: 'clamp(2.25rem, 4vw, 2.75rem)' }],
+        'hero': ['clamp(1.875rem, 4vw, 2.5rem)', { lineHeight: 'clamp(2.375rem, 4.5vw, 3rem)' }],
       },
       colors: {
         bg: 'rgb(var(--bg-rgb) / <alpha-value>)',
         surface: 'rgb(var(--surface-rgb) / <alpha-value>)',
         'surface-2': 'rgb(var(--surface-2-rgb) / <alpha-value>)',
+        'surface-3': 'rgb(var(--surface-3-rgb) / <alpha-value>)',
         'surface-raised': 'rgb(var(--surface-raised-rgb) / <alpha-value>)',
         line: 'rgb(var(--line-rgb) / <alpha-value>)',
         text: {
@@ -68,6 +70,20 @@ export default {
           subtle: 'rgb(var(--accent-subtle-rgb) / <alpha-value>)',
           text: 'rgb(var(--accent-text-rgb) / <alpha-value>)',
           ink: 'rgb(var(--accent-ink-rgb) / <alpha-value>)',
+        },
+        amber: {
+          DEFAULT: 'rgb(var(--amber-rgb) / <alpha-value>)',
+          hover: 'rgb(var(--amber-hover-rgb) / <alpha-value>)',
+          subtle: 'rgb(var(--amber-subtle-rgb) / <alpha-value>)',
+          text: 'rgb(var(--amber-text-rgb) / <alpha-value>)',
+          border: 'rgb(var(--amber-border-rgb) / <alpha-value>)',
+        },
+        devotion: {
+          DEFAULT: 'rgb(var(--amber-rgb) / <alpha-value>)',
+          hover: 'rgb(var(--amber-hover-rgb) / <alpha-value>)',
+          subtle: 'rgb(var(--amber-subtle-rgb) / <alpha-value>)',
+          text: 'rgb(var(--amber-text-rgb) / <alpha-value>)',
+          border: 'rgb(var(--amber-border-rgb) / <alpha-value>)',
         },
         word: {
           DEFAULT: 'rgb(var(--word-rgb) / <alpha-value>)',
@@ -91,7 +107,15 @@ export default {
           DEFAULT: 'rgb(var(--success-rgb) / <alpha-value>)',
           subtle: 'rgb(var(--success-subtle-rgb) / <alpha-value>)',
         },
+        warning: {
+          DEFAULT: 'rgb(var(--amber-rgb) / <alpha-value>)',
+          subtle: 'rgb(var(--amber-subtle-rgb) / <alpha-value>)',
+        },
         danger: 'rgb(var(--danger-rgb) / <alpha-value>)',
+        info: {
+          DEFAULT: 'rgb(var(--accent-rgb) / <alpha-value>)',
+          subtle: 'rgb(var(--accent-subtle-rgb) / <alpha-value>)',
+        },
         // Backwards compatibility mappings
         brand: {
           DEFAULT: 'rgb(var(--accent-rgb) / <alpha-value>)',

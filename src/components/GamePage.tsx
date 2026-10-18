@@ -158,7 +158,7 @@ const PlayMode: React.FC<{ game: Game; language: Language; onClose: () => void }
       <header className="flex items-center justify-between px-4 sm:px-8 h-16 border-b border-line shrink-0 gap-2">
         <div className="min-w-0 flex items-center gap-3">
           <p className="text-sm font-bold truncate">{game.title[language]}</p>
-          <span className="text-xs px-2.5 py-0.5 rounded-control bg-surface-2 text-text font-mono font-semibold shrink-0">
+          <span className="text-xs px-2.5 py-0.5 rounded-control bg-surface-2 text-text tabular-nums font-semibold shrink-0">
             {L('Schritt', 'Step')} {stepIndex + 1} / {steps.length}
           </span>
         </div>
@@ -226,7 +226,7 @@ const PlayMode: React.FC<{ game: Game; language: Language; onClose: () => void }
       {/* Floating mini timer if active */}
       {showTimer && (
         <div className="absolute top-20 right-4 z-10 bg-surface border border-border shadow-2 rounded-card p-4 flex flex-col items-center gap-3">
-          <p className="text-3xl font-mono font-bold tabular-nums text-text">
+          <p className="text-3xl font-bold tabular-nums text-text">
             {formatTimer(timerSeconds)}
           </p>
           <div className="flex items-center gap-2">
@@ -525,9 +525,9 @@ export const GamePage: React.FC<GamePageProps> = ({
                         : 'bg-surface border-line hover:border-accent/60'
                     }`}
                   >
-                    {/* Large Mono Number */}
+                    {/* Large Number */}
                     <span
-                      className={`font-mono text-xl sm:text-2xl font-bold select-none leading-none pt-0.5 shrink-0 w-7 text-right ${
+                      className={`tabular-nums text-xl sm:text-2xl font-bold select-none leading-none pt-0.5 shrink-0 w-7 text-right ${
                         isChecked ? 'text-text-tertiary' : 'text-accent'
                       }`}
                       aria-hidden="true"
