@@ -564,6 +564,15 @@ const de = {
     artsHeaderDesc: 'Kreative Ausdrucksformen, Theater, Musik und bildende Kunst zu Texten.',
     backToServiceOverview: 'Dienstprojekte',
     backToArtsOverview: 'Kreative Kunst',
+    quoteAsDevotional: 'Als Andacht',
+    quoteShare: 'Teilen',
+    quoteShareSuccess: 'Zitat kopiert',
+    recentViewsEmptyTitle: 'Verlauf noch leer',
+    recentViewsEmptyDesc: 'Inhalte, die du öffnest, erscheinen hier für schnellen Zugriff in deiner Gruppe.',
+    footerDesc: 'Praxisnahe Spiele, heilige Texte, Dienstprojekte und Live-Werkzeuge für Animatoren von Juniorjugendgruppen.',
+    footerVolunteerNote: 'Ehrenamtlich erstellt für Juniorjugend-Gruppen weltweit',
+    exploreGames: 'Spiele entdecken',
+    exploreQuotes: 'Zitate ansehen',
 };
 
 export type TKey = keyof typeof de;
@@ -1132,6 +1141,15 @@ const en: Record<TKey, string> = {
     artsHeaderDesc: 'Creative expressions, drama, music, and visual arts based on holy texts.',
     backToServiceOverview: 'Service Projects',
     backToArtsOverview: 'Creative Arts',
+    quoteAsDevotional: 'In devotion',
+    quoteShare: 'Share',
+    quoteShareSuccess: 'Quote copied',
+    recentViewsEmptyTitle: 'No recent views yet',
+    recentViewsEmptyDesc: 'Items you open will appear here for fast access in your group.',
+    footerDesc: 'Practical games, sacred scripture, service projects, and live tools for junior youth group animators.',
+    footerVolunteerNote: 'Volunteer-built for junior youth groups worldwide',
+    exploreGames: 'Explore games',
+    exploreQuotes: 'Explore quotes',
 };
 
 export const UI_TRANSLATIONS: Record<Language, Record<TKey, string>> = { de, en };

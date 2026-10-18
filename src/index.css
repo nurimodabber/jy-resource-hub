@@ -327,6 +327,9 @@ html.beamer-mode {
     outline: 2px solid var(--accent) !important;
     outline-offset: 2px !important;
   }
+  [tabindex="-1"]:focus {
+    outline: none !important;
+  }
 }
 
 .tabular { font-variant-numeric: tabular-nums; }
