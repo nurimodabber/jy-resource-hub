@@ -56,7 +56,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
                 <Icon className="w-5 h-5" strokeWidth={isActive ? 2.2 : 1.75} />
               </div>
               <span
-                className={`text-[11px] whitespace-nowrap text-center mt-0.5 tracking-tight ${
+                className={`text-[10.5px] leading-tight truncate max-w-full text-center mt-0.5 tracking-tight ${
                   isActive ? 'text-accent font-bold' : 'text-text-secondary font-medium'
                 }`}
               >

@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               aria-pressed={isBeamerMode}
               aria-label={`${t.beamerModeToggle} (B)`}
               title={`${t.beamerModeToggle} (B)`}
-              className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent ${
+              className={`hidden md:flex w-11 h-11 min-w-[44px] min-h-[44px] rounded-control items-center justify-center transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent ${
                 isBeamerMode
                   ? 'bg-accent text-accent-contrast'
                   : 'text-text-secondary hover:text-text hover:bg-surface-2'
