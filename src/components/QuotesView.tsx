@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
-  Search, X, SlidersHorizontal, BookOpen, Zap, Layers,
+  Search, X, BookOpen, Zap, Layers, Sparkles, Heart, RotateCcw,
   ArrowRight, Laptop, Play
 } from 'lucide-react';
 import { QuotePhase, QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
@@ -12,7 +12,7 @@ import { SegmentedControl } from './ui/SegmentedControl';
 import { Sheet } from './ui/Sheet';
 import { Dialog } from './ui/Dialog';
 import { Button } from './ui/Button';
-import { Select } from './ui/Select';
+import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
 import { EmptyState } from './ui/EmptyState';
 import { usePlanner } from '../context/PlannerContext';
 import { useToast } from '../context/ToastContext';
@@ -117,7 +117,27 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     () => (searchParams.get('thema') as QuoteGeneralTopic) || 'all'
   );
   const [onlyPrayers, setOnlyPrayers] = useState<boolean>(() => searchParams.get('gebete') === '1');
-  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+
+  // URL query params updater
+  const updateParams = useCallback((updates: Record<string, string | null>) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      for (const [k, v] of Object.entries(updates)) {
+        if (v == null || v === '' || v === 'all') next.delete(k);
+        else next.set(k, v);
+      }
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
+
+  // Sync state with URL params
+  useEffect(() => {
+    setLocalSearch(searchParams.get('q') || '');
+    setSelectedBook(searchParams.get('buch') || 'all');
+    setSelectedSection(searchParams.get('lektion') || 'all');
+    setSelectedTopic((searchParams.get('thema') as QuoteGeneralTopic) || 'all');
+    setOnlyPrayers(searchParams.get('gebete') === '1');
+  }, [searchParams]);
 
   // Active Quote in Practice Studio
   const [practiceQuote, setPracticeQuote] = useState<QuoteItem>(() => {
@@ -237,8 +257,51 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         set.add(sec);
       }
     });
-    return Array.from(set);
+    return Array.from(set).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+      const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+      return numA - numB;
+    });
   }, [selectedBook, language]);
+
+  const bookOptions = useMemo(() => [
+    { value: 'all', label: language === 'de' ? 'Alle Bücher' : 'All books' },
+    ...JUNIOR_YOUTH_BOOKS.map((b) => ({
+      value: b.title[language],
+      label: `${b.title[language]}${b.isOfficialJYBook ? ` (${b.targetAge})` : ''}`,
+    })),
+  ], [language]);
+
+  const activeBookOption = bookOptions.find((b) => b.value === selectedBook);
+  const activeBookLabel = activeBookOption && activeBookOption.value !== 'all' ? activeBookOption.label : undefined;
+
+  const sectionOptions = useMemo(() => {
+    if (availableSections.length === 0) return [];
+    return [
+      { value: 'all', label: language === 'de' ? 'Alle Lektionen' : 'All lessons' },
+      ...availableSections.map((sec) => ({
+        value: sec,
+        label: sec,
+      })),
+    ];
+  }, [availableSections, language]);
+
+  const activeSectionLabel = selectedSection !== 'all' ? selectedSection : undefined;
+
+  const topicOptions = useMemo(() => [
+    { value: 'all', label: t.allTopics },
+    { value: 'einheit', label: t.topicEinheit },
+    { value: 'wahrhaftigkeit', label: t.topicWahrhaftigkeit },
+    { value: 'dienst', label: t.topicDienst },
+    { value: 'gerechtigkeit', label: t.topicGerechtigkeit },
+    { value: 'verstand', label: t.topicVerstand },
+    { value: 'seele', label: t.topicSeele },
+    { value: 'freude', label: t.topicFreude },
+    { value: 'gebet', label: t.topicGebet },
+  ], [t]);
+
+  const activeTopicOption = topicOptions.find((o) => o.value === selectedTopic);
+  const activeTopicLabel = activeTopicOption && activeTopicOption.value !== 'all' ? activeTopicOption.label : undefined;
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -255,6 +318,13 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     setSelectedTopic('all');
     setOnlyPrayers(false);
     setLocalSearch('');
+    updateParams({
+      buch: null,
+      lektion: null,
+      thema: null,
+      gebete: null,
+      q: null,
+    });
   };
 
   // Action handlers
@@ -405,112 +475,124 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       </div>
 
       {/* ========================================================================= */}
-      {/* TAB 1: LESEN (All Quotes & Prayers, Max ONE Line of Controls Before List) */}
+      {/* TAB 1: LESEN (All Quotes & Prayers) */}
       {/* ========================================================================= */}
       {viewTab === 'quotes' && (
-        <div className="space-y-4">
-          {/* Exactly ONE control row before list: Search input + Filter button */}
-          <div className="flex items-center gap-2.5">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-text-tertiary absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
-                placeholder={language === 'de' ? 'Zitate nach Text, Thema oder Quelle durchsuchen...' : 'Search quotes by text, theme, or source...'}
-                className="w-full pl-9 pr-8 py-2.5 text-xs sm:text-sm rounded-xl bg-surface border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
-              />
-              {localSearch && (
-                <button
-                  type="button"
-                  onClick={() => setLocalSearch('')}
-                  aria-label={language === 'de' ? 'Suche löschen' : 'Clear search'}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text p-1 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer rounded-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-
-            <Button
-              variant={activeFilterCount > 0 ? 'primary' : 'secondary'}
-              onClick={() => setIsFilterSheetOpen(true)}
-              className="shrink-0 min-h-[44px]"
-            >
-              <SlidersHorizontal className="w-4 h-4 mr-1.5" />
-              <span>Filter {activeFilterCount > 0 && `(${activeFilterCount})`}</span>
-            </Button>
+        <div className="space-y-3">
+          {/* 1. Full-Width Search Input (consistent with Games & Service/Arts) */}
+          <div className="relative">
+            <Search
+              className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={localSearch}
+              onChange={(e) => {
+                setLocalSearch(e.target.value);
+                updateParams({ q: e.target.value || null });
+              }}
+              placeholder={
+                language === 'de'
+                  ? 'Zitate nach Text, Thema oder Quelle durchsuchen...'
+                  : 'Search quotes by text, theme, or source...'
+              }
+              aria-label={language === 'de' ? 'Zitate durchsuchen' : 'Search quotes'}
+              className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+            />
+            {localSearch && (
+              <button
+                type="button"
+                onClick={() => {
+                  setLocalSearch('');
+                  updateParams({ q: null });
+                }}
+                aria-label={language === 'de' ? 'Suche löschen' : 'Clear search'}
+                className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
-          {/* Active Removable Filter Chips */}
-          {(selectedBook !== 'all' || selectedSection !== 'all' || selectedTopic !== 'all' || onlyPrayers || localSearch) && (
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-text-tertiary">{language === 'de' ? 'Aktive Filter:' : 'Active filters:'}</span>
+          {/* 2. Coherent Single-Row Filter Bar directly underneath */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap w-full py-0.5 mb-2 select-none">
+            {/* Buch Dropdown */}
+            <FilterPillDropdown
+              label={language === 'de' ? 'Buch' : 'Book'}
+              activeLabel={activeBookLabel}
+              isActive={selectedBook !== 'all'}
+              icon={<BookOpen className="w-3.5 h-3.5 shrink-0" />}
+              options={bookOptions}
+              selectedValue={selectedBook}
+              onSelect={(val) => {
+                const nextBook = (val as string) || 'all';
+                setSelectedBook(nextBook);
+                setSelectedSection('all');
+                updateParams({
+                  buch: nextBook === 'all' ? null : nextBook,
+                  lektion: null,
+                });
+              }}
+            />
 
-              {selectedBook !== 'all' && (
-                <button
-                  type="button"
-                  onClick={() => { setSelectedBook('all'); setSelectedSection('all'); }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <span>{selectedBook}</span>
-                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
-                </button>
-              )}
+            {/* Lektion Dropdown (revealed when a book with sections is selected) */}
+            {selectedBook !== 'all' && sectionOptions.length > 0 && (
+              <FilterPillDropdown
+                label={language === 'de' ? 'Lektion' : 'Lesson'}
+                activeLabel={activeSectionLabel}
+                isActive={selectedSection !== 'all'}
+                icon={<Layers className="w-3.5 h-3.5 shrink-0" />}
+                options={sectionOptions}
+                selectedValue={selectedSection}
+                onSelect={(val) => {
+                  const nextSec = (val as string) || 'all';
+                  setSelectedSection(nextSec);
+                  updateParams({ lektion: nextSec === 'all' ? null : nextSec });
+                }}
+              />
+            )}
 
-              {selectedSection !== 'all' && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedSection('all')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <span>{selectedSection}</span>
-                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
-                </button>
-              )}
+            {/* Thema Dropdown */}
+            <FilterPillDropdown
+              label={language === 'de' ? 'Thema' : 'Theme'}
+              activeLabel={activeTopicLabel}
+              isActive={selectedTopic !== 'all'}
+              icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
+              options={topicOptions}
+              selectedValue={selectedTopic}
+              onSelect={(val) => {
+                const nextTopic = (val as QuoteGeneralTopic | 'all') || 'all';
+                setSelectedTopic(nextTopic);
+                updateParams({ thema: nextTopic === 'all' ? null : nextTopic });
+              }}
+            />
 
-              {selectedTopic !== 'all' && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedTopic('all')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <span>{selectedTopic}</span>
-                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
-                </button>
-              )}
+            {/* Nur Gebete 1-Click Toggle Pill */}
+            <FilterPillButton
+              label={t.filterOnlyPrayers}
+              isActive={onlyPrayers}
+              onClick={() => {
+                const next = !onlyPrayers;
+                setOnlyPrayers(next);
+                updateParams({ gebete: next ? '1' : null });
+              }}
+              icon={<Heart className="w-3.5 h-3.5 shrink-0" />}
+            />
 
-              {onlyPrayers && (
-                <button
-                  type="button"
-                  onClick={() => setOnlyPrayers(false)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <span>{t.filterOnlyPrayers}</span>
-                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
-                </button>
-              )}
-
-              {localSearch && (
-                <button
-                  type="button"
-                  onClick={() => setLocalSearch('')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-full bg-surface-2 border border-border text-text hover:border-accent cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <span>„{localSearch}“</span>
-                  <X className="w-3.5 h-3.5 text-text-secondary" aria-hidden="true" />
-                </button>
-              )}
-
+            {/* Clear Filters Button (when any filter is active) */}
+            {(activeFilterCount > 0 || localSearch) && (
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="text-2xs text-text-tertiary hover:text-accent underline ml-1 px-2 py-1 min-h-[36px] cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-lg"
+                className="inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-xs font-medium text-text-tertiary hover:text-accent hover:bg-surface-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ml-1"
+                aria-label={language === 'de' ? 'Filter zurücksetzen' : 'Reset filters'}
               >
-                {language === 'de' ? 'Alle zurücksetzen' : 'Reset all'}
+                <RotateCcw className="w-3 h-3 shrink-0" aria-hidden="true" />
+                <span>{language === 'de' ? 'Filter zurücksetzen' : 'Reset filters'}</span>
               </button>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Masonry Columns of Quote Cards: 1 col on mobile, 2 cols on desktop */}
           {filteredQuotes.length > 0 ? (
@@ -537,103 +619,6 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               onAction={handleResetFilters}
             />
           )}
-
-          {/* Filter Sheet */}
-          <Sheet
-            isOpen={isFilterSheetOpen}
-            onClose={() => setIsFilterSheetOpen(false)}
-            title={language === 'de' ? 'Zitate filtern' : 'Filter Quotes'}
-          >
-            <div className="space-y-6">
-              {/* Only Prayers Checkbox */}
-              <div className="p-4 rounded-2xl bg-surface-2 border border-border">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={onlyPrayers}
-                    onChange={(e) => setOnlyPrayers(e.target.checked)}
-                    className="w-5 h-5 rounded-md border-border text-accent focus:ring-accent cursor-pointer"
-                  />
-                  <div>
-                    <span className="text-sm font-semibold text-text block">
-                      {t.filterOnlyPrayers}
-                    </span>
-                    <span className="text-2xs text-text-secondary block">
-                      {language === 'de' ? 'Gebete für den Einstieg oder Abschluss von Treffen' : 'Prayers for opening or closing gatherings'}
-                    </span>
-                  </div>
-                </label>
-              </div>
-
-              {/* Book Select */}
-              <Select
-                label={language === 'de' ? 'Jugendbuch oder Sammlung' : 'Book or Collection'}
-                value={selectedBook}
-                onChange={(e) => {
-                  setSelectedBook(e.target.value);
-                  setSelectedSection('all');
-                }}
-                options={[
-                  { value: 'all', label: language === 'de' ? 'Alle Bücher' : 'All Books' },
-                  ...JUNIOR_YOUTH_BOOKS.map((b) => ({
-                    value: b.title[language],
-                    label: `${b.title[language]}${b.isOfficialJYBook ? ` (${b.targetAge})` : ''}`,
-                  })),
-                ]}
-              />
-
-              {/* Section Select (if book has multiple sections) */}
-              {availableSections.length > 0 && (
-                <Select
-                  label={language === 'de' ? 'Lektion / Abschnitt' : 'Lesson / Section'}
-                  value={selectedSection}
-                  onChange={(e) => setSelectedSection(e.target.value)}
-                  options={[
-                    { value: 'all', label: language === 'de' ? 'Alle Lektionen' : 'All Lessons' },
-                    ...availableSections.map((sec) => ({
-                      value: sec,
-                      label: sec,
-                    })),
-                  ]}
-                />
-              )}
-
-              {/* Topic Select */}
-              <Select
-                label={language === 'de' ? 'Spirituales Thema' : 'Spiritual Theme'}
-                value={selectedTopic}
-                onChange={(e) => setSelectedTopic(e.target.value as QuoteGeneralTopic | 'all')}
-                options={[
-                  { value: 'all', label: language === 'de' ? 'Alle Themen' : 'All Themes' },
-                  { value: 'einheit', label: language === 'de' ? 'Einheit' : 'Unity' },
-                  { value: 'wahrhaftigkeit', label: language === 'de' ? 'Wahrhaftigkeit' : 'Truthfulness' },
-                  { value: 'dienst', label: language === 'de' ? 'Dienst' : 'Service' },
-                  { value: 'gerechtigkeit', label: language === 'de' ? 'Gerechtigkeit' : 'Justice' },
-                  { value: 'verstand', label: language === 'de' ? 'Verstand & Wissen' : 'Intellect' },
-                  { value: 'seele', label: language === 'de' ? 'Seele & Geist' : 'Soul & Spirit' },
-                  { value: 'freude', label: language === 'de' ? 'Freude' : 'Joy' },
-                  { value: 'gebet', label: language === 'de' ? 'Gebet' : 'Prayer' },
-                ]}
-              />
-
-              <div className="pt-4 border-t border-border flex items-center justify-between gap-3">
-                <Button
-                  variant="outline"
-                  onClick={handleResetFilters}
-                  className="min-h-[44px]"
-                >
-                  {language === 'de' ? 'Zurücksetzen' : 'Reset'}
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => setIsFilterSheetOpen(false)}
-                  className="min-h-[44px]"
-                >
-                  {language === 'de' ? 'Anwenden' : 'Apply'}
-                </Button>
-              </div>
-            </div>
-          </Sheet>
         </div>
       )}
 
