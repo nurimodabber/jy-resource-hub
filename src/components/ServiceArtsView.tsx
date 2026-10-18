@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, Tent, MapPin, BookOpen, Clock, Users, Sparkles, RotateCcw } from 'lucide-react';
+import { Search, X, ArrowLeft, Tent, MapPin, BookOpen, Clock, Users, Sparkles } from 'lucide-react';
 import {
   Language,
   ActivityItem,
@@ -16,6 +16,7 @@ import { EmptyState } from './ui/EmptyState';
 import { Badge } from './ui/Badge';
 import { SegmentedControl } from './ui/SegmentedControl';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
+import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { JY_BOOKS } from '../utils/bookProgress';
 import { tr } from './tools/common';
 
@@ -468,8 +469,12 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
         )}
       </div>
 
-      {/* 3. Coherent Filter Bar directly underneath */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full py-0.5 mb-4 select-none">
+      {/* 3. Coherent Filter Bar with scroll-fade indicators & scroll-snap */}
+      <ScrollableFilterBar
+        activeFilterCount={activeSheetFilterCount + (query ? 1 : 0)}
+        onClearAll={handleClearAll}
+        clearLabel={L('Filter zurücksetzen', 'Reset filters')}
+      >
         {!fixedKind && (
           <div className="mr-1 shrink-0">
             <SegmentedControl
@@ -746,19 +751,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
           </>
         )}
 
-        {/* Clear all filters button if any filter is active */}
-        {(activeSheetFilterCount > 0 || query) && (
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-xs font-medium text-text-tertiary hover:text-accent hover:bg-surface-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ml-1"
-            aria-label={L('Filter zurücksetzen', 'Reset filters')}
-          >
-            <RotateCcw className="w-3 h-3 shrink-0" aria-hidden="true" />
-            <span>{L('Zurücksetzen', 'Reset')}</span>
-          </button>
-        )}
-      </div>
+      </ScrollableFilterBar>
 
       {/* 4. Activities Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}
       <h2 className="sr-only">{t.tabServiceArts}</h2>

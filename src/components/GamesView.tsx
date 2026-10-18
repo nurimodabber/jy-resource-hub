@@ -8,6 +8,7 @@ import { GamePage } from './GamePage';
 import { EmptyState } from './ui/EmptyState';
 import { Badge } from './ui/Badge';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
+import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { UI_TRANSLATIONS } from '../data/translations';
 import {
   parseGameFilters,
@@ -271,8 +272,12 @@ export const GamesView: React.FC<GamesViewProps> = ({
         )}
       </div>
 
-      {/* 3. Coherent Filter Bar directly underneath */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full py-0.5 mb-4 select-none">
+      {/* 3. Coherent Filter Bar with scroll-fade indicators & scroll-snap */}
+      <ScrollableFilterBar
+        activeFilterCount={totalActiveFilterCount}
+        onClearAll={handleClearAll}
+        clearLabel={t.clearAllFilters}
+      >
         {/* Wirkung Dropdown */}
         <FilterPillDropdown
           label={t.purposeLabel}
@@ -350,20 +355,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
           selectedValue={filters.sort || 'match'}
           onSelect={(val) => updateFilters({ ...filters, sort: (val as 'match' | 'duration' | 'groupSize') || 'match' })}
         />
-
-        {/* Clear all filters button if any filter is active */}
-        {totalActiveFilterCount > 0 && (
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="inline-flex items-center gap-1 h-8 px-2.5 text-xs text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors shrink-0"
-            aria-label={t.clearAllFilters}
-          >
-            <X className="w-3.5 h-3.5" />
-            <span>{t.clearAllFilters}</span>
-          </button>
-        )}
-      </div>
+      </ScrollableFilterBar>
 
       {/* 4. Games Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}
       <h2 className="sr-only">{t.tabGames}</h2>

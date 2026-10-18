@@ -47,6 +47,7 @@ import {
   type BookProgress,
 } from '../utils/bookProgress';
 import { tr, Panel, Label, Stepper, ChoiceChips, primaryBtn } from './tools/common';
+import { ArrowLink } from './ui/ArrowLink';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -452,13 +453,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               <QuoteIcon className="w-3.5 h-3.5 text-accent" />
               <span>{L('Zitat des Tages', 'Quote of the day')}</span>
             </span>
-            <Link
-              to={`/quotes/${quote.id}`}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline whitespace-nowrap min-h-[44px] px-2 py-1.5 rounded-control focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              <span>{L('Im Lesemodus', 'Reading mode')}</span>
-              <ArrowRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            </Link>
+            <ArrowLink to={`/quotes/${quote.id}`}>
+              {L('Im Lesemodus', 'Reading mode')}
+            </ArrowLink>
           </div>
 
           <blockquote className="font-serif text-base sm:text-lg text-text leading-relaxed">
@@ -527,13 +524,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               {L('Live-Helfer für Handy und Beamer in der Gruppe', 'Live tools for phone and projector in the group')}
             </p>
           </div>
-          <Link
-            to="/tools"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline whitespace-nowrap min-h-[44px] px-2 py-2 rounded-control focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <span>{L('Alle Werkzeuge', 'All tools')}</span>
-            <ArrowRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-          </Link>
+          <ArrowLink to="/tools">
+            {L('Alle Werkzeuge', 'All tools')}
+          </ArrowLink>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -631,21 +624,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
             </p>
           </div>
           <div className="flex items-center gap-1">
-            <Link
-              to="/service"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline whitespace-nowrap min-h-[44px] px-2 py-2 rounded-control focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              <span>{L('Dienst', 'Service')}</span>
-              <ArrowRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            </Link>
+            <ArrowLink to="/service">
+              {L('Dienst', 'Service')}
+            </ArrowLink>
             <span className="text-border select-none" aria-hidden="true">·</span>
-            <Link
-              to="/arts"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline whitespace-nowrap min-h-[44px] px-2 py-2 rounded-control focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              <span>{L('Kunst', 'Creative')}</span>
-              <ArrowRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-            </Link>
+            <ArrowLink to="/arts">
+              {L('Kunst', 'Creative')}
+            </ArrowLink>
           </div>
         </div>
 
