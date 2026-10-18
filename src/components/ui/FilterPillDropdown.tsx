@@ -117,7 +117,7 @@ export function FilterPillDropdown<T = string | number | null>({
         }`}
       >
         {icon && <span className="shrink-0">{icon}</span>}
-        <span>{displayLabel}</span>
+        <span className="max-w-[150px] truncate">{displayLabel}</span>
         <ChevronDown
           className={`w-3 h-3 opacity-70 transition-transform duration-150 shrink-0 ${
             isOpen ? 'rotate-180' : ''
@@ -138,7 +138,7 @@ export function FilterPillDropdown<T = string | number | null>({
               right: coords.right,
               zIndex: 9999,
             }}
-            className="min-w-[200px] max-w-[280px] bg-surface border border-border rounded-dialog shadow-xl p-1.5 max-h-72 overflow-y-auto"
+            className="min-w-[200px] max-w-[320px] bg-surface border border-border rounded-dialog shadow-xl p-1.5 max-h-72 overflow-y-auto"
           >
             {options.map((option, idx) => {
               const isSelected = option.value === selectedValue;
