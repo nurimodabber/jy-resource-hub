@@ -80,10 +80,8 @@ export const AppContent: React.FC = () => {
     if (root === 'home' || root === '') return 'home';
     if (root === 'games') return 'games';
     if (root === 'quotes') return 'quotes';
-    if (root === 'service') return 'service';
-    if (root === 'arts') return 'arts';
-    if (root === 'service-arts') return 'service';
-    if (root === 'planner' || root === 'treffen') return 'tools';
+    if (root === 'service' || root === 'arts' || root === 'service-arts') return 'service';
+    if (root === 'planner' || root === 'treffen') return 'planner';
     if (root === 'tools') return 'tools';
     if (root === 'vorschlagen') return 'vorschlagen';
     if (root === 'saved') return 'saved';
@@ -392,7 +390,7 @@ export const AppContent: React.FC = () => {
       <main
         id="main-content"
         tabIndex={-1}
-        className="short-content-pad flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 lg:pb-8 focus:outline-hidden"
+        className="short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 md:pb-8 focus:outline-hidden"
       >
         <Suspense fallback={<RouteLoading />}>
           <Routes>
@@ -619,23 +617,23 @@ export const AppContent: React.FC = () => {
       )}
 
       {!isBeamerMode && (
-        <footer className="border-t border-line mt-12 py-8 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:mb-0">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <footer className="border-t border-line mt-12 py-8 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] md:mb-0">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
             <p className="text-text-tertiary">{t.footerNote}</p>
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-              <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text transition-colors min-h-[36px] py-1">
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
+              <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text transition-colors min-h-[44px] px-2 py-2 inline-flex items-center cursor-pointer rounded-control focus-visible:ring-2 focus-visible:ring-accent">
                 {t.impressumTitle}
               </button>
               <span className="text-text-tertiary hidden sm:inline" aria-hidden="true">·</span>
-              <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text transition-colors min-h-[36px] py-1">
+              <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text transition-colors min-h-[44px] px-2 py-2 inline-flex items-center cursor-pointer rounded-control focus-visible:ring-2 focus-visible:ring-accent">
                 {t.datenschutzTitle}
               </button>
               <span className="text-text-tertiary hidden sm:inline" aria-hidden="true">·</span>
-              <button type="button" onClick={() => navigate('/vorschlagen')} className="hover:text-text transition-colors min-h-[36px] py-1">
+              <button type="button" onClick={() => navigate('/vorschlagen')} className="hover:text-text transition-colors min-h-[44px] px-2 py-2 inline-flex items-center cursor-pointer rounded-control focus-visible:ring-2 focus-visible:ring-accent">
                 {t.settingsSubmitProposal}
               </button>
               <span className="text-text-tertiary hidden sm:inline" aria-hidden="true">·</span>
-              <span className="text-text-tertiary">© 2026 {t.siteTitle}</span>
+              <span className="text-text-tertiary px-2 py-2 inline-flex items-center">© 2026 {t.siteTitle}</span>
             </div>
           </div>
         </footer>

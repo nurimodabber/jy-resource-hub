@@ -244,7 +244,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
     : rawQuoteText;
 
   return (
-    <div className="max-w-4xl mx-auto pb-10 space-y-7">
+    <div className="max-w-[1200px] w-full mx-auto pb-10 space-y-7">
       {/* 1. Installationshinweis (PWA Prompt – Mobile only) */}
       {showInstallBanner && (
         <aside
