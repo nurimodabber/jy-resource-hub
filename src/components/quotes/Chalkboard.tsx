@@ -68,8 +68,8 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
         </div>
 
         {allHidden ? (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold text-xs animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-center gap-2 text-success font-semibold text-xs animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-success" />
             <span>{t.allWordsHidden}</span>
           </div>
         ) : (

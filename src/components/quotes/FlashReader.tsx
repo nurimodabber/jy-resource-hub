@@ -129,14 +129,14 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
 
         {/* Completion Message */}
         {isFinished && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between gap-3 text-emerald-900 dark:text-emerald-200 animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
-                <strong className="font-semibold block">
+                <strong className="font-semibold block text-success">
                   {language === 'de' ? 'Durchlauf beendet!' : 'Run completed!'}
                 </strong>
-                <span className="text-emerald-700 dark:text-emerald-300">
+                <span className="text-text-secondary">
                   {language === 'de' ? 'Jetzt das Zitat flüssig im Chor aus dem Gedächtnis sprechen.' : 'Now recite the verse fluently from memory.'}
                 </span>
               </div>

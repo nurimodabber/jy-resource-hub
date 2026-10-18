@@ -294,7 +294,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
             />
 
             {duplicates.length > 0 && (
-              <div className="p-3 rounded-control bg-amber-500/15 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-200">
+              <div className="p-3 rounded-control bg-danger/10 border border-danger/20 text-xs text-danger">
                 <strong>{L('Doppelt: ', 'Duplicate: ')}</strong>
                 {duplicates.join(', ')}. {L('Bitte eine Person einen neuen Begriff schreiben lassen.', 'Please ask someone to pick a new term.')}
               </div>

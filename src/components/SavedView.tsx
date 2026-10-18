@@ -55,13 +55,13 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
         id: p.id,
         title: p.title[language],
         meta: p.duration[language],
-        href: `/service-arts/${p.id}`,
+        href: `/service/${p.id}`,
       })),
       ...ARTS_PROMPTS_DATA.filter((a) => has(a.id)).map((a) => ({
         id: a.id,
         title: a.title[language],
         meta: a.book[language],
-        href: `/service-arts/${a.id}`,
+        href: `/arts/${a.id}`,
       })),
     ];
     return { games, quotes, methods, projects } as Record<Group, Row[]>;

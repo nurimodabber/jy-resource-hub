@@ -93,7 +93,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
                   isCurrent
                     ? 'w-8 bg-accent'
                     : isDone
-                    ? 'w-3 bg-emerald-500/80'
+                    ? 'w-3 bg-success'
                     : 'w-2 bg-surface-2 border border-border'
                 }`}
               />
@@ -127,7 +127,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
                     isCurrent
                       ? 'bg-accent text-accent-contrast'
                       : isPast
-                      ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
+                      ? 'bg-success/20 text-success'
                       : 'bg-surface-2 text-text-tertiary'
                   }`}
                 >
@@ -160,14 +160,14 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
 
         {/* Final Step Master Celebration */}
         {isFinalStep && (
-          <div className="p-5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between gap-3 text-emerald-900 dark:text-emerald-200 animate-in fade-in">
+          <div className="p-5 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-6 h-6 text-success shrink-0" />
               <div className="text-xs">
-                <strong className="font-semibold block text-sm">
+                <strong className="font-semibold block text-sm text-success">
                   {language === 'de' ? 'Meisterstufe erreicht!' : 'Master level unlocked!'}
                 </strong>
-                <span className="text-emerald-700 dark:text-emerald-300">
+                <span className="text-text-secondary">
                   {language === 'de'
                     ? 'Die gesamte Zitate-Treppe wurde erklommen. Jetzt das vollständige Zitat fehlerfrei im Chor aufsagen!'
                     : 'The complete cascade has been climbed. Now recite the entire quote in unison from memory!'}

@@ -52,9 +52,8 @@ function resolveFavoriteUrls(favIds: string[]): string[] {
   for (const id of favIds) {
     if (GAMES_DATA.some((g) => g.id === id)) urls.push(`/games/${id}`);
     else if (QUOTES_DATA.some((q) => q.id === id)) urls.push(`/quotes/${id}`);
-    else if (SERVICE_PROJECTS_DATA.some((p) => p.id === id) || ARTS_PROMPTS_DATA.some((a) => a.id === id)) {
-      urls.push(`/service-arts/${id}`);
-    }
+    else if (SERVICE_PROJECTS_DATA.some((p) => p.id === id)) urls.push(`/service/${id}`);
+    else if (ARTS_PROMPTS_DATA.some((a) => a.id === id)) urls.push(`/arts/${id}`);
   }
   return urls;
 }
@@ -81,8 +80,10 @@ export const AppContent: React.FC = () => {
     if (root === 'home' || root === '') return 'home';
     if (root === 'games') return 'games';
     if (root === 'quotes') return 'quotes';
-    if (root === 'planner' || root === 'treffen') return 'planner';
-    if (root === 'service-arts') return 'service-arts';
+    if (root === 'service') return 'service';
+    if (root === 'arts') return 'arts';
+    if (root === 'service-arts') return 'service';
+    if (root === 'planner' || root === 'treffen') return 'tools';
     if (root === 'tools') return 'tools';
     if (root === 'vorschlagen') return 'vorschlagen';
     if (root === 'saved') return 'saved';
@@ -202,6 +203,30 @@ export const AppContent: React.FC = () => {
           path: `/quotes/${quote.id}`,
         });
       }
+    } else if (path.startsWith('/service/') && path !== '/service') {
+      const id = path.slice('/service/'.length).split('/')[0];
+      const proj = SERVICE_PROJECTS_DATA.find((p) => p.id === id);
+      if (proj) {
+        recordRecentView({
+          id: proj.id,
+          type: 'service',
+          title: proj.title,
+          subtitle: proj.duration,
+          path: `/service/${proj.id}`,
+        });
+      }
+    } else if (path.startsWith('/arts/') && path !== '/arts') {
+      const id = path.slice('/arts/'.length).split('/')[0];
+      const art = ARTS_PROMPTS_DATA.find((a) => a.id === id);
+      if (art) {
+        recordRecentView({
+          id: art.id,
+          type: 'art',
+          title: art.title,
+          subtitle: art.duration,
+          path: `/arts/${art.id}`,
+        });
+      }
     } else if (path.startsWith('/service-arts/') && path !== '/service-arts') {
       const id = path.slice('/service-arts/'.length).split('/')[0];
       const proj = SERVICE_PROJECTS_DATA.find((p) => p.id === id);
@@ -213,7 +238,7 @@ export const AppContent: React.FC = () => {
           type: proj ? 'service' : 'art',
           title: item.title,
           subtitle: item.duration,
-          path: `/service-arts/${item.id}`,
+          path: proj ? `/service/${item.id}` : `/arts/${item.id}`,
         });
       }
     }
@@ -278,8 +303,10 @@ export const AppContent: React.FC = () => {
         navigate('/quotes?tab=methods');
         break;
       case 'service':
+        navigate(`/service/${id}`);
+        break;
       case 'art':
-        navigate(`/service-arts/${id}`);
+        navigate(`/arts/${id}`);
         break;
       case 'song':
         setIsBahaiSongsOpen(true);
@@ -318,7 +345,7 @@ export const AppContent: React.FC = () => {
         <div
           role="status"
           aria-live="polite"
-          className="bg-amber-500/15 border-b border-amber-500/30 text-amber-900 dark:text-amber-200 px-4 py-2 text-xs font-semibold flex items-center justify-center gap-2 print:hidden"
+          className="bg-surface-2 border-b border-border text-text-secondary px-4 py-2 text-xs font-semibold flex items-center justify-center gap-2 print:hidden"
         >
           <WifiOff className="w-4 h-4 shrink-0" />
           <span>{t.offlineBannerText}</span>
@@ -439,9 +466,15 @@ export const AppContent: React.FC = () => {
             />
 
             <Route
-              path="/service-arts"
+              path="/tools/planner"
+              element={<Navigate to="/treffen" replace />}
+            />
+
+            <Route
+              path="/service"
               element={
                 <ServiceArtsView
+                  fixedKind="dienst"
                   language={language}
                   searchQuery={searchQuery}
                   favorites={favorites}
@@ -449,6 +482,51 @@ export const AppContent: React.FC = () => {
                   onAddToPlanner={handleAddToPlanner}
                 />
               }
+            />
+            <Route
+              path="/service/:id"
+              element={
+                <ServiceArtsView
+                  fixedKind="dienst"
+                  language={language}
+                  searchQuery={searchQuery}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                  onAddToPlanner={handleAddToPlanner}
+                />
+              }
+            />
+
+            <Route
+              path="/arts"
+              element={
+                <ServiceArtsView
+                  fixedKind="kunst"
+                  language={language}
+                  searchQuery={searchQuery}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                  onAddToPlanner={handleAddToPlanner}
+                />
+              }
+            />
+            <Route
+              path="/arts/:id"
+              element={
+                <ServiceArtsView
+                  fixedKind="kunst"
+                  language={language}
+                  searchQuery={searchQuery}
+                  favorites={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                  onAddToPlanner={handleAddToPlanner}
+                />
+              }
+            />
+
+            <Route
+              path="/service-arts"
+              element={<Navigate to="/service" replace />}
             />
             <Route
               path="/service-arts/:id"

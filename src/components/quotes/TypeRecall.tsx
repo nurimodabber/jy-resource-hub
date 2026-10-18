@@ -169,7 +169,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
                   key={idx}
                   className={`px-2 py-0.5 rounded-xl transition-all duration-150 select-none ${
                     isTyped
-                      ? 'text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-500/10 border border-emerald-500/20'
+                      ? 'text-success font-bold bg-success/15 border border-success/30'
                       : isCurrent
                       ? 'bg-accent/20 text-accent-text border border-accent ring-2 ring-accent/30 animate-pulse font-bold'
                       : 'text-text-tertiary opacity-40'
@@ -199,7 +199,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
         {mode === 'full' && (
           <div className="font-serif text-lg sm:text-2xl leading-relaxed text-center min-h-[140px] flex items-center justify-center">
             <p className="max-w-3xl">
-              <span className="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-500/10 px-1 rounded-sm">
+              <span className="text-success font-bold bg-success/15 px-1 rounded-sm border border-success/20">
                 {quoteText.slice(0, fullTypedText.length)}
               </span>
               <span className="inline-block w-0.5 h-6 bg-accent align-middle animate-pulse mx-0.5" />
@@ -225,14 +225,14 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
 
         {/* Completion Banner */}
         {isCompleted ? (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between gap-3 text-emerald-900 dark:text-emerald-200 animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
-                <strong className="font-semibold block">
+                <strong className="font-semibold block text-success">
                   {language === 'de' ? 'Perfekt gemeistert!' : 'Flawlessly mastered!'}
                 </strong>
-                <span className="text-emerald-700 dark:text-emerald-300">
+                <span className="text-text-secondary">
                   {language === 'de'
                     ? `Fehlerfrei durchgetippt (${errorsCount} Tippfehler korrigiert).`
                     : `Completed with precision (${errorsCount} mistakes corrected).`}

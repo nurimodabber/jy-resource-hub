@@ -15,11 +15,11 @@ interface NavbarProps {
   onOpenSettings: () => void;
 }
 
-export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes' | 'tabServiceArts' | 'tabPlanner' | 'tabTools' | 'tabProposal' }[] = [
+export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes' | 'tabService' | 'tabArts' | 'tabTools' | 'tabProposal' }[] = [
   { id: 'games', href: '/games', key: 'tabGames' },
   { id: 'quotes', href: '/quotes', key: 'tabQuotes' },
-  { id: 'service-arts', href: '/service-arts', key: 'tabServiceArts' },
-  { id: 'planner', href: '/treffen', key: 'tabPlanner' },
+  { id: 'service', href: '/service', key: 'tabService' },
+  { id: 'arts', href: '/arts', key: 'tabArts' },
   { id: 'tools', href: '/tools', key: 'tabTools' },
   { id: 'vorschlagen', href: '/vorschlagen', key: 'tabProposal' },
 ];

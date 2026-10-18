@@ -13,6 +13,7 @@ export interface SegmentedControlProps<T extends string = string> {
   onChange: (value: T) => void;
   className?: string;
   size?: 'sm' | 'md';
+  fullWidth?: boolean;
 }
 
 export function SegmentedControl<T extends string = string>({
@@ -21,6 +22,7 @@ export function SegmentedControl<T extends string = string>({
   onChange,
   className = '',
   size = 'md',
+  fullWidth = false,
 }: SegmentedControlProps<T>) {
   const sizeStyles = {
     sm: 'p-1 gap-1 text-xs',
@@ -28,14 +30,16 @@ export function SegmentedControl<T extends string = string>({
   };
 
   const itemHeightStyles = {
-    sm: 'min-h-[36px] px-3.5 py-1.5',
-    md: 'min-h-[44px] px-4 py-2',
+    sm: fullWidth ? 'min-h-[36px] px-2 py-1.5' : 'min-h-[36px] px-3.5 py-1.5',
+    md: fullWidth ? 'min-h-[44px] px-2.5 py-2' : 'min-h-[44px] px-4 py-2',
   };
 
   return (
     <div
       role="tablist"
-      className={`inline-flex items-center bg-surface-2 p-1 rounded-chip border-0 max-w-full overflow-x-auto no-scrollbar ${sizeStyles[size]} ${className}`}
+      className={`${
+        fullWidth ? 'flex w-full' : 'inline-flex max-w-full'
+      } items-center bg-surface-2 p-1 rounded-chip border-0 overflow-x-auto no-scrollbar ${sizeStyles[size]} ${className}`}
     >
       {options.map((option) => {
         const isSelected = value === option.id;
@@ -46,7 +50,9 @@ export function SegmentedControl<T extends string = string>({
             type="button"
             aria-selected={isSelected}
             onClick={() => onChange(option.id)}
-            className={`inline-flex items-center justify-center rounded-chip font-medium transition-all duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none shrink-0 gap-2 border-0 ${itemHeightStyles[size]} ${
+            className={`inline-flex items-center justify-center rounded-chip font-medium transition-all duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none gap-2 border-0 ${
+              fullWidth ? 'flex-1' : 'shrink-0'
+            } ${itemHeightStyles[size]} ${
               isSelected
                 ? 'bg-surface text-text shadow-1 font-semibold'
                 : 'text-text-secondary hover:text-text'

@@ -147,8 +147,8 @@ export default {
           'sans-serif',
         ],
         serif: [
-          '"Literata Variable"',
-          '"Literata"',
+          'Lora',
+          '"Lora Variable"',
           'Georgia',
           'serif',
         ],

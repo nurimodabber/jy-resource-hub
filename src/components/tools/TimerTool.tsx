@@ -257,7 +257,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
                 className={`inline-block mb-1 text-2xs font-mono font-bold px-2 py-0.5 rounded-control ${
                   intervalPhase === 'work'
                     ? 'bg-accent/15 text-accent'
-                    : 'bg-[#B9C46A]/15 text-[#B9C46A]'
+                    : 'bg-success/15 text-success'
                 }`}
               >
                 {intervalPhase === 'work'
@@ -268,7 +268,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
             <div
               className={`font-mono font-bold tabular-nums tracking-tight select-none transition-colors text-5xl sm:text-6xl ${
                 remaining <= 10 && remaining > 0 && running
-                  ? 'text-[#E58A6B]'
+                  ? 'text-danger'
                   : remaining === 0
                   ? 'text-accent'
                   : 'text-text'
@@ -437,7 +437,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
           <div className="my-auto max-w-4xl mx-auto w-full text-center space-y-6">
             {timerMode === 'interval' && (
               <span className={`inline-flex items-center px-4 py-1.5 rounded-chip font-bold text-sm sm:text-base ${
-                intervalPhase === 'work' ? 'bg-accent-subtle text-accent-text' : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                intervalPhase === 'work' ? 'bg-accent-subtle text-accent-text' : 'bg-success/15 text-success'
               }`}>
                 {intervalPhase === 'work' ? L(`Aktiv (Runde ${currentRound} / ${intervalRounds})`, `Active (Round ${currentRound} / ${intervalRounds})`) : L(`Pause`, `Rest`)}
               </span>
@@ -446,7 +446,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
             <div
               className={`text-[28vw] sm:text-[14rem] leading-none font-mono font-bold tabular-nums select-none tracking-tight transition-colors ${
                 remaining <= 10 && remaining > 0 && running
-                  ? 'text-[#E58A6B]'
+                  ? 'text-danger'
                   : 'text-accent'
               }`}
             >

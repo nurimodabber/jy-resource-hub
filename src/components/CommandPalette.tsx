@@ -6,7 +6,7 @@ import {
   Clock,
   Palette,
   Music,
-  Layers,
+  HeartHandshake,
   Calendar,
   Bookmark,
   Settings,
@@ -242,7 +242,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           title: sp.title[language],
           subtitle: sp.objective[language],
           badge: isDe ? 'Dienst' : 'Service',
-          icon: Layers,
+          icon: HeartHandshake,
         });
       }
     });
