@@ -1,4 +1,4 @@
-import { Compass, BookOpen, Calendar, HeartHandshake, Wrench } from 'lucide-react';
+import { Compass, BookOpen, Palette, HeartHandshake, Wrench, PlusCircle } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { Logo } from './Logo';
@@ -19,9 +19,10 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
   const items = [
     { id: 'games' as NavTab, label: t.tabGames, icon: Compass },
     { id: 'quotes' as NavTab, label: t.tabQuotes, icon: BookOpen },
-    { id: 'planner' as NavTab, label: t.tabPlanner, icon: Calendar },
-    { id: 'service' as NavTab, label: t.tabServiceArts, icon: HeartHandshake },
+    { id: 'service' as NavTab, label: t.tabServiceShort, icon: HeartHandshake },
+    { id: 'arts' as NavTab, label: t.tabArtsShort, icon: Palette },
     { id: 'tools' as NavTab, label: t.tabTools, icon: Wrench },
+    { id: 'vorschlagen' as NavTab, label: t.tabProposalShort, icon: PlusCircle },
   ];
 
   return (

@@ -15,12 +15,13 @@ interface NavbarProps {
   onOpenSettings: () => void;
 }
 
-export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes' | 'tabPlanner' | 'tabServiceArts' | 'tabTools' }[] = [
+export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes' | 'tabServiceShort' | 'tabArtsShort' | 'tabTools' | 'tabProposalShort' }[] = [
   { id: 'games', href: '/games', key: 'tabGames' },
   { id: 'quotes', href: '/quotes', key: 'tabQuotes' },
-  { id: 'planner', href: '/treffen', key: 'tabPlanner' },
-  { id: 'service', href: '/service', key: 'tabServiceArts' },
+  { id: 'service', href: '/service', key: 'tabServiceShort' },
+  { id: 'arts', href: '/arts', key: 'tabArtsShort' },
   { id: 'tools', href: '/tools', key: 'tabTools' },
+  { id: 'vorschlagen', href: '/vorschlagen', key: 'tabProposalShort' },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({
