@@ -9,9 +9,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Drama: The Fork in the Road of Confirmation'
     },
     book: {
-      de: 'Breezes of Confirmation (Frischer Wind)',
+      de: 'Brise der Bestätigung',
       en: 'Breezes of Confirmation'
     },
+    relatedBook: 'breezes',
     artForm: 'drama',
     duration: {
       de: '45–60 Min',
@@ -77,9 +78,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Collaborative Mural: Stepping Stones of the Straight Path'
     },
     book: {
-      de: 'Walking the Straight Path (Der gerade Pfad)',
+      de: 'Den geraden Pfad beschreiten',
       en: 'Walking the Straight Path'
     },
+    relatedBook: 'straight-path',
     artForm: 'collaborative_mural',
     duration: {
       de: '60–90 Min',
@@ -145,9 +147,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Power of the Word: Spoken Word & Percussion Cypher'
     },
     book: {
-      de: 'Drawing on the Power of the Word (Die Macht des Wortes)',
+      de: 'Die Kraft des Wortes nutzen',
       en: 'Drawing on the Power of the Word'
     },
+    relatedBook: 'power-of-word',
     artForm: 'music_poetry',
     duration: {
       de: '30–60 Min',
@@ -213,9 +216,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Living Sculptures: Frozen Tableaux of Virtues'
     },
     book: {
-      de: 'Walking the Straight Path (Der gerade Pfad)',
+      de: 'Den geraden Pfad beschreiten',
       en: 'Walking the Straight Path'
     },
+    relatedBook: 'straight-path',
     artForm: 'drama',
     duration: {
       de: '30–45 Min',
@@ -281,9 +285,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Clay Metaphors: Vessel of a Pure Heart'
     },
     book: {
-      de: 'Spirit of Faith (Geist des Glaubens)',
+      de: 'Geist des Glaubens',
       en: 'Spirit of Faith'
     },
+    relatedBook: 'spirit-of-faith',
     artForm: 'visual_arts',
     duration: {
       de: '45–75 Min',
@@ -349,9 +354,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Graphic Novel: The Miner & The Hidden Gems'
     },
     book: {
-      de: 'Breezes of Confirmation (Frischer Wind)',
+      de: 'Brise der Bestätigung',
       en: 'Breezes of Confirmation'
     },
+    relatedBook: 'breezes',
     artForm: 'visual_arts',
     duration: {
       de: '45–75 Min',
@@ -417,9 +423,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
       en: 'Songwriting Atelier: Setting Scripture to Acoustic Melody'
     },
     book: {
-      de: 'Breezes of Confirmation & Walking the Straight Path',
+      de: 'Brise der Bestätigung & Den geraden Pfad beschreiten',
       en: 'Breezes of Confirmation & Walking the Straight Path'
     },
+    relatedBook: 'breezes',
     artForm: 'music_poetry',
     duration: {
       de: '45–90 Min',

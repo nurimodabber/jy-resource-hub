@@ -227,6 +227,12 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
                   {bookTitle}{activity.lesson ? ` · ${language === 'de' ? 'Lektion' : 'Lesson'} ${activity.lesson}` : ''}
                 </Badge>
               )}
+              {activity.kind === 'kunst' && activity.theme && (
+                <Badge size="md" category="neutral">
+                  <Sparkles className="w-3.5 h-3.5 mr-1 text-text-tertiary" />
+                  {activity.theme[language]}
+                </Badge>
+              )}
               <Badge size="md" category="neutral">
                 <Clock className="w-3.5 h-3.5 mr-1 text-text-tertiary" />
                 {durationStr}

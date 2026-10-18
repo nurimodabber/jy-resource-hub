@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, Tent, Clock, Users } from 'lucide-react';
+import { Search, X, ArrowLeft, Tent, Clock, Users, MapPin, BookOpen, Sparkles } from 'lucide-react';
 import {
   Language,
   ActivityItem,
@@ -16,6 +16,7 @@ import { EmptyState } from './ui/EmptyState';
 import { Badge } from './ui/Badge';
 import { SegmentedControl } from './ui/SegmentedControl';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
+import { JY_BOOKS } from '../utils/bookProgress';
 import { tr } from './tools/common';
 
 interface ServiceArtsViewProps {
@@ -77,6 +78,12 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>(
     searchParams.get('kategorie') || 'all',
   );
+  const [selectedBook, setSelectedBook] = useState<string>(
+    searchParams.get('buch') || 'all',
+  );
+  const [selectedTheme, setSelectedTheme] = useState<string>(
+    searchParams.get('thema') || 'all',
+  );
 
   // Keep state synced with URL searchParams
   useEffect(() => {
@@ -87,6 +94,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     const d = searchParams.get('dauer');
     const s = searchParams.get('personen');
     const kat = searchParams.get('kategorie') || 'all';
+    const buch = searchParams.get('buch') || 'all';
+    const thema = searchParams.get('thema') || 'all';
 
     setQuery(q);
     setActiveKind(art);
@@ -95,6 +104,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     setMaxDuration(d && !isNaN(Number(d)) ? Number(d) : null);
     setGroupSize(s && !isNaN(Number(s)) ? Number(s) : null);
     setSelectedSubCategory(kat);
+    setSelectedBook(buch);
+    setSelectedTheme(thema);
   }, [searchParams]);
 
   // Update URL helper
@@ -149,7 +160,28 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
         if (item.kind === 'kunst' && item.artForm !== selectedSubCategory) return false;
       }
 
-      // 7. Search text
+      // 7. Book filter
+      if (selectedBook !== 'all') {
+        const itemBookId = item.relatedBook;
+        const matchesBook =
+          itemBookId === selectedBook ||
+          (item.kind === 'kunst' && (
+            (selectedBook === 'breezes' && (item.book.en.includes('Breezes') || item.book.de.includes('Brise'))) ||
+            (selectedBook === 'straight-path' && (item.book.en.includes('Straight Path') || item.book.de.includes('geraden Pfad'))) ||
+            (selectedBook === 'power-of-word' && (item.book.en.includes('Power of the Word') || item.book.de.includes('Kraft des Wortes'))) ||
+            (selectedBook === 'spirit-of-faith' && (item.book.en.includes('Spirit of Faith') || item.book.de.includes('Geist des Glaubens')))
+          ));
+        if (!matchesBook) return false;
+      }
+
+      // 8. Theme filter
+      if (selectedTheme !== 'all') {
+        if (item.kind !== 'kunst' || (item.theme.de !== selectedTheme && item.theme.en !== selectedTheme)) {
+          return false;
+        }
+      }
+
+      // 9. Search text
       if (q) {
         const title = item.title[language].toLowerCase();
         const obj =
@@ -169,6 +201,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     maxDuration,
     groupSize,
     selectedSubCategory,
+    selectedBook,
+    selectedTheme,
     query,
     language,
   ]);
@@ -181,8 +215,10 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     if (maxDuration != null) count++;
     if (groupSize != null) count++;
     if (selectedSubCategory !== 'all') count++;
+    if (selectedBook !== 'all') count++;
+    if (selectedTheme !== 'all') count++;
     return count;
-  }, [isCampOnly, settingFilter, maxDuration, groupSize, selectedSubCategory]);
+  }, [isCampOnly, settingFilter, maxDuration, groupSize, selectedSubCategory, selectedBook, selectedTheme]);
 
   const handleClearAll = () => {
     updateParams({
@@ -193,6 +229,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       dauer: null,
       personen: null,
       kategorie: null,
+      buch: null,
+      thema: null,
     });
   };
 
@@ -229,6 +267,19 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       ? L('12+ Pers.', '12+ people')
       : groupSize != null
       ? `${groupSize} Pers.`
+      : undefined;
+
+  // Setting options for FilterPillDropdown
+  const settingOptions = [
+    { value: 'all', label: L('Alle Orte', 'All settings') },
+    { value: 'drinnen', label: t.settingDrinnen },
+    { value: 'draussen', label: t.settingDraussen },
+  ];
+  const activeSettingLabel =
+    settingFilter === 'drinnen'
+      ? t.settingDrinnen
+      : settingFilter === 'draussen'
+      ? t.settingDraussen
       : undefined;
 
   // Category options for FilterPillDropdown
@@ -271,6 +322,42 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const activeCategoryOption = categoryOptions.find((o) => o.value === selectedSubCategory);
   const activeCategoryLabel =
     activeCategoryOption && activeCategoryOption.value !== 'all' ? activeCategoryOption.label : undefined;
+
+  // Book options
+  const bookOptions = useMemo(() => {
+    const relevantBookIds = ['breezes', 'straight-path', 'power-of-word', 'spirit-of-faith'];
+    return [
+      { value: 'all', label: L('Alle Bücher', 'All books') },
+      ...JY_BOOKS.filter((b) => relevantBookIds.includes(b.id)).map((b) => ({
+        value: b.id,
+        label: b.title[language],
+      })),
+    ];
+  }, [language, L]);
+
+  const activeBookOption = bookOptions.find((b) => b.value === selectedBook);
+  const activeBookLabel = activeBookOption && activeBookOption.value !== 'all' ? activeBookOption.label : undefined;
+
+  // Theme options
+  const themeOptions = useMemo(() => {
+    const unique = new Map<string, string>();
+    ARTS_PROMPTS_DATA.forEach((p) => {
+      if (p.theme && !unique.has(p.theme.de)) {
+        unique.set(p.theme.de, p.theme[language]);
+      }
+    });
+
+    return [
+      { value: 'all', label: L('Alle Themen', 'All themes') },
+      ...Array.from(unique.entries()).map(([deKey, localizedLabel]) => ({
+        value: deKey,
+        label: localizedLabel,
+      })),
+    ];
+  }, [language, L]);
+
+  const activeThemeOption = themeOptions.find((t) => t.value === selectedTheme);
+  const activeThemeLabel = activeThemeOption && activeThemeOption.value !== 'all' ? activeThemeOption.label : undefined;
 
   // If viewing a detail page /service-arts/:id
   if (id) {
@@ -380,9 +467,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       </div>
 
       {/* 3. Coherent Filter Bar directly underneath */}
-      <div className="flex flex-wrap items-center gap-2 mb-5 select-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap w-full py-0.5 mb-4 select-none">
         {!fixedKind && (
-          <div className="mr-1">
+          <div className="mr-1 shrink-0">
             <SegmentedControl
               options={kindSegmentOptions}
               value={activeKind}
@@ -406,23 +493,16 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
           icon={<Tent className="w-3.5 h-3.5 shrink-0" />}
         />
 
-        {/* Setting: Drinnen Pill (1-Click Toggle) */}
-        <FilterPillButton
-          label={t.settingDrinnen}
-          isActive={settingFilter === 'drinnen'}
-          onClick={() => {
-            const next = settingFilter === 'drinnen' ? 'all' : 'drinnen';
-            setSettingFilter(next);
-            updateParams({ setting: next === 'all' ? null : next });
-          }}
-        />
-
-        {/* Setting: Draußen Pill (1-Click Toggle) */}
-        <FilterPillButton
-          label={t.settingDraussen}
-          isActive={settingFilter === 'draussen'}
-          onClick={() => {
-            const next = settingFilter === 'draussen' ? 'all' : 'draussen';
+        {/* Setting Dropdown Pill */}
+        <FilterPillDropdown
+          label={L('Ort', 'Setting')}
+          activeLabel={activeSettingLabel}
+          isActive={settingFilter !== 'all'}
+          icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
+          options={settingOptions}
+          selectedValue={settingFilter}
+          onSelect={(val) => {
+            const next = (val as string) || 'all';
             setSettingFilter(next);
             updateParams({ setting: next === 'all' ? null : next });
           }}
@@ -470,12 +550,42 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
           }}
         />
 
+        {/* Book Dropdown Pill */}
+        <FilterPillDropdown
+          label={L('Buch', 'Book')}
+          activeLabel={activeBookLabel}
+          isActive={selectedBook !== 'all'}
+          icon={<BookOpen className="w-3.5 h-3.5 shrink-0" />}
+          options={bookOptions}
+          selectedValue={selectedBook}
+          onSelect={(val) => {
+            const next = (val as string) || 'all';
+            setSelectedBook(next);
+            updateParams({ buch: next === 'all' ? null : next });
+          }}
+        />
+
+        {/* Theme Dropdown Pill */}
+        <FilterPillDropdown
+          label={L('Thema', 'Theme')}
+          activeLabel={activeThemeLabel}
+          isActive={selectedTheme !== 'all'}
+          icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
+          options={themeOptions}
+          selectedValue={selectedTheme}
+          onSelect={(val) => {
+            const next = (val as string) || 'all';
+            setSelectedTheme(next);
+            updateParams({ thema: next === 'all' ? null : next });
+          }}
+        />
+
         {/* Clear all filters button if any filter is active */}
         {activeSheetFilterCount > 0 && (
           <button
             type="button"
             onClick={handleClearAll}
-            className="inline-flex items-center gap-1.5 h-9 px-3 text-xs text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors ml-auto sm:ml-0"
+            className="inline-flex items-center gap-1 h-8 px-2.5 text-xs text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors shrink-0"
             aria-label={t.clearAllFilters}
           >
             <X className="w-3.5 h-3.5" />

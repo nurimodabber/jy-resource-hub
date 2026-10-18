@@ -68,6 +68,8 @@ export const GameCard: React.FC<GameCardProps> = ({
       ? t.purposeRuhe
       : t.purposeRaten;
 
+  const isEnergyOrCalmPurpose = game.purpose === 'ruhe' || game.purpose === 'energie';
+
   const hasGroup = typeof userGroupSize === 'number' && userGroupSize >= 2 && userGroupSize <= 40;
   const matchesGroup = !hasGroup || (userGroupSize >= game.groupSize.min && userGroupSize <= game.groupSize.max);
 
@@ -81,11 +83,13 @@ export const GameCard: React.FC<GameCardProps> = ({
         to={`/games/${game.id}`}
         className="block flex-1 min-w-0 pr-10 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control"
       >
-        <div className="mb-1.5">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent/15 text-accent">
-            {purposeLabel}
-          </span>
-        </div>
+        {!isEnergyOrCalmPurpose && purposeLabel && (
+          <div className="mb-1.5">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent/15 text-accent">
+              {purposeLabel}
+            </span>
+          </div>
+        )}
         <h3 className="text-base font-semibold text-text leading-snug line-clamp-1 group-hover:text-accent transition-colors">
           {game.title[language]}
         </h3>
