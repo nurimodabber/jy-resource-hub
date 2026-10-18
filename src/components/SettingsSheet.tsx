@@ -7,12 +7,16 @@ import {
   Printer,
   Music,
   CheckCircle2,
+  Users,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { useTheme, Theme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { exportLocalData, importLocalData, clearLocalData, downloadText } from '../utils/backup';
+import { loadGroupTitle, loadGroupNames, loadGroupPresent } from '../utils/groupNames';
 import { Sheet, SegmentedControl, Button } from './ui';
 import { GroupManager } from './tools/GroupManager';
 
@@ -35,6 +39,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   const { theme, setTheme } = useTheme();
   const { showToast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
+  const [isGroupExpanded, setIsGroupExpanded] = useState(false);
 
   // Draft setting
   const [hideDrafts, setHideDrafts] = useState<boolean>(() => {
@@ -93,105 +98,142 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
     }
   };
 
+  // Group summary
+  const groupTitle = loadGroupTitle();
+  const groupNames = loadGroupNames();
+  const groupPresent = loadGroupPresent();
+  const presentCount = groupNames.filter((n) => groupPresent[n] !== false).length;
+
   return (
     <Sheet
       isOpen={isOpen}
       onClose={onClose}
       title={t.tabSettings}
-      description={t.siteSubtitle}
+      description={language === 'de' ? 'App-Einstellungen, Gruppe & Datensicherung' : 'App preferences, group & backup'}
       position="bottom"
     >
-      <div className="space-y-6 max-w-xl mx-auto pb-6">
-        {/* Darstellung & Sprache platzsparend nebeneinander */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          {/* 1. Darstellung */}
-          <section className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-              {t.settingsAppearance}
-            </label>
-            <SegmentedControl
-              options={[
-                { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
-                { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
-                { id: 'system', label: language === 'de' ? 'System' : 'System' },
-              ]}
-              value={theme}
-              onChange={(v) => setTheme(v as Theme)}
-              fullWidth
-              size="sm"
-            />
-          </section>
+      <div className="space-y-4 max-w-xl mx-auto pb-4">
+        {/* 1. Darstellung & Sprache nebeneinander */}
+        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3 sm:p-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <section className="space-y-1.5">
+              <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                {t.settingsAppearance}
+              </label>
+              <SegmentedControl
+                options={[
+                  { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
+                  { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
+                  { id: 'system', label: language === 'de' ? 'System' : 'System' },
+                ]}
+                value={theme}
+                onChange={(v) => setTheme(v as Theme)}
+                fullWidth
+                size="sm"
+              />
+            </section>
 
-          {/* 2. Sprache */}
-          <section className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-              {t.settingsLanguage}
-            </label>
-            <SegmentedControl
-              options={[
-                { id: 'de', label: 'Deutsch' },
-                { id: 'en', label: 'English' },
-              ]}
-              value={language}
-              onChange={(v) => setLanguage(v as Language)}
-              fullWidth
-              size="sm"
-            />
-          </section>
+            <section className="space-y-1.5">
+              <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                {t.settingsLanguage}
+              </label>
+              <SegmentedControl
+                options={[
+                  { id: 'de', label: 'Deutsch' },
+                  { id: 'en', label: 'English' },
+                ]}
+                value={language}
+                onChange={(v) => setLanguage(v as Language)}
+                fullWidth
+                size="sm"
+              />
+            </section>
+          </div>
         </div>
 
-        {/* 3. Entwürfe Filter */}
-        <section className="space-y-2 pt-2 border-t border-border">
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-                {t.settingsHideDrafts}
-              </label>
-              <p className="text-xs text-text-secondary mt-0.5">
-                {t.settingsHideDraftsHint}
-              </p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer min-h-[44px]">
-              <input
-                type="checkbox"
-                checked={hideDrafts}
-                onChange={(e) => handleToggleDrafts(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-surface-2 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[12px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent"></div>
-            </label>
+        {/* 2. Entwürfe Filter Card */}
+        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3 sm:p-3.5 flex items-center justify-between gap-3">
+          <div className="min-w-0 pr-2">
+            <span className="block text-xs font-semibold text-text">
+              {t.settingsHideDrafts}
+            </span>
+            <p className="text-2xs text-text-secondary mt-0.5 leading-snug">
+              {t.settingsHideDraftsHint}
+            </p>
           </div>
-        </section>
+          <label className="relative inline-flex items-center cursor-pointer shrink-0 min-h-[44px]">
+            <input
+              type="checkbox"
+              checked={hideDrafts}
+              onChange={(e) => handleToggleDrafts(e.target.checked)}
+              className="sr-only peer"
+              aria-label={t.settingsHideDrafts}
+            />
+            <div className="w-11 h-6 bg-surface-2 border border-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[12px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent peer-checked:border-accent"></div>
+          </label>
+        </div>
 
-        {/* 4. Meine Gruppe */}
-        <section className="space-y-2 pt-2 border-t border-border">
-          <GroupManager language={language} compact={true} />
-        </section>
+        {/* 3. Meine Gruppe Collapsible Card */}
+        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3 sm:p-4 space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-control bg-accent-subtle flex items-center justify-center shrink-0 text-accent-text">
+                <Users className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="block text-xs font-bold text-text truncate">
+                  {groupTitle || (language === 'de' ? 'Meine Gruppe' : 'My Group')}
+                </span>
+                <span className="block text-2xs text-text-secondary truncate">
+                  {groupNames.length > 0
+                    ? (language === 'de' ? `${presentCount} von ${groupNames.length} anwesend` : `${presentCount} of ${groupNames.length} present`)
+                    : (language === 'de' ? 'Keine Namen hinterlegt' : 'No youth entered yet')}
+                </span>
+              </div>
+            </div>
 
-        {/* 5. Daten & Sicherung */}
-        <section className="space-y-2 pt-2 border-t border-border">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+            <button
+              type="button"
+              onClick={() => setIsGroupExpanded((prev) => !prev)}
+              className="inline-flex items-center gap-1 min-h-[36px] px-2.5 py-1 text-xs font-semibold rounded-control text-accent hover:bg-surface-2 transition-colors cursor-pointer shrink-0"
+              aria-expanded={isGroupExpanded}
+            >
+              <span>{isGroupExpanded ? (language === 'de' ? 'Schließen' : 'Close') : (language === 'de' ? 'Verwalten' : 'Manage')}</span>
+              {isGroupExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+
+          {isGroupExpanded && (
+            <div className="pt-2 border-t border-border/60">
+              <GroupManager language={language} compact={true} />
+            </div>
+          )}
+        </div>
+
+        {/* 4. Daten & Sicherung */}
+        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3 sm:p-4 space-y-2.5">
+          <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
             {t.settingsData}
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <Button
               variant="secondary"
-              size="md"
-              icon={<Download className="w-4 h-4" strokeWidth={1.75} />}
+              size="sm"
+              icon={<Download className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />}
               onClick={handleExport}
-              className="w-full justify-start"
+              className="w-full justify-start text-xs min-h-[44px]"
             >
-              {t.settingsBackup}
+              <span className="truncate">{t.settingsBackup}</span>
             </Button>
 
             <Button
               variant="secondary"
-              size="md"
-              icon={<Upload className="w-4 h-4" strokeWidth={1.75} />}
+              size="sm"
+              icon={<Upload className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />}
               onClick={() => fileRef.current?.click()}
-              className="w-full justify-start"
+              className="w-full justify-start text-xs min-h-[44px]"
             >
-              {t.settingsRestore}
+              <span className="truncate">{t.settingsRestore}</span>
             </Button>
             <input
               ref={fileRef}
@@ -203,58 +245,58 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
 
             <Button
               variant="secondary"
-              size="md"
-              icon={<Printer className="w-4 h-4" strokeWidth={1.75} />}
+              size="sm"
+              icon={<Printer className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />}
               onClick={() => {
                 window.print();
                 onClose();
               }}
-              className="w-full justify-start"
+              className="w-full justify-start text-xs min-h-[44px]"
             >
-              {t.printHandout}
+              <span className="truncate">{t.printHandout}</span>
             </Button>
 
             {onOpenBahaiSongs && (
               <Button
                 variant="secondary"
-                size="md"
-                icon={<Music className="w-4 h-4" strokeWidth={1.75} />}
+                size="sm"
+                icon={<Music className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />}
                 onClick={() => {
                   onOpenBahaiSongs();
                   onClose();
                 }}
-                className="w-full justify-start"
+                className="w-full justify-start text-xs min-h-[44px]"
               >
-                Bahá'í Songs
+                <span className="truncate">Bahá'í Songs</span>
               </Button>
             )}
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <Button
               variant="ghost"
               size="sm"
-              icon={<Trash2 className="w-4 h-4 text-danger" strokeWidth={1.75} />}
+              icon={<Trash2 className="w-3.5 h-3.5 text-danger shrink-0" strokeWidth={1.75} />}
               onClick={handleClear}
-              className="text-danger hover:bg-danger/10 w-full justify-start"
+              className="text-danger hover:bg-danger/10 w-full justify-start text-xs min-h-[40px]"
             >
-              {t.settingsDeleteAll}
+              <span>{t.settingsDeleteAll}</span>
             </Button>
           </div>
-        </section>
+        </div>
 
-        {/* 6. Über die Seite & Offline Status */}
-        <section className="pt-2 border-t border-border space-y-3">
-          <div className="flex items-center justify-between text-xs text-text-secondary">
+        {/* 5. Über die Seite & Offline Status */}
+        <div className="pt-2 border-t border-border/80 space-y-2">
+          <div className="flex items-center justify-between text-2xs text-text-secondary px-1">
             <span>{t.settingsVersion}</span>
-            <div className="flex items-center gap-1.5 text-success">
+            <div className="flex items-center gap-1.5 text-success font-medium">
               <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.75} />
               <span>{isOfflineReady ? t.settingsOfflineReady : t.settingsOfflineDesc}</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-text-secondary">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-2xs text-text-secondary px-1">
+            <div className="flex items-center gap-2.5">
               <Link to="/impressum" onClick={onClose} className="hover:text-text">
                 {t.impressumTitle}
               </Link>
@@ -267,7 +309,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               {t.settingsSubmitProposal}
             </Link>
           </div>
-        </section>
+        </div>
       </div>
     </Sheet>
   );

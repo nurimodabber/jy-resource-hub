@@ -211,24 +211,28 @@ export const GamesView: React.FC<GamesViewProps> = ({
     );
   }
 
+  const hasActiveFilterOrSearch = Boolean(filters.q || totalActiveFilterCount > 0);
+
   return (
-    <div className="max-w-6xl mx-auto pb-20 px-4 sm:px-6">
-      {/* 1. Header: H1, one sentence, live count */}
+    <div className="max-w-6xl mx-auto pb-20">
+      {/* 1. Header: H1, one sentence, count on search/filter */}
       <header className="mb-6">
         <div className="flex items-baseline gap-3 flex-wrap">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
             {t.tabGames}
           </h1>
-          <div aria-live="polite" aria-atomic="true">
-            <Badge category="neutral" size="md">
-              {filteredGames.length} {t.gamesFound}
-            </Badge>
-          </div>
+          {hasActiveFilterOrSearch && (
+            <div aria-live="polite" aria-atomic="true">
+              <Badge category="neutral" size="md">
+                {filteredGames.length} {t.gamesFound}
+              </Badge>
+            </div>
+          )}
         </div>
         <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
           {L(
-            `${GAMES_DATA.length} Spiele für den Kreis, die Wiese und den Gruppenraum.`,
-            `${GAMES_DATA.length} games for the circle, lawn, and group room.`
+            'Spiele für den Kreis, die Wiese und den Gruppenraum.',
+            'Games for the circle, lawn, and group room.'
           )}
         </p>
       </header>
@@ -268,7 +272,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
       </div>
 
       {/* 3. Coherent Filter Bar directly underneath */}
-      <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap sm:overflow-x-auto sm:no-scrollbar w-full py-0.5 mb-4 select-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full py-0.5 mb-4 select-none">
         {/* Wirkung Dropdown */}
         <FilterPillDropdown
           label={t.purposeLabel}
