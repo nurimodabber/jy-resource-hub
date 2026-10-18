@@ -333,27 +333,30 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
           </p>
         </header>
 
-        {/* Rechte Spalte: Die zwei großen CTA-Kacheln übereinander (lg:col-span-5) */}
+        {/* Rechte Spalte: In vertikaler Darstellung (Mobile) nebeneinander, in horizontaler Darstellung (Desktop) übereinander */}
         <div className="lg:col-span-5 space-y-3">
-          <nav aria-label={L('Haupteinstiege', 'Main navigation')} className="flex flex-col gap-3">
+          <nav
+            aria-label={L('Haupteinstiege', 'Main navigation')}
+            className="grid grid-cols-2 lg:flex lg:flex-col gap-2.5 sm:gap-3"
+          >
             {/* Hauptaktion: Treffen vorbereiten */}
             <Link
               to="/treffen"
-              className="rounded-card bg-accent text-accent-contrast p-4 sm:p-5 shadow-1 hover:bg-accent-hover transition-all duration-150 flex items-center justify-between group cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+              className="rounded-card bg-accent text-accent-contrast p-3.5 sm:p-4 lg:p-5 shadow-1 hover:bg-accent-hover transition-all duration-150 flex flex-col justify-between sm:flex-row sm:items-center sm:justify-between group cursor-pointer focus-visible:ring-2 focus-visible:ring-accent min-h-[92px] sm:min-h-0"
             >
-              <div className="space-y-0.5 min-w-0 pr-2">
-                <div className="flex items-center gap-1.5 font-extrabold text-base sm:text-lg tracking-tight">
+              <div className="space-y-0.5 min-w-0 pr-1">
+                <div className="flex items-center gap-1.5 font-extrabold text-sm sm:text-base lg:text-lg tracking-tight">
                   <span>{L('Treffen vorbereiten', 'Prepare gathering')}</span>
-                  <Sparkles className="w-4 h-4 text-accent-contrast shrink-0" />
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent-contrast shrink-0" />
                 </div>
-                <p className="text-xs text-accent-contrast/95 font-medium leading-tight">
+                <p className="text-2xs sm:text-xs text-accent-contrast/95 font-medium leading-tight">
                   {slotCount > 0
                     ? `${slotCount} ${L('Bausteine', 'blocks')} · ${totalMinutes} min`
                     : L('Ablauf planen, Bausteine zusammenstellen', 'Plan agenda, assemble building blocks')}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-accent-contrast/15 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 transition-transform">
-                <Calendar className="w-5 h-5 text-accent-contrast" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent-contrast/15 flex items-center justify-center shrink-0 self-end sm:self-center mt-2 sm:mt-0 group-hover:translate-x-0.5 transition-transform">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-accent-contrast" />
               </div>
             </Link>
 
@@ -361,19 +364,19 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
             <button
               type="button"
               onClick={() => setShowCompactFinder(!showCompactFinder)}
-              className="rounded-card bg-surface border border-line p-4 sm:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent"
+              className="rounded-card bg-surface border border-line p-3.5 sm:p-4 lg:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex flex-col justify-between sm:flex-row sm:items-center sm:justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[92px] sm:min-h-0"
             >
-              <div className="space-y-0.5 min-w-0 pr-2">
-                <div className="flex items-center gap-1.5 font-bold text-base sm:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
+              <div className="space-y-0.5 min-w-0 pr-1">
+                <div className="flex items-center gap-1.5 font-bold text-sm sm:text-base lg:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
                   <span>{L('Spiel finden', 'Find a game')}</span>
-                  <Compass className="w-4 h-4 text-accent shrink-0" />
+                  <Compass className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
                 </div>
-                <p className="text-xs text-text-secondary leading-tight">
+                <p className="text-2xs sm:text-xs text-text-secondary leading-tight">
                   {L('Gruppengröße & Zeit eingeben', 'Pick group size & time')}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-surface-2 text-text flex items-center justify-center shrink-0 group-hover:bg-accent/15 group-hover:text-accent transition-colors">
-                <ArrowRight className="w-5 h-5" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-surface-2 text-text flex items-center justify-center shrink-0 self-end sm:self-center mt-2 sm:mt-0 group-hover:bg-accent/15 group-hover:text-accent transition-colors">
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </button>
           </nav>
