@@ -339,8 +339,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
             </p>
           </header>
 
-          {/* Die zwei großen CTA-Kacheln ("Treffen vorbereiten" & "Spiel finden") */}
-          <nav aria-label={L('Haupteinstiege', 'Main navigation')} className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-1">
+          {/* Die zwei großen CTA-Kacheln übereinander */}
+          <nav aria-label={L('Haupteinstiege', 'Main navigation')} className="flex flex-col gap-3 pt-1">
             {/* Hauptaktion: Treffen vorbereiten */}
             <Link
               to="/treffen"
@@ -366,7 +366,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
             <button
               type="button"
               onClick={() => setShowCompactFinder(!showCompactFinder)}
-              className="rounded-card bg-surface border border-border p-4 sm:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent"
+              className="rounded-card bg-surface border border-line p-4 sm:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent"
             >
               <div className="space-y-0.5 min-w-0 pr-2">
                 <div className="flex items-center gap-1.5 font-bold text-base sm:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
@@ -442,20 +442,17 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
           )}
         </div>
 
-        {/* Rechte Spalte: Zitat des Tages (lg:col-span-5) */}
+        {/* Rechte Spalte: Zitat des Tages (ruhig, dezent, ohne auffälligen Rahmen) */}
         {quote && (
-          <div className="lg:col-span-5 flex flex-col">
+          <div className="lg:col-span-5 flex flex-col justify-start">
             <section
               aria-label={L('Zitat des Tages', 'Quote of the day')}
-              className="flex-1 flex flex-col justify-between p-5 sm:p-6 rounded-card bg-surface border border-devotion-border/40 shadow-xs relative overflow-hidden"
+              className="p-5 sm:p-6 rounded-card bg-surface border border-line shadow-xs flex flex-col justify-between space-y-4"
             >
-              {/* Dezent gestaltete Akzentlinie in warmer Farbe */}
-              <div className="absolute top-0 left-0 bottom-0 w-1 bg-amber/60" aria-hidden="true" />
-
-              <div className="space-y-3.5 pl-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase tracking-wider bg-amber-subtle text-amber-text border border-amber-border/40">
-                    <QuoteIcon className="w-3 h-3 text-amber" />
+                  <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
+                    <QuoteIcon className="w-3.5 h-3.5 text-accent" />
                     <span>{L('Zitat des Tages', 'Quote of the day')}</span>
                   </span>
                   <Link
@@ -481,14 +478,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                   </button>
                 )}
 
-                <p className="text-xs font-medium text-text-secondary pt-0.5">
+                <p className="text-xs text-text-secondary pt-0.5">
                   {quote.source[language]}
                 </p>
               </div>
 
-              {/* Aktionen als gleichmäßige Button-Gruppe */}
               {/* Aktionen als gleichmäßige Button-Gruppe (Mobil 2x2, Desktop Flex-Reihe) */}
-              <div className="pt-4 mt-3 border-t border-border grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2 pl-2">
+              <div className="pt-3 border-t border-line grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2">
                 <button
                   type="button"
                   onClick={handleUseQuoteAsDevotional}
@@ -499,7 +495,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                 </button>
                 <Link
                   to={`/quotes/${quote.id}`}
-                  className="px-3.5 py-2.5 rounded-full bg-surface-2 hover:bg-surface-2/80 text-text text-xs font-semibold transition-colors cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
+                  className="px-3.5 py-2.5 rounded-full bg-surface-2 hover:bg-surface-3 text-text text-xs font-semibold transition-colors cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   <BookOpen className="w-3.5 h-3.5 shrink-0" />
                   <span>{L('Lesen', 'Read')}</span>
@@ -507,7 +503,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                 <button
                   type="button"
                   onClick={handleShareQuote}
-                  className="px-3 py-2.5 rounded-full border border-border bg-surface hover:bg-surface-2 text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                  className="px-3 py-2.5 rounded-full border border-line hover:bg-surface-2 text-text-secondary hover:text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                   title={t.quoteShare}
                   aria-label={t.quoteShare}
                 >
@@ -519,7 +515,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                     href={quoteSong.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-2.5 rounded-full border border-border bg-surface hover:bg-surface-2 text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
+                    className="px-3 py-2.5 rounded-full border border-line hover:bg-surface-2 text-text-secondary hover:text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
                     title={language === 'de' ? `Lied „${quoteSong.title}“ auf bahaisongs.com anhören` : `Listen to song "${quoteSong.title}" on bahaisongs.com`}
                     aria-label={t.quoteSongAriaLabel}
                   >
@@ -668,16 +664,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          {/* Service Project Card mit visueller Kennung */}
+          {/* Service Project Card */}
           {sampleService && (
             <Link
               to={`/service/${sampleService.id}`}
-              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-line hover:border-accent hover:shadow-xs transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent"
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-success-subtle text-success border border-success/30 flex items-center gap-1.5 shrink-0">
-                    <HeartHandshake className="w-3 h-3 text-success" />
+                  <span className="px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase tracking-wider bg-surface-2 text-text-secondary flex items-center gap-1.5 shrink-0">
+                    <HeartHandshake className="w-3.5 h-3.5 text-accent" />
                     <span>{L('Dienstprojekt', 'Service Project')}</span>
                   </span>
                   <span className="text-2xs text-text-tertiary font-semibold tabular-nums shrink-0">
@@ -691,7 +687,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                   {sampleService.objective[language]}
                 </p>
               </div>
-              <div className="pt-3 mt-3 border-t border-border flex items-center justify-between text-xs text-text-tertiary">
+              <div className="pt-3 mt-3 border-t border-line flex items-center justify-between text-xs text-text-tertiary">
                 <span>{sampleService.groupSize.min}–{sampleService.groupSize.max} {L('Personen', 'people')}</span>
                 <span className="font-semibold text-accent group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
                   {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
@@ -700,16 +696,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
             </Link>
           )}
 
-          {/* Arts Prompt Card mit visueller Kennung */}
+          {/* Arts Prompt Card */}
           {sampleArt && (
             <Link
               to={`/arts/${sampleArt.id}`}
-              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-line hover:border-accent hover:shadow-xs transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent"
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-amber-subtle text-amber-text border border-amber-border/40 flex items-center gap-1.5 shrink-0">
-                    <Palette className="w-3 h-3 text-amber" />
+                  <span className="px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase tracking-wider bg-surface-2 text-text-secondary flex items-center gap-1.5 shrink-0">
+                    <Palette className="w-3.5 h-3.5 text-accent" />
                     <span>{L('Kunst & Theater', 'Arts & Drama')}</span>
                   </span>
                   <span className="text-2xs text-text-tertiary font-semibold tabular-nums shrink-0">
@@ -723,7 +719,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                   {sampleArt.description[language]}
                 </p>
               </div>
-              <div className="pt-3 mt-3 border-t border-border flex items-center justify-between text-xs text-text-tertiary">
+              <div className="pt-3 mt-3 border-t border-line flex items-center justify-between text-xs text-text-tertiary">
                 <span>{sampleArt.groupSize.min}–{sampleArt.groupSize.max} {L('Personen', 'people')}</span>
                 <span className="font-semibold text-accent group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
                   {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
