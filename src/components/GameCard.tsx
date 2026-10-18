@@ -49,7 +49,23 @@ export const GameCard: React.FC<GameCardProps> = ({
   userGroupSize,
 }) => {
   const t = UI_TRANSLATIONS[language];
-  const subtitle = game.subtitle ? game.subtitle[language] : (game.summary ? game.summary[language] : '');
+  const categoryBadge = React.useMemo(() => {
+    switch (game.purpose) {
+      case 'kennenlernen':
+        return language === 'de' ? 'Kennenlernen' : 'Icebreaker';
+      case 'zusammenarbeit':
+        return language === 'de' ? 'Zusammenarbeit' : 'Cooperation';
+      case 'ruhe':
+        return language === 'de' ? 'Fokus & Konzentration' : 'Focus & Calm';
+      case 'energie':
+        return language === 'de' ? 'Bewegung & Dynamik' : 'Movement & Action';
+      case 'raten':
+        return language === 'de' ? 'Raten & Denken' : 'Guessing & Logic';
+      default:
+        return language === 'de' ? 'Gruppenspiel' : 'Group Game';
+    }
+  }, [game.purpose, language]);
+
   const energyLabel =
     game.energyLevel === 'high'
       ? t.filterHighEnergy
@@ -57,18 +73,7 @@ export const GameCard: React.FC<GameCardProps> = ({
       ? t.filterMediumEnergy
       : t.filterCalmEnergy;
 
-  const purposeLabel =
-    game.purpose === 'kennenlernen'
-      ? t.purposeKennenlernen
-      : game.purpose === 'energie'
-      ? t.purposeEnergie
-      : game.purpose === 'zusammenarbeit'
-      ? t.purposeZusammenarbeit
-      : game.purpose === 'ruhe'
-      ? t.purposeRuhe
-      : t.purposeRaten;
-
-  const isEnergyOrCalmPurpose = game.purpose === 'ruhe' || game.purpose === 'energie';
+  const description = (game.summary && game.summary[language]) || (game.subtitle && game.subtitle[language]) || '';
 
   const hasGroup = typeof userGroupSize === 'number' && userGroupSize >= 2 && userGroupSize <= 40;
   const matchesGroup = !hasGroup || (userGroupSize >= game.groupSize.min && userGroupSize <= game.groupSize.max);
@@ -83,19 +88,16 @@ export const GameCard: React.FC<GameCardProps> = ({
         to={`/games/${game.id}`}
         className="block flex-1 min-w-0 pr-10 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control"
       >
-        {!isEnergyOrCalmPurpose && purposeLabel && (
-          <div className="mb-1.5">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent/15 text-accent">
-              {purposeLabel}
-            </span>
-          </div>
-        )}
+        <div className="mb-2">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent/15 text-accent">
+            {categoryBadge}
+          </span>
+        </div>
         <h3 className="text-base font-semibold text-text leading-snug line-clamp-1 group-hover:text-accent transition-colors">
           {game.title[language]}
         </h3>
-        {/* Uniform height subtitle row */}
-        <p className="text-xs text-text-secondary line-clamp-1 mt-0.5">
-          {subtitle || <span className="opacity-0" aria-hidden="true">—</span>}
+        <p className="text-xs text-text-secondary line-clamp-2 mt-1 leading-relaxed">
+          {description}
         </p>
       </Link>
 

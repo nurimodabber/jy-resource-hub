@@ -8,10 +8,10 @@ export interface JyBook {
 }
 
 export const JY_BOOKS: JyBook[] = [
-  { id: 'breezes', title: { de: 'Brise der Bestätigung', en: 'Breezes of Confirmation' }, totalLessons: 14 },
-  { id: 'straight-path', title: { de: 'Den geraden Pfad beschreiten', en: 'Walking the Straight Path' }, totalLessons: 20 },
-  { id: 'power-of-word', title: { de: 'Die Kraft des Wortes nutzen', en: 'Drawing on the Power of the Word' }, totalLessons: 20 },
-  { id: 'excellence', title: { de: 'Nach Vortrefflichkeit streben', en: 'Learning About Excellence' }, totalLessons: 10 },
+  { id: 'breezes', title: { de: 'Brisen der Bestätigung', en: 'Breezes of Confirmation' }, totalLessons: 14 },
+  { id: 'straight-path', title: { de: 'Den geraden Pfad gehen', en: 'Walking the Straight Path' }, totalLessons: 20 },
+  { id: 'power-of-word', title: { de: 'Entdecke die Macht der Worte', en: 'Drawing on the Power of the Word' }, totalLessons: 20 },
+  { id: 'excellence', title: { de: 'Etwas über Vortrefflichkeit lernen', en: 'Learning About Excellence' }, totalLessons: 10 },
   { id: 'glimmerings', title: { de: 'Hoffnungsschimmer', en: 'Glimmerings of Hope' }, totalLessons: 12 },
   { id: 'spirit-of-faith', title: { de: 'Geist des Glaubens', en: 'Spirit of Faith' }, totalLessons: 14 },
   { id: 'wellspring', title: { de: 'Quelle der Freude', en: 'Wellspring of Joy' }, totalLessons: 14 },
