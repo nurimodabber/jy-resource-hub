@@ -461,7 +461,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               id: 'quotes',
               label: t.tabQuotesRead,
               icon: <BookOpen className="w-4 h-4 text-accent" />,
-              count: filteredQuotes.length,
+              count: (effectiveSearch || activeFilterCount > 0) ? filteredQuotes.length : undefined,
             },
             {
               id: 'practice',
@@ -596,7 +596,13 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
           {/* Masonry Columns of Quote Cards: 1 col on mobile, 2 cols on desktop */}
           {filteredQuotes.length > 0 ? (
-            <div className="columns-1 md:columns-2 gap-5 [column-fill:_balance]">
+            <>
+              {(effectiveSearch || activeFilterCount > 0) && (
+                <div className="text-xs text-text-tertiary font-medium mb-1 px-1" aria-live="polite">
+                  {filteredQuotes.length} {language === 'de' ? (filteredQuotes.length === 1 ? 'Zitat gefunden' : 'Zitate gefunden') : (filteredQuotes.length === 1 ? 'quote found' : 'quotes found')}
+                </div>
+              )}
+              <div className="columns-1 md:columns-2 gap-5 [column-fill:_balance]">
               {filteredQuotes.map((quote) => (
                 <QuoteCard
                   key={quote.id}
@@ -611,7 +617,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 />
               ))}
             </div>
-          ) : (
+          </>
+        ) : (
             <EmptyState
               title={language === 'de' ? 'Keine Zitate gefunden' : 'No quotes found'}
               description={language === 'de' ? 'Passe die Filter an oder ändere den Suchbegriff.' : 'Adjust filters or change search term.'}

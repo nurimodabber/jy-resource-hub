@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, Tent, Clock, Users, MapPin, BookOpen, Sparkles } from 'lucide-react';
+import { Search, X, ArrowLeft, Tent, MapPin, BookOpen, RotateCcw } from 'lucide-react';
 import {
   Language,
   ActivityItem,
@@ -211,14 +211,22 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const activeSheetFilterCount = useMemo(() => {
     let count = 0;
     if (isCampOnly) count++;
-    if (settingFilter !== 'all') count++;
-    if (maxDuration != null) count++;
-    if (groupSize != null) count++;
-    if (selectedSubCategory !== 'all') count++;
-    if (selectedBook !== 'all') count++;
-    if (selectedTheme !== 'all') count++;
+    if (fixedKind === 'kunst') {
+      if (selectedSubCategory !== 'all') count++;
+      if (selectedBook !== 'all') count++;
+    } else if (fixedKind === 'dienst') {
+      if (selectedSubCategory !== 'all') count++;
+      if (settingFilter !== 'all') count++;
+    } else {
+      if (settingFilter !== 'all') count++;
+      if (maxDuration != null) count++;
+      if (groupSize != null) count++;
+      if (selectedSubCategory !== 'all') count++;
+      if (selectedBook !== 'all') count++;
+      if (selectedTheme !== 'all') count++;
+    }
     return count;
-  }, [isCampOnly, settingFilter, maxDuration, groupSize, selectedSubCategory, selectedBook, selectedTheme]);
+  }, [isCampOnly, fixedKind, settingFilter, maxDuration, groupSize, selectedSubCategory, selectedBook, selectedTheme]);
 
   const handleClearAll = () => {
     updateParams({
@@ -236,38 +244,10 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
 
   // Kind segment options (for fallback when !fixedKind)
   const kindSegmentOptions = [
-    { id: 'all', label: t.filterAll, count: allActivities.length },
-    { id: 'dienst', label: t.subtabServiceProjects, count: SERVICE_PROJECTS_DATA.length },
-    { id: 'kunst', label: t.subtabArtsPrompts, count: ARTS_PROMPTS_DATA.length },
+    { id: 'all', label: t.filterAll },
+    { id: 'dienst', label: t.subtabServiceProjects },
+    { id: 'kunst', label: t.subtabArtsPrompts },
   ];
-
-  // Duration options for FilterPillDropdown
-  const durationOptions = [
-    { value: null, label: t.filterDurationAny },
-    { value: 30, label: 'Bis 30 Min.' },
-    { value: 60, label: 'Bis 60 Min.' },
-    { value: 90, label: 'Bis 90 Min.' },
-    { value: 120, label: 'Bis 120 Min.' },
-  ];
-
-  // Group size options for FilterPillDropdown
-  const groupSizeOptions = [
-    { value: null, label: L('Alle Gruppengrößen', 'All group sizes') },
-    { value: 6, label: L('Bis 6 Personen', 'Up to 6 people') },
-    { value: 12, label: L('6 bis 12 Personen', '6 to 12 people') },
-    { value: 15, label: L('Über 12 Personen', 'Over 12 people') },
-  ];
-
-  const activeGroupLabel =
-    groupSize === 6
-      ? L('≤ 6 Pers.', '≤ 6 people')
-      : groupSize === 12
-      ? L('6–12 Pers.', '6–12 people')
-      : groupSize === 15
-      ? L('12+ Pers.', '12+ people')
-      : groupSize != null
-      ? `${groupSize} Pers.`
-      : undefined;
 
   // Setting options for FilterPillDropdown
   const settingOptions = [
@@ -338,27 +318,6 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const activeBookOption = bookOptions.find((b) => b.value === selectedBook);
   const activeBookLabel = activeBookOption && activeBookOption.value !== 'all' ? activeBookOption.label : undefined;
 
-  // Theme options
-  const themeOptions = useMemo(() => {
-    const unique = new Map<string, string>();
-    ARTS_PROMPTS_DATA.forEach((p) => {
-      if (p.theme && !unique.has(p.theme.de)) {
-        unique.set(p.theme.de, p.theme[language]);
-      }
-    });
-
-    return [
-      { value: 'all', label: L('Alle Themen', 'All themes') },
-      ...Array.from(unique.entries()).map(([deKey, localizedLabel]) => ({
-        value: deKey,
-        label: localizedLabel,
-      })),
-    ];
-  }, [language, L]);
-
-  const activeThemeOption = themeOptions.find((t) => t.value === selectedTheme);
-  const activeThemeLabel = activeThemeOption && activeThemeOption.value !== 'all' ? activeThemeOption.label : undefined;
-
   // If viewing a detail page /service-arts/:id
   if (id) {
     if (!activeActivity) {
@@ -407,27 +366,29 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     ? t.artsHeaderDesc
     : t.serviceArtsHeaderDesc;
 
-  const countBadgeLabel = fixedKind === 'dienst'
-    ? `${allActivities.length} ${L('Projekte', 'projects')}`
-    : `${allActivities.length} ${L('Aktivitäten', 'activities')}`;
-
   const searchPlaceholderText = fixedKind === 'dienst'
     ? L('Dienstprojekt suchen...', 'Search service projects...')
     : fixedKind === 'kunst'
     ? L('Kreativimpuls oder Kunstaktion suchen...', 'Search creative activity or drama prompt...')
     : L('Dienstprojekt oder Kunstimpuls suchen...', 'Search service projects or arts prompts...');
 
+  const hasActiveFilterOrSearch = Boolean(query || activeSheetFilterCount > 0);
+
   return (
-    <div className="max-w-6xl mx-auto pb-20 px-4 sm:px-6">
-      {/* 1. Header: H1, one sentence, count */}
+    <div className="max-w-6xl mx-auto pb-20">
+      {/* 1. Header: H1, one sentence, count on search/filter */}
       <header className="mb-6">
         <div className="flex items-baseline gap-3 flex-wrap">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
             {pageTitle}
           </h1>
-          <Badge category="neutral" size="md">
-            {countBadgeLabel}
-          </Badge>
+          {hasActiveFilterOrSearch && (
+            <div aria-live="polite" aria-atomic="true">
+              <Badge category="neutral" size="md">
+                {filteredList.length} {L('gefunden', 'found')}
+              </Badge>
+            </div>
+          )}
         </div>
         <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
           {pageDesc}
@@ -467,7 +428,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       </div>
 
       {/* 3. Coherent Filter Bar directly underneath */}
-      <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap sm:overflow-x-auto sm:no-scrollbar w-full py-0.5 mb-4 select-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full py-0.5 mb-4 select-none">
         {!fixedKind && (
           <div className="mr-1 shrink-0">
             <SegmentedControl
@@ -481,115 +442,143 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
           </div>
         )}
 
-        {/* Camp Filter Pill (1-Click Toggle) */}
-        <FilterPillButton
-          label={t.forCampFilter}
-          isActive={isCampOnly}
-          onClick={() => {
-            const next = !isCampOnly;
-            setIsCampOnly(next);
-            updateParams({ camp: next ? '1' : null });
-          }}
-          icon={<Tent className="w-3.5 h-3.5 shrink-0" />}
-        />
+        {fixedKind === 'kunst' ? (
+          <>
+            {/* Kunstform Dropdown Pill */}
+            <FilterPillDropdown
+              label={L('Kunstform', 'Art form')}
+              activeLabel={activeCategoryLabel}
+              isActive={selectedSubCategory !== 'all'}
+              options={categoryOptions}
+              selectedValue={selectedSubCategory}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSelectedSubCategory(next);
+                updateParams({ kategorie: next === 'all' ? null : next });
+              }}
+            />
 
-        {/* Setting Dropdown Pill */}
-        <FilterPillDropdown
-          label={L('Ort', 'Setting')}
-          activeLabel={activeSettingLabel}
-          isActive={settingFilter !== 'all'}
-          icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
-          options={settingOptions}
-          selectedValue={settingFilter}
-          onSelect={(val) => {
-            const next = (val as string) || 'all';
-            setSettingFilter(next);
-            updateParams({ setting: next === 'all' ? null : next });
-          }}
-        />
+            {/* Book Dropdown Pill */}
+            <FilterPillDropdown
+              label={L('Buch', 'Book')}
+              activeLabel={activeBookLabel}
+              isActive={selectedBook !== 'all'}
+              icon={<BookOpen className="w-3.5 h-3.5 shrink-0" />}
+              options={bookOptions}
+              selectedValue={selectedBook}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSelectedBook(next);
+                updateParams({ buch: next === 'all' ? null : next });
+              }}
+            />
 
-        {/* Duration Dropdown Pill */}
-        <FilterPillDropdown
-          label={t.filterDuration}
-          activeLabel={maxDuration ? `≤ ${maxDuration} Min.` : undefined}
-          isActive={maxDuration != null}
-          icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
-          options={durationOptions}
-          selectedValue={maxDuration}
-          onSelect={(val) => {
-            setMaxDuration(val);
-            updateParams({ dauer: val ? String(val) : null });
-          }}
-        />
+            {/* Camp Filter Pill (1-Click Toggle) */}
+            <FilterPillButton
+              label={t.forCampFilter}
+              isActive={isCampOnly}
+              onClick={() => {
+                const next = !isCampOnly;
+                setIsCampOnly(next);
+                updateParams({ camp: next ? '1' : null });
+              }}
+              icon={<Tent className="w-3.5 h-3.5 shrink-0" />}
+            />
+          </>
+        ) : fixedKind === 'dienst' ? (
+          <>
+            {/* Dienst Kategorie Dropdown Pill */}
+            <FilterPillDropdown
+              label={t.filterCategoryLabel}
+              activeLabel={activeCategoryLabel}
+              isActive={selectedSubCategory !== 'all'}
+              options={categoryOptions}
+              selectedValue={selectedSubCategory}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSelectedSubCategory(next);
+                updateParams({ kategorie: next === 'all' ? null : next });
+              }}
+            />
 
-        {/* Group Size Dropdown Pill */}
-        <FilterPillDropdown
-          label={t.groupLabel}
-          activeLabel={activeGroupLabel}
-          isActive={groupSize != null}
-          icon={<Users className="w-3.5 h-3.5 shrink-0" />}
-          options={groupSizeOptions}
-          selectedValue={groupSize}
-          onSelect={(val) => {
-            setGroupSize(val);
-            updateParams({ personen: val ? String(val) : null });
-          }}
-        />
+            {/* Setting Dropdown Pill */}
+            <FilterPillDropdown
+              label={L('Ort', 'Setting')}
+              activeLabel={activeSettingLabel}
+              isActive={settingFilter !== 'all'}
+              icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
+              options={settingOptions}
+              selectedValue={settingFilter}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSettingFilter(next);
+                updateParams({ setting: next === 'all' ? null : next });
+              }}
+            />
 
-        {/* Category / Art Form Dropdown Pill */}
-        <FilterPillDropdown
-          label={fixedKind === 'kunst' ? L('Kunstform', 'Art form') : t.filterCategoryLabel}
-          activeLabel={activeCategoryLabel}
-          isActive={selectedSubCategory !== 'all'}
-          options={categoryOptions}
-          selectedValue={selectedSubCategory}
-          onSelect={(val) => {
-            const next = (val as string) || 'all';
-            setSelectedSubCategory(next);
-            updateParams({ kategorie: next === 'all' ? null : next });
-          }}
-        />
-
-        {/* Book Dropdown Pill */}
-        <FilterPillDropdown
-          label={L('Buch', 'Book')}
-          activeLabel={activeBookLabel}
-          isActive={selectedBook !== 'all'}
-          icon={<BookOpen className="w-3.5 h-3.5 shrink-0" />}
-          options={bookOptions}
-          selectedValue={selectedBook}
-          onSelect={(val) => {
-            const next = (val as string) || 'all';
-            setSelectedBook(next);
-            updateParams({ buch: next === 'all' ? null : next });
-          }}
-        />
-
-        {/* Theme Dropdown Pill */}
-        <FilterPillDropdown
-          label={L('Thema', 'Theme')}
-          activeLabel={activeThemeLabel}
-          isActive={selectedTheme !== 'all'}
-          icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
-          options={themeOptions}
-          selectedValue={selectedTheme}
-          onSelect={(val) => {
-            const next = (val as string) || 'all';
-            setSelectedTheme(next);
-            updateParams({ thema: next === 'all' ? null : next });
-          }}
-        />
+            {/* Camp Filter Pill (1-Click Toggle) */}
+            <FilterPillButton
+              label={t.forCampFilter}
+              isActive={isCampOnly}
+              onClick={() => {
+                const next = !isCampOnly;
+                setIsCampOnly(next);
+                updateParams({ camp: next ? '1' : null });
+              }}
+              icon={<Tent className="w-3.5 h-3.5 shrink-0" />}
+            />
+          </>
+        ) : (
+          <>
+            {/* Combined View */}
+            <FilterPillDropdown
+              label={L('Kategorie', 'Category')}
+              activeLabel={activeCategoryLabel}
+              isActive={selectedSubCategory !== 'all'}
+              options={categoryOptions}
+              selectedValue={selectedSubCategory}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSelectedSubCategory(next);
+                updateParams({ kategorie: next === 'all' ? null : next });
+              }}
+            />
+            <FilterPillDropdown
+              label={L('Buch', 'Book')}
+              activeLabel={activeBookLabel}
+              isActive={selectedBook !== 'all'}
+              icon={<BookOpen className="w-3.5 h-3.5 shrink-0" />}
+              options={bookOptions}
+              selectedValue={selectedBook}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSelectedBook(next);
+                updateParams({ buch: next === 'all' ? null : next });
+              }}
+            />
+            <FilterPillButton
+              label={t.forCampFilter}
+              isActive={isCampOnly}
+              onClick={() => {
+                const next = !isCampOnly;
+                setIsCampOnly(next);
+                updateParams({ camp: next ? '1' : null });
+              }}
+              icon={<Tent className="w-3.5 h-3.5 shrink-0" />}
+            />
+          </>
+        )}
 
         {/* Clear all filters button if any filter is active */}
-        {activeSheetFilterCount > 0 && (
+        {(activeSheetFilterCount > 0 || query) && (
           <button
             type="button"
             onClick={handleClearAll}
-            className="inline-flex items-center gap-1 h-8 px-2.5 text-xs text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors shrink-0"
-            aria-label={t.clearAllFilters}
+            className="inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-xs font-medium text-text-tertiary hover:text-accent hover:bg-surface-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ml-1"
+            aria-label={L('Filter zurücksetzen', 'Reset filters')}
           >
-            <X className="w-3.5 h-3.5" />
-            <span>{t.clearAllFilters}</span>
+            <RotateCcw className="w-3 h-3 shrink-0" aria-hidden="true" />
+            <span>{L('Zurücksetzen', 'Reset')}</span>
           </button>
         )}
       </div>
