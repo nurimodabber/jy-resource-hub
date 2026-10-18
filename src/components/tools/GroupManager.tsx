@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UserCheck, UserX, Plus, X, Users } from 'lucide-react';
 import { Language } from '../../types';
 import {
@@ -25,11 +25,19 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
   const [present, setPresent] = useState<Record<string, boolean>>(() => loadGroupPresent());
   const [newInput, setNewInput] = useState('');
 
-  // Sync present names to parent
+  const onNamesChangeRef = useRef(onNamesChange);
+  onNamesChangeRef.current = onNamesChange;
+  const lastEmittedRef = useRef<string>('');
+
+  // Sync present names to parent safely (prevent infinite loop)
   useEffect(() => {
     const presentList = names.filter((n) => present[n] !== false);
-    onNamesChange?.(presentList, names);
-  }, [names, present, onNamesChange]);
+    const key = presentList.join('|||') + '###' + names.join('|||');
+    if (key !== lastEmittedRef.current) {
+      lastEmittedRef.current = key;
+      onNamesChangeRef.current?.(presentList, names);
+    }
+  }, [names, present]);
 
   const handleGroupTitleChange = (val: string) => {
     setGroupTitle(val);

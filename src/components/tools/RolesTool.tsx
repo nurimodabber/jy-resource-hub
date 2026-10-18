@@ -684,6 +684,15 @@ export const RolesTool: React.FC<{ language: Language }> = ({ language }) => {
     { id: 'killer', label: L('Mörder', 'Killer') },
   ];
 
+  const handleNamesChange = React.useCallback((presentList: string[]) => {
+    setNames((prev) => {
+      if (prev.length === presentList.length && prev.every((n, i) => n === presentList[i])) {
+        return prev;
+      }
+      return presentList;
+    });
+  }, []);
+
   return (
     <div className="space-y-5">
       {/* "So geht's" Expandable Help */}
@@ -712,7 +721,7 @@ export const RolesTool: React.FC<{ language: Language }> = ({ language }) => {
       {/* 1. Group Manager */}
       <GroupManager
         language={language}
-        onNamesChange={(presentList) => setNames(presentList)}
+        onNamesChange={handleNamesChange}
       />
 
       {/* 2. Game Tabs */}

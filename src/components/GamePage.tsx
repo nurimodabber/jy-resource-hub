@@ -708,20 +708,20 @@ export const GamePage: React.FC<GamePageProps> = ({
         <Button
           variant="primary"
           size="md"
-          className="flex-1 justify-center min-h-[44px]"
+          icon={<Play className="w-4 h-4 shrink-0" />}
+          className="flex-1 justify-center min-h-[44px] whitespace-nowrap"
           onClick={() => setIsPlaying(true)}
         >
-          <Play className="w-4 h-4 mr-1.5" />
           {t.playMode}
         </Button>
 
         <Button
           variant="secondary"
           size="md"
-          className="shrink-0 min-h-[44px] px-3"
+          icon={<Plus className="w-4 h-4 shrink-0" />}
+          className="shrink-0 min-h-[44px] px-3 whitespace-nowrap"
           onClick={handleAddToPlan}
         >
-          <Plus className="w-4 h-4 mr-1" />
           {t.addToMeeting}
         </Button>
 

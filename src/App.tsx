@@ -80,6 +80,7 @@ export const AppContent: React.FC = () => {
     const root = location.pathname.split('/').filter(Boolean)[0] || 'home';
     if (root === 'home' || root === '') return 'home';
     if (root === 'games') return 'games';
+    if (root === 'quotes') return 'quotes';
     if (root === 'service') return 'service';
     if (root === 'arts') return 'arts';
     if (root === 'service-arts') return 'service';
