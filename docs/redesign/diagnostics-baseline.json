@@ -1,0 +1,405 @@
+{
+  "overflowIssues": [],
+  "smallTapTargets": [
+    {
+      "route": "/",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/",
+      "text": "Dienst →",
+      "tag": "A",
+      "width": 42,
+      "height": 44,
+      "selector": "text-xs.font-semibold.text-accent"
+    },
+    {
+      "route": "/",
+      "text": "Kunst →",
+      "tag": "A",
+      "width": 39,
+      "height": 44,
+      "selector": "text-xs.font-semibold.text-accent"
+    },
+    {
+      "route": "/",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/games",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/games",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/games",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/games",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/quotes",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/quotes",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/quotes",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/quotes",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/service",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/service",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/service",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/service",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/arts",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/arts",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/arts",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/arts",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/tools",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/tools",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/tools",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/tools",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/treffen",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/treffen",
+      "text": "Beispiele & Vorlagen ansehen",
+      "tag": "BUTTON",
+      "width": 231,
+      "height": 40,
+      "selector": "px-4.py-2.rounded-control"
+    },
+    {
+      "route": "/treffen",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/treffen",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/treffen",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/saved",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/saved",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/saved",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/saved",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/vorschlagen",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/vorschlagen",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/vorschlagen",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/vorschlagen",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/games/menschlicher-knoten",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 32,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/games/menschlicher-knoten",
+      "text": "Schritt 1 abhaken",
+      "tag": "BUTTON",
+      "width": 28,
+      "height": 28,
+      "selector": "mt-0.5.min-w-[28px].min-h-[28px]"
+    },
+    {
+      "route": "/games/menschlicher-knoten",
+      "text": "Schritt 2 abhaken",
+      "tag": "BUTTON",
+      "width": 28,
+      "height": 28,
+      "selector": "mt-0.5.min-w-[28px].min-h-[28px]"
+    },
+    {
+      "route": "/games/menschlicher-knoten",
+      "text": "Schritt 3 abhaken",
+      "tag": "BUTTON",
+      "width": 28,
+      "height": 28,
+      "selector": "mt-0.5.min-w-[28px].min-h-[28px]"
+    },
+    {
+      "route": "/games/menschlicher-knoten",
+      "text": "Schritt 4 abhaken",
+      "tag": "BUTTON",
+      "width": 28,
+      "height": 28,
+      "selector": "mt-0.5.min-w-[28px].min-h-[28px]"
+    },
+    {
+      "route": "/games/menschlicher-knoten",
+      "text": "Schritt 5 abhaken",
+      "tag": "BUTTON",
+      "width": 28,
+      "height": 28,
+      "selector": "mt-0.5.min-w-[28px].min-h-[28px]"
+    },
+    {
+      "route": "/games/menschlicher-knoten",
+      "text": "Impressum",
+      "tag": "BUTTON",
+      "width": 64,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/games/menschlicher-knoten",
+      "text": "Datenschutzerklärung",
+      "tag": "BUTTON",
+      "width": 128,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/games/menschlicher-knoten",
+      "text": "Erfahrungen beitragen",
+      "tag": "BUTTON",
+      "width": 130,
+      "height": 36,
+      "selector": "hover:text-text.transition-colors.min-h-[36px]"
+    },
+    {
+      "route": "/?beamer=true",
+      "text": "Junior Youth Hub – Start",
+      "tag": "A",
+      "width": 38,
+      "height": 44,
+      "selector": "flex.items-center.gap-2.5"
+    },
+    {
+      "route": "/?beamer=true",
+      "text": "Dienst →",
+      "tag": "A",
+      "width": 41,
+      "height": 44,
+      "selector": "text-xs.font-semibold.text-accent"
+    }
+  ]
+}

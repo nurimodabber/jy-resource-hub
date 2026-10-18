@@ -1,0 +1,82 @@
+[
+  {
+    "page": "Startseite (/)",
+    "mode": "mobile",
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "page": "Spiele (/games)",
+    "mode": "mobile",
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "page": "Zitate (/quotes)",
+    "mode": "mobile",
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "page": "Treffen (/treffen)",
+    "mode": "mobile",
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "page": "Werkzeuge (/tools)",
+    "mode": "mobile",
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "page": "Startseite (/)",
+    "mode": "desktop",
+    "performance": 98,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "page": "Spiele (/games)",
+    "mode": "desktop",
+    "performance": 97,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "page": "Zitate (/quotes)",
+    "mode": "desktop",
+    "performance": 99,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "page": "Treffen (/treffen)",
+    "mode": "desktop",
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  },
+  {
+    "page": "Werkzeuge (/tools)",
+    "mode": "desktop",
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100
+  }
+]
