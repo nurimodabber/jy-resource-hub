@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Palette, HeartHandshake, Wrench, PlusCircle, type LucideIcon } from 'lucide-react';
+import { Compass, BookOpen, HeartHandshake, Palette, Wrench, PlusCircle, type LucideIcon } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -30,10 +30,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-line shadow-2 lg:hidden short:hidden safe-bottom print:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-surface/96 backdrop-blur-md border-t border-line shadow-2 md:hidden short:hidden safe-bottom print:hidden"
       aria-label="Mobile Navigation"
     >
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-1">
+      <div className="grid grid-cols-6 h-16 max-w-lg mx-auto px-1 items-center">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -44,19 +44,19 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
               onClick={() => onSelectTab(tab.id)}
               aria-label={tab.ariaLabel}
               aria-current={isActive ? 'page' : undefined}
-              className="relative flex-1 flex flex-col items-center justify-center min-h-[48px] py-1 select-none transition-colors group focus-visible:ring-2 focus-visible:ring-accent rounded-control"
+              className="relative flex flex-col items-center justify-center h-full min-h-[48px] py-1 select-none transition-colors group focus-visible:ring-2 focus-visible:ring-accent rounded-control"
             >
               <div
-                className={`flex items-center justify-center px-2 py-0.5 rounded-full transition-colors duration-150 ease-out ${
+                className={`flex items-center justify-center px-2 py-0.5 rounded-full transition-all duration-150 ease-out ${
                   isActive
-                    ? 'bg-accent/15 text-accent'
+                    ? 'bg-accent/15 text-accent shadow-xs scale-105'
                     : 'text-text-secondary group-hover:text-text'
                 }`}
               >
                 <Icon className="w-5 h-5" strokeWidth={isActive ? 2.2 : 1.75} />
               </div>
               <span
-                className={`text-[10.5px] leading-tight truncate max-w-full text-center mt-0.5 tracking-tight ${
+                className={`text-[11px] leading-tight truncate max-w-full text-center mt-0.5 tracking-tight ${
                   isActive ? 'text-accent font-bold' : 'text-text-secondary font-medium'
                 }`}
               >

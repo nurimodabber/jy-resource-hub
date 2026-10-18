@@ -40,6 +40,15 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
   const [isBeamer, setIsBeamer] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
+  const handleNamesChange = React.useCallback((presentList: string[]) => {
+    setNames((prev) => {
+      if (prev.length === presentList.length && prev.every((n, i) => n === presentList[i])) {
+        return prev;
+      }
+      return presentList;
+    });
+  }, []);
+
   useWakeLock(isBeamer);
 
   const run = () => {
@@ -110,7 +119,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
       {/* 1. Shared Group Manager */}
       <GroupManager
         language={language}
-        onNamesChange={(presentList) => setNames(presentList)}
+        onNamesChange={handleNamesChange}
       />
 
       {/* 2. Controls Panel */}

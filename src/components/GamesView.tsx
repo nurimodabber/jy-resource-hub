@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, Clock, Users, Zap, Compass, ArrowUpDown, MapPin } from 'lucide-react';
+import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { Search, X, ArrowLeft, Clock, Users, Zap, Compass, ArrowUpDown, MapPin, Shuffle } from 'lucide-react';
 import { Language, GamePurpose, EnergyLevel } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { GameCard } from './GameCard';
@@ -8,6 +8,7 @@ import { GamePage } from './GamePage';
 import { EmptyState } from './ui/EmptyState';
 import { Badge } from './ui/Badge';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
+import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { UI_TRANSLATIONS } from '../data/translations';
 import {
   parseGameFilters,
@@ -30,6 +31,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
   onToggleFavorite,
 }) => {
   const { id } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const t = UI_TRANSLATIONS[language];
   const L = tr(language);
@@ -62,6 +64,13 @@ export const GamesView: React.FC<GamesViewProps> = ({
   const filteredGames = useMemo(() => {
     return filterGames(GAMES_DATA, filters, language);
   }, [filters, language]);
+
+  const handleRandomGame = () => {
+    if (filteredGames.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * filteredGames.length);
+    const randomGame = filteredGames[randomIndex];
+    navigate(`/games/${randomGame.id}`);
+  };
 
   // Purpose options for FilterPillDropdown
   const purposeOptions = [
@@ -271,8 +280,12 @@ export const GamesView: React.FC<GamesViewProps> = ({
         )}
       </div>
 
-      {/* 3. Coherent Filter Bar directly underneath */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full py-0.5 mb-4 select-none">
+      {/* 3. Coherent Filter Bar with scroll-fade indicators & scroll-snap */}
+      <ScrollableFilterBar
+        activeFilterCount={totalActiveFilterCount}
+        onClearAll={handleClearAll}
+        clearLabel={t.clearAllFilters}
+      >
         {/* Wirkung Dropdown */}
         <FilterPillDropdown
           label={t.purposeLabel}
@@ -350,17 +363,21 @@ export const GamesView: React.FC<GamesViewProps> = ({
           selectedValue={filters.sort || 'match'}
           onSelect={(val) => updateFilters({ ...filters, sort: (val as 'match' | 'duration' | 'groupSize') || 'match' })}
         />
+      </ScrollableFilterBar>
 
-        {/* Clear all filters button if any filter is active */}
-        {totalActiveFilterCount > 0 && (
+      {/* Live count and "Überrasch mich" (random game) */}
+      <div className="flex items-center justify-between gap-3 text-xs text-text-secondary pt-1 pb-1">
+        <span className="font-medium">
+          {filteredGames.length} {filteredGames.length === 1 ? (language === 'de' ? 'Spiel gefunden' : 'game found') : (language === 'de' ? 'Spiele gefunden' : 'games found')}
+        </span>
+        {filteredGames.length > 0 && (
           <button
             type="button"
-            onClick={handleClearAll}
-            className="inline-flex items-center gap-1 h-8 px-2.5 text-xs text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors shrink-0"
-            aria-label={t.clearAllFilters}
+            onClick={handleRandomGame}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
           >
-            <X className="w-3.5 h-3.5" />
-            <span>{t.clearAllFilters}</span>
+            <Shuffle className="w-3.5 h-3.5 text-accent" />
+            <span>{language === 'de' ? 'Überrasch mich' : 'Surprise me'}</span>
           </button>
         )}
       </div>

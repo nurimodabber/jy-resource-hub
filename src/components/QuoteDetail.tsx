@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   ArrowLeft, Bookmark, Share2, Copy, Check, Heart, Plus, Maximize2, 
   Play, ChevronDown, ChevronUp, Sun, Moon, Sparkles, X, ChevronLeft, ChevronRight,
-  Laptop, Music, ExternalLink
+  Laptop, Music, ExternalLink, Image as ImageIcon
 } from 'lucide-react';
 import { QuoteItem, Language, QuoteMethod } from '../types';
 import { QUOTES_DATA } from '../data/quotes';
@@ -14,6 +14,7 @@ import { IconButton } from './ui/IconButton';
 import { useToast } from '../context/ToastContext';
 import { useWakeLock } from '../hooks/useWakeLock';
 import { shareResource } from '../utils/share';
+import { shareQuoteAsImage } from '../utils/quoteImage';
 import { stripQuotes } from '../utils/random';
 import { isPrayerQuote, formatQuoteSection } from './QuoteCard';
 
@@ -126,6 +127,31 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
     });
   };
 
+  const handleShareImage = async () => {
+    try {
+      const res = await shareQuoteAsImage(activeQuote, language, {
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+      });
+      showToast({
+        text:
+          res === 'shared'
+            ? language === 'de'
+              ? 'Zitat als Bild geteilt'
+              : 'Quote shared as image'
+            : language === 'de'
+            ? 'Zitat-Bild heruntergeladen'
+            : 'Quote image downloaded',
+      });
+    } catch {
+      showToast({
+        text:
+          language === 'de'
+            ? 'Fehler beim Erstellen des Bildes'
+            : 'Failed to generate image',
+      });
+    }
+  };
+
   // Keyboard navigation & gestures for Presentation Mode
   useEffect(() => {
     if (!isReadingMode) return;
@@ -168,16 +194,16 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
 
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-36 lg:pb-24 pt-2">
+    <div className="max-w-6xl w-full mx-auto space-y-8 pb-36 lg:pb-24 pt-2">
       {/* Top Header Navigation */}
       <div className="flex items-center justify-between gap-4">
         <Button
           variant="secondary"
+          icon={<ArrowLeft className="w-4 h-4 shrink-0" />}
           onClick={onBack}
-          className="min-h-[44px]"
+          className="min-h-[44px] whitespace-nowrap"
         >
-          <ArrowLeft className="w-4 h-4 mr-1.5" />
-          <span>{t.backToQuotes}</span>
+          {t.backToQuotes}
         </Button>
 
         <div className="flex items-center gap-2">
@@ -211,6 +237,13 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
             {copied ? <Check className="w-4 h-4 text-accent" /> : <Copy className="w-4 h-4" />}
           </IconButton>
           <IconButton
+            label={language === 'de' ? 'Als Bild teilen' : 'Share as image'}
+            variant="outline"
+            onClick={handleShareImage}
+          >
+            <ImageIcon className="w-4 h-4" />
+          </IconButton>
+          <IconButton
             label={language === 'de' ? 'Teilen' : 'Share'}
             variant="outline"
             onClick={handleShare}
@@ -233,8 +266,8 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
           )}
         </div>
 
-        {/* The Holy Text: strictly unmodified, Lora font, max-w 680px */}
-        <div className="max-w-[680px] mx-auto py-2">
+        {/* The Holy Text: strictly unmodified, Lora font, max-w 4xl */}
+        <div className="max-w-4xl mx-auto py-2">
           <blockquote className="font-serif text-2xl sm:text-3xl leading-[1.65] text-text text-center sm:text-left select-text">
             „{text}“
           </blockquote>
@@ -437,49 +470,29 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
         </section>
       )}
 
-      {/* Sticky Bottom Action Bar above Mobile Navigation */}
-      <div className="fixed bottom-16 lg:bottom-0 left-0 right-0 z-30 bg-surface backdrop-blur-md border-t border-border p-3 lg:safe-bottom shadow-2 print:hidden">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5">
-            <IconButton
-              label={isFavorite ? t.savedItems : (language === 'de' ? 'Merken' : 'Save')}
-              variant="outline"
-              className={isFavorite ? 'text-accent' : 'text-text-secondary'}
-              onClick={(e) => onToggleFavorite(activeQuote.id, e)}
-            >
-              <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent' : ''}`} />
-            </IconButton>
-            <IconButton
-              label={t.presentationMode}
-              variant="outline"
-              onClick={() => setIsReadingMode(true)}
-            >
-              <Maximize2 className="w-4 h-4" />
-            </IconButton>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {isPrayer ? (
-              <Button
-                variant="primary"
-                onClick={() => onUseAsDevotional(activeQuote)}
-                className="min-h-[44px]"
-              >
-                <Heart className="w-4 h-4 mr-2" />
-                <span>{t.useAsDevotional}</span>
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                onClick={() => onAddToMeeting(activeQuote)}
-                className="min-h-[44px]"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                <span>{t.addToPlanner}</span>
-              </Button>
-            )}
-          </div>
-        </div>
+      {/* Sticky Bottom Action Bar on Mobile (<1024px) above BottomTabBar */}
+      <div className="lg:hidden fixed bottom-16 inset-x-0 z-30 bg-surface/96 backdrop-blur-md border-t border-border p-3 shadow-2 flex items-center gap-2 print:hidden">
+        {isPrayer ? (
+          <Button
+            variant="primary"
+            size="md"
+            icon={<Sparkles className="w-4 h-4 shrink-0" />}
+            onClick={() => onUseAsDevotional(activeQuote)}
+            className="flex-1 justify-center min-h-[44px] whitespace-nowrap"
+          >
+            {t.quoteAsDevotional}
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            size="md"
+            icon={<Plus className="w-4 h-4 shrink-0" />}
+            onClick={() => onAddToMeeting(activeQuote)}
+            className="flex-1 justify-center min-h-[44px] whitespace-nowrap"
+          >
+            {t.addToMeeting}
+          </Button>
+        )}
       </div>
 
       {/* Fullscreen Reading / Presentation Mode */}

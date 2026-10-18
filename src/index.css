@@ -10,6 +10,8 @@
   --surface-rgb: 255 255 255;
   --surface-2: #EEF2F8;
   --surface-2-rgb: 238 242 248;
+  --surface-3: #E3E9F3;
+  --surface-3-rgb: 227 233 243;
   --surface-raised: #FFFFFF;
   --surface-raised-rgb: 255 255 255;
   --line: #E3E8F0;
@@ -54,6 +56,27 @@
   --action-contrast: var(--accent-contrast);
   --action-contrast-rgb: var(--accent-contrast-rgb);
 
+  /* Warme Akzentfarbe für Andacht, Zitate & Gebete (sanftes Gold/Amber) */
+  --amber: #B45309;
+  --amber-rgb: 180 83 9;
+  --amber-hover: #92400E;
+  --amber-hover-rgb: 146 64 14;
+  --amber-subtle: #FEF3C7;
+  --amber-subtle-rgb: 254 243 199;
+  --amber-text: #92400E;
+  --amber-text-rgb: 146 64 14;
+  --amber-border: #FDE68A;
+  --amber-border-rgb: 253 230 138;
+
+  --devotion: var(--amber);
+  --devotion-rgb: var(--amber-rgb);
+  --devotion-subtle: var(--amber-subtle);
+  --devotion-subtle-rgb: var(--amber-subtle-rgb);
+  --devotion-text: var(--amber-text);
+  --devotion-text-rgb: var(--amber-text-rgb);
+  --devotion-border: var(--amber-border);
+  --devotion-border-rgb: var(--amber-border-rgb);
+
   /* Unified tokens - legacy aliases mapped to clean cohesive system */
   --word: var(--accent);
   --word-rgb: var(--accent-rgb);
@@ -75,8 +98,12 @@
   --success-rgb: 22 116 72;
   --success-subtle: #E6F4EB;
   --success-subtle-rgb: 230 244 235;
+  --warning: var(--amber);
+  --warning-rgb: var(--amber-rgb);
   --danger: #C13333;
   --danger-rgb: 193 51 51;
+  --info: var(--accent);
+  --info-rgb: var(--accent-rgb);
 
   /* Aliases for backwards compatibility */
   --brand: var(--accent);
@@ -111,6 +138,8 @@
   --surface-rgb: 19 28 42;
   --surface-2: #1A2438;
   --surface-2-rgb: 26 36 56;
+  --surface-3: #22304A;
+  --surface-3-rgb: 34 48 74;
   --surface-raised: #1E2A3E;
   --surface-raised-rgb: 30 42 62;
   --line: #1F2C40;
@@ -137,8 +166,8 @@
   --accent-rgb: 111 163 255;
   --accent-hover: #8DB8FF;
   --accent-hover-rgb: 141 184 255;
-  --accent-subtle: #23374D;
-  --accent-subtle-rgb: 35 55 77;
+  --accent-subtle: #1B2E55;
+  --accent-subtle-rgb: 27 46 85;
   --accent-text: #A9C8FF;
   --accent-text-rgb: 169 200 255;
   --accent-contrast: #0A1426;
@@ -154,6 +183,27 @@
   --action-subtle-rgb: var(--accent-subtle-rgb);
   --action-contrast: var(--accent-contrast);
   --action-contrast-rgb: var(--accent-contrast-rgb);
+
+  /* Warme Akzentfarbe für Andacht, Zitate & Gebete (sanftes Gold/Amber) */
+  --amber: #FBBF24;
+  --amber-rgb: 251 191 36;
+  --amber-hover: #FCD34D;
+  --amber-hover-rgb: 252 211 77;
+  --amber-subtle: #2A1D0D;
+  --amber-subtle-rgb: 42 29 13;
+  --amber-text: #FDE68A;
+  --amber-text-rgb: 253 230 138;
+  --amber-border: #4D3818;
+  --amber-border-rgb: 77 56 24;
+
+  --devotion: var(--amber);
+  --devotion-rgb: var(--amber-rgb);
+  --devotion-subtle: var(--amber-subtle);
+  --devotion-subtle-rgb: var(--amber-subtle-rgb);
+  --devotion-text: var(--amber-text);
+  --devotion-text-rgb: var(--amber-text-rgb);
+  --devotion-border: var(--amber-border);
+  --devotion-border-rgb: var(--amber-border-rgb);
 
   /* Unified tokens - legacy aliases mapped to clean cohesive system */
   --word: var(--accent);
@@ -176,8 +226,12 @@
   --success-rgb: 79 192 138;
   --success-subtle: #132B1E;
   --success-subtle-rgb: 19 43 30;
+  --warning: var(--amber);
+  --warning-rgb: var(--amber-rgb);
   --danger: #FF8A8A;
   --danger-rgb: 255 138 138;
+  --info: var(--accent);
+  --info-rgb: var(--accent-rgb);
 
   /* Aliases for backwards compatibility */
   --brand: var(--accent);
@@ -272,6 +326,9 @@ html.beamer-mode {
   :focus-visible {
     outline: 2px solid var(--accent) !important;
     outline-offset: 2px !important;
+  }
+  [tabindex="-1"]:focus {
+    outline: none !important;
   }
 }
 

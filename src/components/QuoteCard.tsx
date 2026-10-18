@@ -94,7 +94,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   return (
     <article
       onClick={() => onSelectQuote(quote)}
-      className="break-inside-avoid bg-surface/80 rounded-card border border-line p-5 sm:p-6 mb-5 transition-all duration-120 hover:border-accent/60 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-xs"
+      className="break-inside-avoid bg-surface/80 rounded-card border border-border p-5 sm:p-6 mb-5 transition-all duration-150 ease-out hover:border-accent hover:shadow-2 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-xs"
       tabIndex={0}
       role="article"
       onKeyDown={(e) => {
@@ -120,7 +120,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         </div>
 
         {/* Holy Text in Lora Serif font (unaltered, up to 6 lines in list) */}
-        <div className="max-w-[680px]">
+        <div className="w-full">
           <p
             className="font-serif text-lg sm:text-xl leading-relaxed text-text line-clamp-6 select-text"
             lang={language}

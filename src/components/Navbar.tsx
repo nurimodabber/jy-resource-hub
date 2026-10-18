@@ -15,13 +15,13 @@ interface NavbarProps {
   onOpenSettings: () => void;
 }
 
-export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes' | 'tabService' | 'tabArts' | 'tabTools' | 'tabProposal' }[] = [
+export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes' | 'tabServiceShort' | 'tabArtsShort' | 'tabTools' | 'tabProposalShort' }[] = [
   { id: 'games', href: '/games', key: 'tabGames' },
   { id: 'quotes', href: '/quotes', key: 'tabQuotes' },
-  { id: 'service', href: '/service', key: 'tabService' },
-  { id: 'arts', href: '/arts', key: 'tabArts' },
+  { id: 'service', href: '/service', key: 'tabServiceShort' },
+  { id: 'arts', href: '/arts', key: 'tabArtsShort' },
   { id: 'tools', href: '/tools', key: 'tabTools' },
-  { id: 'vorschlagen', href: '/vorschlagen', key: 'tabProposal' },
+  { id: 'vorschlagen', href: '/vorschlagen', key: 'tabProposalShort' },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -60,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         isHidden ? 'short:-translate-y-full' : ''
       }`}
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center h-16 short:h-12 justify-between gap-3">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 flex items-center h-16 short:h-12 justify-between gap-3">
         {/* Left: Logo & Site Title */}
         <Link
           to="/"
@@ -73,8 +73,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </span>
         </Link>
 
-        {/* Center: Desktop Navigation (hidden below 1024px) */}
-        <nav className="hidden lg:flex short:hidden items-center gap-1" aria-label="Hauptnavigation">
+        {/* Center: Tablet & Desktop Navigation (visible from 768px+) */}
+        <nav className="hidden md:flex short:hidden items-center gap-1" aria-label="Hauptnavigation">
           {NAV_ITEMS.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -96,11 +96,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right: Search, Beamer, Saved, Settings */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Desktop Search trigger button */}
+          {/* Desktop & Tablet Search trigger button */}
           <button
             type="button"
             onClick={onOpenCommandPalette}
-            className="hidden lg:flex items-center gap-2.5 h-11 w-48 xl:w-52 px-3.5 rounded-control bg-surface-2 text-sm text-text-secondary hover:text-text hover:bg-surface-2/80 transition-colors duration-150 ease-out border-0 focus-visible:ring-2 focus-visible:ring-accent"
+            className="hidden md:flex items-center gap-2.5 h-11 w-44 lg:w-52 px-3.5 rounded-control bg-surface-2 text-sm text-text-secondary hover:text-text hover:bg-surface-2/80 transition-colors duration-150 ease-out border-0 focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             aria-label={t.cmdKSearch}
           >
             <Search className="w-4 h-4 text-text-tertiary shrink-0" strokeWidth={1.75} />
@@ -114,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenCommandPalette}
-            className="lg:hidden w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent"
+            className="md:hidden w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             aria-label={language === 'de' ? 'Suche öffnen' : 'Open search'}
           >
             <Search className="w-5 h-5" strokeWidth={1.75} />

@@ -179,7 +179,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
   };
 
   return (
-    <article className="max-w-5xl mx-auto pb-36 lg:pb-16">
+    <article className="max-w-6xl w-full mx-auto pb-36 lg:pb-16">
       {/* Back to list */}
       <div className="mb-4 print:hidden">
         <Link
@@ -251,7 +251,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
               </Badge>
               <Badge size="md" category={hasNoMaterials ? 'accent' : 'neutral'}>
                 <Package className="w-3.5 h-3.5 mr-1 text-text-tertiary" />
-                {hasNoMaterials ? t.noMaterialNeeded : materials.join(', ')}
+                {hasNoMaterials ? t.filterNoMaterial : L('Material nötig', 'Materials needed')}
               </Badge>
             </div>
 
@@ -504,10 +504,10 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
         <Button
           variant="primary"
           size="md"
-          className="flex-1 justify-center min-h-[44px]"
+          icon={<Plus className="w-4 h-4 shrink-0" />}
+          className="flex-1 justify-center min-h-[44px] whitespace-nowrap"
           onClick={handleAddToPlan}
         >
-          <Plus className="w-4 h-4 mr-1.5" />
           {t.addToMeeting}
         </Button>
 

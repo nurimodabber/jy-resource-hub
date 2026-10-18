@@ -16,3 +16,5 @@ export * from './Toast';
 export * from './Skeleton';
 export * from './ThemeToggle';
 export * from './FilterPillDropdown';
+export * from './ArrowLink';
+export * from './ScrollableFilterBar';

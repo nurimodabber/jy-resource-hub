@@ -103,23 +103,23 @@ export function FilterPillDropdown<T = string | number | null>({
   const displayLabel = isActive && activeLabel ? activeLabel : label;
 
   return (
-    <div className={`relative inline-block shrink-0 ${className}`}>
+    <div className={`relative inline-block shrink-0 snap-start ${className}`}>
       <button
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className={`inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none shrink-0 ${
+        className={`inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg select-none shrink-0 cursor-pointer ${
           isActive
-            ? 'bg-accent text-accent-ink border-accent font-semibold shadow-xs'
+            ? 'bg-accent text-accent-ink border-accent font-bold shadow-xs'
             : 'bg-surface text-text-secondary border-border hover:border-text-secondary hover:text-text'
         }`}
       >
         {icon && <span className="shrink-0">{icon}</span>}
         <span className="max-w-[150px] truncate">{displayLabel}</span>
         <ChevronDown
-          className={`w-3 h-3 opacity-70 transition-transform duration-150 shrink-0 ${
+          className={`w-3.5 h-3.5 opacity-70 transition-transform duration-150 shrink-0 ${
             isOpen ? 'rotate-180' : ''
           }`}
           aria-hidden="true"
@@ -152,7 +152,7 @@ export function FilterPillDropdown<T = string | number | null>({
                     onSelect(option.value);
                     setIsOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-control text-xs transition-colors flex items-center justify-between gap-2 ${
+                  className={`w-full text-left px-3 py-2.5 min-h-[44px] rounded-control text-xs transition-colors flex items-center justify-between gap-2 cursor-pointer ${
                     isSelected
                       ? 'bg-accent/10 text-accent font-semibold'
                       : 'text-text hover:bg-surface-2 font-normal'
@@ -193,9 +193,9 @@ export function FilterPillButton({
       onClick={onClick}
       aria-pressed={isActive}
       aria-label={ariaLabel || label}
-      className={`inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-xs font-medium whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent select-none shrink-0 ${
+      className={`inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg select-none shrink-0 snap-start cursor-pointer ${
         isActive
-          ? 'bg-accent text-accent-ink border-accent font-semibold shadow-xs'
+          ? 'bg-accent text-accent-ink border-accent font-bold shadow-xs'
           : 'bg-surface text-text-secondary border-border hover:border-text-secondary hover:text-text'
       } ${className}`}
     >

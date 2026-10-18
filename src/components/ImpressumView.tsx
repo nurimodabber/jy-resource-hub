@@ -10,7 +10,7 @@ export interface ImpressumViewProps {
 
 export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack }) => {
   return (
-    <div className="max-w-3xl mx-auto py-4 sm:py-8 px-2 animate-in fade-in duration-200">
+    <div className="max-w-6xl w-full mx-auto py-4 sm:py-8 px-2 animate-in fade-in duration-200">
       <Button
         variant="ghost"
         size="sm"

@@ -19,10 +19,10 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
   const items = [
     { id: 'games' as NavTab, label: t.tabGames, icon: Compass },
     { id: 'quotes' as NavTab, label: t.tabQuotes, icon: BookOpen },
-    { id: 'service' as NavTab, label: t.tabService, icon: HeartHandshake },
-    { id: 'arts' as NavTab, label: t.tabArts, icon: Palette },
+    { id: 'service' as NavTab, label: t.tabServiceShort, icon: HeartHandshake },
+    { id: 'arts' as NavTab, label: t.tabArtsShort, icon: Palette },
     { id: 'tools' as NavTab, label: t.tabTools, icon: Wrench },
-    { id: 'vorschlagen' as NavTab, label: t.tabProposal, icon: PlusCircle },
+    { id: 'vorschlagen' as NavTab, label: t.tabProposalShort, icon: PlusCircle },
   ];
 
   return (

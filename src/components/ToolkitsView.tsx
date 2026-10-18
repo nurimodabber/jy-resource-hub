@@ -226,7 +226,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
   };
 
   return (
-    <div className="max-w-4xl mx-auto pb-28 space-y-8">
+    <div className="max-w-6xl w-full mx-auto pb-28 space-y-8">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-text">
@@ -247,7 +247,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
             <Clock className="w-3.5 h-3.5" />
             <span>{L('Zuletzt genutzt', 'Recently used')}</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {recentTools.map((x) => {
               const Icon = x.icon;
               return (
@@ -306,7 +306,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
                           </p>
                           <div className="flex items-center gap-2 shrink-0">
                             {activeBadge && (
-                              <span className="font-mono text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-accent">
+                              <span className="tabular-nums text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-accent">
                                 {activeBadge}
                               </span>
                             )}

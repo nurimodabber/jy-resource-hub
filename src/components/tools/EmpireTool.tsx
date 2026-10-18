@@ -40,6 +40,15 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
   const [isBeamer, setIsBeamer] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
+  const handleNamesChange = React.useCallback((presentList: string[]) => {
+    setNames((prev) => {
+      if (prev.length === presentList.length && prev.every((n, i) => n === presentList[i])) {
+        return prev;
+      }
+      return presentList;
+    });
+  }, []);
+
   useWakeLock(step !== 'category' || isBeamer);
 
   const pool = useMemo(
@@ -270,7 +279,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
           {/* Group Manager for Players */}
           <GroupManager
             language={language}
-            onNamesChange={(presentList) => setNames(presentList)}
+            onNamesChange={handleNamesChange}
           />
 
           {/* Terms from Slips */}

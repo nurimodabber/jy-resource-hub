@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense, lazy } from 'react';
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
 import { WifiOff, Monitor } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { BottomTabBar } from './components/BottomTabBar';
 import { LeftNavigationRail } from './components/LeftNavigationRail';
+import { Logo } from './components/Logo';
 import { DocumentHead } from './components/DocumentHead';
 import { ToastProvider } from './context/ToastContext';
 import { PlannerProvider } from './context/PlannerContext';
@@ -83,7 +84,7 @@ export const AppContent: React.FC = () => {
     if (root === 'service') return 'service';
     if (root === 'arts') return 'arts';
     if (root === 'service-arts') return 'service';
-    if (root === 'planner' || root === 'treffen') return 'tools';
+    if (root === 'planner' || root === 'treffen') return 'planner';
     if (root === 'tools') return 'tools';
     if (root === 'vorschlagen') return 'vorschlagen';
     if (root === 'saved') return 'saved';
@@ -392,7 +393,7 @@ export const AppContent: React.FC = () => {
       <main
         id="main-content"
         tabIndex={-1}
-        className="short-content-pad flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 lg:pb-8 focus:outline-hidden"
+        className="short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 md:pb-8 focus:outline-hidden"
       >
         <Suspense fallback={<RouteLoading />}>
           <Routes>
@@ -619,23 +620,130 @@ export const AppContent: React.FC = () => {
       )}
 
       {!isBeamerMode && (
-        <footer className="border-t border-line mt-12 py-8 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:mb-0">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-            <p className="text-text-tertiary">{t.footerNote}</p>
-            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-              <button type="button" onClick={() => handleTabChange('impressum')} className="hover:text-text transition-colors min-h-[36px] py-1">
-                {t.impressumTitle}
-              </button>
-              <span className="text-text-tertiary hidden sm:inline" aria-hidden="true">·</span>
-              <button type="button" onClick={() => handleTabChange('datenschutz')} className="hover:text-text transition-colors min-h-[36px] py-1">
-                {t.datenschutzTitle}
-              </button>
-              <span className="text-text-tertiary hidden sm:inline" aria-hidden="true">·</span>
-              <button type="button" onClick={() => navigate('/vorschlagen')} className="hover:text-text transition-colors min-h-[36px] py-1">
-                {t.settingsSubmitProposal}
-              </button>
-              <span className="text-text-tertiary hidden sm:inline" aria-hidden="true">·</span>
-              <span className="text-text-tertiary">© 2026 {t.siteTitle}</span>
+        <footer className="border-t border-line mt-16 pt-10 pb-12 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] md:mb-0">
+          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-8">
+            {/* Top row: Brand & Description on left, grouped navigation links on right */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+              {/* Brand column */}
+              <div className="md:col-span-5 space-y-3 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-2">
+                  <Logo className="w-6 h-6 text-accent" />
+                  <span className="font-extrabold text-sm text-text tracking-tight">{t.siteTitle}</span>
+                  <span className="text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent">
+                    {t.settingsVersion}
+                  </span>
+                </div>
+                <p className="text-xs text-text-secondary leading-relaxed max-w-sm mx-auto md:mx-0">
+                  {t.footerDesc}
+                </p>
+                <div className="flex items-center justify-center md:justify-start gap-2 pt-1 text-2xs text-text-tertiary">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" aria-hidden="true" />
+                    {t.settingsOfflineReady}
+                  </span>
+                </div>
+              </div>
+
+              {/* Navigation columns */}
+              <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-center sm:text-left">
+                {/* Bereiche */}
+                <div className="space-y-2.5">
+                  <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                    {language === 'de' ? 'Bereiche' : 'Sections'}
+                  </p>
+                  <ul className="space-y-1">
+                    <li>
+                      <Link to="/games" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
+                        {t.tabGames}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/quotes" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
+                        {t.tabQuotes}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/service" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
+                        {t.tabService}
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Mehr Inhalte */}
+                <div className="space-y-2.5">
+                  <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                    {language === 'de' ? 'Werkzeuge & Mehr' : 'Tools & More'}
+                  </p>
+                  <ul className="space-y-1">
+                    <li>
+                      <Link to="/arts" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
+                        {t.tabArts}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/tools" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
+                        {t.tabTools}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/treffen" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
+                        {t.tabPlanner}
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Rechtliches & Mitmachen */}
+                <div className="col-span-2 sm:col-span-1 space-y-2.5">
+                  <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                    {language === 'de' ? 'Recht & Dialog' : 'Legal & Info'}
+                  </p>
+                  <ul className="space-y-1">
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => handleTabChange('impressum')}
+                        className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control"
+                      >
+                        {t.impressumTitle}
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => handleTabChange('datenschutz')}
+                        className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control"
+                      >
+                        {t.datenschutzTitle}
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        type="button"
+                        onClick={() => navigate('/vorschlagen')}
+                        className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control"
+                      >
+                        {t.tabProposal}
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom row: Clean divider, copyright, and volunteer note (no stray dots) */}
+            <div className="border-t border-line pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-2xs text-text-tertiary text-center sm:text-left">
+              <p>© 2026 {t.siteTitle}. {t.footerVolunteerNote}.</p>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="hover:text-text transition-colors min-h-[44px] px-2 py-2 inline-flex items-center cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control"
+                >
+                  {t.tabSettings}
+                </button>
+              </div>
             </div>
           </div>
         </footer>

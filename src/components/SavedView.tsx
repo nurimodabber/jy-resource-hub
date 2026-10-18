@@ -93,7 +93,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-6xl w-full mx-auto space-y-6 pb-20">
       {/* Header following standard pattern */}
       <div>
         <div className="flex items-center gap-3">
@@ -153,19 +153,19 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
                     </div>
                   </Link>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={(e) => onToggleFavorite(row.id, e)}
                       aria-pressed="true"
-                      className="w-10 h-10 inline-flex items-center justify-center rounded-control text-accent hover:bg-surface-2/80 transition-colors duration-150 ease-out"
+                      className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control text-accent hover:bg-surface-2/80 active:scale-90 motion-reduce:transform-none transition-all duration-100 ease-out cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                       aria-label={`${t.savedItems} entfernen: ${row.title}`}
                     >
                       <Bookmark className="w-5 h-5 fill-current text-accent" strokeWidth={1.75} />
                     </button>
                     <Link
                       to={row.href}
-                      className="w-8 h-8 hidden sm:inline-flex items-center justify-center text-text-tertiary group-hover:text-accent transition-colors"
+                      className="min-w-[44px] min-h-[44px] hidden sm:inline-flex items-center justify-center text-text-tertiary group-hover:text-accent group-hover:translate-x-0.5 motion-reduce:transform-none transition-all duration-150 rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                       tabIndex={-1}
                       aria-hidden="true"
                     >
