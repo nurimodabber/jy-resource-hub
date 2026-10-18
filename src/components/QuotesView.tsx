@@ -4,9 +4,6 @@ import {
   Search, X, SlidersHorizontal, BookOpen, Zap, Layers,
   ArrowRight, Laptop, Play
 } from 'lucide-react';
-import '@fontsource/lora/latin-400.css';
-import '@fontsource/lora/latin-600.css';
-import '@fontsource/lora/latin-400-italic.css';
 import { QuotePhase, QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { QUOTES_DATA, JUNIOR_YOUTH_BOOKS } from '../data/quotes';

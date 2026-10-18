@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Users, MapPin, Heart, Palette, Bookmark } from 'lucide-react';
+import { Clock, Users, MapPin, Bookmark, BookOpen } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { getBookById } from '../utils/bookProgress';
 
 interface ServiceArtsCardProps {
   activity: ActivityItem;
@@ -58,41 +59,53 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
     ? activity.objective[language]
     : activity.description[language];
 
+  // Associated book & lesson if present
+  const bookMeta = activity.relatedBook ? getBookById(activity.relatedBook) : null;
+  const bookTitle = bookMeta ? bookMeta.title[language] : (activity.kind === 'kunst' && activity.book ? activity.book[language] : null);
+  const lessonNumber = activity.lesson;
+
   return (
     <div className="group relative h-full flex flex-col justify-between bg-surface border border-border rounded-card hover:border-accent hover:shadow-xs transition-all p-4 sm:p-5">
-      {/* Top area with round icon, title, category, description */}
-      <div className="flex items-start gap-3 flex-1 min-w-0 pr-10">
-        {/* Round Icon in Circle */}
-        <div
-          className="w-10 h-10 rounded-full bg-accent/15 text-accent shrink-0 flex items-center justify-center mt-0.5"
-          aria-hidden="true"
-        >
-          {isService ? (
-            <Heart className="w-5 h-5 text-accent fill-accent/20" />
-          ) : (
-            <Palette className="w-5 h-5 text-accent" />
+      {/* Optional image preview if imageUrl is present */}
+      {activity.imageUrl && (
+        <div className="mb-3.5 -mx-4 -mt-4 sm:-mx-5 sm:-mt-5 overflow-hidden rounded-t-card border-b border-border aspect-16/9 bg-surface-2 relative">
+          <img
+            src={activity.imageUrl}
+            alt={activity.title[language]}
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
+          />
+        </div>
+      )}
+
+      {/* Top area with badges, title, description */}
+      <div className="flex-1 min-w-0 pr-10">
+        <div className="flex flex-wrap items-center gap-1.5 mb-2">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent/15 text-accent">
+            {categoryLabel}
+          </span>
+          {isCamp && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-2xs font-semibold bg-surface-2 text-text-secondary">
+              Camp
+            </span>
+          )}
+          {bookTitle && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-medium bg-surface-2 text-text-tertiary">
+              <BookOpen className="w-3 h-3 text-text-tertiary" />
+              <span className="truncate max-w-[160px]">{bookTitle}{lessonNumber ? ` · ${language === 'de' ? 'Lektion' : 'Lesson'} ${lessonNumber}` : ''}</span>
+            </span>
           )}
         </div>
 
         <Link
-          to={`/service-arts/${activity.id}`}
-          className="block flex-1 min-w-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control"
+          to={isService ? `/service/${activity.id}` : `/arts/${activity.id}`}
+          className="block focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control"
         >
-          <div className="flex items-center gap-2">
-            <h3 className="text-base font-semibold text-text leading-snug line-clamp-1 group-hover:text-accent transition-colors">
-              {activity.title[language]}
-            </h3>
-            {isCamp && (
-              <span className="px-2 py-0.5 rounded-full text-2xs font-semibold bg-surface-2 text-text-secondary shrink-0">
-                Camp
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-text-secondary line-clamp-1 mt-0.5">
-            {categoryLabel}
-          </p>
+          <h3 className="text-base font-semibold text-text leading-snug line-clamp-1 group-hover:text-accent transition-colors">
+            {activity.title[language]}
+          </h3>
           {description && (
-            <p className="text-xs text-text-tertiary line-clamp-1 mt-1 leading-relaxed">
+            <p className="text-xs text-text-secondary line-clamp-2 mt-1 leading-relaxed">
               {description}
             </p>
           )}

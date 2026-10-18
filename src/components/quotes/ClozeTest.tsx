@@ -189,9 +189,9 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                   }}
                   className={`min-w-[70px] sm:min-w-[90px] px-3 py-1 rounded-xl text-base sm:text-xl font-medium font-serif border transition-all cursor-pointer select-none inline-block ${
                     isSlotCorrect
-                      ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 font-semibold'
+                      ? 'bg-success/15 border-success/40 text-success font-semibold'
                       : isSlotWrong
-                      ? 'bg-red-500/15 border-red-500/40 text-red-600 dark:text-red-400'
+                      ? 'bg-danger/15 border-danger/40 text-danger'
                       : isSelected
                       ? 'bg-accent/15 border-accent text-accent-text ring-2 ring-accent/30'
                       : currentVal
@@ -210,14 +210,14 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
 
         {/* Success Banner */}
         {allFilled && isAllCorrect && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between gap-3 text-emerald-900 dark:text-emerald-200 animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
-                <strong className="font-semibold block">
+                <strong className="font-semibold block text-success">
                   {language === 'de' ? 'Fantastisch! Alle Lücken korrekt ausgefüllt.' : 'Superb! All blanks correctly completed.'}
                 </strong>
-                <span className="text-emerald-700 dark:text-emerald-300">
+                <span className="text-text-secondary">
                   {language === 'de' ? 'Jetzt das Zitat im Chor laut aufsagen!' : 'Now recite the verse aloud in unison!'}
                 </span>
               </div>

@@ -190,7 +190,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                 onClick={copy}
                 className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 cursor-pointer"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? L('Kopiert!', 'Copied!') : L('Kopieren', 'Copy')}</span>
               </button>
             </div>

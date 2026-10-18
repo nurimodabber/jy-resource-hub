@@ -102,38 +102,43 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
       position="bottom"
     >
       <div className="space-y-6 max-w-xl mx-auto pb-6">
-        {/* 1. Darstellung */}
-        <section className="space-y-2">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-            {t.settingsAppearance}
-          </label>
-          <SegmentedControl
-            options={[
-              { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
-              { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
-              { id: 'system', label: language === 'de' ? 'System' : 'System' },
-            ]}
-            value={theme}
-            onChange={(v) => setTheme(v as Theme)}
-            className="w-full"
-          />
-        </section>
+        {/* Darstellung & Sprache platzsparend nebeneinander */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          {/* 1. Darstellung */}
+          <section className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+              {t.settingsAppearance}
+            </label>
+            <SegmentedControl
+              options={[
+                { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
+                { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
+                { id: 'system', label: language === 'de' ? 'System' : 'System' },
+              ]}
+              value={theme}
+              onChange={(v) => setTheme(v as Theme)}
+              fullWidth
+              size="sm"
+            />
+          </section>
 
-        {/* 2. Sprache */}
-        <section className="space-y-2">
-          <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-            {t.settingsLanguage}
-          </label>
-          <SegmentedControl
-            options={[
-              { id: 'de', label: 'Deutsch' },
-              { id: 'en', label: 'English' },
-            ]}
-            value={language}
-            onChange={(v) => setLanguage(v as Language)}
-            className="w-full"
-          />
-        </section>
+          {/* 2. Sprache */}
+          <section className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+              {t.settingsLanguage}
+            </label>
+            <SegmentedControl
+              options={[
+                { id: 'de', label: 'Deutsch' },
+                { id: 'en', label: 'English' },
+              ]}
+              value={language}
+              onChange={(v) => setLanguage(v as Language)}
+              fullWidth
+              size="sm"
+            />
+          </section>
+        </div>
 
         {/* 3. Entwürfe Filter */}
         <section className="space-y-2 pt-2 border-t border-border">

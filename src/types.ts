@@ -130,7 +130,7 @@ export interface EmpirePlayer {
   isEliminated: boolean;
 }
 
-export type NavTab = 'home' | 'games' | 'quotes' | 'planner' | 'service-arts' | 'tools' | 'saved' | 'impressum' | 'datenschutz' | 'vorschlagen';
+export type NavTab = 'home' | 'games' | 'quotes' | 'service' | 'arts' | 'planner' | 'service-arts' | 'tools' | 'saved' | 'impressum' | 'datenschutz' | 'vorschlagen';
 
 export interface DevotionalSong {
   id: string;
@@ -183,6 +183,9 @@ export interface ServiceProject {
   steps: LocalizedArray;
   reflectionQuestions: LocalizedArray;
   animatorTips: LocalizedArray;
+  imageUrl?: string;
+  relatedBook?: string;
+  lesson?: number;
   status?: 'draft';
   submittedBy?: string;
 }
@@ -210,6 +213,9 @@ export interface ArtsPrompt {
   guidingSteps: LocalizedArray;
   reflectionPrompts: LocalizedArray;
   animatorTips?: LocalizedArray;
+  imageUrl?: string;
+  relatedBook?: string;
+  lesson?: number;
   status?: 'draft';
   submittedBy?: string;
 }

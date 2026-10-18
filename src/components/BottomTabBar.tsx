@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Palette, Calendar, Layers, PlusCircle, type LucideIcon } from 'lucide-react';
+import { Compass, BookOpen, Palette, HeartHandshake, Wrench, PlusCircle, type LucideIcon } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -22,9 +22,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
   }[] = [
     { id: 'games', label: t.tabGames, ariaLabel: t.tabGames, href: '/games', icon: Compass },
     { id: 'quotes', label: t.tabQuotes, ariaLabel: t.tabQuotes, href: '/quotes', icon: BookOpen },
-    { id: 'service-arts', label: t.tabServiceArtsShort, ariaLabel: t.tabServiceArts, href: '/service-arts', icon: Palette },
-    { id: 'planner', label: t.tabPlanner, ariaLabel: t.tabPlanner, href: '/treffen', icon: Calendar },
-    { id: 'tools', label: t.tabTools, ariaLabel: t.tabTools, href: '/tools', icon: Layers },
+    { id: 'service', label: t.tabServiceShort, ariaLabel: t.tabService, href: '/service', icon: HeartHandshake },
+    { id: 'arts', label: t.tabArtsShort, ariaLabel: t.tabArts, href: '/arts', icon: Palette },
+    { id: 'tools', label: t.tabTools, ariaLabel: t.tabTools, href: '/tools', icon: Wrench },
     { id: 'vorschlagen', label: t.tabProposalShort, ariaLabel: t.tabProposal, href: '/vorschlagen', icon: PlusCircle },
   ];
 

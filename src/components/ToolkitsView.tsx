@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, Navigate } from 'react-router-dom';
 import {
   Users,
   Timer,
@@ -11,6 +11,7 @@ import {
   Award,
   ChevronRight,
   Clock,
+  Calendar,
   LucideIcon,
 } from 'lucide-react';
 import { Language } from '../types';
@@ -36,7 +37,8 @@ type ToolDef = {
   title: [string, string];
   desc: [string, string];
   group: 'run' | 'group' | 'ideas';
-  Component: React.FC<{ language: Language }>;
+  customHref?: string;
+  Component?: React.FC<{ language: Language }>;
 };
 
 const TOOLS: ToolDef[] = [
@@ -79,6 +81,17 @@ const TOOLS: ToolDef[] = [
     desc: ['Große Anzeige mit Signalton und Runden für den Beamer.', 'Large display with chime and rounds for projector.'],
     group: 'group',
     Component: TimerTool,
+  },
+  {
+    id: 'planner',
+    icon: Calendar,
+    title: ['Treffen planen', 'Plan gathering'],
+    desc: [
+      'Stundenablauf mit Zeiten, Gebeten, Spielen und Projekten zusammenstellen.',
+      'Assemble a gathering schedule with times, devotions, games and projects.',
+    ],
+    group: 'group',
+    customHref: '/treffen',
   },
   {
     id: 'finder',
@@ -142,7 +155,13 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
   }, [toolId]);
 
   if (tool) {
+    if (tool.customHref) {
+      return <Navigate to={tool.customHref} replace />;
+    }
     const Tool = tool.Component;
+    if (!Tool) {
+      return <Navigate to="/tools" replace />;
+    }
     return (
       <div className="max-w-3xl mx-auto pb-28">
         <ToolHeader
@@ -191,6 +210,14 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
             }
           }
         }
+      } else if (id === 'planner') {
+        const stored = localStorage.getItem('jy_plans');
+        if (stored) {
+          const plans = JSON.parse(stored);
+          if (Array.isArray(plans) && plans.length > 0) {
+            return `${plans.length} ${language === 'de' ? (plans.length === 1 ? 'Plan' : 'Pläne') : (plans.length === 1 ? 'Plan' : 'Plans')}`;
+          }
+        }
       }
     } catch {
       /* ignore */
@@ -207,8 +234,8 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
         </h1>
         <p className="text-sm text-text-secondary mt-1 max-w-prose">
           {L(
-            'Acht praktische Werkzeuge für Handy und Beamer live in der Gruppe. Alle teilen eine gemeinsame Namensliste.',
-            'Eight handy tools for mobile and projector live in the group. All share a single group presence list.'
+            'Praktische Werkzeuge für Handy und Beamer live in der Gruppe. Alle teilen eine gemeinsame Namensliste.',
+            'Handy tools for mobile and projector live in the group. All share a single group presence list.'
           )}
         </p>
       </div>
@@ -226,7 +253,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
               return (
                 <Link
                   key={`recent-${x.id}`}
-                  to={`/tools/${x.id}`}
+                  to={x.customHref || `/tools/${x.id}`}
                   className="flex items-center gap-3 p-3.5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all duration-150 group"
                 >
                   <div className="w-9 h-9 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -266,7 +293,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
                   return (
                     <Link
                       key={x.id}
-                      to={`/tools/${x.id}`}
+                      to={x.customHref || `/tools/${x.id}`}
                       className="flex items-start gap-4 p-4 sm:p-5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-1 transition-all duration-150 group cursor-pointer"
                     >
                       <div className="w-11 h-11 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform mt-0.5">

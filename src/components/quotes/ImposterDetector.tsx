@@ -129,11 +129,11 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
                 onClick={() => handleWordClick(idx)}
                 className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-xl font-serif text-xl sm:text-3xl ${
                   isImposter && isResolved
-                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30'
+                    ? 'bg-success/15 text-success font-bold border border-success/30'
                     : isImposter && !isResolved
                     ? 'hover:bg-accent-subtle hover:text-accent-text'
                     : isShaking
-                    ? 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30'
+                    ? 'bg-danger/10 text-danger border border-danger/30'
                     : 'hover:bg-surface-2'
                 }`}
                 title={language === 'de' ? 'Klicken zum Prüfen' : 'Click to inspect'}
@@ -146,12 +146,12 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
 
         {/* Resolution Banner */}
         {isResolved ? (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between gap-3 text-emerald-900 dark:text-emerald-200 animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-2.5">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
-                <strong className="font-semibold block">{t.imposterFound}</strong>
-                <span className="text-emerald-700 dark:text-emerald-300">
+                <strong className="font-semibold block text-success">{t.imposterFound}</strong>
+                <span className="text-text-secondary">
                   {language === 'de' ? `„${decoyWord}“ wurde durch „${originalWord}“ ersetzt.` : `"${decoyWord}" was corrected to "${originalWord}".`}
                 </span>
               </div>

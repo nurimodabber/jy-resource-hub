@@ -29,6 +29,7 @@ import { useToast } from '../context/ToastContext';
 import { Button } from './ui/Button';
 import { IconButton } from './ui/IconButton';
 import { Badge } from './ui/Badge';
+import { getBookById } from '../utils/bookProgress';
 import { Sheet } from './ui/Sheet';
 import { tr } from './tools/common';
 
@@ -114,6 +115,9 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
     ? activity.duration[language]
     : `${activity.durationMin}–${activity.durationMax} Min`;
 
+  const bookMeta = activity.relatedBook ? getBookById(activity.relatedBook) : null;
+  const bookTitle = bookMeta ? bookMeta.title[language] : (activity.kind === 'kunst' && activity.book ? activity.book[language] : null);
+
   const toggleStepCheck = (index: number) => {
     setCheckedSteps((prev) => {
       const next = new Set(prev);
@@ -136,7 +140,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
       text: L('Zum Treffen hinzugefügt', 'Added to gathering'),
       action: {
         label: L('Treffen öffnen', 'Open gathering'),
-        onClick: () => navigate('/planner'),
+        onClick: () => navigate('/treffen'),
       },
       undo: {
         label: L('Rückgängig', 'Undo'),
@@ -164,7 +168,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
     shareResource({
       title: `${activity.title[language]} – ${t.siteTitle}`,
       text: activity.title[language],
-      url: `${window.location.origin}/service-arts/${activity.id}`,
+      url: `${window.location.origin}/${isService ? 'service' : 'arts'}/${activity.id}`,
     });
     setIsMobileMoreOpen(false);
   };
@@ -179,11 +183,11 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
       {/* Back to list */}
       <div className="mb-4 print:hidden">
         <Link
-          to="/service-arts"
+          to={isService ? '/service' : '/arts'}
           className="inline-flex items-center gap-1.5 -ml-2 px-3 min-h-[44px] rounded-control text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          {t.backToServiceArtsOverview}
+          {isService ? t.backToServiceOverview : t.backToArtsOverview}
         </Link>
       </div>
 
@@ -191,6 +195,16 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
       <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
         {/* Left Column: Details */}
         <div className="lg:col-span-8">
+          {activity.imageUrl && (
+            <div className="mb-6 overflow-hidden rounded-card border border-border aspect-16/9 sm:aspect-21/9 bg-surface-2 shadow-xs">
+              <img
+                src={activity.imageUrl}
+                alt={activity.title[language]}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
           <header className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-7 h-7 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0">
@@ -207,6 +221,12 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
 
             {/* Meta as Badges */}
             <div className="flex flex-wrap gap-2 mt-4 print:hidden">
+              {bookTitle && (
+                <Badge size="md" category="neutral">
+                  <BookOpen className="w-3.5 h-3.5 mr-1 text-text-tertiary" />
+                  {bookTitle}{activity.lesson ? ` · ${language === 'de' ? 'Lektion' : 'Lesson'} ${activity.lesson}` : ''}
+                </Badge>
+              )}
               <Badge size="md" category="neutral">
                 <Clock className="w-3.5 h-3.5 mr-1 text-text-tertiary" />
                 {durationStr}

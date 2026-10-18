@@ -43,7 +43,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
 
       <div className="bg-surface rounded-3xl border border-border-subtle p-6 sm:p-10 shadow-apple-card space-y-8">
         <div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-success/10 text-success flex items-center justify-center mb-4">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-text tracking-tight">
@@ -109,7 +109,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
               {language === 'de' ? 'Lokale Browserdaten jetzt löschen' : 'Clear local browser data now'}
             </Button>
             {cleared && (
-              <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+              <span className="text-xs text-success flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" />
                 {language === 'de' ? 'Gelöscht!' : 'Cleared!'}
               </span>

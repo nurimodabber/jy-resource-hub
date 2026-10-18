@@ -15,3 +15,4 @@ export * from './EmptyState';
 export * from './Toast';
 export * from './Skeleton';
 export * from './ThemeToggle';
+export * from './FilterPillDropdown';

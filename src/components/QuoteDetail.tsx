@@ -2,12 +2,13 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   ArrowLeft, Bookmark, Share2, Copy, Check, Heart, Plus, Maximize2, 
   Play, ChevronDown, ChevronUp, Sun, Moon, Sparkles, X, ChevronLeft, ChevronRight,
-  Laptop
+  Laptop, Music, ExternalLink
 } from 'lucide-react';
 import { QuoteItem, Language, QuoteMethod } from '../types';
 import { QUOTES_DATA } from '../data/quotes';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { getQuoteSong } from '../data/quoteSongs';
 import { Button } from './ui/Button';
 import { IconButton } from './ui/IconButton';
 import { useToast } from '../context/ToastContext';
@@ -72,6 +73,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
   const text = language === 'de' ? activeQuote.textDe : activeQuote.textEn;
   const bookName = activeQuote.mainBook ? activeQuote.mainBook[language] : activeQuote.book[language].split(',')[0].trim();
   const sectionName = formatQuoteSection(activeQuote.section ? activeQuote.section[language] : undefined);
+  const song = getQuoteSong(activeQuote.id, language);
 
   // Keep screen awake during reading mode
   useWakeLock(isReadingMode);
@@ -179,6 +181,20 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
         </Button>
 
         <div className="flex items-center gap-2">
+          {song && (
+            <a
+              href={song.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text text-xs sm:text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+              title={language === 'de' ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
+              aria-label={t.quoteSongAriaLabel}
+            >
+              <Music className="w-4 h-4 text-accent" />
+              <span>{t.quoteSongLink}</span>
+              <ExternalLink className="w-3.5 h-3.5 text-text-tertiary" />
+            </a>
+          )}
           <IconButton
             label={isFavorite ? t.savedItems : (language === 'de' ? 'Merken' : 'Save')}
             variant="outline"
@@ -233,16 +249,32 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
           </div>
         </div>
 
-        {/* Lesemodus Button */}
+        {/* Lesemodus & Lied Button */}
         <div className="pt-6 border-t border-border flex flex-wrap items-center justify-center sm:justify-between gap-4">
-          <Button
-            variant="secondary"
-            onClick={() => setIsReadingMode(true)}
-            className="min-h-[44px]"
-          >
-            <Maximize2 className="w-4 h-4 mr-2 text-accent" />
-            <span>{t.presentationMode}</span>
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => setIsReadingMode(true)}
+              className="min-h-[44px]"
+            >
+              <Maximize2 className="w-4 h-4 mr-2 text-accent" />
+              <span>{t.presentationMode}</span>
+            </Button>
+
+            {song && (
+              <a
+                href={song.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text text-xs sm:text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent shadow-xs"
+                title={language === 'de' ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
+              >
+                <Music className="w-4 h-4 text-accent shrink-0" />
+                <span>{language === 'de' ? `Lied: ${song.title}` : `Song: ${song.title}`}</span>
+                <ExternalLink className="w-3.5 h-3.5 text-text-tertiary ml-0.5" />
+              </a>
+            )}
+          </div>
 
           <span className="text-xs text-text-tertiary">
             {language === 'de' ? 'Vollbild · Beamer · Bildschirm bleibt an' : 'Fullscreen · Beamer · Screen kept awake'}

@@ -177,6 +177,56 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Treffen planen' : 'Plan Gathering');
       ogParams.set('subtitle', description);
+    } else if (pathname === '/service') {
+      title = isDe ? 'Dienstprojekte — Junior Youth Hub' : 'Service Projects — Junior Youth Hub';
+      description = isDe
+        ? 'Gemeindedienst-Projekte und Aktionen für Juniorjugendgruppen und Camps.'
+        : 'Community service projects and action ideas for junior youth groups and camps.';
+      ogParams.set('type', 'section');
+      ogParams.set('title', isDe ? 'Dienstprojekte' : 'Service Projects');
+      ogParams.set('subtitle', description);
+    } else if (pathname.startsWith('/service/')) {
+      const actId = pathname.replace('/service/', '').split('/')[0];
+      const activity = SERVICE_PROJECTS_DATA.find((a) => a.id === actId);
+      if (activity) {
+        const aTitle = activity.title[language];
+        const kindLabel = isDe ? 'Dienstprojekt' : 'Service Project';
+        const sizeStr = `${activity.groupSize.min}–${activity.groupSize.max} ${isDe ? 'Pers.' : 'ppl'}`;
+        title = `${aTitle} – ${kindLabel} (${sizeStr}) | Junior Youth Hub`;
+        description = activity.objective[language];
+        ogType = 'article';
+        ogParams.set('type', 'activity');
+        ogParams.set('id', activity.id);
+        ogParams.set('title', aTitle);
+        ogParams.set('subtitle', `${kindLabel} · ${sizeStr}`);
+      } else {
+        title = isDe ? 'Dienstprojekt nicht gefunden — Junior Youth Hub' : 'Service project not found — Junior Youth Hub';
+      }
+    } else if (pathname === '/arts') {
+      title = isDe ? 'Kreative Kunst — Junior Youth Hub' : 'Creative Arts — Junior Youth Hub';
+      description = isDe
+        ? 'Kreative Ausdrucks-Impulse, Theater, Musik und bildende Kunst für Juniorjugendgruppen.'
+        : 'Creative arts prompts, drama, music and visual arts for junior youth groups.';
+      ogParams.set('type', 'section');
+      ogParams.set('title', isDe ? 'Kreative Kunst' : 'Creative Arts');
+      ogParams.set('subtitle', description);
+    } else if (pathname.startsWith('/arts/')) {
+      const actId = pathname.replace('/arts/', '').split('/')[0];
+      const activity = ARTS_PROMPTS_DATA.find((a) => a.id === actId);
+      if (activity) {
+        const aTitle = activity.title[language];
+        const kindLabel = isDe ? 'Kreative Kunst' : 'Creative Arts';
+        const sizeStr = `${activity.groupSize.min}–${activity.groupSize.max} ${isDe ? 'Pers.' : 'ppl'}`;
+        title = `${aTitle} – ${kindLabel} (${sizeStr}) | Junior Youth Hub`;
+        description = activity.description[language];
+        ogType = 'article';
+        ogParams.set('type', 'activity');
+        ogParams.set('id', activity.id);
+        ogParams.set('title', aTitle);
+        ogParams.set('subtitle', `${kindLabel} · ${sizeStr}`);
+      } else {
+        title = isDe ? 'Kunst-Impuls nicht gefunden — Junior Youth Hub' : 'Creative art prompt not found — Junior Youth Hub';
+      }
     } else if (pathname === '/service-arts') {
       title = isDe ? 'Dienst & Kunst — Junior Youth Hub' : 'Service & Arts — Junior Youth Hub';
       description = isDe
@@ -238,12 +288,12 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Gemerkte Inhalte' : 'Saved Items');
     } else if (pathname === '/vorschlagen') {
-      title = isDe ? 'Vorschlag einreichen — Junior Youth Hub' : 'Submit Proposal — Junior Youth Hub';
+      title = isDe ? 'Beitragen — Junior Youth Hub' : 'Contribute — Junior Youth Hub';
       description = isDe
-        ? 'Reiche ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Junior Youth Hub ein.'
-        : 'Submit a field-tested group game, service project or arts prompt for the Junior Youth Hub.';
+        ? 'Teile ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Junior Youth Hub.'
+        : 'Contribute a field-tested group game, service project or arts prompt for the Junior Youth Hub.';
       ogParams.set('type', 'section');
-      ogParams.set('title', isDe ? 'Vorschlag einreichen' : 'Submit Proposal');
+      ogParams.set('title', isDe ? 'Beitragen' : 'Contribute');
     } else if (pathname === '/impressum') {
       title = isDe ? 'Impressum — Junior Youth Hub' : 'Legal Notice — Junior Youth Hub';
       description = 'Angaben gemäß § 5 DDG für den Junior Youth Hub.';

@@ -63,13 +63,13 @@ function getSlotTimeRange(startTimeStr: string, slotIndex: number, slots: Sessio
 }
 
 export const SLOT_CATEGORY_THEME: Record<SessionSlotType, { color: string; label: { de: string; en: string }; hex: string }> = {
-  devotional: { color: 'bg-accent text-accent-contrast', hex: '#D4AE5C', label: { de: 'Andacht', en: 'Devotion' } },
-  study: { color: 'bg-[#7DB6C9] text-white', hex: '#7DB6C9', label: { de: 'Zitat', en: 'Text study' } },
-  warmup: { color: 'bg-[#E58A6B] text-white', hex: '#E58A6B', label: { de: 'Spiel', en: 'Game' } },
-  service: { color: 'bg-[#B9C46A] text-[#1A1406]', hex: '#B9C46A', label: { de: 'Dienst', en: 'Service' } },
-  arts_discussion: { color: 'bg-[#B9C46A] text-[#1A1406]', hex: '#B9C46A', label: { de: 'Kunst', en: 'Arts' } },
-  closing: { color: 'bg-[#6E7F76] text-white', hex: '#6E7F76', label: { de: 'Abschluss', en: 'Closing' } },
-  custom: { color: 'bg-[#889890] text-white', hex: '#889890', label: { de: 'Frei', en: 'Custom' } },
+  devotional: { color: 'bg-surface-2 text-text-secondary border border-border', hex: '#1F6FEB', label: { de: 'Andacht', en: 'Devotion' } },
+  study: { color: 'bg-surface-2 text-text-secondary border border-border', hex: '#3B82F6', label: { de: 'Zitat', en: 'Text study' } },
+  warmup: { color: 'bg-surface-2 text-text-secondary border border-border', hex: '#60A5FA', label: { de: 'Spiel', en: 'Game' } },
+  service: { color: 'bg-surface-2 text-text-secondary border border-border', hex: '#2563EB', label: { de: 'Dienst', en: 'Service' } },
+  arts_discussion: { color: 'bg-surface-2 text-text-secondary border border-border', hex: '#93C5FD', label: { de: 'Kunst', en: 'Arts' } },
+  closing: { color: 'bg-surface-2 text-text-secondary border border-border', hex: '#64748B', label: { de: 'Abschluss', en: 'Closing' } },
+  custom: { color: 'bg-surface-2 text-text-secondary border border-border', hex: '#94A3B8', label: { de: 'Frei', en: 'Custom' } },
 };
 
 // ----------------------------------------------------
@@ -1213,8 +1213,8 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
               {/* Total Duration vs. Target Diff Badge */}
               <div className="flex items-center gap-1.5">
                 {durationDiff > 0 ? (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-chip bg-amber-500/15 text-amber-800 dark:text-amber-200 font-semibold text-2xs border border-amber-500/30">
-                    <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-chip bg-danger/10 text-danger font-semibold text-2xs border border-danger/20">
+                    <AlertTriangle className="w-3 h-3 text-danger" />
                     <span>+{durationDiff} Min. ({t.treffenOverTimeWarning})</span>
                   </span>
                 ) : durationDiff < 0 ? (
@@ -1222,8 +1222,8 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                     <span>{durationDiff} Min. ({t.treffenUnderTimeWarning})</span>
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-chip bg-emerald-500/15 text-emerald-800 dark:text-emerald-200 font-semibold text-2xs">
-                    <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-chip bg-success/15 text-success font-semibold text-2xs">
+                    <Check className="w-3 h-3 text-success" />
                     <span>{t.treffenExactTime} ({totalMinutes} Min.)</span>
                   </span>
                 )}
@@ -1306,7 +1306,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('study', 15)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-word/15 text-word shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
+                <div className="w-8 h-8 rounded-full bg-accent/15 text-accent shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -1322,7 +1322,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('study', 20, { de: 'Juniorjugend-Buch', en: 'Junior Youth Book' })}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-word/15 text-word shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
+                <div className="w-8 h-8 rounded-full bg-accent/15 text-accent shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <BookOpen className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -1338,7 +1338,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('warmup', 15)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-e-lebhaft/15 text-e-lebhaft shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
+                <div className="w-8 h-8 rounded-full bg-accent/15 text-accent shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <Smile className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -1354,7 +1354,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('service', 20)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-success/15 text-success shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
+                <div className="w-8 h-8 rounded-full bg-accent/15 text-accent shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <HeartHandshake className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -1386,7 +1386,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('custom', 10, { de: 'Pause & Snack', en: 'Break & Snack' })}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-surface text-text-secondary border border-border shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
+                <div className="w-8 h-8 rounded-full bg-accent/15 text-accent shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <Clock className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -1402,7 +1402,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                 onClick={() => handleAddBlankSlot('closing', 10)}
                 className="p-3 rounded-card bg-surface-2 hover:bg-surface-raised border border-border hover:border-action transition-all text-left flex items-start gap-2.5 group cursor-pointer"
               >
-                <div className="w-8 h-8 rounded-full bg-e-mittel/15 text-e-mittel shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
+                <div className="w-8 h-8 rounded-full bg-accent/15 text-accent shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform" aria-hidden="true">
                   <Check className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -1534,7 +1534,6 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
             const timeRange = getSlotTimeRange(startTime, index, slots);
             const isDragged = draggedSlotIndex === index;
             const isDragOver = dragOverSlotIndex === index && draggedSlotIndex !== index;
-            const theme = SLOT_CATEGORY_THEME[slot.type] || SLOT_CATEGORY_THEME.custom;
 
             const handleMoveSlot = (fromIdx: number, toIdx: number) => {
               if (toIdx < 0 || toIdx >= slots.length || fromIdx === toIdx) return;
@@ -1587,7 +1586,6 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                     handleMoveSlot(index, index + 1);
                   }
                 }}
-                style={{ borderLeftColor: theme.hex, borderLeftWidth: '4px' }}
                 className={`bg-surface rounded-card border p-4 sm:p-5 shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                   isDragged
                     ? 'opacity-50 border-accent'
@@ -2523,7 +2521,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         {isChecked ? (
-                          <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0" />
+                          <CheckSquare className="w-4 h-4 text-success shrink-0" />
                         ) : (
                           <Square className="w-4 h-4 text-text-tertiary shrink-0" />
                         )}

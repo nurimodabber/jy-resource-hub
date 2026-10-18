@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { Bookmark, ArrowRight, MoreVertical, Copy, Check, Share2, Plus, Heart } from 'lucide-react';
-import '@fontsource/lora/latin-400.css';
-import '@fontsource/lora/latin-400-italic.css';
-import '@fontsource/lora/latin-600.css';
+import { Bookmark, ArrowRight, MoreVertical, Copy, Check, Share2, Plus, Heart, Music, ExternalLink } from 'lucide-react';
 import { QuoteItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { getQuoteSong } from '../data/quoteSongs';
 import { IconButton } from './ui/IconButton';
 import { useToast } from '../context/ToastContext';
 import { shareResource } from '../utils/share';
@@ -57,6 +55,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   const text = language === 'de' ? quote.textDe : quote.textEn;
   const bookName = quote.mainBook ? quote.mainBook[language] : quote.book[language].split(',')[0].trim();
   const sectionName = formatQuoteSection(quote.section ? quote.section[language] : undefined);
+  const song = getQuoteSong(quote.id, language);
 
   const handleCopy = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -120,7 +119,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           )}
         </div>
 
-        {/* Holy Text in Literata Serif font (unaltered, up to 6 lines in list) */}
+        {/* Holy Text in Lora Serif font (unaltered, up to 6 lines in list) */}
         <div className="max-w-[680px]">
           <p
             className="font-serif text-lg sm:text-xl leading-relaxed text-text line-clamp-6 select-text"
@@ -199,10 +198,40 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
                     <Share2 className="w-4 h-4" />
                     <span>{language === 'de' ? 'Teilen' : 'Share'}</span>
                   </button>
+
+                  {song && (
+                    <a
+                      href={song.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors cursor-pointer text-left"
+                    >
+                      <Music className="w-4 h-4 text-accent" />
+                      <span>{t.quoteSongDetailCta}</span>
+                      <ExternalLink className="w-3.5 h-3.5 ml-auto opacity-60" />
+                    </a>
+                  )}
                 </div>
               </>
             )}
           </div>
+
+          {/* Song Link to BahaiSongs.com */}
+          {song && (
+            <a
+              href={song.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] text-xs font-semibold text-text-secondary hover:text-accent rounded-control hover:bg-surface-2 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+              aria-label={t.quoteSongAriaLabel}
+              title={language === 'de' ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
+            >
+              <Music className="w-3.5 h-3.5 text-accent" />
+              <span>{t.quoteSongLink}</span>
+              <ExternalLink className="w-3 h-3 opacity-60" />
+            </a>
+          )}
         </div>
 
         {/* Primary contextual textual link / button */}

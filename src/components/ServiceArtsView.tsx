@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, X, ArrowLeft, Tent } from 'lucide-react';
+import { Search, X, ArrowLeft, Tent, Clock, Users } from 'lucide-react';
 import {
   Language,
   ActivityItem,
@@ -13,14 +13,9 @@ import { UI_TRANSLATIONS } from '../data/translations';
 import { ServiceArtsCard } from './ServiceArtsCard';
 import { ServiceArtsDetail } from './ServiceArtsDetail';
 import { EmptyState } from './ui/EmptyState';
-import { Button } from './ui/Button';
-import { Chip } from './ui/Chip';
 import { Badge } from './ui/Badge';
-import { Sheet } from './ui/Sheet';
-import { Stepper } from './ui/Stepper';
-import { Switch } from './ui/Switch';
-import { Select } from './ui/Select';
 import { SegmentedControl } from './ui/SegmentedControl';
+import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
 import { tr } from './tools/common';
 
 interface ServiceArtsViewProps {
@@ -29,6 +24,7 @@ interface ServiceArtsViewProps {
   favorites: string[];
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
   onAddToPlanner?: (slot: SessionSlot) => void;
+  fixedKind?: 'dienst' | 'kunst';
 }
 
 export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
@@ -36,30 +32,33 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   searchQuery: externalSearchQuery = '',
   favorites,
   onToggleFavorite,
+  fixedKind,
 }) => {
   const { id } = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const t = UI_TRANSLATIONS[language];
   const L = tr(language);
 
-  // Combine all items into a single unified list
-  const allActivities = useMemo<ActivityItem[]>(
-    () => [...SERVICE_PROJECTS_DATA, ...ARTS_PROMPTS_DATA],
-    [],
-  );
+  // Combine items according to fixedKind or unified list
+  const allActivities = useMemo<ActivityItem[]>(() => {
+    if (fixedKind === 'dienst') return SERVICE_PROJECTS_DATA;
+    if (fixedKind === 'kunst') return ARTS_PROMPTS_DATA;
+    return [...SERVICE_PROJECTS_DATA, ...ARTS_PROMPTS_DATA];
+  }, [fixedKind]);
 
-  // Active game or activity for /service-arts/:id
+  // Active game or activity for detail view
   const activeActivity = useMemo(() => {
     if (!id) return undefined;
-    return allActivities.find((a) => a.id === id);
-  }, [id, allActivities]);
+    const pool = [...SERVICE_PROJECTS_DATA, ...ARTS_PROMPTS_DATA];
+    return pool.find((a) => a.id === id);
+  }, [id]);
 
   // Filter states parsed from URL searchParams
   const [query, setQuery] = useState(
     searchParams.get('q') || externalSearchQuery || '',
   );
   const [activeKind, setActiveKind] = useState<'all' | ActivityKind>(
-    (searchParams.get('art') as 'all' | ActivityKind) || 'all',
+    fixedKind || (searchParams.get('art') as 'all' | ActivityKind) || 'all',
   );
   const [isCampOnly, setIsCampOnly] = useState<boolean>(
     searchParams.get('camp') === '1',
@@ -78,8 +77,6 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>(
     searchParams.get('kategorie') || 'all',
   );
-
-  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   // Keep state synced with URL searchParams
   useEffect(() => {
@@ -135,7 +132,15 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
 
       // 5. Group size
       if (groupSize != null) {
-        if (groupSize < item.groupSize.min || groupSize > item.groupSize.max) return false;
+        if (groupSize === 6) {
+          if (item.groupSize.min > 6) return false;
+        } else if (groupSize === 12) {
+          if (item.groupSize.max < 6 || item.groupSize.min > 12) return false;
+        } else if (groupSize === 15) {
+          if (item.groupSize.max < 12) return false;
+        } else {
+          if (groupSize < item.groupSize.min || groupSize > item.groupSize.max) return false;
+        }
       }
 
       // 6. Category or ArtForm
@@ -179,16 +184,6 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     return count;
   }, [isCampOnly, settingFilter, maxDuration, groupSize, selectedSubCategory]);
 
-  const handleResetFilters = () => {
-    updateParams({
-      camp: null,
-      setting: null,
-      dauer: null,
-      personen: null,
-      kategorie: null,
-    });
-  };
-
   const handleClearAll = () => {
     updateParams({
       q: null,
@@ -201,24 +196,102 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     });
   };
 
+  // Kind segment options (for fallback when !fixedKind)
+  const kindSegmentOptions = [
+    { id: 'all', label: t.filterAll, count: allActivities.length },
+    { id: 'dienst', label: t.subtabServiceProjects, count: SERVICE_PROJECTS_DATA.length },
+    { id: 'kunst', label: t.subtabArtsPrompts, count: ARTS_PROMPTS_DATA.length },
+  ];
+
+  // Duration options for FilterPillDropdown
+  const durationOptions = [
+    { value: null, label: t.filterDurationAny },
+    { value: 30, label: 'Bis 30 Min.' },
+    { value: 60, label: 'Bis 60 Min.' },
+    { value: 90, label: 'Bis 90 Min.' },
+    { value: 120, label: 'Bis 120 Min.' },
+  ];
+
+  // Group size options for FilterPillDropdown
+  const groupSizeOptions = [
+    { value: null, label: L('Alle Gruppengrößen', 'All group sizes') },
+    { value: 6, label: L('Bis 6 Personen', 'Up to 6 people') },
+    { value: 12, label: L('6 bis 12 Personen', '6 to 12 people') },
+    { value: 15, label: L('Über 12 Personen', 'Over 12 people') },
+  ];
+
+  const activeGroupLabel =
+    groupSize === 6
+      ? L('≤ 6 Pers.', '≤ 6 people')
+      : groupSize === 12
+      ? L('6–12 Pers.', '6–12 people')
+      : groupSize === 15
+      ? L('12+ Pers.', '12+ people')
+      : groupSize != null
+      ? `${groupSize} Pers.`
+      : undefined;
+
+  // Category options for FilterPillDropdown
+  const categoryOptions = useMemo(() => {
+    const opts: Array<{ value: string; label: string }> = [
+      {
+        value: 'all',
+        label:
+          fixedKind === 'dienst'
+            ? L('Alle Dienst-Kategorien', 'All service categories')
+            : fixedKind === 'kunst'
+            ? L('Alle Kunstformen', 'All art forms')
+            : L('Alle Kategorien & Formen', 'All categories & forms'),
+      },
+    ];
+
+    if (fixedKind !== 'kunst') {
+      opts.push(
+        { value: 'neighborhood', label: fixedKind === 'dienst' ? t.catNeighborhood : `${t.subtabServiceProjects}: ${t.catNeighborhood}` },
+        { value: 'environmental', label: fixedKind === 'dienst' ? t.catEnvironmental : `${t.subtabServiceProjects}: ${t.catEnvironmental}` },
+        { value: 'intergenerational', label: fixedKind === 'dienst' ? t.catIntergenerational : `${t.subtabServiceProjects}: ${t.catIntergenerational}` },
+        { value: 'children', label: fixedKind === 'dienst' ? t.catChildren : `${t.subtabServiceProjects}: ${t.catChildren}` },
+        { value: 'institutional', label: fixedKind === 'dienst' ? t.catInstitutional : `${t.subtabServiceProjects}: ${t.catInstitutional}` },
+        { value: 'creative', label: fixedKind === 'dienst' ? t.catCreative : `${t.subtabServiceProjects}: ${t.catCreative}` },
+      );
+    }
+
+    if (fixedKind !== 'dienst') {
+      opts.push(
+        { value: 'drama', label: fixedKind === 'kunst' ? t.artFormDrama : `${t.subtabArtsPrompts}: ${t.artFormDrama}` },
+        { value: 'music_poetry', label: fixedKind === 'kunst' ? t.artFormMusicPoetry : `${t.subtabArtsPrompts}: ${t.artFormMusicPoetry}` },
+        { value: 'visual_arts', label: fixedKind === 'kunst' ? t.artFormVisual : `${t.subtabArtsPrompts}: ${t.artFormVisual}` },
+        { value: 'collaborative_mural', label: fixedKind === 'kunst' ? t.artFormMural : `${t.subtabArtsPrompts}: ${t.artFormMural}` },
+      );
+    }
+
+    return opts;
+  }, [fixedKind, t, L]);
+
+  const activeCategoryOption = categoryOptions.find((o) => o.value === selectedSubCategory);
+  const activeCategoryLabel =
+    activeCategoryOption && activeCategoryOption.value !== 'all' ? activeCategoryOption.label : undefined;
+
   // If viewing a detail page /service-arts/:id
   if (id) {
     if (!activeActivity) {
+      const overviewPath = fixedKind === 'dienst' ? '/service' : fixedKind === 'kunst' ? '/arts' : '/service';
+      const overviewLabel = fixedKind === 'dienst' ? t.backToServiceOverview : fixedKind === 'kunst' ? t.backToArtsOverview : t.backToServiceArtsOverview;
       return (
         <div className="max-w-3xl mx-auto py-12 px-4">
           <EmptyState
             title={t.activityNotFoundTitle}
             description={t.activityNotFoundDesc}
-            actionLabel={t.backToServiceArtsOverview}
-            onAction={() => window.location.assign('/service-arts')}
+            actionLabel={overviewLabel}
+            onAction={() => window.location.assign(overviewPath)}
           />
           <div className="mt-6 text-center">
             <Link
-              to="/service-arts"
+              to={overviewPath}
               className="inline-flex items-center gap-1.5 text-sm text-accent-text hover:underline"
             >
               <ArrowLeft className="w-4 h-4" />
-              {t.backToServiceArtsOverview}
+              {overviewLabel}
             </Link>
           </div>
         </div>
@@ -234,19 +307,28 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     );
   }
 
-  // Kind segment options
-  const kindSegmentOptions = [
-    { id: 'all', label: t.filterAll, count: allActivities.length },
-    { id: 'dienst', label: t.subtabServiceProjects, count: SERVICE_PROJECTS_DATA.length },
-    { id: 'kunst', label: t.subtabArtsPrompts, count: ARTS_PROMPTS_DATA.length },
-  ];
 
-  // Setting options for filter sheet
-  const settingOptions = [
-    { id: 'all', label: t.filterAll },
-    { id: 'drinnen', label: t.settingDrinnen },
-    { id: 'draussen', label: t.settingDraussen },
-  ];
+  const pageTitle = fixedKind === 'dienst'
+    ? t.subtabServiceProjects
+    : fixedKind === 'kunst'
+    ? t.subtabArtsPrompts
+    : t.tabServiceArts;
+
+  const pageDesc = fixedKind === 'dienst'
+    ? t.serviceHeaderDesc
+    : fixedKind === 'kunst'
+    ? t.artsHeaderDesc
+    : t.serviceArtsHeaderDesc;
+
+  const countBadgeLabel = fixedKind === 'dienst'
+    ? `${allActivities.length} ${L('Projekte', 'projects')}`
+    : `${allActivities.length} ${L('Aktivitäten', 'activities')}`;
+
+  const searchPlaceholderText = fixedKind === 'dienst'
+    ? L('Dienstprojekt suchen...', 'Search service projects...')
+    : fixedKind === 'kunst'
+    ? L('Kreativimpuls oder Kunstaktion suchen...', 'Search creative activity or drama prompt...')
+    : L('Dienstprojekt oder Kunstimpuls suchen...', 'Search service projects or arts prompts...');
 
   return (
     <div className="max-w-6xl mx-auto pb-20 px-4 sm:px-6">
@@ -254,199 +336,155 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       <header className="mb-6">
         <div className="flex items-baseline gap-3 flex-wrap">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
-            {t.tabServiceArts}
+            {pageTitle}
           </h1>
           <Badge category="neutral" size="md">
-            {allActivities.length} {L('Aktivitäten', 'activities')}
+            {countBadgeLabel}
           </Badge>
         </div>
         <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
-          {t.serviceArtsHeaderDesc}
+          {pageDesc}
         </p>
       </header>
 
-      {/* 2. Search row + Filter Button */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="relative flex-1">
-          <Search
-            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              updateParams({ q: e.target.value || null });
+      {/* 2. Full-Width Search Input */}
+      <div className="relative mb-3">
+        <Search
+          className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+          aria-hidden="true"
+        />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            updateParams({ q: e.target.value || null });
+          }}
+          placeholder={searchPlaceholderText}
+          aria-label={L('Suchen', 'Search')}
+          className="w-full h-11 pl-10 pr-10 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery('');
+              updateParams({ q: null });
             }}
-            placeholder={L('Dienstprojekt oder Kunstimpuls suchen...', 'Search service projects or arts prompts...')}
-            aria-label={L('Suchen', 'Search')}
-            className="w-full h-11 pl-10 pr-10 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => {
-                setQuery('');
-                updateParams({ q: null });
-              }}
-              aria-label={L('Suche löschen', 'Clear search')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Filter Sheet trigger button */}
-        <Button
-          variant={activeSheetFilterCount > 0 ? 'primary' : 'outline'}
-          size="md"
-          className="shrink-0 min-h-[44px]"
-          onClick={() => setIsFilterSheetOpen(true)}
-          aria-label={`${t.filterButton} (${activeSheetFilterCount} ${t.activeFiltersLabel})`}
-        >
-          <SlidersHorizontal className="w-4 h-4 mr-2" />
-          <span>{t.filterButton}</span>
-          {activeSheetFilterCount > 0 && (
-            <span
-              className={`ml-1.5 px-1.5 py-0.2 rounded-full text-xs font-bold ${
-                activeSheetFilterCount > 0 ? 'bg-white text-accent' : 'bg-surface-2 text-text'
-              }`}
-            >
-              {activeSheetFilterCount}
-            </span>
-          )}
-        </Button>
+            aria-label={L('Suche löschen', 'Clear search')}
+            className="absolute right-1 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
-      {/* 3. Segmented Control row: Alle · Dienst · Kunst */}
-      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-        <SegmentedControl
-          options={kindSegmentOptions}
-          value={activeKind}
-          onChange={(val) => {
-            setActiveKind(val as 'all' | ActivityKind);
-            updateParams({ art: val === 'all' ? null : val });
-          }}
-        />
+      {/* 3. Coherent Filter Bar directly underneath */}
+      <div className="flex flex-wrap items-center gap-2 mb-5 select-none">
+        {!fixedKind && (
+          <div className="mr-1">
+            <SegmentedControl
+              options={kindSegmentOptions}
+              value={activeKind}
+              onChange={(val) => {
+                setActiveKind(val as 'all' | ActivityKind);
+                updateParams({ art: val === 'all' ? null : val });
+              }}
+            />
+          </div>
+        )}
 
-        {/* Quick Camp Toggle Chip */}
-        <Chip
-          selected={isCampOnly}
+        {/* Camp Filter Pill (1-Click Toggle) */}
+        <FilterPillButton
+          label={t.forCampFilter}
+          isActive={isCampOnly}
           onClick={() => {
             const next = !isCampOnly;
             setIsCampOnly(next);
             updateParams({ camp: next ? '1' : null });
           }}
-        >
-          <Tent className="w-4 h-4 mr-1 text-accent" />
-          {t.forCampFilter}
-        </Chip>
-      </div>
+          icon={<Tent className="w-3.5 h-3.5 shrink-0" />}
+        />
 
-      {/* 4. Active removable filter chips */}
-      {(activeSheetFilterCount > 0 || activeKind !== 'all') && (
-        <div className="flex flex-wrap items-center gap-2 mb-6 pt-1">
-          <span className="text-xs font-bold text-text-tertiary uppercase tracking-wider mr-1">
-            {t.activeFiltersLabel}:
-          </span>
+        {/* Setting: Drinnen Pill (1-Click Toggle) */}
+        <FilterPillButton
+          label={t.settingDrinnen}
+          isActive={settingFilter === 'drinnen'}
+          onClick={() => {
+            const next = settingFilter === 'drinnen' ? 'all' : 'drinnen';
+            setSettingFilter(next);
+            updateParams({ setting: next === 'all' ? null : next });
+          }}
+        />
 
-          {activeKind !== 'all' && (
-            <button
-              type="button"
-              onClick={() => {
-                setActiveKind('all');
-                updateParams({ art: null });
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
-            >
-              <span>{activeKind === 'dienst' ? t.subtabServiceProjects : t.subtabArtsPrompts}</span>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+        {/* Setting: Draußen Pill (1-Click Toggle) */}
+        <FilterPillButton
+          label={t.settingDraussen}
+          isActive={settingFilter === 'draussen'}
+          onClick={() => {
+            const next = settingFilter === 'draussen' ? 'all' : 'draussen';
+            setSettingFilter(next);
+            updateParams({ setting: next === 'all' ? null : next });
+          }}
+        />
 
-          {isCampOnly && (
-            <button
-              type="button"
-              onClick={() => {
-                setIsCampOnly(false);
-                updateParams({ camp: null });
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
-            >
-              <span>{t.forCampFilter}</span>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+        {/* Duration Dropdown Pill */}
+        <FilterPillDropdown
+          label={t.filterDuration}
+          activeLabel={maxDuration ? `≤ ${maxDuration} Min.` : undefined}
+          isActive={maxDuration != null}
+          icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
+          options={durationOptions}
+          selectedValue={maxDuration}
+          onSelect={(val) => {
+            setMaxDuration(val);
+            updateParams({ dauer: val ? String(val) : null });
+          }}
+        />
 
-          {settingFilter !== 'all' && (
-            <button
-              type="button"
-              onClick={() => {
-                setSettingFilter('all');
-                updateParams({ setting: null });
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
-            >
-              <span>{t.settingLabel}: {settingFilter === 'drinnen' ? t.settingDrinnen : t.settingDraussen}</span>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+        {/* Group Size Dropdown Pill */}
+        <FilterPillDropdown
+          label={t.groupLabel}
+          activeLabel={activeGroupLabel}
+          isActive={groupSize != null}
+          icon={<Users className="w-3.5 h-3.5 shrink-0" />}
+          options={groupSizeOptions}
+          selectedValue={groupSize}
+          onSelect={(val) => {
+            setGroupSize(val);
+            updateParams({ personen: val ? String(val) : null });
+          }}
+        />
 
-          {maxDuration != null && (
-            <button
-              type="button"
-              onClick={() => {
-                setMaxDuration(null);
-                updateParams({ dauer: null });
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
-            >
-              <span>{t.filterDuration}: ≤ {maxDuration} Min</span>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
+        {/* Category / Art Form Dropdown Pill */}
+        <FilterPillDropdown
+          label={fixedKind === 'kunst' ? L('Kunstform', 'Art form') : t.filterCategoryLabel}
+          activeLabel={activeCategoryLabel}
+          isActive={selectedSubCategory !== 'all'}
+          options={categoryOptions}
+          selectedValue={selectedSubCategory}
+          onSelect={(val) => {
+            const next = (val as string) || 'all';
+            setSelectedSubCategory(next);
+            updateParams({ kategorie: next === 'all' ? null : next });
+          }}
+        />
 
-          {groupSize != null && (
-            <button
-              type="button"
-              onClick={() => {
-                setGroupSize(null);
-                updateParams({ personen: null });
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
-            >
-              <span>{t.filterGroupSize}: {groupSize} {t.peopleSuffix}</span>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-
-          {selectedSubCategory !== 'all' && (
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedSubCategory('all');
-                updateParams({ kategorie: null });
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-chip bg-accent-subtle text-accent-text text-xs font-semibold hover:bg-accent/20 transition-colors"
-            >
-              <span>{t.filterCategoryLabel}: {selectedSubCategory}</span>
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-
+        {/* Clear all filters button if any filter is active */}
+        {activeSheetFilterCount > 0 && (
           <button
             type="button"
             onClick={handleClearAll}
-            className="text-xs text-text-secondary hover:text-text underline min-h-[32px] px-2"
+            className="inline-flex items-center gap-1.5 h-9 px-3 text-xs text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors ml-auto sm:ml-0"
+            aria-label={t.clearAllFilters}
           >
-            {t.clearAllFilters}
+            <X className="w-3.5 h-3.5" />
+            <span>{t.clearAllFilters}</span>
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* 5. Activities Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}
+      {/* 4. Activities Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}
       <h2 className="sr-only">{t.tabServiceArts}</h2>
       {filteredList.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 min-[1120px]:grid-cols-3 gap-4">
@@ -471,144 +509,6 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
           onAction={handleClearAll}
         />
       )}
-
-      {/* 6. Filter Sheet */}
-      <Sheet
-        isOpen={isFilterSheetOpen}
-        onClose={() => setIsFilterSheetOpen(false)}
-        title={L('Dienst & Kunst filtern', 'Filter Service & Arts')}
-      >
-        <div className="space-y-6 py-2">
-          {/* Camp-Tauglichkeit Switch */}
-          <div className="flex items-center justify-between py-2 border-b border-border">
-            <div>
-              <p className="text-sm font-semibold text-text">{t.forCampFilter}</p>
-              <p className="text-xs text-text-secondary">
-                {L('Aktivitäten für Camp-Tage oder intensive Wochenenden', 'Activities for camp days or weekend retreats')}
-              </p>
-            </div>
-            <Switch
-              checked={isCampOnly}
-              onChange={(checked) => {
-                setIsCampOnly(checked);
-                updateParams({ camp: checked ? '1' : null });
-              }}
-              label={t.forCampFilter}
-            />
-          </div>
-
-          {/* Umgebung (Drinnen / Draußen / Beides) */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-text">{t.settingLabel}</label>
-            <div>
-              <SegmentedControl
-                options={settingOptions}
-                value={settingFilter}
-                onChange={(val) => {
-                  setSettingFilter(val);
-                  updateParams({ setting: val === 'all' ? null : val });
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Dauer (Chips: bis 60, bis 90, bis 120, egal) */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-text">{t.filterDuration}</label>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { val: null, label: t.filterDurationAny },
-                { val: 60, label: 'Bis 60 Min' },
-                { val: 90, label: 'Bis 90 Min' },
-                { val: 120, label: 'Bis 120 Min' },
-              ].map((opt) => {
-                const isSelected = maxDuration === opt.val;
-                return (
-                  <Chip
-                    key={String(opt.val)}
-                    selected={isSelected}
-                    onClick={() => {
-                      setMaxDuration(opt.val);
-                      updateParams({ dauer: opt.val ? String(opt.val) : null });
-                    }}
-                  >
-                    {opt.label}
-                  </Chip>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Personenzahl (Stepper) */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-semibold text-text">{t.filterGroupSize}</label>
-              {groupSize != null && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGroupSize(null);
-                    updateParams({ personen: null });
-                  }}
-                  className="text-xs text-text-secondary hover:text-text underline"
-                >
-                  {t.resetFilters}
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              <Stepper
-                value={groupSize || 10}
-                min={2}
-                max={40}
-                onChange={(val) => {
-                  setGroupSize(val);
-                  updateParams({ personen: String(val) });
-                }}
-                label={t.filterGroupSize}
-              />
-              <span className="text-xs text-text-secondary">
-                {groupSize == null ? L('(nicht gefiltert)', '(not filtered)') : `${groupSize} ${t.peopleSuffix}`}
-              </span>
-            </div>
-          </div>
-
-          {/* Kategorie oder Kunstform (Select) */}
-          <div className="space-y-2 pt-2 border-t border-border">
-            <label className="text-sm font-semibold text-text">{t.filterCategoryLabel}</label>
-            <Select
-              value={selectedSubCategory}
-              onChange={(e) => {
-                setSelectedSubCategory(e.target.value);
-                updateParams({ kategorie: e.target.value === 'all' ? null : e.target.value });
-              }}
-              options={[
-                { value: 'all', label: L('Alle Kategorien & Formen', 'All categories & art forms') },
-                { value: 'environmental', label: `${t.subtabServiceProjects}: ${t.catEnvironmental}` },
-                { value: 'neighborhood', label: `${t.subtabServiceProjects}: ${t.catNeighborhood}` },
-                { value: 'intergenerational', label: `${t.subtabServiceProjects}: ${t.catIntergenerational}` },
-                { value: 'children', label: `${t.subtabServiceProjects}: ${t.catChildren}` },
-                { value: 'institutional', label: `${t.subtabServiceProjects}: ${t.catInstitutional}` },
-                { value: 'creative', label: `${t.subtabServiceProjects}: ${t.catCreative}` },
-                { value: 'drama', label: `${t.subtabArtsPrompts}: ${t.artFormDrama}` },
-                { value: 'music_poetry', label: `${t.subtabArtsPrompts}: ${t.artFormMusicPoetry}` },
-                { value: 'visual_arts', label: `${t.subtabArtsPrompts}: ${t.artFormVisual}` },
-                { value: 'collaborative_mural', label: `${t.subtabArtsPrompts}: ${t.artFormMural}` },
-              ]}
-            />
-          </div>
-
-          {/* Sheet Actions */}
-          <div className="flex items-center gap-3 pt-4 border-t border-border">
-            <Button variant="outline" size="md" className="flex-1" onClick={handleResetFilters}>
-              {t.resetFilters}
-            </Button>
-            <Button variant="primary" size="md" className="flex-1" onClick={() => setIsFilterSheetOpen(false)}>
-              {t.showResults} ({filteredList.length})
-            </Button>
-          </div>
-        </div>
-      </Sheet>
     </div>
   );
 };

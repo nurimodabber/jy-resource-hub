@@ -94,7 +94,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
                   className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer select-none inline-block font-serif text-base sm:text-xl ${
                     isSlotCorrect
                       ? 'bg-surface shadow-xs border border-border text-text'
-                      : 'bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400'
+                      : 'bg-danger/10 border border-danger/30 text-danger'
                   }`}
                   title={language === 'de' ? 'Klicken zum Entfernen' : 'Tap to remove'}
                 >
@@ -107,10 +107,10 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
 
         {/* Success Banner */}
         {isComplete && isCorrect && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center gap-3 text-emerald-800 dark:text-emerald-300 animate-in fade-in">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center gap-3 text-text animate-in fade-in">
+            <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
             <div className="text-xs">
-              <strong className="font-semibold block">{t.puzzleCompleted}</strong>
+              <strong className="font-semibold block text-success">{t.puzzleCompleted}</strong>
               <span className="italic font-serif">„{quoteText}“</span>
             </div>
           </div>

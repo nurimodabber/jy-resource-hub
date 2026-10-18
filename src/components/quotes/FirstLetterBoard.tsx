@@ -140,7 +140,7 @@ export const FirstLetterBoard: React.FC<FirstLetterBoardProps> = ({ quote, langu
         </div>
 
         {wordStates.every((s) => s === 'blank') && (
-          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 animate-in fade-in flex items-center gap-1">
+          <p className="text-xs font-semibold text-success animate-in fade-in flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>{t.allInitialsHidden}</span>
           </p>

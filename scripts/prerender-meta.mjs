@@ -99,8 +99,26 @@ async function run() {
       ogQuery: 'type=section&title=Treffen+planen',
     },
     {
-      path: '/service-arts',
+      path: '/service',
       priority: '0.8',
+      title: 'Dienstprojekte — Junior Youth Hub',
+      description:
+        'Gemeindedienst-Projekte und Aktionen für Juniorjugendgruppen und Camps.',
+      ogType: 'website',
+      ogQuery: 'type=section&title=Dienstprojekte',
+    },
+    {
+      path: '/arts',
+      priority: '0.8',
+      title: 'Kreative Kunst — Junior Youth Hub',
+      description:
+        'Kreative Ausdrucks-Impulse, Theater, Musik und bildende Kunst für Juniorjugendgruppen.',
+      ogType: 'website',
+      ogQuery: 'type=section&title=Kreative+Kunst',
+    },
+    {
+      path: '/service-arts',
+      priority: '0.7',
       title: 'Dienst & Kunst — Junior Youth Hub',
       description:
         'Gemeindedienst-Projekte und kreative Ausdrucks-Impulse für Juniorjugendgruppen und Camps.',
@@ -127,11 +145,11 @@ async function run() {
     {
       path: '/vorschlagen',
       priority: '0.8',
-      title: 'Vorschlag einreichen — Junior Youth Hub',
+      title: 'Beitragen — Junior Youth Hub',
       description:
-        'Du hast ein Spiel oder Projekt, das fehlt? Schick es uns: Reiche ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Junior Youth Hub ein.',
+        'Du hast ein Spiel oder Projekt, das fehlt? Teile ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Junior Youth Hub.',
       ogType: 'website',
-      ogQuery: 'type=section&title=Vorschlag+einreichen',
+      ogQuery: 'type=section&title=Beitragen',
     },
     {
       path: '/impressum',
@@ -218,18 +236,28 @@ async function run() {
   }
 
   for (const act of [...SERVICE_PROJECTS_DATA, ...ARTS_PROMPTS_DATA]) {
-    const kindLabel = act.kind === 'dienst' ? 'Dienstprojekt' : 'Kunst & Ausdruck';
+    const isService = act.kind === 'dienst';
+    const kindLabel = isService ? 'Dienstprojekt' : 'Kunst & Ausdruck';
     const sizeStr = `${act.groupSize.min}–${act.groupSize.max} Pers.`;
-    const desc = act.kind === 'dienst' ? act.objective.de : act.description.de;
+    const desc = isService ? act.objective.de : act.description.de;
     const q = new URLSearchParams({
       type: 'activity',
       id: act.id,
       title: act.title.de,
       subtitle: `${kindLabel} · ${sizeStr}`,
     });
+    const dedicatedPath = isService ? `/service/${act.id}` : `/arts/${act.id}`;
+    routes.push({
+      path: dedicatedPath,
+      priority: '0.7',
+      title: `${act.title.de} – ${kindLabel} (${sizeStr}) | Junior Youth Hub`,
+      description: desc,
+      ogType: 'article',
+      ogQuery: q.toString(),
+    });
     routes.push({
       path: `/service-arts/${act.id}`,
-      priority: '0.7',
+      priority: '0.6',
       title: `${act.title.de} – ${kindLabel} (${sizeStr}) | Junior Youth Hub`,
       description: desc,
       ogType: 'article',
