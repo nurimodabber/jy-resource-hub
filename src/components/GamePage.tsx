@@ -411,7 +411,7 @@ export const GamePage: React.FC<GamePageProps> = ({
   };
 
   return (
-    <article className="max-w-5xl mx-auto pb-36 lg:pb-16">
+    <article className="max-w-6xl w-full mx-auto pb-36 lg:pb-16">
       {/* Back to games list */}
       <div className="mb-4 print:hidden">
         <Link

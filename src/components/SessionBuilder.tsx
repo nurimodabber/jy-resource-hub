@@ -980,7 +980,7 @@ export const SessionBuilder: React.FC<SessionBuilderProps> = ({
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-16 animate-in fade-in duration-200">
+    <div className="space-y-6 max-w-6xl w-full mx-auto pb-20 animate-in fade-in duration-200">
 
       {/* ==================================================== */}
       {/* 1. PRINTABLE ONE-PAGE VIEW (Shown exclusively in @media print) */}

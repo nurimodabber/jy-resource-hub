@@ -440,7 +440,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-16 animate-in fade-in duration-200">
+    <div className="space-y-6 max-w-6xl w-full mx-auto pb-20 animate-in fade-in duration-200">
       {/* 1. Header (No Kopfkarte, clean design token pattern like Phase 00) */}
       <div className="space-y-4">
         <div>

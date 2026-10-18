@@ -168,7 +168,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
 
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-36 lg:pb-24 pt-2">
+    <div className="max-w-6xl w-full mx-auto space-y-8 pb-36 lg:pb-24 pt-2">
       {/* Top Header Navigation */}
       <div className="flex items-center justify-between gap-4">
         <Button
@@ -233,8 +233,8 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
           )}
         </div>
 
-        {/* The Holy Text: strictly unmodified, Lora font, max-w 680px */}
-        <div className="max-w-[680px] mx-auto py-2">
+        {/* The Holy Text: strictly unmodified, Lora font, max-w 4xl */}
+        <div className="max-w-4xl mx-auto py-2">
           <blockquote className="font-serif text-2xl sm:text-3xl leading-[1.65] text-text text-center sm:text-left select-text">
             „{text}“
           </blockquote>

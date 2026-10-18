@@ -259,7 +259,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
   const quoteText = quote ? (language === 'de' ? quote.textDe : quote.textEn) : '';
 
   return (
-    <div className="max-w-[1200px] w-full mx-auto pb-10 space-y-8 sm:space-y-10">
+    <div className="max-w-6xl w-full mx-auto pb-10 space-y-8 sm:space-y-10">
       {/* 1. Installationshinweis (PWA Prompt – Mobile only, wrapping safely without truncation) */}
       {showInstallBanner && (
         <aside

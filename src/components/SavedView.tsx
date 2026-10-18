@@ -93,7 +93,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-6xl w-full mx-auto space-y-6 pb-20">
       {/* Header following standard pattern */}
       <div>
         <div className="flex items-center gap-3">

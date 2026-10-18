@@ -120,7 +120,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         </div>
 
         {/* Holy Text in Lora Serif font (unaltered, up to 6 lines in list) */}
-        <div className="max-w-[680px]">
+        <div className="w-full">
           <p
             className="font-serif text-lg sm:text-xl leading-relaxed text-text line-clamp-6 select-text"
             lang={language}

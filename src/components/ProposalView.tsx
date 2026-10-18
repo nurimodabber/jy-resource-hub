@@ -310,7 +310,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto pb-28 space-y-6">
+    <div className="max-w-6xl w-full mx-auto pb-28 space-y-6">
       {/* Header */}
       <div>
         {step > 1 && (
