@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, Tent, MapPin, BookOpen, RotateCcw } from 'lucide-react';
+import { Search, X, ArrowLeft, Tent, MapPin, BookOpen, Clock, Users, Sparkles, RotateCcw } from 'lucide-react';
 import {
   Language,
   ActivityItem,
@@ -211,22 +211,14 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const activeSheetFilterCount = useMemo(() => {
     let count = 0;
     if (isCampOnly) count++;
-    if (fixedKind === 'kunst') {
-      if (selectedSubCategory !== 'all') count++;
-      if (selectedBook !== 'all') count++;
-    } else if (fixedKind === 'dienst') {
-      if (selectedSubCategory !== 'all') count++;
-      if (settingFilter !== 'all') count++;
-    } else {
-      if (settingFilter !== 'all') count++;
-      if (maxDuration != null) count++;
-      if (groupSize != null) count++;
-      if (selectedSubCategory !== 'all') count++;
-      if (selectedBook !== 'all') count++;
-      if (selectedTheme !== 'all') count++;
-    }
+    if (settingFilter !== 'all') count++;
+    if (maxDuration != null) count++;
+    if (groupSize != null) count++;
+    if (selectedSubCategory !== 'all') count++;
+    if (selectedBook !== 'all') count++;
+    if (selectedTheme !== 'all') count++;
     return count;
-  }, [isCampOnly, fixedKind, settingFilter, maxDuration, groupSize, selectedSubCategory, selectedBook, selectedTheme]);
+  }, [isCampOnly, settingFilter, maxDuration, groupSize, selectedSubCategory, selectedBook, selectedTheme]);
 
   const handleClearAll = () => {
     updateParams({
@@ -317,6 +309,55 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
 
   const activeBookOption = bookOptions.find((b) => b.value === selectedBook);
   const activeBookLabel = activeBookOption && activeBookOption.value !== 'all' ? activeBookOption.label : undefined;
+
+  // Duration options for FilterPillDropdown
+  const durationOptions = [
+    { value: null, label: t.filterDurationAny },
+    { value: 30, label: '≤ 30 Min.' },
+    { value: 60, label: '≤ 60 Min.' },
+    { value: 90, label: '≤ 90 Min.' },
+    { value: 120, label: '≤ 120 Min.' },
+  ];
+
+  // Group size options for FilterPillDropdown
+  const groupSizeOptions = [
+    { value: null, label: L('Alle Gruppengrößen', 'All group sizes') },
+    { value: 6, label: L('Bis 6 Personen', 'Up to 6 people') },
+    { value: 12, label: L('6 bis 12 Personen', '6 to 12 people') },
+    { value: 15, label: L('Über 12 Personen', 'Over 12 people') },
+  ];
+
+  const activeGroupLabel =
+    groupSize === 6
+      ? L('≤ 6 Pers.', '≤ 6 people')
+      : groupSize === 12
+      ? L('6–12 Pers.', '6–12 people')
+      : groupSize === 15
+      ? L('12+ Pers.', '12+ people')
+      : groupSize != null
+      ? `${groupSize} Pers.`
+      : undefined;
+
+  // Theme options
+  const themeOptions = useMemo(() => {
+    const unique = new Map<string, string>();
+    ARTS_PROMPTS_DATA.forEach((p) => {
+      if (p.theme && !unique.has(p.theme.de)) {
+        unique.set(p.theme.de, p.theme[language]);
+      }
+    });
+
+    return [
+      { value: 'all', label: L('Alle Themen', 'All themes') },
+      ...Array.from(unique.entries()).map(([deKey, localizedLabel]) => ({
+        value: deKey,
+        label: localizedLabel,
+      })),
+    ];
+  }, [language, L]);
+
+  const activeThemeOption = themeOptions.find((t) => t.value === selectedTheme);
+  const activeThemeLabel = activeThemeOption && activeThemeOption.value !== 'all' ? activeThemeOption.label : undefined;
 
   // If viewing a detail page /service-arts/:id
   if (id) {
@@ -473,6 +514,64 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               }}
             />
 
+            {/* Theme Dropdown Pill */}
+            <FilterPillDropdown
+              label={L('Thema', 'Theme')}
+              activeLabel={activeThemeLabel}
+              isActive={selectedTheme !== 'all'}
+              icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
+              options={themeOptions}
+              selectedValue={selectedTheme}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSelectedTheme(next);
+                updateParams({ thema: next === 'all' ? null : next });
+              }}
+            />
+
+            {/* Setting Dropdown Pill */}
+            <FilterPillDropdown
+              label={L('Ort', 'Setting')}
+              activeLabel={activeSettingLabel}
+              isActive={settingFilter !== 'all'}
+              icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
+              options={settingOptions}
+              selectedValue={settingFilter}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSettingFilter(next);
+                updateParams({ setting: next === 'all' ? null : next });
+              }}
+            />
+
+            {/* Duration Dropdown Pill */}
+            <FilterPillDropdown
+              label={t.filterDuration}
+              activeLabel={maxDuration ? `≤ ${maxDuration} Min.` : undefined}
+              isActive={maxDuration != null}
+              icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
+              options={durationOptions}
+              selectedValue={maxDuration}
+              onSelect={(val) => {
+                setMaxDuration(val);
+                updateParams({ dauer: val ? String(val) : null });
+              }}
+            />
+
+            {/* Group Size Dropdown Pill */}
+            <FilterPillDropdown
+              label={t.groupLabel}
+              activeLabel={activeGroupLabel}
+              isActive={groupSize != null}
+              icon={<Users className="w-3.5 h-3.5 shrink-0" />}
+              options={groupSizeOptions}
+              selectedValue={groupSize}
+              onSelect={(val) => {
+                setGroupSize(val);
+                updateParams({ personen: val ? String(val) : null });
+              }}
+            />
+
             {/* Camp Filter Pill (1-Click Toggle) */}
             <FilterPillButton
               label={t.forCampFilter}
@@ -516,6 +615,34 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               }}
             />
 
+            {/* Duration Dropdown Pill */}
+            <FilterPillDropdown
+              label={t.filterDuration}
+              activeLabel={maxDuration ? `≤ ${maxDuration} Min.` : undefined}
+              isActive={maxDuration != null}
+              icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
+              options={durationOptions}
+              selectedValue={maxDuration}
+              onSelect={(val) => {
+                setMaxDuration(val);
+                updateParams({ dauer: val ? String(val) : null });
+              }}
+            />
+
+            {/* Group Size Dropdown Pill */}
+            <FilterPillDropdown
+              label={t.groupLabel}
+              activeLabel={activeGroupLabel}
+              isActive={groupSize != null}
+              icon={<Users className="w-3.5 h-3.5 shrink-0" />}
+              options={groupSizeOptions}
+              selectedValue={groupSize}
+              onSelect={(val) => {
+                setGroupSize(val);
+                updateParams({ personen: val ? String(val) : null });
+              }}
+            />
+
             {/* Camp Filter Pill (1-Click Toggle) */}
             <FilterPillButton
               label={t.forCampFilter}
@@ -554,6 +681,56 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                 const next = (val as string) || 'all';
                 setSelectedBook(next);
                 updateParams({ buch: next === 'all' ? null : next });
+              }}
+            />
+            <FilterPillDropdown
+              label={L('Thema', 'Theme')}
+              activeLabel={activeThemeLabel}
+              isActive={selectedTheme !== 'all'}
+              icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
+              options={themeOptions}
+              selectedValue={selectedTheme}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSelectedTheme(next);
+                updateParams({ thema: next === 'all' ? null : next });
+              }}
+            />
+            <FilterPillDropdown
+              label={L('Ort', 'Setting')}
+              activeLabel={activeSettingLabel}
+              isActive={settingFilter !== 'all'}
+              icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
+              options={settingOptions}
+              selectedValue={settingFilter}
+              onSelect={(val) => {
+                const next = (val as string) || 'all';
+                setSettingFilter(next);
+                updateParams({ setting: next === 'all' ? null : next });
+              }}
+            />
+            <FilterPillDropdown
+              label={t.filterDuration}
+              activeLabel={maxDuration ? `≤ ${maxDuration} Min.` : undefined}
+              isActive={maxDuration != null}
+              icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
+              options={durationOptions}
+              selectedValue={maxDuration}
+              onSelect={(val) => {
+                setMaxDuration(val);
+                updateParams({ dauer: val ? String(val) : null });
+              }}
+            />
+            <FilterPillDropdown
+              label={t.groupLabel}
+              activeLabel={activeGroupLabel}
+              isActive={groupSize != null}
+              icon={<Users className="w-3.5 h-3.5 shrink-0" />}
+              options={groupSizeOptions}
+              selectedValue={groupSize}
+              onSelect={(val) => {
+                setGroupSize(val);
+                updateParams({ personen: val ? String(val) : null });
               }}
             />
             <FilterPillButton
