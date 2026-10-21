@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Maximize2, Minimize2, HelpCircle, ChevronDown, ChevronUp, Clock, Repeat } from 'lucide-react';
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  HelpCircle,
+  Clock,
+  Repeat,
+} from 'lucide-react';
 import { Language } from '../../types';
 import { useLocalState } from '../../hooks/useLocalState';
 import { useWakeLock } from '../../hooks/useWakeLock';
@@ -7,7 +16,8 @@ import { tr, Panel, primaryBtn, secondaryBtn, chipCls } from './common';
 
 const PRESETS = [60, 120, 180, 300, 600, 900];
 
-const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+const fmt = (s: number) =>
+  `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
 export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
   const L = tr(language);
@@ -16,7 +26,6 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
   const [sound, setSound] = useLocalState<boolean>('jy_timer_sound', true);
   const [remaining, setRemaining] = useState(total);
   const [running, setRunning] = useState(false);
-  const [isBeamer, setIsBeamer] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
   // Interval timer states
@@ -27,7 +36,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
   const [intervalPhase, setIntervalPhase] = useState<'work' | 'pause'>('work');
 
   const endRef = useRef(0);
-  useWakeLock(running || isBeamer);
+  useWakeLock(running);
 
   const chime = useCallback(() => {
     try {
@@ -37,7 +46,9 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
     }
     if (!sound) return;
     try {
-      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const Ctx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new Ctx();
       [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
         const o = ctx.createOscillator();
@@ -70,19 +81,16 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
           // Interval mode logic
           chime();
           if (intervalPhase === 'work') {
-            // switch to rest
             setIntervalPhase('pause');
             setRemaining(intervalRest);
             endRef.current = Date.now() + intervalRest * 1000;
           } else {
-            // rest finished
             if (currentRound < intervalRounds) {
               setCurrentRound((r) => r + 1);
               setIntervalPhase('work');
               setRemaining(intervalWork);
               endRef.current = Date.now() + intervalWork * 1000;
             } else {
-              // all rounds finished
               setRunning(false);
               setIntervalPhase('work');
               setCurrentRound(1);
@@ -99,7 +107,14 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
       setRunning(false);
       return;
     }
-    const start = remaining === 0 ? (timerMode === 'standard' ? total : (intervalPhase === 'work' ? intervalWork : intervalRest)) : remaining;
+    const start =
+      remaining === 0
+        ? timerMode === 'standard'
+          ? total
+          : intervalPhase === 'work'
+          ? intervalWork
+          : intervalRest
+        : remaining;
     setRemaining(start);
     endRef.current = Date.now() + start * 1000;
     setRunning(true);
@@ -122,16 +137,34 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
     setRemaining(s);
   };
 
-  const addMinute = () => {
-    endRef.current += 60000;
-    setRemaining((r) => r + 60);
-    if (!running && timerMode === 'standard') setTotal(total + 60);
+  // Quick delta adjustments (+30s, +1m, -30s) during active/paused countdown
+  const adjustTime = (deltaSeconds: number) => {
+    if (deltaSeconds < 0) {
+      const newRemain = Math.max(0, remaining + deltaSeconds);
+      setRemaining(newRemain);
+      if (running) {
+        endRef.current = Math.max(Date.now(), endRef.current + deltaSeconds * 1000);
+      }
+      if (!running && timerMode === 'standard') {
+        setTotal(Math.max(10, total + deltaSeconds));
+      }
+    } else {
+      setRemaining((r) => r + deltaSeconds);
+      if (running) {
+        endRef.current += deltaSeconds * 1000;
+      }
+      if (!running && timerMode === 'standard') {
+        setTotal((t) => t + deltaSeconds);
+      }
+    }
   };
 
-  const currentDurationTotal = timerMode === 'standard' ? total : (intervalPhase === 'work' ? intervalWork : intervalRest);
-  const pct = currentDurationTotal > 0 ? Math.max(0, Math.min(1, remaining / currentDurationTotal)) : 0;
+  const currentDurationTotal =
+    timerMode === 'standard' ? total : intervalPhase === 'work' ? intervalWork : intervalRest;
+  const pct =
+    currentDurationTotal > 0 ? Math.max(0, Math.min(1, remaining / currentDurationTotal)) : 0;
 
-  // Screen reader announcement at sensible intervals (full minutes, 30s, 10s, 5..1s, 0s)
+  // Screen reader announcement at sensible intervals
   const srAnnouncement = (() => {
     if (!running && remaining === 0) {
       return L('Zeit abgelaufen', 'Time is up');
@@ -151,71 +184,78 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
 
   return (
     <div className="space-y-6 text-center">
-      {/* Polite Screen Reader Live Announcement at sensible intervals */}
+      {/* Polite Screen Reader Live Announcement */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {srAnnouncement}
       </div>
 
-      {/* "So geht's" Expandable Help */}
-      <div className="bg-surface-2 rounded-card border border-border p-4 text-left">
-        <button
-          type="button"
-          onClick={() => setShowHelp(!showHelp)}
-          className="w-full flex items-center justify-between text-xs font-semibold text-text cursor-pointer"
-        >
-          <div className="flex items-center gap-2">
-            <HelpCircle className="w-4 h-4 text-accent-text" />
-            <span>{L('So geht’s: Timer & Intervalluhr', 'How it works: Timer & Intervals')}</span>
-          </div>
-          {showHelp ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
-        {showHelp && (
-          <p className="text-xs text-text-secondary mt-2 leading-relaxed">
+      {/* Mode Switcher & Top Utility Row */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 p-1 bg-surface-2 rounded-control">
+          <button
+            type="button"
+            onClick={() => {
+              setRunning(false);
+              setTimerMode('standard');
+              setRemaining(total);
+            }}
+            className={chipCls(timerMode === 'standard')}
+          >
+            <Clock className="w-3.5 h-3.5 inline mr-1" />
+            <span>{L('Countdown', 'Countdown')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setRunning(false);
+              setTimerMode('interval');
+              setIntervalPhase('work');
+              setCurrentRound(1);
+              setRemaining(intervalWork);
+            }}
+            className={chipCls(timerMode === 'interval')}
+          >
+            <Repeat className="w-3.5 h-3.5 inline mr-1" />
+            <span>{L('Intervall', 'Intervals')}</span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setShowHelp(!showHelp)}
+            className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors cursor-pointer ${
+              showHelp
+                ? 'bg-accent/15 border-accent text-accent'
+                : 'bg-surface-2 hover:bg-surface-raised border-border text-text-secondary hover:text-text'
+            }`}
+            title={L('Hilfe & Anleitung', 'Help & instructions')}
+            aria-label={L('Hilfe & Anleitung', 'Help & instructions')}
+          >
+            <HelpCircle className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Expandable Help (only when requested) */}
+      {showHelp && (
+        <div className="bg-surface-2 rounded-card border border-border p-3 text-left text-xs text-text-secondary animate-in fade-in duration-150">
+          <p className="leading-relaxed">
             {L(
-              'Große, ablenkungsfreie Zeitanzeige für Spiele, Vorträge oder Stationenläufe. Funktioniert zuverlässig auch wenn der Bildschirm ausgeht, mit akustischem Gong.',
-              'Clean, distraction-free countdown for games, talks, or station challenges. Continues running accurately even in the background, with an audible chime.'
+              'Große Zeitanzeige für Spiele, Vorträge oder Stationenläufe. Tippe auf den Kreis oder nutze Start/Pause und passe die Zeit mit den Schnellknöpfen (+30s / +1m) an.',
+              'Clean countdown for games, talks, or stations. Tap the circle or use Start/Pause and adjust time with quick buttons (+30s / +1m).'
             )}
           </p>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Mode Switcher: Countdown vs Intervall */}
-      <div className="flex items-center justify-center gap-2">
-        <button
-          type="button"
-          onClick={() => {
-            setRunning(false);
-            setTimerMode('standard');
-            setRemaining(total);
-          }}
-          className={chipCls(timerMode === 'standard')}
-        >
-          <Clock className="w-4 h-4 inline mr-1.5" />
-          <span>{L('Countdown', 'Countdown')}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setRunning(false);
-            setTimerMode('interval');
-            setIntervalPhase('work');
-            setCurrentRound(1);
-            setRemaining(intervalWork);
-          }}
-          className={chipCls(timerMode === 'interval')}
-        >
-          <Repeat className="w-4 h-4 inline mr-1.5" />
-          <span>{L('Intervall (Runden & Pause)', 'Intervals')}</span>
-        </button>
-      </div>
-
-      {/* Main Display: Calm Circular Progress Arc (3px stroke) + Mono Digits */}
-      <div className="py-6 flex flex-col items-center justify-center">
+      {/* Main Display: Calm Circular Progress Arc (6px stroke) + Large Digits */}
+      <div className="py-2 flex flex-col items-center justify-center">
         <button
           type="button"
           onClick={toggle}
           aria-label={running ? L('Pause', 'Pause') : L('Start', 'Start')}
-          className="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center rounded-full transition-transform active:scale-98 cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+          className="relative w-48 h-48 sm:w-60 sm:h-60 flex items-center justify-center rounded-full transition-transform active:scale-98 cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
         >
           {/* Circular SVG Track & Arc */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 300 300">
@@ -226,9 +266,9 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
               r="130"
               fill="none"
               stroke="var(--line)"
-              strokeWidth="3"
+              strokeWidth="6"
             />
-            {/* Animated stroke progress arc */}
+            {/* Animated stroke progress arc - 6px stroke visible across the room */}
             <circle
               cx="150"
               cy="150"
@@ -236,12 +276,12 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
               fill="none"
               stroke={
                 remaining <= 10 && remaining > 0 && running
-                  ? 'var(--e-lebhaft)'
+                  ? '#EF4444'
                   : intervalPhase === 'pause'
-                  ? 'var(--e-mittel)'
+                  ? '#F59E0B'
                   : 'var(--accent)'
               }
-              strokeWidth="3"
+              strokeWidth="6"
               strokeDasharray={2 * Math.PI * 130}
               strokeDashoffset={2 * Math.PI * 130 * (1 - pct)}
               strokeLinecap="round"
@@ -254,10 +294,10 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
           <div className="relative z-10 text-center px-4">
             {timerMode === 'interval' && (
               <span
-                className={`inline-block mb-1 text-2xs font-mono font-bold px-2 py-0.5 rounded-control ${
+                className={`inline-block mb-1.5 text-2xs font-sans font-bold px-2.5 py-0.5 rounded-full ${
                   intervalPhase === 'work'
                     ? 'bg-accent/15 text-accent'
-                    : 'bg-success/15 text-success'
+                    : 'bg-amber-500/15 text-amber-400'
                 }`}
               >
                 {intervalPhase === 'work'
@@ -266,9 +306,9 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
               </span>
             )}
             <div
-              className={`font-mono font-bold tabular-nums tracking-tight select-none transition-colors text-5xl sm:text-6xl ${
+              className={`font-sans font-extrabold tabular-nums tracking-tight select-none transition-colors text-5xl sm:text-6xl ${
                 remaining <= 10 && remaining > 0 && running
-                  ? 'text-danger'
+                  ? 'text-red-400'
                   : remaining === 0
                   ? 'text-accent'
                   : 'text-text'
@@ -289,65 +329,78 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
         </button>
       </div>
 
-      {/* Main Controls Row */}
-      <div className="flex items-center justify-center gap-3">
-        <button
-          type="button"
-          onClick={toggle}
-          className={`${primaryBtn} min-w-[140px] text-base`}
-        >
-          {running ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-          <span>{running ? L('Pause', 'Pause') : L('Start', 'Start')}</span>
-        </button>
+      {/* Main Controls Row + Schnellzeit-Knöpfe */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+          <button
+            type="button"
+            onClick={toggle}
+            className={`${primaryBtn} min-w-[130px] sm:min-w-[150px] text-base`}
+          >
+            {running ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+            <span>{running ? L('Pause', 'Pause') : L('Start', 'Start')}</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={reset}
-          className={secondaryBtn}
-          title={L('Zurücksetzen', 'Reset')}
-        >
-          <RotateCcw className="w-4 h-4" />
-        </button>
+          <button
+            type="button"
+            onClick={reset}
+            className={secondaryBtn}
+            title={L('Zurücksetzen', 'Reset')}
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
 
-        <button
-          type="button"
-          onClick={addMinute}
-          className={secondaryBtn}
-          title={L('+1 Minute hinzufügen', '+1 minute')}
-        >
-          +1m
-        </button>
+          <button
+            type="button"
+            onClick={() => setSound(!sound)}
+            className={secondaryBtn}
+            aria-label={sound ? L('Ton ausschalten', 'Mute') : L('Ton einschalten', 'Unmute')}
+          >
+            {sound ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-text-tertiary" />}
+          </button>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setSound(!sound)}
-          className={secondaryBtn}
-          aria-label={sound ? L('Ton ausschalten', 'Mute') : L('Ton einschalten', 'Unmute')}
-        >
-          {sound ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-text-tertiary" />}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setIsBeamer(true)}
-          className={secondaryBtn}
-          title={L('Beamer-Vollbild', 'Fullscreen projector view')}
-        >
-          <Maximize2 className="w-4 h-4" />
-        </button>
+        {/* Schnellzeit-Knöpfe (-30s, +30s, +1m) */}
+        <div className="flex items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => adjustTime(-30)}
+            disabled={remaining <= 10}
+            className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text-secondary hover:text-text disabled:opacity-30 transition-colors cursor-pointer"
+            title={L('30 Sekunden abziehen', 'Subtract 30 seconds')}
+          >
+            -30s
+          </button>
+          <button
+            type="button"
+            onClick={() => adjustTime(30)}
+            className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text-secondary hover:text-text transition-colors cursor-pointer"
+            title={L('30 Sekunden hinzufügen', 'Add 30 seconds')}
+          >
+            +30s
+          </button>
+          <button
+            type="button"
+            onClick={() => adjustTime(60)}
+            className="px-3.5 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text-secondary hover:text-text transition-colors cursor-pointer"
+            title={L('1 Minute hinzufügen', 'Add 1 minute')}
+          >
+            +1m
+          </button>
+        </div>
       </div>
 
       {/* Presets / Interval Settings Panel */}
       {timerMode === 'standard' ? (
         <Panel className="space-y-3">
           <p className="text-xs font-semibold text-text-secondary">{L('Schnellwahl', 'Presets')}</p>
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
             {PRESETS.map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => choosePreset(s)}
-                className={chipCls(total === s && !running)}
+                className={`${chipCls(total === s && !running)} justify-center text-center`}
               >
                 {s >= 60 ? `${s / 60} Min` : `${s}s`}
               </button>
@@ -366,7 +419,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
                   setIntervalWork(val);
                   if (!running) setRemaining(val);
                 }}
-                className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-xs font-bold"
+                className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-xs font-bold text-text"
               >
                 <option value={30}>30s</option>
                 <option value={45}>45s</option>
@@ -383,7 +436,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
               <select
                 value={intervalRest}
                 onChange={(e) => setIntervalRest(parseInt(e.target.value, 10))}
-                className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-xs font-bold"
+                className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-xs font-bold text-text"
               >
                 <option value={15}>15s</option>
                 <option value={30}>30s</option>
@@ -409,74 +462,6 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
             </div>
           </div>
         </Panel>
-      )}
-
-      {/* Fullscreen Beamer Mode Overlay */}
-      {isBeamer && (
-        <div
-          className="fixed inset-0 z-80 bg-bg text-text p-6 sm:p-10 flex flex-col justify-between safe-top safe-bottom animate-in fade-in duration-200"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="flex items-center justify-between border-b border-border pb-4 shrink-0">
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-accent-text" />
-              <span className="text-sm font-bold text-text">{L('Timer-Beamer', 'Projector Timer')}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsBeamer(false)}
-              className="p-2.5 rounded-control bg-surface-2 hover:bg-surface-raised text-text font-bold text-xs flex items-center gap-1.5 cursor-pointer min-h-[44px]"
-            >
-              <Minimize2 className="w-4 h-4" />
-              <span>{L('Schließen', 'Close')}</span>
-            </button>
-          </div>
-
-          {/* Huge Screen Digits */}
-          <div className="my-auto max-w-4xl mx-auto w-full text-center space-y-6">
-            {timerMode === 'interval' && (
-              <span className={`inline-flex items-center px-4 py-1.5 rounded-chip font-bold text-sm sm:text-base ${
-                intervalPhase === 'work' ? 'bg-accent-subtle text-accent-text' : 'bg-success/15 text-success'
-              }`}>
-                {intervalPhase === 'work' ? L(`Aktiv (Runde ${currentRound} / ${intervalRounds})`, `Active (Round ${currentRound} / ${intervalRounds})`) : L(`Pause`, `Rest`)}
-              </span>
-            )}
-
-            <div
-              className={`text-[28vw] sm:text-[14rem] leading-none font-mono font-bold tabular-nums select-none tracking-tight transition-colors ${
-                remaining <= 10 && remaining > 0 && running
-                  ? 'text-danger'
-                  : 'text-accent'
-              }`}
-            >
-              {fmt(remaining)}
-            </div>
-
-            <div className="flex items-center justify-center gap-4 pt-4">
-              <button
-                type="button"
-                onClick={toggle}
-                className="px-8 py-4 rounded-control bg-accent text-accent-contrast font-bold text-lg flex items-center gap-2 shadow-xs cursor-pointer min-h-[56px]"
-              >
-                {running ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
-                <span>{running ? L('Pause', 'Pause') : L('Start', 'Start')}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={reset}
-                className="px-6 py-4 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-base cursor-pointer min-h-[56px]"
-              >
-                <RotateCcw className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          <div className="text-center text-xs text-text-tertiary">
-            {L('Bildschirm bleibt an (Wake Lock aktiv)', 'Screen kept awake (Wake Lock active)')}
-          </div>
-        </div>
       )}
     </div>
   );

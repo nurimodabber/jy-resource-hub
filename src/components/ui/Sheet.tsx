@@ -87,7 +87,7 @@ export const Sheet: React.FC<SheetProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity duration-150 ease-out"
+        className="fixed inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-150 ease-out"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -102,7 +102,7 @@ export const Sheet: React.FC<SheetProps> = ({
               ? { transform: `translateY(${dragOffset}px)`, transition: 'none' }
               : undefined
           }
-          className="relative z-10 w-full sm:max-w-lg max-h-[88vh] sm:max-h-[80vh] bg-surface rounded-t-sheet sm:rounded-dialog shadow-2 border-0 sm:border sm:border-border flex flex-col animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-150 ease-out outline-hidden safe-bottom"
+          className="relative z-10 w-full sm:max-w-lg max-h-[88vh] sm:max-h-[80vh] glass-surface-panel rounded-t-sheet sm:rounded-dialog shadow-2 border-0 sm:border sm:border-border flex flex-col animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-150 ease-out outline-hidden safe-bottom"
         >
           {/* Mobile Handle Bar with touch dismiss */}
           <div
@@ -118,7 +118,7 @@ export const Sheet: React.FC<SheetProps> = ({
           {/* Header */}
           {(title || showCloseButton) && (
             <div
-              className="flex items-center justify-between px-5 py-3.5 border-b border-border shrink-0 select-none"
+              className="flex items-center justify-between px-5 py-3.5 border-b border-line glass-surface shrink-0 select-none"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -155,10 +155,10 @@ export const Sheet: React.FC<SheetProps> = ({
         <div
           ref={sheetRef}
           tabIndex={-1}
-          className="relative z-10 w-full max-w-md h-full bg-surface shadow-2 border-0 flex flex-col animate-in slide-in-from-right duration-150 ease-out outline-hidden"
+          className="relative z-10 w-full max-w-md h-full glass-surface-panel shadow-2 border-0 flex flex-col animate-in slide-in-from-right duration-150 ease-out outline-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-border shrink-0">
+          <div className="flex items-center justify-between p-5 border-b border-line glass-surface shrink-0">
             <div>
               {title && (
                 <h2 id="sheet-title" className="text-lg font-bold text-text">

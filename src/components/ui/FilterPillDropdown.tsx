@@ -138,7 +138,7 @@ export function FilterPillDropdown<T = string | number | null>({
               right: coords.right,
               zIndex: 9999,
             }}
-            className="min-w-[200px] max-w-[320px] bg-surface border border-border rounded-dialog shadow-xl p-1.5 max-h-72 overflow-y-auto"
+            className="min-w-[200px] max-w-[320px] glass-surface border border-border rounded-dialog shadow-2 p-1.5 max-h-72 overflow-y-auto"
           >
             {options.map((option, idx) => {
               const isSelected = option.value === selectedValue;

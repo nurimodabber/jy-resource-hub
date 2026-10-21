@@ -15,4 +15,5 @@ playwright-report/
 scripts/baseline-report.json
 dist-v2
 tmp-lh*
+scratch/
 

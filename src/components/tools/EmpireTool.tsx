@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, RotateCcw, Undo2, Shuffle, Crown, SlidersHorizontal, Maximize2, Minimize2, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCcw, Undo2, Shuffle, Crown, SlidersHorizontal, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Language } from '../../types';
 import { EMPIRE_CATEGORIES_V2 } from '../../data/empireContent';
 import { useLocalState } from '../../hooks/useLocalState';
@@ -37,7 +37,6 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
   const [moves, setMoves] = useState<Move[]>([]);
   const [guesser, setGuesser] = useState<string>('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isBeamer, setIsBeamer] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
   const handleNamesChange = React.useCallback((presentList: string[]) => {
@@ -49,7 +48,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
     });
   }, []);
 
-  useWakeLock(step !== 'category' || isBeamer);
+  useWakeLock(step !== 'category');
 
   const pool = useMemo(
     () =>
@@ -177,7 +176,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
             key={s.id}
             type="button"
             onClick={() => setStep(s.id)}
-            className={`flex-1 py-2 px-3 rounded-control text-xs font-bold transition-all text-center whitespace-nowrap cursor-pointer ${
+            className={`flex-1 py-2 px-1.5 sm:px-3 rounded-control text-xs font-bold transition-all text-center whitespace-nowrap cursor-pointer ${
               step === s.id
                 ? 'bg-accent text-accent-contrast shadow-xs'
                 : 'text-text-secondary hover:text-text hover:bg-surface'
@@ -220,7 +219,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
                   </span>
                   <div className="flex flex-wrap justify-center gap-1.5 max-w-md mx-auto">
                     {current.examples[language].map((ex) => (
-                      <span key={ex} className="px-2.5 py-1 rounded-chip bg-surface-2 text-text font-medium text-xs border border-border">
+                      <span key={ex} className="px-2.5 py-1 rounded-chip bg-surface-2 text-text font-medium text-xs">
                         {ex}
                       </span>
                     ))}
@@ -232,33 +231,36 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
             )}
           </Panel>
 
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={previousCategory}
-              disabled={cursor <= 0}
-              className={secondaryBtn}
-              aria-label={L('Vorherige', 'Previous')}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={drawCategory}
-              className={`${primaryBtn} flex-1`}
-              disabled={pool.length === 0}
-            >
-              <Shuffle className="w-4 h-4" />
-              <span>{L('Neue Kategorie ziehen', 'Draw new category')}</span>
-            </button>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={previousCategory}
+                disabled={cursor <= 0}
+                className={`${secondaryBtn} flex-1 justify-center`}
+                aria-label={L('Vorherige', 'Previous')}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                <span>{L('Vorherige', 'Previous')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={drawCategory}
+                className={`${secondaryBtn} flex-1 justify-center`}
+                disabled={pool.length === 0}
+              >
+                <Shuffle className="w-4 h-4 mr-1" />
+                <span>{L('Neue Kategorie', 'Draw new')}</span>
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setStep('collect')}
               disabled={!current}
-              className={secondaryBtn}
+              className={`${primaryBtn} w-full justify-center`}
             >
-              <span>{L('Weiter zu Zetteln', 'Next to slips')}</span>
-              <ChevronRight className="w-4 h-4" />
+              <span>{L('Weiter zu Schritt 2: Zettel', 'Next to step 2: Slips')}</span>
+              <ChevronRight className="w-4 h-4 ml-1" />
             </button>
           </div>
         </div>
@@ -418,14 +420,6 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
                   <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">
                     {L('Wer ist am Zug?', 'Whose turn?')}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsBeamer(true)}
-                    className="px-2.5 py-1 rounded-chip bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text flex items-center gap-1 cursor-pointer"
-                  >
-                    <Maximize2 className="w-3 h-3" />
-                    <span>{L('Beamer', 'Projector')}</span>
-                  </button>
                 </div>
 
                 <select
@@ -568,61 +562,6 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
           </p>
         </div>
       </Dialog>
-
-      {/* Fullscreen Beamer Mode Overlay */}
-      {isBeamer && (
-        <div
-          className="fixed inset-0 z-80 bg-bg text-text p-6 sm:p-10 flex flex-col justify-between safe-top safe-bottom animate-in fade-in duration-200"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="flex items-center justify-between border-b border-border pb-4 shrink-0">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-text tracking-tight">
-                👑 {L('Empire Spielstand', 'Empire Standings')}
-              </h2>
-              <p className="text-xs text-text-secondary mt-0.5">
-                {kingdoms.length} {L('verbleibende Reiche', 'kingdoms remaining')}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsBeamer(false)}
-              className="p-2.5 rounded-control bg-surface-2 hover:bg-surface-raised text-text font-bold text-xs flex items-center gap-1.5 cursor-pointer min-h-[44px]"
-            >
-              <Minimize2 className="w-4 h-4" />
-              <span>{L('Schließen', 'Close')}</span>
-            </button>
-          </div>
-
-          <div className="my-auto max-w-6xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 py-6 overflow-y-auto">
-            {kingdoms.map((k) => (
-              <div
-                key={k.king}
-                className={`p-6 rounded-card border shadow-xs space-y-3 ${
-                  k.king === guesser ? 'bg-accent-subtle border-accent' : 'bg-surface border-border'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-text truncate">{k.king}</h3>
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-chip bg-accent text-accent-contrast">
-                    {k.members.length} {L('Köpfe', 'members')}
-                  </span>
-                </div>
-                {k.members.length > 1 && (
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    {k.members.join(' · ')}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center text-xs text-text-tertiary shrink-0 border-t border-border pt-4">
-            {L('Bildschirm bleibt an (Wake Lock aktiv)', 'Screen kept awake (Wake Lock active)')}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,27 +1,24 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
-import { WifiOff, Monitor } from 'lucide-react';
+import { WifiOff, Mail, Settings } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { BottomTabBar } from './components/BottomTabBar';
 import { LeftNavigationRail } from './components/LeftNavigationRail';
 import { Logo } from './components/Logo';
 import { DocumentHead } from './components/DocumentHead';
 import { ToastProvider } from './context/ToastContext';
-import { PlannerProvider } from './context/PlannerContext';
-import { Language, NavTab, SessionSlot } from './types';
+import { Language, NavTab } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
 import { GAMES_DATA } from './data/games';
 import { QUOTES_DATA } from './data/quotes';
 import { SERVICE_PROJECTS_DATA } from './data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from './data/artsPrompts';
 import { recordRecentView } from './utils/recentViews';
-import { useWakeLock } from './hooks/useWakeLock';
 
 // Synchronously imported primary views (zero Skeleton flash on 404 or list routes, fast LCP & zero CLS)
 import { HomeView } from './components/HomeView';
 import { GamesView } from './components/GamesView';
 import { QuotesView } from './components/QuotesView';
-import { SessionBuilder } from './components/SessionBuilder';
 import { ServiceArtsView } from './components/ServiceArtsView';
 import { NotFoundView } from './components/NotFoundView';
 
@@ -35,6 +32,7 @@ const ProposalView = lazy(() => import('./components/ProposalView').then(m => ({
 const SettingsSheet = lazy(() => import('./components/SettingsSheet').then(m => ({ default: m.SettingsSheet })));
 const CommandPalette = lazy(() => import('./components/CommandPalette').then(m => ({ default: m.CommandPalette })));
 const BahaiSongsModal = lazy(() => import('./components/BahaiSongsModal').then(m => ({ default: m.BahaiSongsModal })));
+const ContactModal = lazy(() => import('./components/ContactModal').then(m => ({ default: m.ContactModal })));
 
 const RouteLoading: React.FC = () => (
   <div className="max-w-4xl mx-auto py-8 space-y-6 animate-pulse" role="status" aria-label="Laden">
@@ -84,7 +82,6 @@ export const AppContent: React.FC = () => {
     if (root === 'service') return 'service';
     if (root === 'arts') return 'arts';
     if (root === 'service-arts') return 'service';
-    if (root === 'planner' || root === 'treffen') return 'planner';
     if (root === 'tools') return 'tools';
     if (root === 'vorschlagen') return 'vorschlagen';
     if (root === 'saved') return 'saved';
@@ -97,34 +94,7 @@ export const AppContent: React.FC = () => {
   const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [slotToAddToPlanner, setSlotToAddToPlanner] = useState<SessionSlot | null>(null);
-
-  // Global Beamer Mode (Key 'B' or Navbar button) + Wake Lock
-  const [isBeamerMode, setIsBeamerMode] = useState(false);
-  useWakeLock(isBeamerMode);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('beamer-mode', isBeamerMode);
-  }, [isBeamerMode]);
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const target = e.target as HTMLElement | null;
-      const tag = target?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) {
-        return;
-      }
-      if (e.key === 'b' || e.key === 'B') {
-        e.preventDefault();
-        setIsBeamerMode((prev) => !prev);
-      } else if (e.key === 'Escape' && isBeamerMode) {
-        setIsBeamerMode(false);
-      }
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isBeamerMode]);
+  const [isContactOpen, setIsContactOpen] = useState(false);
 
   // Online / Offline network status
   const [isOnline, setIsOnline] = useState<boolean>(() =>
@@ -260,19 +230,11 @@ export const AppContent: React.FC = () => {
     setShowOnlyFavorites(false);
     if (tab === 'home') {
       navigate('/');
-    } else if (tab === 'planner') {
-      navigate('/treffen');
     } else {
       navigate(`/${tab}`);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [navigate]);
-
-  const handleAddToPlanner = (slot: SessionSlot) => {
-    setSlotToAddToPlanner(slot);
-    navigate('/treffen');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   // Shift focus to H1 after route change (skip initial mount so 'Skip to content' is first focusable element on Tab)
   useEffect(() => {
@@ -301,7 +263,7 @@ export const AppContent: React.FC = () => {
         navigate(`/quotes/${id}`);
         break;
       case 'method':
-        navigate('/quotes?tab=methods');
+        navigate('/quotes?tab=practice');
         break;
       case 'service':
         navigate(`/service/${id}`);
@@ -353,41 +315,21 @@ export const AppContent: React.FC = () => {
         </div>
       )}
 
-      {/* Top Navbar (Hidden in Beamer Mode) */}
-      {!isBeamerMode && (
-        <Navbar
-          activeTab={activeTab}
-          language={language}
-          favoriteCount={favorites.length}
-          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          isBeamerMode={isBeamerMode}
-          onToggleBeamerMode={() => setIsBeamerMode((prev) => !prev)}
-        />
-      )}
+      {/* Top Navbar */}
+      <Navbar
+        activeTab={activeTab}
+        language={language}
+        favoriteCount={favorites.length}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
 
-      {/* Phone Landscape Slim Left Rail (Hidden in Beamer Mode) */}
-      {!isBeamerMode && (
-        <LeftNavigationRail
-          activeTab={activeTab}
-          onSelectTab={handleTabChange}
-          language={language}
-        />
-      )}
-
-      {/* Floating Exit Button when Global Beamer Mode is active */}
-      {isBeamerMode && (
-        <div className="fixed top-4 right-4 z-90 print:hidden">
-          <button
-            type="button"
-            onClick={() => setIsBeamerMode(false)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-chip bg-surface border border-border-strong text-text text-xs font-bold shadow-2 hover:border-accent cursor-pointer"
-          >
-            <Monitor className="w-4 h-4 text-accent-text" />
-            <span>{t.beamerModeExit}</span>
-          </button>
-        </div>
-      )}
+      {/* Phone Landscape Slim Left Rail */}
+      <LeftNavigationRail
+        activeTab={activeTab}
+        onSelectTab={handleTabChange}
+        language={language}
+      />
 
       {/* Main Content Area */}
       <main
@@ -400,7 +342,7 @@ export const AppContent: React.FC = () => {
             <Route
               path="/"
               element={
-                <HomeView language={language} favorites={favorites} />
+                <HomeView language={language} favorites={favorites} onToggleFavorite={handleToggleFavorite} />
               }
             />
             <Route path="/home" element={<Navigate to="/" replace />} />
@@ -451,24 +393,15 @@ export const AppContent: React.FC = () => {
 
             <Route
               path="/treffen"
-              element={
-                <SessionBuilder
-                  language={language}
-                  onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
-                  externalSlotToAdd={slotToAddToPlanner}
-                  onClearExternalSlot={() => setSlotToAddToPlanner(null)}
-                  favorites={favorites}
-                />
-              }
+              element={<Navigate to="/" replace />}
             />
             <Route
               path="/planner"
-              element={<Navigate to="/treffen" replace />}
+              element={<Navigate to="/" replace />}
             />
-
             <Route
               path="/tools/planner"
-              element={<Navigate to="/treffen" replace />}
+              element={<Navigate to="/" replace />}
             />
 
             <Route
@@ -480,7 +413,6 @@ export const AppContent: React.FC = () => {
                   searchQuery={searchQuery}
                   favorites={favorites}
                   onToggleFavorite={handleToggleFavorite}
-                  onAddToPlanner={handleAddToPlanner}
                 />
               }
             />
@@ -493,7 +425,6 @@ export const AppContent: React.FC = () => {
                   searchQuery={searchQuery}
                   favorites={favorites}
                   onToggleFavorite={handleToggleFavorite}
-                  onAddToPlanner={handleAddToPlanner}
                 />
               }
             />
@@ -507,7 +438,6 @@ export const AppContent: React.FC = () => {
                   searchQuery={searchQuery}
                   favorites={favorites}
                   onToggleFavorite={handleToggleFavorite}
-                  onAddToPlanner={handleAddToPlanner}
                 />
               }
             />
@@ -520,7 +450,6 @@ export const AppContent: React.FC = () => {
                   searchQuery={searchQuery}
                   favorites={favorites}
                   onToggleFavorite={handleToggleFavorite}
-                  onAddToPlanner={handleAddToPlanner}
                 />
               }
             />
@@ -537,7 +466,6 @@ export const AppContent: React.FC = () => {
                   searchQuery={searchQuery}
                   favorites={favorites}
                   onToggleFavorite={handleToggleFavorite}
-                  onAddToPlanner={handleAddToPlanner}
                 />
               }
             />
@@ -557,6 +485,7 @@ export const AppContent: React.FC = () => {
                 <ImpressumView
                   language={language}
                   onBack={() => handleTabChange('home')}
+                  onOpenContact={() => setIsContactOpen(true)}
                 />
               }
             />
@@ -567,6 +496,7 @@ export const AppContent: React.FC = () => {
                 <DatenschutzView
                   language={language}
                   onBack={() => handleTabChange('home')}
+                  onOpenContact={() => setIsContactOpen(true)}
                 />
               }
             />
@@ -584,14 +514,12 @@ export const AppContent: React.FC = () => {
         </Suspense>
       </main>
 
-      {/* Mobile Portrait Bottom Tab Bar (Shown across all pages except Beamer Mode) */}
-      {!isBeamerMode && (
-        <BottomTabBar
-          activeTab={activeTab}
-          onSelectTab={handleTabChange}
-          language={language}
-        />
-      )}
+      {/* Mobile Portrait Bottom Tab Bar */}
+      <BottomTabBar
+        activeTab={activeTab}
+        onSelectTab={handleTabChange}
+        language={language}
+      />
 
       {/* Settings Sheet (Appearance, Language, Group, Backup, Offline) */}
       {isSettingsOpen && (
@@ -619,134 +547,97 @@ export const AppContent: React.FC = () => {
         </Suspense>
       )}
 
-      {!isBeamerMode && (
-        <footer className="border-t border-line mt-16 pt-10 pb-12 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] md:mb-0">
-          <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-8">
-            {/* Top row: Brand & Description on left, grouped navigation links on right */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-              {/* Brand column */}
-              <div className="md:col-span-5 space-y-3 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-2">
-                  <Logo className="w-6 h-6 text-accent" />
-                  <span className="font-extrabold text-sm text-text tracking-tight">{t.siteTitle}</span>
-                  <span className="text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/10 text-accent">
-                    {t.settingsVersion}
-                  </span>
-                </div>
-                <p className="text-xs text-text-secondary leading-relaxed max-w-sm mx-auto md:mx-0">
-                  {t.footerDesc}
-                </p>
-                <div className="flex items-center justify-center md:justify-start gap-2 pt-1 text-2xs text-text-tertiary">
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" aria-hidden="true" />
-                    {t.settingsOfflineReady}
-                  </span>
-                </div>
+      <footer className="short-content-pad border-t border-line mt-6 sm:mt-10 pt-4 pb-4 sm:pt-5 sm:pb-5 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-3 sm:space-y-4">
+          {/* Main row: Brand + Pilot Scope Notice on left, Compact Actions on right */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+            {/* Brand & Pilot notice */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2.5 gap-y-1 text-center sm:text-left">
+              <div className="flex items-center gap-2 shrink-0">
+                <Logo className="w-5 h-5 text-accent shrink-0" />
+                <span className="font-extrabold text-sm text-text tracking-tight">{t.siteTitle}</span>
               </div>
-
-              {/* Navigation columns */}
-              <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6 text-center sm:text-left">
-                {/* Bereiche */}
-                <div className="space-y-2.5">
-                  <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-                    {language === 'de' ? 'Bereiche' : 'Sections'}
-                  </p>
-                  <ul className="space-y-1">
-                    <li>
-                      <Link to="/games" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
-                        {t.tabGames}
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/quotes" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
-                        {t.tabQuotes}
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/service" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
-                        {t.tabService}
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Mehr Inhalte */}
-                <div className="space-y-2.5">
-                  <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-                    {language === 'de' ? 'Werkzeuge & Mehr' : 'Tools & More'}
-                  </p>
-                  <ul className="space-y-1">
-                    <li>
-                      <Link to="/arts" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
-                        {t.tabArts}
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/tools" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
-                        {t.tabTools}
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/treffen" className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center focus-visible:ring-2 focus-visible:ring-accent rounded-control">
-                        {t.tabPlanner}
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Rechtliches & Mitmachen */}
-                <div className="col-span-2 sm:col-span-1 space-y-2.5">
-                  <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-                    {language === 'de' ? 'Recht & Dialog' : 'Legal & Info'}
-                  </p>
-                  <ul className="space-y-1">
-                    <li>
-                      <button
-                        type="button"
-                        onClick={() => handleTabChange('impressum')}
-                        className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control"
-                      >
-                        {t.impressumTitle}
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        type="button"
-                        onClick={() => handleTabChange('datenschutz')}
-                        className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control"
-                      >
-                        {t.datenschutzTitle}
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        type="button"
-                        onClick={() => navigate('/vorschlagen')}
-                        className="hover:text-text transition-colors min-h-[44px] py-2 inline-flex items-center cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control"
-                      >
-                        {t.tabProposal}
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
+              <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text whitespace-nowrap shrink-0">
+                {t.footerStatusBadge}
+              </span>
+              <span className="text-2xs text-text-tertiary leading-normal">
+                {t.footerScopeNote}
+              </span>
             </div>
 
-            {/* Bottom row: Clean divider, copyright, and volunteer note (no stray dots) */}
-            <div className="border-t border-line pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-2xs text-text-tertiary text-center sm:text-left">
-              <p>© 2026 {t.siteTitle}. {t.footerVolunteerNote}.</p>
-              <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => setIsSettingsOpen(true)}
-                  className="hover:text-text transition-colors min-h-[44px] px-2 py-2 inline-flex items-center cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control"
-                >
-                  {t.tabSettings}
-                </button>
-              </div>
+            {/* Quick Actions: Contact Button & Settings */}
+            <div className="flex items-center justify-center sm:justify-end gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsContactOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              >
+                <Mail className="w-3.5 h-3.5 text-accent" />
+                <span>{t.footerContact}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              >
+                <Settings className="w-3.5 h-3.5 text-text-tertiary" />
+                <span>{t.tabSettings}</span>
+              </button>
             </div>
           </div>
-        </footer>
+
+          {/* Links & Legal Row (flat, compact horizontal wrap) */}
+          <div className="border-t border-line/60 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-2xs text-text-tertiary text-center sm:text-left">
+            <nav aria-label="Footer" className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3.5 gap-y-1">
+              <Link to="/games" className="hover:text-text transition-colors py-1">
+                {t.tabGames}
+              </Link>
+              <span className="text-border">·</span>
+              <Link to="/quotes" className="hover:text-text transition-colors py-1">
+                {t.tabQuotes}
+              </Link>
+              <span className="text-border">·</span>
+              <Link to="/service-arts" className="hover:text-text transition-colors py-1">
+                {t.tabServiceArts}
+              </Link>
+              <span className="text-border">·</span>
+              <Link to="/tools" className="hover:text-text transition-colors py-1">
+                {t.tabTools}
+              </Link>
+              <span className="text-border">·</span>
+              <Link to="/vorschlagen" className="hover:text-text transition-colors py-1">
+                {t.tabProposal}
+              </Link>
+              <span className="text-border">·</span>
+              <Link to="/impressum" className="hover:text-text transition-colors py-1">
+                {t.impressumTitle}
+              </Link>
+              <span className="text-border">·</span>
+              <Link to="/datenschutz" className="hover:text-text transition-colors py-1">
+                {t.datenschutzTitle}
+              </Link>
+            </nav>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" aria-hidden="true" />
+                {t.settingsOfflineReady}
+              </span>
+              <span>© 2026 {t.siteTitle}</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Contact Modal */}
+      {isContactOpen && (
+        <Suspense fallback={null}>
+          <ContactModal
+            isOpen={isContactOpen}
+            onClose={() => setIsContactOpen(false)}
+            language={language}
+          />
+        </Suspense>
       )}
 
       {/* Bahá'í Songs Embed Modal */}
@@ -764,16 +655,9 @@ export const AppContent: React.FC = () => {
 };
 
 export const App: React.FC = () => {
-  const [language] = useState<Language>(() => {
-    const saved = localStorage.getItem('jy_lang');
-    return (saved === 'de' || saved === 'en') ? saved : 'de';
-  });
-
   return (
     <ToastProvider>
-      <PlannerProvider language={language}>
-        <AppContent />
-      </PlannerProvider>
+      <AppContent />
     </ToastProvider>
   );
 };

@@ -190,12 +190,16 @@ export const GAMES_DATA: Game[] = [
     }
   },
 
-  // 15. Gemeinsame Geschichte (Ein-Wort-Geschichte)
+  // 15. Gemeinsame Geschichte (Ein-Wort- oder Ein-Satz-Geschichte)
   {
     id: 'ein-wort-geschichte',
     title: {
-      de: 'Die Ein-Wort-Geschichte',
-      en: 'One-Word Story'
+      de: 'Ein-Wort- oder Ein-Satz-Geschichte',
+      en: 'One-Word or One-Sentence Story'
+    },
+    subtitle: {
+      de: 'Gemeinsame Geschichtenkette',
+      en: 'Collaborative Story Chain'
     },
     purpose: 'kennenlernen',
     category: 'cooperative',
@@ -214,35 +218,37 @@ export const GAMES_DATA: Game[] = [
       en: 'Seated circle'
     },
     summary: {
-      de: 'Die Gruppe erfindet gemeinsam eine logische Geschichte, bei der jeder immer nur genau ein einziges Wort beisteuern darf.',
-      en: 'The group collaboratively weaves a coherent narrative where each person speaks exactly one word per turn.'
+      de: 'Die Gruppe erfindet gemeinsam eine lebendige Geschichte im Kreis – entweder steuert jede Person genau ein Wort bei (schnell und überraschend) oder immer einen ganzen Satz (tiefer und erzählerischer).',
+      en: 'The group collaboratively weaves a narrative in the circle – either each person adds exactly one word (brisk and unpredictable) or one full sentence (richer storytelling).'
     },
     idea: {
-      de: 'Trainiert das Loslassen eigener vorgefertigter Pläne und das feinfühlige Anknüpfen an den Gedanken des Vorgängers.',
-      en: 'Teaches relinquishing personal ego and building constructively on what others contribute.'
+      de: 'Trainiert aktives Zuhören, Spontaneität und das Weiterspinnen fremder Gedanken, ohne die Kontrolle über die Handlung erzwingen zu wollen.',
+      en: 'Cultivates active listening, spontaneity, and building constructively on each other\'s ideas without forcing personal plot control.'
     },
     rules: {
       de: [
-        'Alle sitzen im Kreis.',
-        'Reihum steuert jede Person genau ein Wort bei, das grammatikalisch und inhaltlich an das vorherige anschließt.',
-        'Das Tempo sollte zügig sein: Nicht 10 Sekunden überlegen, sondern spontan reagieren.',
-        'Ziel ist es, eine sinnvolle Handlung aufzubauen (Einleitung, Wendepunkt, Auflösung), ohne den Faden zu verlieren.'
+        'Alle sitzen im Kreis. Die Spielleitung legt fest, welche Spielart gilt: „Wort für Wort“ oder „Satz für Satz“.',
+        'Variante A (Wort für Wort): Reihum steuert jede Person genau ein einzelnes Wort bei, das grammatikalisch und sinnvoll an das vorherige anschließt.',
+        'Variante B (Satz für Satz): Jede Person formuliert genau einen vollständigen Satz, der das Geschehen weitererzählt.',
+        'Das Tempo sollte zügig sein: Nicht lange grübeln, sondern spontan auf den Gedanken der Vorgängerperson aufbauen.',
+        'Ziel ist ein gemeinsamer roter Faden mit Einleitung, Höhepunkt und rundem Abschluss.'
       ],
       en: [
-        'Sit in a circle.',
-        'Going in sequence, each person contributes exactly one word that connects grammatically and semantically to the last.',
-        'Keep momentum brisk: avoid overthinking.',
-        'The objective is to sustain a coherent narrative arc (introduction, conflict, resolution).'
+        'Sit in a circle. The facilitator announces the format: "Word by Word" or "Sentence by Sentence".',
+        'Variant A (Word by Word): Going in sequence, each person contributes exactly one word connecting grammatically and semantically to the last.',
+        'Variant B (Sentence by Sentence): Each person adds one full sentence advancing the storyline.',
+        'Keep momentum brisk: react spontaneously without second-guessing.',
+        'The shared goal is a coherent narrative arc with introduction, turning point, and resolution.'
       ]
     },
     animatorTips: {
       de: [
-        'Gebt zu Beginn ein inspirierendes Thema oder ein erstes Wort vor (z. B. „Gestern...“ oder „Plötzlich...“).',
-        'Großartig für Zwischendurch oder im Bus während einer Campfahrt.'
+        'Zieht mit dem Web-Begleiter einen inspirierenden Geschichtenanfang als Startfunke.',
+        '„Satz für Satz“ eignet sich wunderbar für tiefere, nachdenklichere Geschichten; „Wort für Wort“ sorgt für Lachen und blitzschnelle Konzentration.'
       ],
       en: [
-        'Provide a creative starter word or scenario to establish momentum (e.g. "Suddenly..." or "Yesterday...").',
-        'Perfect as a portable travel or bus game during camp outings.'
+        'Draw an inspiring opening line from the web companion to spark momentum.',
+        '"Sentence by sentence" is ideal for deeper, thoughtful narratives; "word by word" brings laughter and lightning-fast focus.'
       ]
     }
   },
@@ -374,12 +380,16 @@ export const GAMES_DATA: Game[] = [
     }
   },
 
-  // 18. Stumme Reihe
+  // 18. Schweigend sortieren (Stumme Reihe)
   {
     id: 'stumme-reihe',
     title: {
+      de: 'Schweigend sortieren',
+      en: 'Silent Sort'
+    },
+    subtitle: {
       de: 'Die stumme Reihe',
-      en: 'The Silent Lineup'
+      en: 'Silent Lineup'
     },
     purpose: 'kennenlernen',
     category: 'cooperative',
@@ -398,8 +408,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Room length for a single file line'
     },
     summary: {
-      de: 'Die Gruppe muss sich nach einem geheimen Kriterium (z. B. Geburtstag oder Schuhgröße) der Reihe nach aufstellen – ohne ein einziges Wort zu sprechen.',
-      en: 'The group must order themselves by a specific metric (e.g. birthday or shoe size) without speaking a single word.'
+      de: 'Die Gruppe muss sich nach einem Kriterium (z. B. Geburtstag, Hausnummer oder Schuhgröße) in einer Reihe aufstellen – ohne ein einziges Wort zu sprechen.',
+      en: 'The group must order themselves in a single line by a specific metric (e.g. birthday, house number, or shoe size) without speaking a single word.'
     },
     idea: {
       de: 'Fördert nonverbale Kommunikation, Gestik und kollektives Mitdenken ohne Sprache.',
@@ -407,13 +417,13 @@ export const GAMES_DATA: Game[] = [
     },
     rules: {
       de: [
-        'Die Spielleitung nennt das Sortierkriterium (z. B. Geburtstag vom 1. Januar bis 31. Dezember, Hausnummer oder Körpergröße).',
+        'Die Spielleitung wählt ein Sortierkriterium (z. B. mit dem Web-Begleiter nach Geburtstag, Hausnummer, Schuhgröße oder Schlafdauer).',
         'Mit dem Startsignal gilt absolutes Sprechverbot. Auch Lippenlesen oder Flüstern ist untersagt.',
         'Die Gruppe darf nur über Zeichensprache, Gesten und Fingerzeichen kommunizieren.',
         'Sobald alle in einer geraden Reihe stehen, wird von vorne nach hinten laut aufgelöst und kontrolliert.'
       ],
       en: [
-        'The facilitator announces the sorting criteria (e.g. birthday from Jan 1 to Dec 31, house number, or height).',
+        'The facilitator announces the sorting criteria (e.g. with the web companion by birthday, house number, shoe size, or sleep hours).',
         'Upon the signal, absolute silence begins. No whispering or overt lip-reading.',
         'Participants communicate strictly via hand gestures, finger counting, and body language.',
         'Once the line settles, players announce their numbers sequentially from front to back to verify accuracy.'
@@ -421,10 +431,12 @@ export const GAMES_DATA: Game[] = [
     },
     animatorTips: {
       de: [
+        'Nutze den Web-Begleiter („Jetzt spielen“), um Kriterien nach Kategorien (Zahlen, Alltag, Sprache, Vorlieben) zu ziehen.',
         'Stoppt die Zeit: „Schaffen wir es unter 60 Sekunden fehlerfrei?“',
         'Steigerung für Fortgeschrittene: Alle stehen auf einer Bank oder einer Linie und dürfen beim Sortieren den Boden daneben nicht berühren.'
       ],
       en: [
+        'Use the web companion ("Play now") to draw criteria sorted by categories (numbers, daily life, language, preferences).',
         'Time the attempt: "Can we achieve a flawless line in under 60 seconds?"',
         'Advanced variation: Have the group stand on a narrow bench or tape line without stepping off.'
       ]
@@ -1467,27 +1479,27 @@ export const GAMES_DATA: Game[] = [
     },
     animatorTips: {
       de: [
-        'Nutzt das interaktive Empire-Board unter „Werkzeuge“ → Empire – so muss die Liste nicht ständig wiederholt werden.',
+        'Nutzt den interaktiven Modus „Jetzt spielen“ direkt hier auf der Spieleseite – so muss die Liste nicht ständig wiederholt werden.',
         'Die Mitglieder eines Reiches dürfen ihren König leise beraten, aber nur der König spricht die Vermutung laut aus.'
       ],
       en: [
-        'Use the interactive Empire Board under Tools → Empire to display names on screen without constant interruptions.',
+        'Use the interactive "Play now" mode right here on this game page to display names on screen without constant interruptions.',
         'Empire subjects may quietly consult their king, but only the king states the official guess.'
       ]
     },
     isFavoriteDefault: true
   },
 
-  // 9. Schlafmütze (Mörder in der Runde)
+  // 9. Mord in der Disco
   {
     id: 'schlafmuetze-moerder',
     title: {
-      de: 'Mörder in der Runde',
+      de: 'Mord in der Disco',
       en: 'Wink Murder'
     },
     subtitle: {
-      de: 'Zwinkerspiel',
-      en: 'Wink Game'
+      de: 'Zwinkern, Händedruck oder im Dunkeln',
+      en: 'Winking, handshake or dark variant'
     },
     purpose: 'raten',
     category: 'social_deduction',

@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Calendar,
   Compass,
   ArrowRight,
-  Clock,
-  Play,
   Bookmark,
   ChevronRight,
   X,
@@ -16,15 +13,14 @@ import {
   History,
   Timer as TimerIcon,
   Users as UsersIcon,
-  Eye as EyeIcon,
+  MessageSquareQuote,
   Award,
   BookOpen,
   Plus,
   Minus,
-  Sparkles,
   Music,
-  ExternalLink,
   Share2,
+  Wrench,
 } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -32,7 +28,6 @@ import { QUOTES_DATA } from '../data/quotes';
 import { getQuoteSong } from '../data/quoteSongs';
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from '../data/artsPrompts';
-import { usePlanner } from '../context/PlannerContext';
 import { useToast } from '../context/ToastContext';
 import { stripQuotes } from '../utils/random';
 import { shareResource } from '../utils/share';
@@ -57,6 +52,7 @@ interface BeforeInstallPromptEvent extends Event {
 export interface HomeViewProps {
   language: Language;
   favorites: string[];
+  onToggleFavorite?: (id: string, e: React.MouseEvent) => void;
 }
 
 export const getDayOfYear = (d: Date = new Date()): number => {
@@ -65,11 +61,10 @@ export const getDayOfYear = (d: Date = new Date()): number => {
   return Math.floor(diff / 86400000);
 };
 
-export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggleFavorite }) => {
   const t = UI_TRANSLATIONS[language];
   const L = tr(language);
   const navigate = useNavigate();
-  const { activePlan, addSlotToPlan } = usePlanner();
 
   // PWA Install banner state (mobile only)
   const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -165,12 +160,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
   const quote = QUOTES_DATA[quoteIndex];
   const quoteSong = quote ? getQuoteSong(quote.id, language) : undefined;
 
-  // Active plan stats
-  const slotCount = activePlan?.slots?.length ?? 0;
-  const totalMinutes = activePlan?.slots?.reduce((sum, s) => sum + s.durationMinutes, 0) ?? 0;
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const isPlanToday = Boolean(activePlan?.date && activePlan.date === todayStr);
-
   // Recent viewed items and group title
   const [recentViews] = useState(() => loadRecentViews());
   const [groupTitle] = useState(() => loadGroupTitle());
@@ -223,25 +212,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
 
   const { showToast } = useToast();
 
-  const handleUseQuoteAsDevotional = () => {
-    if (!quote) return;
-    addSlotToPlan({
-      type: 'devotional',
-      title: {
-        de: `Andacht: ${quote.theme.de}`,
-        en: `Devotion: ${quote.theme.en}`,
-      },
-      durationMinutes: 10,
-      description: {
-        de: quote.textDe,
-        en: quote.textEn,
-      },
-      referenceId: quote.id,
-      referenceType: 'quote',
-    });
-    navigate('/treffen');
-  };
-
   const handleShareQuote = async () => {
     if (!quote) return;
     const text = language === 'de' ? quote.textDe : quote.textEn;
@@ -261,27 +231,27 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
 
   return (
     <div className="max-w-6xl w-full mx-auto pb-10 space-y-8 sm:space-y-10">
-      {/* 1. Installationshinweis (PWA Prompt – Mobile only, wrapping safely without truncation) */}
+      {/* 1. Installationshinweis (PWA Prompt – Mobile only) */}
       {showInstallBanner && (
         <aside
           aria-label={L('Installationshinweis', 'Install banner')}
-          className="md:hidden flex items-start justify-between gap-3 px-3.5 py-3 rounded-control bg-accent/10 text-text text-xs border border-accent/25 animate-in fade-in duration-200"
+          className="md:hidden flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-card bg-accent/10 text-text text-xs border border-accent/25 animate-in fade-in duration-200"
         >
-          <div className="flex items-start gap-2.5 min-w-0 flex-1">
-            <Smartphone className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-            <p className="leading-snug text-xs text-text">
+          <div className="flex items-center gap-2 min-w-0">
+            <Smartphone className="w-4 h-4 text-accent shrink-0" />
+            <p className="line-clamp-2">
               {L(
                 'Tipp: Zum Startbildschirm hinzufügen, um die Seite wie eine App und offline zu nutzen.',
                 'Tip: Add to home screen to use the hub offline like an app.'
               )}
             </p>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             {deferredInstallPrompt && (
               <button
                 type="button"
                 onClick={handleNativeInstall}
-                className="px-3 py-1.5 min-h-[44px] rounded-full bg-accent text-accent-contrast font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                className="px-2.5 py-1.5 min-h-[44px] rounded-full bg-accent text-accent-contrast font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {t.installAppCta}
               </button>
@@ -298,31 +268,18 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         </aside>
       )}
 
-      {/* 2. Hero-Bereich: Begrüßung links, die zwei gestapelten CTAs rechts */}
+      {/* 2. Hero-Bereich: Begrüßung links, die zwei Aktionen rechts */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
         {/* Linke Spalte: Begrüßung & Datum (lg:col-span-7) */}
         <header className="lg:col-span-7 space-y-2">
-          {isPlanToday && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-accent text-accent-contrast">
-              <Clock className="w-3 h-3" />
-              {L('Heute anstehend', 'Scheduled for today')}
-            </span>
-          )}
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text">
-            {slotCount > 0
-              ? `${fullGreeting} · ${L('Weiter mit deinem Treffen', 'Continue your gathering')}`
-              : fullGreeting}
+            {fullGreeting}
           </h1>
           <p className="text-xs sm:text-sm text-text-secondary leading-relaxed max-w-xl">
-            {slotCount > 0
-              ? L(
-                  `Dein Entwurf für „${activePlan?.name}“ (${totalMinutes} Min., ${slotCount} Bausteine) wartet auf dich.`,
-                  `Your draft for "${activePlan?.name}" (${totalMinutes} min., ${slotCount} blocks) is ready.`
-                )
-              : L(
-                  'Spiele, heilige Zitate und Werkzeuge für deine Juniorjugendgruppe.',
-                  'Games, sacred scripture, and tools for your junior youth group.'
-                )}
+            {L(
+              'Spiele, heilige Zitate und Werkzeuge für deine Juniorjugendgruppe.',
+              'Games, sacred scripture, and tools for your junior youth group.'
+            )}
           </p>
           {/* Dezente Datumszeile (Gregorianisch & Badí') */}
           <p className="text-2xs sm:text-xs text-text-tertiary flex flex-wrap items-center gap-x-2 pt-1">
@@ -334,45 +291,24 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
           </p>
         </header>
 
-        {/* Rechte Spalte: In vertikaler Darstellung (Mobile) nebeneinander, in horizontaler Darstellung (Desktop) übereinander */}
+        {/* Rechte Spalte: Die zwei CTAs */}
         <div className="lg:col-span-5 space-y-3">
           <nav
             aria-label={L('Haupteinstiege', 'Main navigation')}
             className="grid grid-cols-2 lg:flex lg:flex-col gap-2.5 sm:gap-3"
           >
-            {/* Hauptaktion: Treffen vorbereiten */}
-            <Link
-              to="/treffen"
-              className="rounded-card bg-accent text-accent-contrast p-3.5 sm:p-4 lg:p-5 shadow-1 hover:bg-accent-hover transition-all duration-150 flex flex-col justify-between sm:flex-row sm:items-center sm:justify-between group cursor-pointer focus-visible:ring-2 focus-visible:ring-accent min-h-[92px] sm:min-h-0"
-            >
-              <div className="space-y-0.5 min-w-0 pr-1">
-                <div className="flex items-center gap-1.5 font-extrabold text-sm sm:text-base lg:text-lg tracking-tight">
-                  <span>{L('Treffen vorbereiten', 'Prepare gathering')}</span>
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent-contrast shrink-0" />
-                </div>
-                <p className="text-2xs sm:text-xs text-accent-contrast/95 font-medium leading-tight">
-                  {slotCount > 0
-                    ? `${slotCount} ${L('Bausteine', 'blocks')} · ${totalMinutes} min`
-                    : L('Ablauf planen, Bausteine zusammenstellen', 'Plan agenda, assemble building blocks')}
-                </p>
-              </div>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent-contrast/15 flex items-center justify-center shrink-0 self-end sm:self-center mt-2 sm:mt-0 group-hover:translate-x-0.5 transition-transform">
-                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-accent-contrast" />
-              </div>
-            </Link>
-
-            {/* Sekundäraktion: Spiel finden */}
+            {/* Aktion 1: Spiel finden */}
             <button
               type="button"
               onClick={() => setShowCompactFinder(!showCompactFinder)}
-              className="rounded-card bg-surface border border-line p-3.5 sm:p-4 lg:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex flex-col justify-between sm:flex-row sm:items-center sm:justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[92px] sm:min-h-0"
+              className="rounded-card bg-surface border border-border p-3.5 sm:p-4 lg:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex flex-col justify-between sm:flex-row sm:items-center sm:justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[92px] sm:min-h-0"
             >
               <div className="space-y-0.5 min-w-0 pr-1">
                 <div className="flex items-center gap-1.5 font-bold text-sm sm:text-base lg:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
                   <span>{L('Spiel finden', 'Find a game')}</span>
                   <Compass className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
                 </div>
-                <p className="text-2xs sm:text-xs text-text-secondary leading-tight">
+                <p className="text-2xs sm:text-xs text-text-secondary font-medium leading-tight">
                   {L('Gruppengröße & Zeit eingeben', 'Pick group size & time')}
                 </p>
               </div>
@@ -380,6 +316,25 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </button>
+
+            {/* Aktion 2: Zitate & Gebete */}
+            <Link
+              to="/quotes"
+              className="rounded-card bg-surface border border-border p-3.5 sm:p-4 lg:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex flex-col justify-between sm:flex-row sm:items-center sm:justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[92px] sm:min-h-0"
+            >
+              <div className="space-y-0.5 min-w-0 pr-1">
+                <div className="flex items-center gap-1.5 font-bold text-sm sm:text-base lg:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
+                  <span>{L('Zitate & Gebete', 'Quotes & Prayers')}</span>
+                  <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
+                </div>
+                <p className="text-2xs sm:text-xs text-text-secondary leading-tight">
+                  {L('Texte nachschlagen & auswendig lernen', 'Look up texts & memorise')}
+                </p>
+              </div>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-surface-2 text-text flex items-center justify-center shrink-0 self-end sm:self-center mt-2 sm:mt-0 group-hover:bg-accent/15 group-hover:text-accent transition-colors">
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+            </Link>
           </nav>
 
           {/* Spielfinder kompakt (nur bei Klick auf "Spiel finden") */}
@@ -442,74 +397,84 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         </div>
       </div>
 
-      {/* 3. Zitat des Tages: Breiter horizontaler Raum, damit der Text in 1-2 Zeilen fließt */}
+      {/* 3. Zitat des Tages: Elegant, kompakt und harmonisch */}
       {quote && (
         <section
           aria-label={L('Zitat des Tages', 'Quote of the day')}
-          className="p-5 sm:p-6 rounded-card bg-surface border border-line shadow-xs space-y-4"
+          className="p-4 sm:p-5 rounded-2xl bg-surface border border-border/80 shadow-xs hover:shadow-1 transition-all space-y-3 group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
-              <QuoteIcon className="w-3.5 h-3.5 text-accent" />
-              <span>{L('Zitat des Tages', 'Quote of the day')}</span>
-            </span>
-            <ArrowLink to={`/quotes/${quote.id}`}>
-              {L('Im Lesemodus', 'Reading mode')}
-            </ArrowLink>
-          </div>
+          {/* Header Row: Label & Buch links, intuitive Icon-Buttons rechts */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="w-6 h-6 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0">
+                <QuoteIcon className="w-3.5 h-3.5" />
+              </span>
+              <span className="text-2xs sm:text-xs font-bold text-text uppercase tracking-wider truncate">
+                {L('Zitat des Tages', 'Quote of the day')}
+              </span>
+              <span className="text-2xs text-text-tertiary font-medium hidden sm:inline truncate">
+                · {quote.book[language]}
+              </span>
+            </div>
 
-          <blockquote className="font-serif text-base sm:text-lg text-text leading-relaxed">
-            {language === 'de' ? `„${stripQuotes(quoteText)}“` : `“${stripQuotes(quoteText)}”`}
-          </blockquote>
-
-          {/* Untere Zeile: Quelle links, Aktions-Buttons rechts */}
-          <div className="pt-3 border-t border-line flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="text-xs text-text-secondary font-medium">
-              {quote.source[language]}
-            </p>
-
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2">
+            {/* Symmetrische Icon-Aktionen (intuitiv ohne redundanten Text) */}
+            <div className="flex items-center gap-1 shrink-0">
+              {/* Lesezeichen / Merken */}
               <button
                 type="button"
-                onClick={handleUseQuoteAsDevotional}
-                className="px-3.5 py-2.5 rounded-full bg-accent/15 hover:bg-accent/25 text-accent text-xs font-bold transition-colors cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
+                onClick={(e) => onToggleFavorite?.(quote.id, e)}
+                className={`w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent ${
+                  favorites.includes(quote.id)
+                    ? 'text-accent bg-accent/10 hover:bg-accent/15'
+                    : 'text-text-secondary hover:text-text hover:bg-surface-2'
+                }`}
+                title={favorites.includes(quote.id) ? t.savedItems : L('Merken', 'Save')}
+                aria-label={favorites.includes(quote.id) ? t.savedItems : L('Merken', 'Save')}
+                aria-pressed={favorites.includes(quote.id)}
               >
-                <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                <span className="whitespace-nowrap">{t.quoteAsDevotional}</span>
+                <Bookmark className={`w-4 h-4 ${favorites.includes(quote.id) ? 'fill-accent' : ''}`} />
               </button>
-              <Link
-                to={`/quotes/${quote.id}`}
-                className="px-3.5 py-2.5 rounded-full bg-surface-2 hover:bg-surface-3 text-text text-xs font-semibold transition-colors cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                <BookOpen className="w-3.5 h-3.5 shrink-0" />
-                <span>{L('Lesen', 'Read')}</span>
-              </Link>
+
+              {/* Teilen */}
               <button
                 type="button"
                 onClick={handleShareQuote}
-                className="px-3 py-2.5 rounded-full border border-line hover:bg-surface-2 text-text-secondary hover:text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                 title={t.quoteShare}
                 aria-label={t.quoteShare}
               >
-                <Share2 className="w-3.5 h-3.5 text-text-secondary shrink-0" />
-                <span>{t.quoteShare}</span>
+                <Share2 className="w-4 h-4" />
               </button>
+
+              {/* Lied (falls vorhanden) */}
               {quoteSong && (
                 <a
                   href={quoteSong.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-2.5 rounded-full border border-line hover:bg-surface-2 text-text-secondary hover:text-text text-xs font-semibold transition-colors min-h-[44px] flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-accent"
+                  className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center text-text-secondary hover:text-accent hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                   title={language === 'de' ? `Lied „${quoteSong.title}“ auf bahaisongs.com anhören` : `Listen to song "${quoteSong.title}" on bahaisongs.com`}
                   aria-label={t.quoteSongAriaLabel}
                 >
-                  <Music className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span>{t.quoteSongLink}</span>
-                  <ExternalLink className="w-3 h-3 text-text-tertiary shrink-0" />
+                  <Music className="w-4 h-4" />
                 </a>
               )}
             </div>
           </div>
+
+          {/* Scripture text in Lora serif font */}
+          <Link
+            to={`/quotes/${quote.id}`}
+            className="block group/quote focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control pt-0.5"
+          >
+            <blockquote className="font-serif text-base sm:text-lg text-text leading-relaxed select-text group-hover/quote:text-accent transition-colors">
+              {language === 'de' ? `„${stripQuotes(quoteText)}“` : `“${stripQuotes(quoteText)}”`}
+            </blockquote>
+
+            <cite className="not-italic text-xs text-text-secondary font-serif italic block mt-2">
+              — {quote.source[language]}
+            </cite>
+          </Link>
         </section>
       )}
 
@@ -521,7 +486,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               {t.tabTools}
             </h2>
             <p className="text-xs text-text-tertiary">
-              {L('Live-Helfer für Handy und Beamer in der Gruppe', 'Live tools for phone and projector in the group')}
+              {L('Live-Helfer für die Gruppe', 'Live tools for the group')}
             </p>
           </div>
           <ArrowLink to="/tools">
@@ -532,13 +497,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Link
             to="/tools/timer"
-            className="p-4 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent"
+            className="p-4 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
                 {L('Uhr', 'Timer')}
               </span>
-              <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-accent-contrast transition-colors shrink-0">
+              <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-text-secondary group-hover:text-text transition-colors shrink-0">
                 <TimerIcon className="w-4 h-4" />
               </div>
             </div>
@@ -552,13 +517,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
 
           <Link
             to="/tools/teams"
-            className="p-4 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent"
+            className="p-4 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
                 {L('Gruppen', 'Groups')}
               </span>
-              <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-accent-contrast transition-colors shrink-0">
+              <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-text-secondary group-hover:text-text transition-colors shrink-0">
                 <UsersIcon className="w-4 h-4" />
               </div>
             </div>
@@ -571,34 +536,34 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
           </Link>
 
           <Link
-            to="/tools/roles"
-            className="p-4 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent"
+            to="/tools/cards"
+            className="p-4 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-                {L('Spielleitung', 'Roles')}
+                {L('Gespräch', 'Cards')}
               </span>
-              <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-accent-contrast transition-colors shrink-0">
-                <EyeIcon className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-text-secondary group-hover:text-text transition-colors shrink-0">
+                <MessageSquareQuote className="w-4 h-4" />
               </div>
             </div>
             <div className="text-2xl font-bold tracking-tight text-text tabular-nums">
-              4 Rollen
+              {L('Karten', 'Cards')}
             </div>
             <p className="text-2xs text-text-secondary mt-1">
-              {L('Geheime Identitäten', 'Secret roles')}
+              {L('Fragen für den Kreis', 'Circle questions')}
             </p>
           </Link>
 
           <Link
             to="/tools/scoreboard"
-            className="p-4 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent"
+            className="p-4 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
                 {L('Stand', 'Score')}
               </span>
-              <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-accent-contrast transition-colors shrink-0">
+              <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-text-secondary group-hover:text-text transition-colors shrink-0">
                 <Award className="w-4 h-4" />
               </div>
             </div>
@@ -639,19 +604,19 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
           {sampleService && (
             <Link
               to={`/service/${sampleService.id}`}
-              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-line hover:border-accent hover:shadow-xs transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
                   <span className="px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase tracking-wider bg-surface-2 text-text-secondary flex items-center gap-1.5 shrink-0">
-                    <HeartHandshake className="w-3.5 h-3.5 text-accent" />
+                    <HeartHandshake className="w-3.5 h-3.5 text-text-secondary" />
                     <span>{L('Dienstprojekt', 'Service Project')}</span>
                   </span>
                   <span className="text-2xs text-text-tertiary font-semibold tabular-nums shrink-0">
                     {sampleService.durationMin}–{sampleService.durationMax} {L('Min', 'min')}
                   </span>
                 </div>
-                <h3 className="font-bold text-text text-base group-hover:text-accent transition-colors">
+                <h3 className="font-bold text-text text-base transition-colors">
                   {sampleService.title[language]}
                 </h3>
                 <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
@@ -660,7 +625,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               </div>
               <div className="pt-3 mt-3 border-t border-line flex items-center justify-between text-xs text-text-tertiary">
                 <span>{sampleService.groupSize.min}–{sampleService.groupSize.max} {L('Personen', 'people')}</span>
-                <span className="font-semibold text-accent group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                <span className="font-semibold text-text-secondary group-hover:text-text group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
                   {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
                 </span>
               </div>
@@ -671,19 +636,19 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
           {sampleArt && (
             <Link
               to={`/arts/${sampleArt.id}`}
-              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-line hover:border-accent hover:shadow-xs transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
             >
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
                   <span className="px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase tracking-wider bg-surface-2 text-text-secondary flex items-center gap-1.5 shrink-0">
-                    <Palette className="w-3.5 h-3.5 text-accent" />
+                    <Palette className="w-3.5 h-3.5 text-text-secondary" />
                     <span>{L('Kunst & Theater', 'Arts & Drama')}</span>
                   </span>
                   <span className="text-2xs text-text-tertiary font-semibold tabular-nums shrink-0">
                     {sampleArt.durationMin}–{sampleArt.durationMax} {L('Min', 'min')}
                   </span>
                 </div>
-                <h3 className="font-bold text-text text-base group-hover:text-accent transition-colors">
+                <h3 className="font-bold text-text text-base transition-colors">
                   {sampleArt.title[language]}
                 </h3>
                 <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
@@ -692,7 +657,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               </div>
               <div className="pt-3 mt-3 border-t border-line flex items-center justify-between text-xs text-text-tertiary">
                 <span>{sampleArt.groupSize.min}–{sampleArt.groupSize.max} {L('Personen', 'people')}</span>
-                <span className="font-semibold text-accent group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+                <span className="font-semibold text-text-secondary group-hover:text-text group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
                   {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
                 </span>
               </div>
@@ -708,39 +673,35 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Kachel 1: Nächstes Treffen */}
+          {/* Kachel 1: Werkzeuge */}
           <Link
-            to={isPlanToday && slotCount > 0 ? '/treffen?live=true' : '/treffen'}
-            className="flex items-center gap-3 p-4 rounded-card border border-border bg-surface hover:border-accent hover:shadow-xs transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent"
+            to="/tools"
+            className="flex items-center gap-3 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
-            <div className="w-10 h-10 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0">
-              {isPlanToday && slotCount > 0 ? <Play className="w-5 h-5 fill-current" /> : <Calendar className="w-5 h-5" />}
+            <div className="w-10 h-10 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 group-hover:text-text transition-colors">
+              <Wrench className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-1">
-                <p className="font-bold text-text text-sm truncate group-hover:text-accent transition-colors">
-                  {slotCount > 0 ? activePlan?.name : L('Nächstes Treffen', 'Next gathering')}
-                </p>
-              </div>
-              <p className="text-xs text-text-secondary mt-0.5">
-                {slotCount > 0
-                  ? `${slotCount} ${L('Bausteine', 'blocks')} · ${totalMinutes} min`
-                  : L('Noch kein Ablauf geplant', 'No agenda planned yet')}
+              <p className="font-bold text-text text-sm truncate transition-colors">
+                {t.tabTools}
+              </p>
+              <p className="text-xs text-text-secondary mt-0.5 truncate">
+                {L('Timer, Teams, Rollen und mehr', 'Timer, teams, roles and more')}
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
+            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-text shrink-0" />
           </Link>
 
           {/* Kachel 2: Gemerkt */}
           <Link
             to="/saved"
-            className="flex items-center gap-3 p-4 rounded-card border border-border bg-surface hover:border-accent hover:shadow-xs transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent"
+            className="flex items-center gap-3 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
-            <div className="w-10 h-10 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 group-hover:text-text transition-colors">
               <Bookmark className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-text text-sm truncate group-hover:text-accent transition-colors">
+              <p className="font-bold text-text text-sm truncate transition-colors">
                 {t.savedItems}
               </p>
               <p className="text-xs text-text-secondary mt-0.5 tabular-nums">
@@ -749,20 +710,20 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
                   : L('Spiele, Zitate und Projekte merken', 'Save items for later')}
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
+            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-text shrink-0" />
           </Link>
 
           {/* Kachel 3: Buch-Fortschritt mit mindestens 44px Touch-Zielen */}
-          <div className="flex items-center justify-between gap-2 p-4 rounded-card border border-border bg-surface hover:border-accent hover:shadow-xs transition-all duration-150 group">
+          <div className="flex items-center justify-between gap-2 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group shadow-1">
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-10 h-10 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 group-hover:text-text transition-colors">
                 <BookOpen className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <button
                   type="button"
                   onClick={() => setIsSelectingBook(!isSelectingBook)}
-                  className="font-bold text-text text-sm truncate group-hover:text-accent text-left block w-full transition-colors cursor-pointer min-h-[44px] flex flex-col justify-center focus-visible:ring-2 focus-visible:ring-accent rounded-control"
+                  className="font-bold text-text text-sm truncate text-left block w-full transition-colors cursor-pointer min-h-[44px] flex flex-col justify-center focus-visible:ring-2 focus-visible:ring-accent rounded-control"
                 >
                   <span className="truncate">{activeBook ? activeBook.title[language] : L('Juniorjugend-Buch', 'JY Book')}</span>
                   <span className="text-xs text-text-secondary font-normal">
@@ -851,27 +812,35 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               <Link
                 key={`rec-${item.id}`}
                 to={item.path}
-                className="flex items-center gap-2.5 p-3 rounded-card bg-surface border border-border hover:bg-surface-2 hover:border-accent transition-colors group min-h-[52px] focus-visible:ring-2 focus-visible:ring-accent"
+                className="flex items-center gap-2.5 p-3 rounded-card bg-surface border border-border hover:bg-surface-2 transition-colors group min-h-[52px] focus-visible:ring-2 focus-visible:ring-accent shadow-1"
               >
                 <div className="w-8 h-8 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 text-xs">
-                  {item.type === 'game' ? <Compass className="w-4 h-4 text-accent" /> : item.type === 'quote' ? <QuoteIcon className="w-4 h-4 text-accent" /> : <Sparkles className="w-4 h-4 text-accent" />}
+                  {item.type === 'game' ? (
+                    <Compass className="w-4 h-4" />
+                  ) : item.type === 'quote' ? (
+                    <BookOpen className="w-4 h-4" />
+                  ) : item.type === 'service' ? (
+                    <HeartHandshake className="w-4 h-4" />
+                  ) : (
+                    <Palette className="w-4 h-4" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-text text-xs truncate group-hover:text-accent">
+                  <p className="font-semibold text-text text-xs truncate">
                     {item.title[language]}
                   </p>
                   {item.subtitle && (
                     <p className="text-2xs text-text-tertiary truncate">{item.subtitle[language]}</p>
                   )}
                 </div>
-                <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
+                <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-text shrink-0" />
               </Link>
             ))}
           </div>
         ) : (
-          <div className="p-5 sm:p-6 rounded-card bg-surface border border-border shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="p-5 sm:p-6 rounded-card bg-surface border border-border shadow-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-10 h-10 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 mt-0.5">
                 <History className="w-5 h-5" />
               </div>
               <div className="space-y-1">
@@ -892,7 +861,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites }) => {
               </Link>
               <Link
                 to="/quotes"
-                className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-accent/15 hover:bg-accent/25 text-accent text-xs font-bold min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+                className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-bold min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {t.exploreQuotes}
               </Link>

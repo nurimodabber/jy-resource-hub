@@ -3,21 +3,19 @@ import {
   Search,
   Compass,
   BookOpen,
-  Clock,
   Palette,
   Music,
   HeartHandshake,
-  Calendar,
   Bookmark,
   Settings,
   X,
   ArrowRight,
-  Crown,
-  Eye,
+  Award,
   Users,
   Timer,
-  Lightbulb,
+  UserCheck,
   MessageSquareQuote,
+  Zap,
   type LucideIcon,
 } from 'lucide-react';
 import { Language } from '../types';
@@ -89,18 +87,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
     // Tools dataset
     const TOOLS_SEARCH = [
-      { id: 'empire', title: 'Empire', desc: isDe ? 'Begriffe vorlesen und Reiche verfolgen' : 'Categories and kingdoms game', icon: Crown },
-      { id: 'roles', title: isDe ? 'Rollenverteiler' : 'Role dealer', desc: isDe ? 'Geheime Rollen für Spion, Werwölfe etc.' : 'Secret roles for spy, werewolf etc.', icon: Eye },
       { id: 'teams', title: isDe ? 'Teams & Zweiergruppen' : 'Teams & pairs', desc: isDe ? 'Zufällig und fair Gruppen einteilen' : 'Random and balanced team builder', icon: Users },
-      { id: 'timer', title: 'Timer', desc: isDe ? 'Große Countdown-Anzeige mit Ton' : 'Large countdown display with chime', icon: Timer },
-      { id: 'finder', title: isDe ? 'Spielfinder' : 'Game finder', desc: isDe ? 'Passende Spiele nach Zeit & Gruppengröße' : 'Filter games by time & size', icon: Compass },
-      { id: 'ideas', title: isDe ? 'Impulse' : 'Prompts', desc: isDe ? 'Sortierkriterien, Geschichten und Regeln' : 'Line-up criteria and story starters', icon: Lightbulb },
+      { id: 'timer', title: 'Timer', desc: isDe ? 'Große Countdown-Anzeige mit Signalton' : 'Large countdown display with chime', icon: Timer },
+      { id: 'scoreboard', title: isDe ? 'Punktetafel' : 'Scoreboard', desc: isDe ? 'Punkte für Stationen oder Quizrunden ohne Rangliste' : 'Track points for stations or quiz rounds without rankings', icon: Award },
       { id: 'cards', title: isDe ? 'Gesprächskarten' : 'Conversation cards', desc: isDe ? 'Fragen und Zitate für den Kreis' : 'Questions and quotes for group circles', icon: MessageSquareQuote },
+      { id: 'group', title: isDe ? 'Meine Gruppe' : 'My group', desc: isDe ? 'Gemeinsame Namens- und Anwesenheitsliste' : 'Shared member presence list', icon: UserCheck },
     ];
 
     // Static Pages
     const PAGES_SEARCH = [
-      { id: 'planner', title: isDe ? 'Treffen (Ablauf-Planer)' : 'Gatherings (Meeting Planner)', desc: isDe ? 'Treffen mit Andacht, Zitat und Spiel vorbereiten' : 'Prepare meetings with prayer, quote and game', icon: Calendar },
       { id: 'saved', title: isDe ? 'Gemerkt (Merkliste)' : 'Saved Items', desc: isDe ? 'Deine gespeicherten Favoriten auf einen Blick' : 'All your bookmarked favorites in one place', icon: Bookmark },
       { id: 'settings', title: isDe ? 'Einstellungen' : 'Settings', desc: isDe ? 'Darstellung, Sprache, Gruppe und Sicherung' : 'Appearance, language, group and backup', icon: Settings },
     ];
@@ -109,13 +104,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       // Default recommended quick-links
       return [
         {
-          id: 'planner',
+          id: 'saved',
           type: 'page',
           groupName: isDe ? 'Seiten' : 'Pages',
-          title: isDe ? 'Treffen planen' : 'Plan a gathering',
-          subtitle: isDe ? 'Geführter Ablauf für deine Gruppe' : 'Guided structure for your group meeting',
+          title: isDe ? 'Gemerkt' : 'Saved Items',
+          subtitle: isDe ? 'Deine gespeicherten Favoriten' : 'Your saved favorites',
           badge: isDe ? 'Seite' : 'Page',
-          icon: Calendar,
+          icon: Bookmark,
         },
         {
           id: GAMES_DATA[0].id,
@@ -225,7 +220,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           title: m.name[language],
           subtitle: m.summary[language],
           badge: isDe ? 'Methode' : 'Method',
-          icon: Clock,
+          icon: Zap,
         });
       }
     });
@@ -327,15 +322,15 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 transition-opacity duration-150 ease-out"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-150 ease-out"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Modal / Mobile Sheet Panel */}
-      <div className="relative w-full max-w-2xl bg-surface rounded-t-sheet sm:rounded-dialog shadow-2 border-0 overflow-hidden z-10 flex flex-col max-h-[92vh] sm:max-h-[80vh] animate-in slide-in-from-bottom sm:zoom-in-95 duration-150 ease-out outline-hidden safe-bottom">
+      <div className="relative w-full max-w-2xl glass-surface-panel rounded-t-sheet sm:rounded-dialog shadow-2 border border-border overflow-hidden z-10 flex flex-col max-h-[92vh] sm:max-h-[80vh] animate-in slide-in-from-bottom sm:zoom-in-95 duration-150 ease-out outline-hidden safe-bottom">
         {/* Input Bar */}
-        <div className="flex items-center px-4 sm:px-6 py-4 border-b border-border gap-3 bg-surface">
+        <div className="flex items-center px-4 sm:px-6 py-4 border-b border-line gap-3 glass-surface sticky top-0 z-10">
           <Search className="w-5 h-5 text-text-tertiary shrink-0" strokeWidth={1.75} />
           <input
             ref={inputRef}

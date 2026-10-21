@@ -4,27 +4,21 @@ import {
   Users,
   Timer,
   MessageSquareQuote,
-  Crown,
-  Eye,
-  Compass,
-  Lightbulb,
   Award,
-  ChevronRight,
-  Clock,
-  Calendar,
+  UserCheck,
+  ArrowRight,
   LucideIcon,
 } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { tr, ToolHeader } from './tools/common';
-import { EmpireTool } from './tools/EmpireTool';
-import { RolesTool } from './tools/RolesTool';
 import { ScoreboardTool } from './tools/ScoreboardTool';
 import { TeamsTool } from './tools/TeamsTool';
 import { TimerTool } from './tools/TimerTool';
 import { CardsTool } from './tools/CardsTool';
-import { FinderTool } from './tools/FinderTool';
-import { IdeasTool } from './tools/IdeasTool';
+import { GroupManager } from './tools/GroupManager';
+import { loadPresentNames, loadGroupNames } from '../utils/groupNames';
+import { DISCUSSION_CARDS } from '../data/toolkits';
 
 interface ToolkitsViewProps {
   language: Language;
@@ -36,27 +30,41 @@ type ToolDef = {
   icon: LucideIcon;
   title: [string, string];
   desc: [string, string];
-  group: 'run' | 'group' | 'ideas';
+  group: 'group' | 'run' | 'ideas';
   customHref?: string;
   Component?: React.FC<{ language: Language }>;
 };
 
+const GroupManagerToolWrapper: React.FC<{ language: Language }> = ({ language }) => (
+  <div className="space-y-4">
+    <GroupManager language={language} compact={false} />
+  </div>
+);
+
 const TOOLS: ToolDef[] = [
   {
-    id: 'empire',
-    icon: Crown,
-    title: ['Empire', 'Empire'],
-    desc: ['Kategorien, Begriffe vorlesen und Reiche verfolgen.', 'Categories, reading terms and tracking kingdoms.'],
-    group: 'run',
-    Component: EmpireTool,
+    id: 'cards',
+    icon: MessageSquareQuote,
+    title: ['Gesprächskarten', 'Conversation cards'],
+    desc: ['Fragen und heilige Zitate für das Gespräch im Kreis.', 'Questions and sacred scripture for circle conversation.'],
+    group: 'ideas',
+    Component: CardsTool,
   },
   {
-    id: 'roles',
-    icon: Eye,
-    title: ['Rollenverteiler', 'Role dealer'],
-    desc: ['Geheime Rollen für Spion, Wer bin ich, Werwölfe und Mörder.', 'Secret roles for Spy, Who am I, Werewolf and Killer.'],
+    id: 'teams',
+    icon: Users,
+    title: ['Gruppeneinteiler', 'Group divider'],
+    desc: ['Faire Teams und Zweiergruppen bilden, ohne dieselben Paare zu wiederholen.', 'Form fair teams and pairs without repeating pairings.'],
+    group: 'group',
+    Component: TeamsTool,
+  },
+  {
+    id: 'timer',
+    icon: Timer,
+    title: ['Timer & Intervall', 'Timer & Interval'],
+    desc: ['Große Anzeige mit Signalton und Runden.', 'Large display with chime and rounds.'],
     group: 'run',
-    Component: RolesTool,
+    Component: TimerTool,
   },
   {
     id: 'scoreboard',
@@ -67,55 +75,12 @@ const TOOLS: ToolDef[] = [
     Component: ScoreboardTool,
   },
   {
-    id: 'teams',
-    icon: Users,
-    title: ['Teams und Zweiergruppen', 'Teams and pairs'],
-    desc: ['Zufällig einteilen, ohne dieselben Paare zu wiederholen.', 'Split at random without repeating the same pairs.'],
+    id: 'group',
+    icon: UserCheck,
+    title: ['Meine Gruppe', 'My group'],
+    desc: ['Gemeinsame Namens- und Anwesenheitsliste für alle Werkzeuge.', 'Shared presence and member list across all tools.'],
     group: 'group',
-    Component: TeamsTool,
-  },
-  {
-    id: 'timer',
-    icon: Timer,
-    title: ['Timer & Intervall', 'Timer & Interval'],
-    desc: ['Große Anzeige mit Signalton und Runden für den Beamer.', 'Large display with chime and rounds for projector.'],
-    group: 'group',
-    Component: TimerTool,
-  },
-  {
-    id: 'planner',
-    icon: Calendar,
-    title: ['Treffen planen', 'Plan gathering'],
-    desc: [
-      'Stundenablauf mit Zeiten, Gebeten, Spielen und Projekten zusammenstellen.',
-      'Assemble a gathering schedule with times, devotions, games and projects.',
-    ],
-    group: 'group',
-    customHref: '/treffen',
-  },
-  {
-    id: 'finder',
-    icon: Compass,
-    title: ['Spielfinder', 'Game finder'],
-    desc: ['Gruppengröße und Zeit eingeben, passende Spiele erhalten.', 'Enter group size and time, get matching games.'],
-    group: 'ideas',
-    Component: FinderTool,
-  },
-  {
-    id: 'ideas',
-    icon: Lightbulb,
-    title: ['Spontane Impulse', 'Spontaneous prompts'],
-    desc: ['Sortierkriterien, Geschichtenanfänge und Psychiater-Regeln.', 'Line-up criteria, story starters and psychiatrist rules.'],
-    group: 'ideas',
-    Component: IdeasTool,
-  },
-  {
-    id: 'cards',
-    icon: MessageSquareQuote,
-    title: ['Gesprächskarten', 'Conversation cards'],
-    desc: ['Fragen und heilige Zitate für das Gespräch im Kreis.', 'Questions and sacred scripture for circle conversation.'],
-    group: 'ideas',
-    Component: CardsTool,
+    Component: GroupManagerToolWrapper,
   },
 ];
 
@@ -126,9 +91,10 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
   const toolId = propToolId ?? routeToolId;
   const t = UI_TRANSLATIONS[language];
   const L = tr(language);
+  const isDe = language === 'de';
   const navigate = useNavigate();
 
-  const [recentIds, setRecentIds] = useState<string[]>(() => {
+  const [, setRecentIds] = useState<string[]>(() => {
     try {
       const stored = localStorage.getItem(RECENT_KEY);
       return stored ? JSON.parse(stored) : [];
@@ -136,8 +102,6 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
       return [];
     }
   });
-
-  const tool = TOOLS.find((x) => x.id === toolId);
 
   // Update recent tools list whenever a tool is opened
   useEffect(() => {
@@ -154,6 +118,25 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
     }
   }, [toolId]);
 
+  // Handle redirects for tools that moved to games or were consolidated
+  if (toolId === 'empire') {
+    return <Navigate to="/games/empire?mode=play" replace />;
+  }
+  if (toolId === 'roles') {
+    return <Navigate to="/games/werwolf?mode=play" replace />;
+  }
+  if (toolId === 'ideas') {
+    return <Navigate to="/games/stumme-reihe?mode=play" replace />;
+  }
+  if (toolId === 'finder') {
+    return <Navigate to="/games" replace />;
+  }
+  if (toolId === 'planner') {
+    return <Navigate to="/tools" replace />;
+  }
+
+  const tool = TOOLS.find((x) => x.id === toolId);
+
   if (tool) {
     if (tool.customHref) {
       return <Navigate to={tool.customHref} replace />;
@@ -163,10 +146,10 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
       return <Navigate to="/tools" replace />;
     }
     return (
-      <div className="max-w-3xl mx-auto pb-28">
+      <div className="max-w-3xl mx-auto pb-20 animate-in fade-in duration-150">
         <ToolHeader
-          title={tool.title[language === 'de' ? 0 : 1]}
-          subtitle={tool.desc[language === 'de' ? 0 : 1]}
+          title={tool.title[isDe ? 0 : 1]}
+          subtitle={tool.desc[isDe ? 0 : 1]}
           onBack={() => navigate('/tools')}
           backLabel={t.tabTools}
         />
@@ -175,28 +158,6 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
     );
   }
 
-  const groups: { id: ToolDef['group']; label: string; desc: string }[] = [
-    {
-      id: 'run',
-      label: L('Spiele leiten', 'Run a game'),
-      desc: L('Werkzeuge zur direkten Begleitung von Gruppenspielen', 'Tools for guiding group games live'),
-    },
-    {
-      id: 'group',
-      label: L('Gruppe organisieren', 'Organise the group'),
-      desc: L('Teams bilden, Zeiten stoppen und Abläufe steuern', 'Form teams, manage time, and guide gatherings'),
-    },
-    {
-      id: 'ideas',
-      label: L('Ideen & Reflexion', 'Ideas & reflection'),
-      desc: L('Impulse für Warm-ups und vertiefende Gespräche', 'Prompts for warm-ups and deeper discussions'),
-    },
-  ];
-
-  const recentTools = recentIds
-    .map((id) => TOOLS.find((x) => x.id === id))
-    .filter((x): x is ToolDef => !!x);
-
   const getActiveToolBadge = (id: string): string | null => {
     try {
       if (id === 'scoreboard') {
@@ -204,20 +165,33 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
         if (stored) {
           const teams = JSON.parse(stored);
           if (Array.isArray(teams)) {
-            const totalScore = teams.reduce((acc: number, t: { score?: number }) => acc + (t.score || 0), 0);
+            const totalScore = teams.reduce((acc: number, item: { score?: number }) => acc + (item.score || 0), 0);
             if (totalScore > 0) {
               return `${totalScore} Pkt.`;
             }
           }
         }
-      } else if (id === 'planner') {
-        const stored = localStorage.getItem('jy_plans');
-        if (stored) {
-          const plans = JSON.parse(stored);
-          if (Array.isArray(plans) && plans.length > 0) {
-            return `${plans.length} ${language === 'de' ? (plans.length === 1 ? 'Plan' : 'Pläne') : (plans.length === 1 ? 'Plan' : 'Plans')}`;
-          }
+        return isDe ? 'Stationen' : 'Stations';
+      }
+      if (id === 'teams') {
+        const present = loadPresentNames();
+        if (present.length > 0) {
+          return `${present.length} ${isDe ? 'anwesend' : 'present'}`;
         }
+        return isDe ? 'Zufallsteams' : 'Random teams';
+      }
+      if (id === 'group') {
+        const all = loadGroupNames();
+        if (all.length > 0) {
+          return `${all.length} ${isDe ? 'Namen' : 'names'}`;
+        }
+        return isDe ? 'Namensliste' : 'Roster';
+      }
+      if (id === 'timer') {
+        return isDe ? 'Mit Signalton' : 'With chime';
+      }
+      if (id === 'cards') {
+        return `${DISCUSSION_CARDS.length} ${isDe ? 'Karten' : 'cards'}`;
       }
     } catch {
       /* ignore */
@@ -226,102 +200,58 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
   };
 
   return (
-    <div className="max-w-6xl w-full mx-auto pb-28 space-y-8">
+    <div className="max-w-5xl w-full mx-auto pb-24 space-y-6 animate-in fade-in duration-200">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-text">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text">
           {t.tabTools}
         </h1>
-        <p className="text-sm text-text-secondary mt-1 max-w-prose">
+        <p className="text-xs sm:text-sm text-text-secondary mt-1 max-w-prose">
           {L(
-            'Praktische Werkzeuge für Handy und Beamer live in der Gruppe. Alle teilen eine gemeinsame Namensliste.',
-            'Handy tools for mobile and projector live in the group. All share a single group presence list.'
+            'Praktische Werkzeuge live in der Gruppe. Alle teilen eine gemeinsame Namensliste.',
+            'Handy tools live in the group. All share a single group presence list.'
           )}
         </p>
       </div>
 
-      {/* Zuletzt genutzt */}
-      {recentTools.length > 0 && (
-        <section aria-label={L('Zuletzt genutzt', 'Recently used')} className="space-y-3">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-text-tertiary">
-            <Clock className="w-3.5 h-3.5" />
-            <span>{L('Zuletzt genutzt', 'Recently used')}</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {recentTools.map((x) => {
-              const Icon = x.icon;
-              return (
-                <Link
-                  key={`recent-${x.id}`}
-                  to={x.customHref || `/tools/${x.id}`}
-                  className="flex items-center gap-3 p-3.5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-xs transition-all duration-150 group"
-                >
-                  <div className="w-9 h-9 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <Icon className="w-4 h-4" strokeWidth={2} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-text text-sm truncate group-hover:text-accent transition-colors">
-                      {x.title[language === 'de' ? 0 : 1]}
-                    </p>
-                    <p className="text-xs text-text-tertiary truncate">
-                      {x.desc[language === 'de' ? 0 : 1]}
-                    </p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* Tool Groups */}
-      <div className="space-y-8">
-        {groups.map((g) => {
-          const groupTools = TOOLS.filter((x) => x.group === g.id);
+      {/* Raster (Grid) of Tools - 2 cols on mobile, 3 cols on tablet/desktop */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+        {TOOLS.map((x) => {
+          const Icon = x.icon;
+          const activeBadge = getActiveToolBadge(x.id);
           return (
-            <section key={g.id} aria-label={g.label} className="space-y-3">
-              <div>
-                <h2 className="text-lg font-bold text-text tracking-tight">{g.label}</h2>
-                <p className="text-xs text-text-tertiary">{g.desc}</p>
+            <Link
+              key={x.id}
+              to={x.customHref || `/tools/${x.id}`}
+              className="group p-4 sm:p-5 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 hover:border-accent/40 transition-all duration-150 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent min-h-[140px] sm:min-h-[160px] shadow-xs cursor-pointer relative"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="w-10 h-10 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Icon className="w-5 h-5" strokeWidth={1.75} />
+                  </div>
+                  {activeBadge && (
+                    <span className="tabular-nums text-2xs font-semibold px-2 py-0.5 rounded-full bg-surface-2 text-text-secondary border border-border truncate max-w-[110px]">
+                      {activeBadge}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <h2 className="font-bold text-sm sm:text-base text-text group-hover:text-accent transition-colors leading-snug">
+                    {x.title[isDe ? 0 : 1]}
+                  </h2>
+                  <p className="text-2xs sm:text-xs text-text-secondary mt-1 leading-snug line-clamp-2">
+                    {x.desc[isDe ? 0 : 1]}
+                  </p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                {groupTools.map((x) => {
-                  const Icon = x.icon;
-                  const activeBadge = getActiveToolBadge(x.id);
-                  return (
-                    <Link
-                      key={x.id}
-                      to={x.customHref || `/tools/${x.id}`}
-                      className="flex items-start gap-4 p-4 sm:p-5 rounded-card bg-surface border border-border hover:border-accent hover:shadow-1 transition-all duration-150 group cursor-pointer"
-                    >
-                      <div className="w-11 h-11 rounded-full bg-accent/15 text-accent flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform mt-0.5">
-                        <Icon className="w-5 h-5" strokeWidth={2} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="font-bold text-text text-base group-hover:text-accent transition-colors">
-                            {x.title[language === 'de' ? 0 : 1]}
-                          </p>
-                          <div className="flex items-center gap-2 shrink-0">
-                            {activeBadge && (
-                              <span className="tabular-nums text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent/15 text-accent">
-                                {activeBadge}
-                              </span>
-                            )}
-                            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0" />
-                          </div>
-                        </div>
-                        <p className="text-xs sm:text-sm text-text-secondary mt-1 leading-relaxed line-clamp-1">
-                          {x.desc[language === 'de' ? 0 : 1]}
-                        </p>
-                      </div>
-                    </Link>
-                  );
-                })}
+              <div className="pt-2 flex items-center justify-end text-xs text-accent font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="mr-1">{isDe ? 'Öffnen' : 'Open'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </div>
-            </section>
+            </Link>
           );
         })}
       </div>

@@ -226,7 +226,6 @@ const de = {
     addedAsDevotional: 'Gebet als Andacht zum Treffen hinzugefügt',
     presentationMode: 'Lesemodus',
     exitPresentation: 'Lesemodus beenden',
-    beamerContrast: 'Beamer-Kontrast',
     fontSizeSmaller: 'Schrift kleiner',
     fontSizeLarger: 'Schrift größer',
     screenKeptAwake: 'Bildschirm bleibt an',
@@ -250,7 +249,7 @@ const de = {
 
     // 1. Chalkboard
     boardTitle: 'Interaktive Tafel (Verschwindende Wörter)',
-    boardSubtitle: 'Nutze diesen interaktiven Modus direkt auf dem Tablet, Laptop oder Beamer, um gemeinsam mit der Gruppe schrittweise Wörter verschwinden zu lassen.',
+    boardSubtitle: 'Nutze diesen interaktiven Modus direkt auf dem Tablet oder Laptop, um gemeinsam mit der Gruppe schrittweise Wörter verschwinden zu lassen.',
     eraseNextWord: 'Nächste Wörter ausblenden',
     resetBoard: 'Tafel zurücksetzen',
     allWordsHidden: 'Alle Wörter sind ausgeblendet. Nun spricht die Gruppe aus dem Gedächtnis.',
@@ -264,7 +263,7 @@ const de = {
     allInitialsHidden: 'Alle Anfangsbuchstaben gelöscht – nur noch Bindestriche als Taktmaß.',
 
     // 3. Word Puzzle
-    wordPuzzleSubtitle: 'Setze das Zitat Wort für Wort zusammen. Ideal für Einzel- oder Gruppen-Tablets am Beamer.',
+    wordPuzzleSubtitle: 'Setze das Zitat Wort für Wort zusammen. Ideal für Einzel- oder Gruppenübungen.',
     puzzleCompleted: 'Das Zitat ist vollständig. Nun gemeinsam laut rezitieren.',
     clickTilePrompt: 'Verfügbare Wort-Bausteine (Klicken zum Anfügen):',
     resetPuzzle: 'Neu mischen',
@@ -393,17 +392,17 @@ const de = {
     treffenCopied: 'Kopiert',
 
     // Toolkits
-    toolkitsHeaderTitle: 'Praxis-Toolkits',
-    toolkitsHeaderDesc: 'Hilfsmittel für den Alltag von Animatoren: Digitale Hilfen für Spiele, Diskussionsanstöße und Reflexionsleitlinien.',
+    toolkitsHeaderTitle: 'Werkzeuge für die Praxis',
+    toolkitsHeaderDesc: 'Hilfsmittel für den Alltag von Animatoren: Digitale Hilfen für Spiele, Gesprächskarten und Praxisbegleiter.',
     tabEmpireTool: 'Empire Spielleitung',
-    tabDiscussionTool: 'Diskussionskarten',
-    tabPlaybookTool: 'Leitfaden für Teamer',
+    tabDiscussionTool: 'Gesprächskarten',
+    tabPlaybookTool: 'Leitfaden für Animatoren',
 
     // Empire Companion
     empireCategoryTitle: 'Kategorie',
     randomCategoryBtn: 'Zufällige Kategorie',
     examplesPrompt: 'Beispiele zur Inspiration:',
-    empireBoardTitle: 'Live Empire-Board für Spielleitung',
+    empireBoardTitle: 'Empire-Begleiter für Spielleitung',
     empireBoardDesc: 'Schluss mit der Frage „Welche Namen gibt es nochmal?“. Trage hier die geheimen Begriffe ein und projiziere sie an die Wand oder lies sie bequem ab.',
     addAliasPlaceholder: 'Geheimen Begriff / Namen hinzufügen...',
     addBtn: 'Hinzufügen',
@@ -491,11 +490,11 @@ const de = {
 
     // Field Tools
     toolsHeaderTitle: 'Praxis-Werkzeuge für Animatoren',
-    toolsHeaderDesc: 'Unmittelbar nutzbare digitale Helfer für Gruppenstunden und Freizeiten: Gruppeneinteiler, Aktivitäts-Timer, Empire-Board und Diskussionskarten.',
+    toolsHeaderDesc: 'Unmittelbar nutzbare digitale Helfer für Gruppenstunden: Gruppeneinteiler, Aktivitäts-Timer, Punktetafel und Gesprächskarten.',
     tabTeamSplitter: 'Team-Einteiler',
     tabCountdownTimer: 'Timer & Glocke',
     teamSplitterTitle: 'Fairer Gruppeneinteiler',
-    teamSplitterDesc: 'Teile Jugendliche ohne soziales Drama und ohne Ausgrenzung in faire, zufällige Teams oder Tandem-Paare ein.',
+    teamSplitterDesc: 'Teile die Gruppe in faire, zufällige Teams oder Tandem-Paare ein.',
     namesInputPlaceholder: 'Namen der Jugendlichen eingeben (ein Name pro Zeile oder durch Komma getrennt)...',
     teamCountLabel: 'Anzahl der Teams:',
     pairsModeBtn: 'Zweier-Teams (Tandems)',
@@ -544,8 +543,6 @@ const de = {
     tabServiceArtsShort: 'Dienst',
     skipToContent: 'Zum Inhalt springen',
     offlineBannerText: 'Offline-Modus – Alle geladenen und gemerkten Inhalte sind weiterhin verfügbar.',
-    beamerModeToggle: 'Beamer-Modus',
-    beamerModeExit: 'Beamer-Modus beenden',
     greetingMorning: 'Guten Morgen',
     greetingAfternoon: 'Guten Tag',
     greetingEvening: 'Guten Abend',
@@ -569,8 +566,11 @@ const de = {
     quoteShareSuccess: 'Zitat kopiert',
     recentViewsEmptyTitle: 'Verlauf noch leer',
     recentViewsEmptyDesc: 'Inhalte, die du öffnest, erscheinen hier für schnellen Zugriff in deiner Gruppe.',
-    footerDesc: 'Praxisnahe Spiele, heilige Texte, Dienstprojekte und Live-Werkzeuge für Animatoren von Juniorjugendgruppen.',
-    footerVolunteerNote: 'Ehrenamtlich erstellt für Juniorjugend-Gruppen weltweit',
+    footerDesc: 'Praxisnahes Hilfsmittel für Animatoren von Juniorjugendgruppen.',
+    footerVolunteerNote: 'Individuelle Initiative · Erprobungsschwerpunkt im Cluster Rhein-Neckar (experimentell, noch nicht bundes- oder weltweit freigegeben)',
+    footerContact: 'Kontakt & E-Mail',
+    footerScopeNote: 'Individuelle Initiative für das Junior-Jugendprogramm',
+    footerStatusBadge: 'Cluster Rhein-Neckar · Pilot',
     exploreGames: 'Spiele entdecken',
     exploreQuotes: 'Zitate ansehen',
 };
@@ -803,7 +803,6 @@ const en: Record<TKey, string> = {
     addedAsDevotional: 'Prayer added as devotional to meeting',
     presentationMode: 'Reading Mode',
     exitPresentation: 'Exit Reading Mode',
-    beamerContrast: 'Beamer Contrast',
     fontSizeSmaller: 'Decrease Font Size',
     fontSizeLarger: 'Increase Font Size',
     screenKeptAwake: 'Screen kept awake',
@@ -827,7 +826,7 @@ const en: Record<TKey, string> = {
 
     // 1. Chalkboard
     boardTitle: 'Interactive Disappearing Chalkboard',
-    boardSubtitle: 'Use this interactive board on a tablet, laptop, or projector to progressively blank out words with your group.',
+    boardSubtitle: 'Use this interactive board on a tablet or laptop to progressively blank out words with your group.',
     eraseNextWord: 'Blank Out Next Words',
     resetBoard: 'Reset Board',
     allWordsHidden: 'All words are now hidden. The group recites entirely from memory.',
@@ -841,7 +840,7 @@ const en: Record<TKey, string> = {
     allInitialsHidden: 'All initial letters cleared – only dash placeholders remain.',
 
     // 3. Word Puzzle
-    wordPuzzleSubtitle: 'Assemble the scrambled word tiles in the correct sequence. Ideal for projector or group tablets.',
+    wordPuzzleSubtitle: 'Assemble the scrambled word tiles in the correct sequence. Ideal for individual or group practice.',
     puzzleCompleted: 'The passage is fully assembled. Recite together in unison.',
     clickTilePrompt: 'Available Word Tiles (Tap to append):',
     resetPuzzle: 'Reshuffle',
@@ -970,17 +969,17 @@ const en: Record<TKey, string> = {
     treffenCopied: 'Copied',
 
     // Toolkits
-    toolkitsHeaderTitle: 'Field Toolkits',
-    toolkitsHeaderDesc: 'Practical utilities for youth mentors: live game companions, reflective discussion cards, and camp guidelines.',
+    toolkitsHeaderTitle: 'Group Tools',
+    toolkitsHeaderDesc: 'Practical utilities for animators: live game companions, reflective conversation cards, and facilitator guidelines.',
     tabEmpireTool: 'Empire Game Assistant',
-    tabDiscussionTool: 'Discussion Cards',
+    tabDiscussionTool: 'Conversation Cards',
     tabPlaybookTool: 'Facilitator Guidelines',
 
     // Empire Companion
     empireCategoryTitle: 'Category',
     randomCategoryBtn: 'Random Category',
     examplesPrompt: 'Inspiration Examples:',
-    empireBoardTitle: 'Host Board for Empire',
+    empireBoardTitle: 'Empire Host Assistant',
     empireBoardDesc: 'No more players asking "What names are on the list again?". Enter the secret aliases here and display them clearly on screen.',
     addAliasPlaceholder: 'Add secret alias or phrase...',
     addBtn: 'Add',
@@ -1067,12 +1066,12 @@ const en: Record<TKey, string> = {
     resetToPreset: 'Reset to Template',
 
     // Field Tools
-    toolsHeaderTitle: 'Animator Utilities & Companion',
-    toolsHeaderDesc: 'Instant digital tools for gatherings and youth camps: team splitters, countdown timer, live Empire board, and reflective cards.',
+    toolsHeaderTitle: 'Animator Utilities & Tools',
+    toolsHeaderDesc: 'Instant digital tools for youth gatherings: team splitters, countdown timer, scoreboard, and reflective conversation cards.',
     tabTeamSplitter: 'Team Splitter',
     tabCountdownTimer: 'Timer & Chime',
     teamSplitterTitle: 'Fair Team & Pair Splitter',
-    teamSplitterDesc: 'Divide participants into balanced, random teams or buddy pairs without social friction or awkward picking.',
+    teamSplitterDesc: 'Divide participants into balanced, random teams or buddy pairs without social friction.',
     namesInputPlaceholder: 'Enter participant names (one per line or separated by commas)...',
     teamCountLabel: 'Number of Teams:',
     pairsModeBtn: 'Buddy Pairs (Tandems)',
@@ -1121,8 +1120,6 @@ const en: Record<TKey, string> = {
     tabServiceArtsShort: 'Service',
     skipToContent: 'Skip to main content',
     offlineBannerText: 'Offline mode – All loaded and saved resources remain available.',
-    beamerModeToggle: 'Projector mode',
-    beamerModeExit: 'Exit projector mode',
     greetingMorning: 'Good morning',
     greetingAfternoon: 'Good afternoon',
     greetingEvening: 'Good evening',
@@ -1146,8 +1143,11 @@ const en: Record<TKey, string> = {
     quoteShareSuccess: 'Quote copied',
     recentViewsEmptyTitle: 'No recent views yet',
     recentViewsEmptyDesc: 'Items you open will appear here for fast access in your group.',
-    footerDesc: 'Practical games, sacred scripture, service projects, and live tools for junior youth group animators.',
-    footerVolunteerNote: 'Volunteer-built for junior youth groups worldwide',
+    footerDesc: 'Practical companion for junior youth group animators.',
+    footerVolunteerNote: 'Individual initiative · Pilot focus in Cluster Rhein-Neckar (experimental, not nationwide or worldwide)',
+    footerContact: 'Contact & Email',
+    footerScopeNote: 'Individual initiative for the junior youth programme',
+    footerStatusBadge: 'Cluster Rhein-Neckar · Pilot',
     exploreGames: 'Explore games',
     exploreQuotes: 'Explore quotes',
 };

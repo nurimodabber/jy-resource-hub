@@ -1,11 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, Tent, MapPin, BookOpen, Clock, Users, Sparkles } from 'lucide-react';
+import { Search, X, ArrowLeft, BookOpen, Sparkles, SlidersHorizontal } from 'lucide-react';
 import {
   Language,
   ActivityItem,
   ActivityKind,
-  SessionSlot,
 } from '../types';
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from '../data/artsPrompts';
@@ -15,7 +14,7 @@ import { ServiceArtsDetail } from './ServiceArtsDetail';
 import { EmptyState } from './ui/EmptyState';
 import { Badge } from './ui/Badge';
 import { SegmentedControl } from './ui/SegmentedControl';
-import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
+import { FilterPillDropdown } from './ui/FilterPillDropdown';
 import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { JY_BOOKS } from '../utils/bookProgress';
 import { tr } from './tools/common';
@@ -25,7 +24,6 @@ interface ServiceArtsViewProps {
   searchQuery?: string;
   favorites: string[];
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
-  onAddToPlanner?: (slot: SessionSlot) => void;
   fixedKind?: 'dienst' | 'kunst';
 }
 
@@ -62,20 +60,6 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const [activeKind, setActiveKind] = useState<'all' | ActivityKind>(
     fixedKind || (searchParams.get('art') as 'all' | ActivityKind) || 'all',
   );
-  const [isCampOnly, setIsCampOnly] = useState<boolean>(
-    searchParams.get('camp') === '1',
-  );
-  const [settingFilter, setSettingFilter] = useState<string>(
-    searchParams.get('setting') || 'all',
-  );
-  const [maxDuration, setMaxDuration] = useState<number | null>(() => {
-    const d = searchParams.get('dauer');
-    return d && !isNaN(Number(d)) ? Number(d) : null;
-  });
-  const [groupSize, setGroupSize] = useState<number | null>(() => {
-    const s = searchParams.get('personen');
-    return s && !isNaN(Number(s)) ? Number(s) : null;
-  });
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>(
     searchParams.get('kategorie') || 'all',
   );
@@ -85,25 +69,24 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const [selectedTheme, setSelectedTheme] = useState<string>(
     searchParams.get('thema') || 'all',
   );
+  const [showFilters, setShowFilters] = useState<boolean>(() => {
+    const kat = searchParams.get('kategorie');
+    const buch = searchParams.get('buch');
+    const thema = searchParams.get('thema');
+    const art = searchParams.get('art');
+    return Boolean(kat || buch || thema || (art && art !== 'all'));
+  });
 
   // Keep state synced with URL searchParams
   useEffect(() => {
     const q = searchParams.get('q') || '';
     const art = (searchParams.get('art') as 'all' | ActivityKind) || 'all';
-    const camp = searchParams.get('camp') === '1';
-    const setting = searchParams.get('setting') || 'all';
-    const d = searchParams.get('dauer');
-    const s = searchParams.get('personen');
     const kat = searchParams.get('kategorie') || 'all';
     const buch = searchParams.get('buch') || 'all';
     const thema = searchParams.get('thema') || 'all';
 
     setQuery(q);
     setActiveKind(art);
-    setIsCampOnly(camp);
-    setSettingFilter(setting);
-    setMaxDuration(d && !isNaN(Number(d)) ? Number(d) : null);
-    setGroupSize(s && !isNaN(Number(s)) ? Number(s) : null);
     setSelectedSubCategory(kat);
     setSelectedBook(buch);
     setSelectedTheme(thema);
@@ -126,42 +109,13 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       // 1. Kind filter: 'all' | 'dienst' | 'kunst'
       if (activeKind !== 'all' && item.kind !== activeKind) return false;
 
-      // 2. Camp only
-      if (isCampOnly && item.occasion !== 'camp' && item.occasion !== 'beides') {
-        return false;
-      }
-
-      // 3. Setting (drinnen / draussen / beides)
-      if (settingFilter !== 'all') {
-        if (settingFilter === 'drinnen' && item.setting !== 'drinnen' && item.setting !== 'beides') return false;
-        if (settingFilter === 'draussen' && item.setting !== 'draussen' && item.setting !== 'beides') return false;
-      }
-
-      // 4. Duration (max minutes)
-      if (maxDuration != null && item.durationMin > maxDuration) {
-        return false;
-      }
-
-      // 5. Group size
-      if (groupSize != null) {
-        if (groupSize === 6) {
-          if (item.groupSize.min > 6) return false;
-        } else if (groupSize === 12) {
-          if (item.groupSize.max < 6 || item.groupSize.min > 12) return false;
-        } else if (groupSize === 15) {
-          if (item.groupSize.max < 12) return false;
-        } else {
-          if (groupSize < item.groupSize.min || groupSize > item.groupSize.max) return false;
-        }
-      }
-
-      // 6. Category or ArtForm
+      // 2. Category or ArtForm (Art)
       if (selectedSubCategory !== 'all') {
         if (item.kind === 'dienst' && item.category !== selectedSubCategory) return false;
         if (item.kind === 'kunst' && item.artForm !== selectedSubCategory) return false;
       }
 
-      // 7. Book filter
+      // 3. Book filter
       if (selectedBook !== 'all') {
         const itemBookId = item.relatedBook;
         const matchesBook =
@@ -175,19 +129,19 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
         if (!matchesBook) return false;
       }
 
-      // 8. Theme filter
+      // 4. Theme filter
       if (selectedTheme !== 'all') {
-        if (item.kind !== 'kunst' || (item.theme.de !== selectedTheme && item.theme.en !== selectedTheme)) {
+        if (!item.theme || (item.theme.de !== selectedTheme && item.theme.en !== selectedTheme)) {
           return false;
         }
       }
 
-      // 9. Search text
+      // 5. Search text
       if (q) {
         const title = item.title[language].toLowerCase();
         const obj =
           item.kind === 'dienst'
-            ? item.objective[language].toLowerCase()
+            ? (item.guidedBy ? item.guidedBy[language].toLowerCase() : item.objective[language].toLowerCase())
             : item.description[language].toLowerCase();
         if (!title.includes(q) && !obj.includes(q)) return false;
       }
@@ -197,10 +151,6 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   }, [
     allActivities,
     activeKind,
-    isCampOnly,
-    settingFilter,
-    maxDuration,
-    groupSize,
     selectedSubCategory,
     selectedBook,
     selectedTheme,
@@ -211,24 +161,16 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   // Count active sheet filters
   const activeSheetFilterCount = useMemo(() => {
     let count = 0;
-    if (isCampOnly) count++;
-    if (settingFilter !== 'all') count++;
-    if (maxDuration != null) count++;
-    if (groupSize != null) count++;
     if (selectedSubCategory !== 'all') count++;
     if (selectedBook !== 'all') count++;
     if (selectedTheme !== 'all') count++;
     return count;
-  }, [isCampOnly, settingFilter, maxDuration, groupSize, selectedSubCategory, selectedBook, selectedTheme]);
+  }, [selectedSubCategory, selectedBook, selectedTheme]);
 
   const handleClearAll = () => {
     updateParams({
       q: null,
       art: null,
-      camp: null,
-      setting: null,
-      dauer: null,
-      personen: null,
       kategorie: null,
       buch: null,
       thema: null,
@@ -242,30 +184,17 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     { id: 'kunst', label: t.subtabArtsPrompts },
   ];
 
-  // Setting options for FilterPillDropdown
-  const settingOptions = [
-    { value: 'all', label: L('Alle Orte', 'All settings') },
-    { value: 'drinnen', label: t.settingDrinnen },
-    { value: 'draussen', label: t.settingDraussen },
-  ];
-  const activeSettingLabel =
-    settingFilter === 'drinnen'
-      ? t.settingDrinnen
-      : settingFilter === 'draussen'
-      ? t.settingDraussen
-      : undefined;
-
-  // Category options for FilterPillDropdown
+  // 1. Art / Category options for FilterPillDropdown
   const categoryOptions = useMemo(() => {
     const opts: Array<{ value: string; label: string }> = [
       {
         value: 'all',
         label:
           fixedKind === 'dienst'
-            ? L('Alle Dienst-Kategorien', 'All service categories')
+            ? L('Alle Dienst-Bereiche', 'All service areas')
             : fixedKind === 'kunst'
             ? L('Alle Kunstformen', 'All art forms')
-            : L('Alle Kategorien & Formen', 'All categories & forms'),
+            : L('Alle Bereiche & Formen', 'All areas & forms'),
       },
     ];
 
@@ -296,7 +225,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const activeCategoryLabel =
     activeCategoryOption && activeCategoryOption.value !== 'all' ? activeCategoryOption.label : undefined;
 
-  // Book options
+  // 2. Book options
   const bookOptions = useMemo(() => {
     const relevantBookIds = ['breezes', 'straight-path', 'power-of-word', 'spirit-of-faith'];
     return [
@@ -311,38 +240,10 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const activeBookOption = bookOptions.find((b) => b.value === selectedBook);
   const activeBookLabel = activeBookOption && activeBookOption.value !== 'all' ? activeBookOption.label : undefined;
 
-  // Duration options for FilterPillDropdown
-  const durationOptions = [
-    { value: null, label: t.filterDurationAny },
-    { value: 30, label: '≤ 30 Min.' },
-    { value: 60, label: '≤ 60 Min.' },
-    { value: 90, label: '≤ 90 Min.' },
-    { value: 120, label: '≤ 120 Min.' },
-  ];
-
-  // Group size options for FilterPillDropdown
-  const groupSizeOptions = [
-    { value: null, label: L('Alle Gruppengrößen', 'All group sizes') },
-    { value: 6, label: L('Bis 6 Personen', 'Up to 6 people') },
-    { value: 12, label: L('6 bis 12 Personen', '6 to 12 people') },
-    { value: 15, label: L('Über 12 Personen', 'Over 12 people') },
-  ];
-
-  const activeGroupLabel =
-    groupSize === 6
-      ? L('≤ 6 Pers.', '≤ 6 people')
-      : groupSize === 12
-      ? L('6–12 Pers.', '6–12 people')
-      : groupSize === 15
-      ? L('12+ Pers.', '12+ people')
-      : groupSize != null
-      ? `${groupSize} Pers.`
-      : undefined;
-
-  // Theme options
+  // 3. Theme options
   const themeOptions = useMemo(() => {
     const unique = new Map<string, string>();
-    ARTS_PROMPTS_DATA.forEach((p) => {
+    allActivities.forEach((p) => {
       if (p.theme && !unique.has(p.theme.de)) {
         unique.set(p.theme.de, p.theme[language]);
       }
@@ -355,7 +256,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
         label: localizedLabel,
       })),
     ];
-  }, [language, L]);
+  }, [allActivities, language, L]);
 
   const activeThemeOption = themeOptions.find((t) => t.value === selectedTheme);
   const activeThemeLabel = activeThemeOption && activeThemeOption.value !== 'all' ? activeThemeOption.label : undefined;
@@ -437,62 +338,90 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
         </p>
       </header>
 
-      {/* 2. Full-Width Search Input */}
-      <div className="relative mb-3">
-        <Search
-          className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
-          aria-hidden="true"
-        />
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            updateParams({ q: e.target.value || null });
-          }}
-          placeholder={searchPlaceholderText}
-          aria-label={L('Suchen', 'Search')}
-          className="w-full h-11 pl-10 pr-10 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-        />
-        {query && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery('');
-              updateParams({ q: null });
+      {/* 2. Search Input + Filter Toggle Button */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="relative flex-1">
+          <Search
+            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              updateParams({ q: e.target.value || null });
             }}
-            aria-label={L('Suche löschen', 'Clear search')}
-            className="absolute right-1 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
+            placeholder={searchPlaceholderText}
+            aria-label={L('Suchen', 'Search')}
+            className="w-full h-11 pl-10 pr-10 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                updateParams({ q: null });
+              }}
+              aria-label={L('Suche löschen', 'Clear search')}
+              className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Filter Toggle Button */}
+        <button
+          type="button"
+          onClick={() => setShowFilters((prev) => !prev)}
+          aria-expanded={showFilters}
+          aria-controls="service-filters-drawer"
+          aria-label={
+            showFilters
+              ? L('Filter schließen', 'Hide filters')
+              : L('Filter öffnen', 'Show filters')
+          }
+          className={`h-11 px-3 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-colors cursor-pointer shrink-0 min-w-[44px] justify-center ${
+            showFilters || activeSheetFilterCount > 0
+              ? 'bg-accent/15 border-accent text-accent'
+              : 'bg-surface hover:bg-surface-2 border-border text-text-secondary hover:text-text'
+          }`}
+        >
+          <SlidersHorizontal className="w-4 h-4 shrink-0" />
+          <span className="hidden sm:inline">{L('Filter', 'Filters')}</span>
+          {activeSheetFilterCount > 0 && (
+            <span className="w-5 h-5 rounded-full bg-accent text-accent-contrast text-2xs font-bold inline-flex items-center justify-center">
+              {activeSheetFilterCount}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* 3. Coherent Filter Bar with scroll-fade indicators & scroll-snap */}
-      <ScrollableFilterBar
-        activeFilterCount={activeSheetFilterCount + (query ? 1 : 0)}
-        onClearAll={handleClearAll}
-        clearLabel={L('Filter zurücksetzen', 'Reset filters')}
-      >
-        {!fixedKind && (
-          <div className="mr-1 shrink-0">
-            <SegmentedControl
-              options={kindSegmentOptions}
-              value={activeKind}
-              onChange={(val) => {
-                setActiveKind(val as 'all' | ActivityKind);
-                updateParams({ art: val === 'all' ? null : val });
-              }}
-            />
-          </div>
-        )}
+      {/* 3. Collapsible Filter Bar */}
+      {showFilters && (
+        <div id="service-filters-drawer" className="mb-3 animate-in fade-in duration-150">
+          <ScrollableFilterBar
+            activeFilterCount={activeSheetFilterCount + (query ? 1 : 0)}
+            onClearAll={handleClearAll}
+            clearLabel={L('Filter zurücksetzen', 'Reset filters')}
+          >
+            {!fixedKind && (
+              <div className="mr-1 shrink-0">
+                <SegmentedControl
+                  options={kindSegmentOptions}
+                  value={activeKind}
+                  onChange={(val) => {
+                    setActiveKind(val as 'all' | ActivityKind);
+                    updateParams({ art: val === 'all' ? null : val });
+                  }}
+                />
+              </div>
+            )}
 
-        {fixedKind === 'kunst' ? (
-          <>
-            {/* Kunstform Dropdown Pill */}
+            {/* 1. Art / Bereich Dropdown Pill */}
             <FilterPillDropdown
-              label={L('Kunstform', 'Art form')}
+              label={fixedKind === 'kunst' ? L('Kunstform', 'Art form') : L('Art des Projekts', 'Type of activity')}
               activeLabel={activeCategoryLabel}
               isActive={selectedSubCategory !== 'all'}
               options={categoryOptions}
@@ -504,22 +433,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               }}
             />
 
-            {/* Book Dropdown Pill */}
-            <FilterPillDropdown
-              label={L('Buch', 'Book')}
-              activeLabel={activeBookLabel}
-              isActive={selectedBook !== 'all'}
-              icon={<BookOpen className="w-3.5 h-3.5 shrink-0" />}
-              options={bookOptions}
-              selectedValue={selectedBook}
-              onSelect={(val) => {
-                const next = (val as string) || 'all';
-                setSelectedBook(next);
-                updateParams({ buch: next === 'all' ? null : next });
-              }}
-            />
-
-            {/* Theme Dropdown Pill */}
+            {/* 2. Thema Dropdown Pill */}
             <FilterPillDropdown
               label={L('Thema', 'Theme')}
               activeLabel={activeThemeLabel}
@@ -534,147 +448,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               }}
             />
 
-            {/* Setting Dropdown Pill */}
-            <FilterPillDropdown
-              label={L('Ort', 'Setting')}
-              activeLabel={activeSettingLabel}
-              isActive={settingFilter !== 'all'}
-              icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
-              options={settingOptions}
-              selectedValue={settingFilter}
-              onSelect={(val) => {
-                const next = (val as string) || 'all';
-                setSettingFilter(next);
-                updateParams({ setting: next === 'all' ? null : next });
-              }}
-            />
-
-            {/* Duration Dropdown Pill */}
-            <FilterPillDropdown
-              label={t.filterDuration}
-              activeLabel={maxDuration ? `≤ ${maxDuration} Min.` : undefined}
-              isActive={maxDuration != null}
-              icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
-              options={durationOptions}
-              selectedValue={maxDuration}
-              onSelect={(val) => {
-                setMaxDuration(val);
-                updateParams({ dauer: val ? String(val) : null });
-              }}
-            />
-
-            {/* Group Size Dropdown Pill */}
-            <FilterPillDropdown
-              label={t.groupLabel}
-              activeLabel={activeGroupLabel}
-              isActive={groupSize != null}
-              icon={<Users className="w-3.5 h-3.5 shrink-0" />}
-              options={groupSizeOptions}
-              selectedValue={groupSize}
-              onSelect={(val) => {
-                setGroupSize(val);
-                updateParams({ personen: val ? String(val) : null });
-              }}
-            />
-
-            {/* Camp Filter Pill (1-Click Toggle) */}
-            <FilterPillButton
-              label={t.forCampFilter}
-              isActive={isCampOnly}
-              onClick={() => {
-                const next = !isCampOnly;
-                setIsCampOnly(next);
-                updateParams({ camp: next ? '1' : null });
-              }}
-              icon={<Tent className="w-3.5 h-3.5 shrink-0" />}
-            />
-          </>
-        ) : fixedKind === 'dienst' ? (
-          <>
-            {/* Dienst Kategorie Dropdown Pill */}
-            <FilterPillDropdown
-              label={t.filterCategoryLabel}
-              activeLabel={activeCategoryLabel}
-              isActive={selectedSubCategory !== 'all'}
-              options={categoryOptions}
-              selectedValue={selectedSubCategory}
-              onSelect={(val) => {
-                const next = (val as string) || 'all';
-                setSelectedSubCategory(next);
-                updateParams({ kategorie: next === 'all' ? null : next });
-              }}
-            />
-
-            {/* Setting Dropdown Pill */}
-            <FilterPillDropdown
-              label={L('Ort', 'Setting')}
-              activeLabel={activeSettingLabel}
-              isActive={settingFilter !== 'all'}
-              icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
-              options={settingOptions}
-              selectedValue={settingFilter}
-              onSelect={(val) => {
-                const next = (val as string) || 'all';
-                setSettingFilter(next);
-                updateParams({ setting: next === 'all' ? null : next });
-              }}
-            />
-
-            {/* Duration Dropdown Pill */}
-            <FilterPillDropdown
-              label={t.filterDuration}
-              activeLabel={maxDuration ? `≤ ${maxDuration} Min.` : undefined}
-              isActive={maxDuration != null}
-              icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
-              options={durationOptions}
-              selectedValue={maxDuration}
-              onSelect={(val) => {
-                setMaxDuration(val);
-                updateParams({ dauer: val ? String(val) : null });
-              }}
-            />
-
-            {/* Group Size Dropdown Pill */}
-            <FilterPillDropdown
-              label={t.groupLabel}
-              activeLabel={activeGroupLabel}
-              isActive={groupSize != null}
-              icon={<Users className="w-3.5 h-3.5 shrink-0" />}
-              options={groupSizeOptions}
-              selectedValue={groupSize}
-              onSelect={(val) => {
-                setGroupSize(val);
-                updateParams({ personen: val ? String(val) : null });
-              }}
-            />
-
-            {/* Camp Filter Pill (1-Click Toggle) */}
-            <FilterPillButton
-              label={t.forCampFilter}
-              isActive={isCampOnly}
-              onClick={() => {
-                const next = !isCampOnly;
-                setIsCampOnly(next);
-                updateParams({ camp: next ? '1' : null });
-              }}
-              icon={<Tent className="w-3.5 h-3.5 shrink-0" />}
-            />
-          </>
-        ) : (
-          <>
-            {/* Combined View */}
-            <FilterPillDropdown
-              label={L('Kategorie', 'Category')}
-              activeLabel={activeCategoryLabel}
-              isActive={selectedSubCategory !== 'all'}
-              options={categoryOptions}
-              selectedValue={selectedSubCategory}
-              onSelect={(val) => {
-                const next = (val as string) || 'all';
-                setSelectedSubCategory(next);
-                updateParams({ kategorie: next === 'all' ? null : next });
-              }}
-            />
+            {/* 3. Juniorjugend-Buch Dropdown Pill */}
             <FilterPillDropdown
               label={L('Buch', 'Book')}
               activeLabel={activeBookLabel}
@@ -688,70 +462,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                 updateParams({ buch: next === 'all' ? null : next });
               }}
             />
-            <FilterPillDropdown
-              label={L('Thema', 'Theme')}
-              activeLabel={activeThemeLabel}
-              isActive={selectedTheme !== 'all'}
-              icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
-              options={themeOptions}
-              selectedValue={selectedTheme}
-              onSelect={(val) => {
-                const next = (val as string) || 'all';
-                setSelectedTheme(next);
-                updateParams({ thema: next === 'all' ? null : next });
-              }}
-            />
-            <FilterPillDropdown
-              label={L('Ort', 'Setting')}
-              activeLabel={activeSettingLabel}
-              isActive={settingFilter !== 'all'}
-              icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
-              options={settingOptions}
-              selectedValue={settingFilter}
-              onSelect={(val) => {
-                const next = (val as string) || 'all';
-                setSettingFilter(next);
-                updateParams({ setting: next === 'all' ? null : next });
-              }}
-            />
-            <FilterPillDropdown
-              label={t.filterDuration}
-              activeLabel={maxDuration ? `≤ ${maxDuration} Min.` : undefined}
-              isActive={maxDuration != null}
-              icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
-              options={durationOptions}
-              selectedValue={maxDuration}
-              onSelect={(val) => {
-                setMaxDuration(val);
-                updateParams({ dauer: val ? String(val) : null });
-              }}
-            />
-            <FilterPillDropdown
-              label={t.groupLabel}
-              activeLabel={activeGroupLabel}
-              isActive={groupSize != null}
-              icon={<Users className="w-3.5 h-3.5 shrink-0" />}
-              options={groupSizeOptions}
-              selectedValue={groupSize}
-              onSelect={(val) => {
-                setGroupSize(val);
-                updateParams({ personen: val ? String(val) : null });
-              }}
-            />
-            <FilterPillButton
-              label={t.forCampFilter}
-              isActive={isCampOnly}
-              onClick={() => {
-                const next = !isCampOnly;
-                setIsCampOnly(next);
-                updateParams({ camp: next ? '1' : null });
-              }}
-              icon={<Tent className="w-3.5 h-3.5 shrink-0" />}
-            />
-          </>
-        )}
-
-      </ScrollableFilterBar>
+          </ScrollableFilterBar>
+        </div>
+      )}
 
       {/* 4. Activities Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}
       <h2 className="sr-only">{t.tabServiceArts}</h2>

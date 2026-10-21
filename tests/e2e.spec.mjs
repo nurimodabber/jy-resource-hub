@@ -32,7 +32,7 @@ async function runTests() {
     { name: 'Start (Home)', path: '/' },
     { name: 'Spiele (Games)', path: '/games' },
     { name: 'Zitate (Quotes)', path: '/quotes' },
-    { name: 'Treffen (Gatherings)', path: '/treffen' },
+    { name: 'Gemerkt (Saved)', path: '/saved' },
     { name: 'Dienst & Kunst (Service/Arts)', path: '/service-arts' },
     { name: 'Werkzeuge (Tools)', path: '/tools' },
     { name: 'Vorschlagen (Submit Proposal)', path: '/vorschlagen' },
@@ -132,10 +132,10 @@ async function runTests() {
     });
     assert(has404, 'Route /gibtsnicht renders dedicated 404 error page');
 
-    // 3.2 Legacy redirect: /planner -> /treffen
+    // 3.2 Legacy redirect: /planner and /treffen -> /
     await page.goto(`${BASE_URL}/planner`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(300);
-    assert(page.url().includes('/treffen'), `Legacy /planner cleanly redirects to /treffen (current url: ${page.url()})`);
+    assert(page.url().endsWith('/') || !page.url().includes('/planner'), `Legacy /planner cleanly redirects to home (current url: ${page.url()})`);
 
     // 3.3 Game deep link: /games/wer-bin-ich
     await page.goto(`${BASE_URL}/games/wer-bin-ich`, { waitUntil: 'networkidle' });
@@ -177,7 +177,8 @@ async function runTests() {
     await page.goto(`${BASE_URL}/vorschlagen`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(300);
     const proposalVisible = await page.evaluate(() => {
-      return document.body.innerText.includes('Vorschlag einreichen') || document.body.innerText.includes('Submit proposal');
+      const text = document.body.innerText;
+      return text.includes('Erfahrungen beitragen') || text.includes('Vorschlag einreichen') || text.includes('Contribute') || text.includes('Submit proposal');
     });
     assert(proposalVisible, 'Route /vorschlagen renders submission workflow');
 
@@ -223,50 +224,74 @@ async function runTests() {
   }
 
   // -------------------------------------------------------------
-  // TEST 5: Treffen from Preset & Live Gathering Mode
+  // TEST 5: Minimalist Reference Hub & Fast Quotes/Methods
   // -------------------------------------------------------------
-  console.log('\n--- 5. Treffen aus Vorlage & Live-Treffen ---');
+  console.log('\n--- 5. Minimalistisches Nachschlagewerk & Methoden ---');
   {
     const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     const page = await context.newPage();
-    await page.goto(`${BASE_URL}/treffen`, { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/quotes?tab=practice`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
 
-    // Click "Normales Treffen" or "Standard Gathering" preset card
-    const presetBtn = page.locator('button:has-text("Normales Treffen"), button:has-text("Standard Gathering")').first();
-    if (await presetBtn.isVisible()) {
-      await presetBtn.click();
-      await page.waitForTimeout(500);
-    }
-
-    const slotCount = await page.evaluate(() => {
-      return document.querySelectorAll('[data-slot-id]').length;
+    // Verify flat methods list without phase segmented control
+    const hasPhaseSegmentedControl = await page.evaluate(() => {
+      const text = document.body.innerText;
+      return text.includes('Alle Phasen') || text.includes('Phase 1: Verstehen');
     });
-    assert(slotCount >= 3, `Treffen preset populated timeline with ${slotCount} slots (>= 3 expected)`);
+    assert(!hasPhaseSegmentedControl, 'No phase sorting/filter or phase labels present in methods list');
 
-    // Launch live gathering mode
-    const startLiveBtn = page.locator('button:visible:has-text("Treffen starten"), button:visible:has-text("Start gathering")').first();
-    if (await startLiveBtn.isVisible() && await startLiveBtn.isEnabled()) {
-      await startLiveBtn.click();
-      await page.waitForTimeout(400);
-    } else {
-      await page.goto(`${BASE_URL}/treffen?live=true`, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(400);
-    }
-
-    const isLiveActive = await page.evaluate(() => {
-      const dialog = document.querySelector('[role="dialog"]');
-      if (!dialog) return false;
-      const text = dialog.innerText || '';
-      return (
-        text.includes('1 / 5') ||
-        text.includes('Nächster Baustein') ||
-        text.includes('Next') ||
-        text.includes('Bildschirm bleibt an') ||
-        text.includes('Screen stays on')
-      );
+    const methodCards = await page.evaluate(() => {
+      return document.querySelectorAll('article').length;
     });
-    assert(isLiveActive, 'Live gathering mode successfully launched with fullscreen-friendly controls');
+    assert(methodCards >= 10, `Consolidated flat list of methods rendered (${methodCards} cards found)`);
+
+    // Verify clicking an interactive web app launches the web-app
+    const launchWebApp = await page.evaluate(() => {
+      const webAppBtn = Array.from(document.querySelectorAll('article')).find(a => a.innerText.includes('Web-App'));
+      if (webAppBtn) {
+        webAppBtn.click();
+        return true;
+      }
+      return false;
+    });
+    assert(launchWebApp, 'Interactive web app card clicked');
+    await page.waitForTimeout(300);
+
+    const isWebAppRunning = await page.evaluate(() => {
+      return document.body.innerText.includes('Web-App schließen');
+    });
+    assert(isWebAppRunning, 'Interactive Web-App opened and running from overview');
+
+    // Verify in selected quote detail: Clean sacred scripture focus and subtle memorisation trigger
+    await page.goto(`${BASE_URL}/quotes/honor-mine-gems`, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(400);
+
+    const hasClearScriptureFocus = await page.evaluate(() => {
+      const bq = document.querySelector('blockquote.font-serif');
+      const hasText = bq && bq.textContent.includes('Bergwerk');
+      const btn = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Auswendiglernen') || b.innerText.includes('Dieses Zitat auswendig lernen'));
+      return Boolean(hasText && btn);
+    });
+    assert(hasClearScriptureFocus, 'Quote detail maintains reverent scripture focus with subtle Auswendiglernen trigger');
+
+    // Click subtle Auswendiglernen button in quote detail: opens memorisation page with this quote
+    await page.evaluate(() => {
+      const btn = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Dieses Zitat auswendig lernen') || b.innerText.includes('Auswendiglernen'));
+      if (btn) btn.click();
+    });
+    await page.waitForTimeout(400);
+
+    const openedPracticePage = await page.evaluate(() => {
+      const url = window.location.href;
+      const body = document.body.innerText;
+      return url.includes('tab=practice') && (url.includes('quote=honor-mine-gems') || body.includes('Bergwerk'));
+    });
+    assert(openedPracticePage, 'Clicking subtle memorisation button opens Auswendiglern-Seite with active quote');
+
+    // Verify obsolete /treffen cleanly redirects
+    await page.goto(`${BASE_URL}/treffen`, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(300);
+    assert(!page.url().includes('/treffen'), `Obsolete /treffen redirected to home (${page.url()})`);
 
     await context.close();
   }
@@ -317,7 +342,7 @@ async function runTests() {
     await page.waitForTimeout(400);
 
     // Advance to pass-around screen
-    const dealBtn = page.locator('button:has-text("Karten verteilen"), button:has-text("Deal cards")').first();
+    const dealBtn = page.locator('button:has-text("Rollen geheim verteilen"), button:has-text("Deal roles secretly"), button:has-text("Karten verteilen"), button:has-text("Deal cards")').first();
     if (await dealBtn.isVisible()) {
       await dealBtn.click();
       await page.waitForTimeout(400);
@@ -338,8 +363,8 @@ async function runTests() {
       await page.waitForTimeout(300);
     }
 
-    // Tap "Verstecken & Weitergeben"
-    const hideBtn = page.locator('button:has-text("Verstecken & Weitergeben"), button:has-text("Hide & pass")').first();
+    // Tap "Verbergen & weitergeben"
+    const hideBtn = page.locator('button:has-text("Verbergen & weitergeben"), button:has-text("Verstecken & Weitergeben"), button:has-text("Hide and pass on"), button:has-text("Hide & pass")').first();
     if (await hideBtn.isVisible()) {
       await hideBtn.click();
       await page.waitForTimeout(300);
@@ -459,7 +484,8 @@ async function runTests() {
     await page.waitForTimeout(300);
 
     const previewShown = await page.evaluate(() => {
-      return document.body.innerText.includes('So sieht der Eintrag') || document.body.innerText.includes('This is how');
+      const text = document.body.innerText;
+      return text.includes('So sieht der Beitrag') || text.includes('So sieht der Eintrag') || text.includes('This is how');
     });
     assert(previewShown, 'Vorschlagen: Live preview toggle displays rendered card view');
 
@@ -516,24 +542,18 @@ async function runTests() {
     const isRulesOpen = page.url().includes('/games/');
     assert(isRulesOpen && t1Taps <= 3, `T1: Quick Pick to Game Rules open in ${t1Taps} taps (Target <= 3 taps)`);
 
-    // T2: "Zum Treffen hinzufügen" (Target: <= 2 taps from game details to /treffen)
+    // T2: "Share / Copy" via ShareMenu (Target: <= 2 taps from game details)
     await page.goto(`${BASE_URL}/games/wer-bin-ich`, { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
     let t2Taps = 0;
-    const addToPlanBtn = page.locator('button:visible:has-text("Zum Treffen"), button:visible:has-text("Add to")').first();
-    if (await addToPlanBtn.isVisible()) {
-      await addToPlanBtn.click();
+    const shareBtn = page.locator('button[aria-haspopup="menu"]').first();
+    if (await shareBtn.isVisible()) {
+      await shareBtn.click();
       t2Taps++;
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(200);
+      const copyOption = page.locator('[role="menuitem"]').first();
+      assert(await copyOption.isVisible(), 'ShareMenu opened cleanly with copy options');
     }
-    const openPlanToastBtn = page.locator('button:visible:has-text("Treffen öffnen"), button:visible:has-text("Open gathering")').first();
-    if (await openPlanToastBtn.isVisible()) {
-      await openPlanToastBtn.click();
-      t2Taps++;
-      await page.waitForTimeout(400);
-    }
-    const onPlannerPage = page.url().includes('/treffen');
-    assert(onPlannerPage && t2Taps <= 2, `T2: Add to Plan and open Gathering in ${t2Taps} taps (Target <= 2 taps)`);
 
     // T4: Theme toggle in settings
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' });
@@ -623,7 +643,7 @@ async function runTests() {
   {
     const context = await browser.newContext({ viewport: { width: 1200, height: 800 } });
     const page = await context.newPage();
-    await page.goto(`${BASE_URL}/treffen`, { waitUntil: 'networkidle' });
+    await page.goto(`${BASE_URL}/games`, { waitUntil: 'networkidle' });
     await page.emulateMedia({ media: 'print' });
     await page.waitForTimeout(300);
 

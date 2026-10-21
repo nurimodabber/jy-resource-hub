@@ -52,7 +52,6 @@ export default {
         'surface-2': 'rgb(var(--surface-2-rgb) / <alpha-value>)',
         'surface-3': 'rgb(var(--surface-3-rgb) / <alpha-value>)',
         'surface-raised': 'rgb(var(--surface-raised-rgb) / <alpha-value>)',
-        line: 'rgb(var(--line-rgb) / <alpha-value>)',
         text: {
           DEFAULT: 'rgb(var(--text-rgb) / <alpha-value>)',
           secondary: 'rgb(var(--text-secondary-rgb) / <alpha-value>)',
@@ -63,6 +62,7 @@ export default {
           strong: 'rgb(var(--border-strong-rgb) / <alpha-value>)',
           subtle: 'rgb(var(--border-subtle-rgb) / <alpha-value>)',
         },
+        line: 'rgb(var(--line-rgb) / <alpha-value>)',
         accent: {
           DEFAULT: 'rgb(var(--accent-rgb) / <alpha-value>)',
           hover: 'rgb(var(--accent-hover-rgb) / <alpha-value>)',

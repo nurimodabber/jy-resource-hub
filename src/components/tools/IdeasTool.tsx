@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Shuffle, ArrowLeft, ArrowRight, Maximize2, Minimize2, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Shuffle, ArrowLeft, ArrowRight, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Language } from '../../types';
 import { STORY_STARTERS, SORT_CRITERIA, PSYCHIATRIST_RULES } from '../../data/empireContent';
 import { shuffle } from '../../utils/random';
-import { useWakeLock } from '../../hooks/useWakeLock';
 import { tr, Panel, primaryBtn, chipCls } from './common';
 
 type Kind = 'sort' | 'story' | 'rule';
@@ -38,10 +37,7 @@ const useDeck = <T,>(items: T[]) => {
 export const IdeasTool: React.FC<{ language: Language }> = ({ language }) => {
   const L = tr(language);
   const [kind, setKind] = useState<Kind>('sort');
-  const [isBeamer, setIsBeamer] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-
-  useWakeLock(isBeamer);
 
   const sort = useDeck(SORT_CRITERIA);
   const story = useDeck(STORY_STARTERS);
@@ -65,13 +61,11 @@ export const IdeasTool: React.FC<{ language: Language }> = ({ language }) => {
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         d.prev();
-      } else if (e.key === 'Escape' && isBeamer) {
-        setIsBeamer(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [d, isBeamer]);
+  }, [d]);
 
   // Touch swipe support
   const touchStartX = useRef<number | null>(null);
@@ -170,14 +164,6 @@ export const IdeasTool: React.FC<{ language: Language }> = ({ language }) => {
           >
             <Shuffle className="w-4 h-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => setIsBeamer(true)}
-            className="px-3.5 py-2 rounded-control bg-accent text-accent-contrast font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer min-h-[44px]"
-          >
-            <Maximize2 className="w-4 h-4" />
-            <span>{L('Beamer', 'Projector')}</span>
-          </button>
         </div>
       </div>
 
@@ -201,61 +187,6 @@ export const IdeasTool: React.FC<{ language: Language }> = ({ language }) => {
         <span>{L('Nächste Idee', 'Next idea')}</span>
         <ArrowRight className="w-4 h-4" />
       </button>
-
-      {/* Beamer Fullscreen Presentation Mode */}
-      {isBeamer && (
-        <div
-          className="fixed inset-0 z-80 bg-bg text-text p-6 sm:p-12 flex flex-col justify-between safe-top safe-bottom animate-in fade-in duration-200"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="flex items-center justify-between border-b border-border pb-4">
-            <span className="text-xs text-text-tertiary tabular-nums font-semibold">
-              {d.pos} / {d.total}
-            </span>
-            <button
-              type="button"
-              onClick={() => setIsBeamer(false)}
-              className="p-2.5 rounded-control bg-surface-2 hover:bg-surface-raised text-text font-bold text-xs flex items-center gap-1.5 cursor-pointer min-h-[44px]"
-            >
-              <Minimize2 className="w-4 h-4" />
-              <span>{L('Schließen', 'Close')}</span>
-            </button>
-          </div>
-
-          <div className="my-auto max-w-4xl mx-auto w-full text-center space-y-6">
-            <p className="text-4xl sm:text-6xl font-extrabold text-text text-balance leading-tight">
-              {text}
-            </p>
-            <p className="text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto">
-              {info[kind]}
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between pt-4 border-t border-border">
-            <button
-              type="button"
-              onClick={d.prev}
-              disabled={d.pos <= 1}
-              className="px-5 py-3 rounded-control bg-surface-2 hover:bg-surface-raised text-text font-bold text-sm disabled:opacity-30 cursor-pointer min-h-[48px] flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>{L('Zurück', 'Previous')}</span>
-            </button>
-            <div className="text-xs text-text-tertiary hidden sm:block">
-              {L('Pfeiltasten oder Leertaste zum Weiterschalten', 'Use arrow keys or space to advance')}
-            </div>
-            <button
-              type="button"
-              onClick={d.next}
-              className="px-6 py-3 rounded-control bg-accent text-accent-contrast font-bold text-sm cursor-pointer min-h-[48px] flex items-center gap-2 shadow-xs"
-            >
-              <span>{L('Weiter', 'Next')}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

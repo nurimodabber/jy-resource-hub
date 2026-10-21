@@ -388,7 +388,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
               updateField('type', 'spiel');
               setStep(2);
             }}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border hover:border-accent hover:shadow-1 transition-all text-left group cursor-pointer"
+            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-1 transition-all text-left group cursor-pointer"
           >
             <div className="w-12 h-12 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
               <Gamepad2 className="w-6 h-6" />
@@ -407,7 +407,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
               updateField('type', 'dienst');
               setStep(2);
             }}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border hover:border-accent hover:shadow-1 transition-all text-left group cursor-pointer"
+            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-1 transition-all text-left group cursor-pointer"
           >
             <div className="w-12 h-12 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
               <HeartHandshake className="w-6 h-6" />
@@ -426,7 +426,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
               updateField('type', 'kunst');
               setStep(2);
             }}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border hover:border-accent hover:shadow-1 transition-all text-left group cursor-pointer"
+            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-1 transition-all text-left group cursor-pointer"
           >
             <div className="w-12 h-12 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
               <Palette className="w-6 h-6" />

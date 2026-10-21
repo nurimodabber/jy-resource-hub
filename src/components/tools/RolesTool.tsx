@@ -200,7 +200,7 @@ const SpyGame: React.FC<{ language: Language; names: string[] }> = ({ language, 
           <span className="text-2xs font-bold uppercase tracking-wider text-accent-text">
             {L('Die Runde läuft', 'The round is on')}
           </span>
-          <div className="text-5xl sm:text-6xl font-mono font-extrabold text-text tabular-nums my-2">
+          <div className="text-5xl sm:text-6xl font-sans font-extrabold text-text tabular-nums my-2">
             {fmtMinSec(secondsLeft)}
           </div>
           <p className="text-xs text-text-secondary max-w-sm mx-auto">

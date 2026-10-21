@@ -1,19 +1,65 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
-import { Shuffle, ArrowLeft, ArrowRight, Maximize2, Minimize2, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { 
+  Shuffle, ArrowLeft, ArrowRight, HelpCircle, 
+  ExternalLink, BookOpen, Sparkles
+} from 'lucide-react';
 import { Language } from '../../types';
 import { DISCUSSION_CARDS } from '../../data/toolkits';
 import { shuffle, stripQuotes } from '../../utils/random';
-import { useWakeLock } from '../../hooks/useWakeLock';
 import { tr, Panel, primaryBtn } from './common';
+import { getBahaiLibraryUrl } from '../../utils/libraryLinks';
 
 export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
   const L = tr(language);
-  const [deck, setDeck] = useState(() => shuffle(DISCUSSION_CARDS));
-  const [i, setI] = useState(0);
-  const [isBeamer, setIsBeamer] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [showHelp, setShowHelp] = useState(false);
 
-  useWakeLock(isBeamer);
+  // Extract all unique themes
+  const allThemes = useMemo(() => {
+    const set = new Set<string>();
+    DISCUSSION_CARDS.forEach((c) => {
+      if (c.theme?.[language]) set.add(c.theme[language]);
+    });
+    return Array.from(set).sort();
+  }, [language]);
+
+  // Filtered card pool based on theme and search query
+  const filteredCards = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return DISCUSSION_CARDS.filter((card) => {
+      // Theme filter
+      if (selectedTheme !== 'all' && card.theme[language] !== selectedTheme) {
+        return false;
+      }
+      // Search query filter
+      if (q) {
+        const textToSearch = [
+          card.title[language],
+          card.coreQuestion[language],
+          card.quoteSnippet[language],
+          card.theme[language],
+          card.book?.[language] || '',
+          card.source?.[language] || '',
+          ...(card.deepeningQuestions[language] || []),
+        ]
+          .join(' ')
+          .toLowerCase();
+        if (!textToSearch.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [selectedTheme, searchQuery, language]);
+
+  // Active deck state (shuffled when theme or search changes)
+  const [deck, setDeck] = useState(() => shuffle(filteredCards));
+  const [i, setI] = useState(0);
+
+  // Re-sync deck when filtered pool changes
+  useEffect(() => {
+    setDeck(shuffle(filteredCards));
+    setI(0);
+  }, [filteredCards]);
 
   const card = deck[i];
   const deepening = useMemo(() => card?.deepeningQuestions[language] ?? [], [card, language]);
@@ -21,19 +67,19 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
   const next = useCallback(() => {
     setI((curr) => {
       if (curr + 1 >= deck.length) {
-        setDeck(shuffle(DISCUSSION_CARDS));
+        setDeck(shuffle(filteredCards));
         return 0;
       }
       return curr + 1;
     });
-  }, [deck.length]);
+  }, [deck.length, filteredCards]);
 
   const prev = useCallback(() => {
     setI((curr) => Math.max(0, curr - 1));
   }, []);
 
   const handleShuffle = () => {
-    setDeck(shuffle(DISCUSSION_CARDS));
+    setDeck(shuffle(filteredCards));
     setI(0);
   };
 
@@ -47,13 +93,11 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         prev();
-      } else if (e.key === 'Escape' && isBeamer) {
-        setIsBeamer(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [next, prev, isBeamer]);
+  }, [next, prev]);
 
   // Touch swipe support
   const touchStartX = useRef<number | null>(null);
@@ -71,212 +115,196 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
     touchStartX.current = null;
   };
 
-  if (!card) return null;
-
-  const quoteText = stripQuotes(card.quoteSnippet[language]);
+  const quoteText = card ? stripQuotes(card.quoteSnippet[language]) : '';
   const formattedQuote = language === 'de' ? `„${quoteText}“` : `“${quoteText}”`;
 
   return (
-    <div className="space-y-6">
-      {/* "So geht's" Expandable Help */}
-      <div className="bg-surface-2 rounded-card border border-border p-4">
-        <button
-          type="button"
-          onClick={() => setShowHelp(!showHelp)}
-          className="w-full flex items-center justify-between text-xs font-semibold text-text cursor-pointer"
-        >
-          <div className="flex items-center gap-2">
-            <HelpCircle className="w-4 h-4 text-accent-text" />
-            <span>{L('So geht’s: Gesprächskarten im Kreis', 'How it works: Conversation cards')}</span>
-          </div>
-          {showHelp ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
-        {showHelp && (
-          <p className="text-xs text-text-secondary mt-2 leading-relaxed">
-            {L(
-              'Gesprächskarten für Reflexionsrunden im Kreis. Lass eine Karte vorlesen, gib der Gruppe Zeit zum Nachdenken und vertiefe das Gespräch mit den Zusatzfragen.',
-              'Conversation cards for reflection in the circle. Read a card aloud, give the group time to think, and deepen the discussion with follow-up questions.'
-            )}
-          </p>
-        )}
-      </div>
-
-      {/* Action Toolbar */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={prev}
-            disabled={i === 0}
-            className="p-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text disabled:opacity-30 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
-            title={L('Vorherige Karte', 'Previous card')}
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <span className="text-xs text-text-tertiary tabular-nums font-semibold px-2">
-            {i + 1} / {deck.length}
-          </span>
-          <button
-            type="button"
-            onClick={next}
-            className="p-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
-            title={L('Nächste Karte', 'Next card')}
-          >
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleShuffle}
-            className="p-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
-            title={L('Neu mischen', 'Shuffle deck')}
-          >
-            <Shuffle className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsBeamer(true)}
-            className="px-3.5 py-2 rounded-control bg-accent text-accent-contrast font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer min-h-[44px]"
-          >
-            <Maximize2 className="w-4 h-4" />
-            <span>{L('Beamer', 'Projector')}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Card View with Swipe gesture */}
-      <Panel
-        className="py-8 sm:py-12 space-y-6 select-none touch-pan-y"
-      >
-        <div
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          className="space-y-6"
-        >
-          <div className="flex items-center justify-between text-xs text-text-tertiary font-medium">
-            <span className="px-2.5 py-1 rounded-full bg-surface-2 text-text-secondary font-semibold">
-              {card.theme[language]}
-            </span>
-            <span className="tabular-nums">
-              {i + 1} / {deck.length}
-            </span>
-          </div>
-
-          <h2 className="text-2xl sm:text-3xl font-bold text-text leading-snug text-balance">
-            {stripQuotes(card.coreQuestion[language])}
-          </h2>
-
-          {/* Reverent quote display in Lora serif font */}
-          <div className="my-6 p-6 rounded-card bg-surface-2/60 border border-border">
-            <blockquote className="font-serif text-lg sm:text-xl text-text leading-relaxed italic">
-              {formattedQuote}
-            </blockquote>
-          </div>
-
-          {deepening.length > 0 && (
-            <div className="pt-6 border-t border-border space-y-3">
-              <p className="text-xs font-bold uppercase tracking-wider text-text-secondary">
-                {L('Zum Vertiefen', 'To go deeper')}
-              </p>
-              <ul className="space-y-2 text-sm sm:text-base text-text-secondary leading-relaxed">
-                {deepening.map((q, k) => (
-                  <li key={k} className="flex items-start gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-text mt-2 shrink-0" />
-                    <span>{q}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </Panel>
-
-      {/* Bottom Action Button */}
-      <button type="button" onClick={next} className={`${primaryBtn} w-full`}>
-        <span>{L('Nächste Karte', 'Next card')}</span>
-        <ArrowRight className="w-4 h-4" />
-      </button>
-
-      {/* Beamer Fullscreen Presentation Mode */}
-      {isBeamer && (
-        <div
-          className="fixed inset-0 z-80 bg-bg text-text p-6 sm:p-12 flex flex-col justify-between safe-top safe-bottom animate-in fade-in duration-200"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="flex items-center justify-between border-b border-border pb-4">
-            <div className="flex items-center gap-3">
-              <span className="px-3 py-1 rounded-full bg-surface-2 text-text font-bold text-xs">
-                {card.theme[language]}
-              </span>
-              <span className="text-xs text-text-tertiary tabular-nums font-semibold">
-                {i + 1} / {deck.length}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsBeamer(false)}
-              className="p-2.5 rounded-control bg-surface-2 hover:bg-surface-raised text-text font-bold text-xs flex items-center gap-1.5 cursor-pointer min-h-[44px]"
+    <div className="space-y-4">
+      {/* 1. Compact Unified Toolbar: Theme Selector, Prev/Next, Shuffle & Help */}
+      <div className="bg-surface rounded-card border border-border p-2.5 sm:p-3 space-y-2 shadow-xs">
+        <div className="flex items-center justify-between gap-2">
+          {/* Theme Dropdown */}
+          <div className="flex-1 min-w-0">
+            <select
+              value={selectedTheme}
+              onChange={(e) => setSelectedTheme(e.target.value)}
+              className="w-full px-2.5 py-1.5 bg-surface-2 border border-border rounded-control text-xs font-semibold text-text focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent min-h-[38px] cursor-pointer truncate"
+              aria-label={L('Nach Thema filtern', 'Filter by theme')}
             >
-              <Minimize2 className="w-4 h-4" />
-              <span>{L('Schließen', 'Close')}</span>
-            </button>
+              <option value="all">{L('Alle Themen', 'All themes')} ({DISCUSSION_CARDS.length})</option>
+              {allThemes.map((thm) => {
+                const count = DISCUSSION_CARDS.filter((c) => c.theme[language] === thm).length;
+                return (
+                  <option key={thm} value={thm}>
+                    {thm} ({count})
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
-          {/* Centered Large Card Content */}
-          <div className="my-auto max-w-4xl mx-auto w-full space-y-8 text-center">
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-text leading-tight text-balance">
-              {stripQuotes(card.coreQuestion[language])}
-            </h2>
-
-            <div className="p-8 sm:p-10 rounded-card bg-surface border border-border shadow-xs max-w-3xl mx-auto">
-              <blockquote className="font-serif text-2xl sm:text-3xl text-text leading-relaxed italic">
-                {formattedQuote}
-              </blockquote>
-            </div>
-
-            {deepening.length > 0 && (
-              <div className="max-w-2xl mx-auto text-left space-y-3 pt-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-text-tertiary text-center">
-                  {L('Zum Vertiefen', 'To go deeper')}
-                </p>
-                <div className="grid gap-2">
-                  {deepening.map((q, k) => (
-                    <div key={k} className="p-3 rounded-control bg-surface-2 text-sm sm:text-base text-text-secondary">
-                      {q}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Bottom Bar in Beamer mode */}
-          <div className="flex items-center justify-between pt-4 border-t border-border">
+          {/* Card counter & Prev / Next buttons */}
+          <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
               onClick={prev}
               disabled={i === 0}
-              className="px-5 py-3 rounded-control bg-surface-2 hover:bg-surface-raised text-text font-bold text-sm disabled:opacity-30 cursor-pointer min-h-[48px] flex items-center gap-2"
+              className="p-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text disabled:opacity-30 cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center transition-colors"
+              title={L('Vorherige Karte', 'Previous card')}
+              aria-label={L('Vorherige Karte', 'Previous card')}
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>{L('Zurück', 'Previous')}</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
             </button>
-            <div className="text-xs text-text-tertiary hidden sm:block">
-              {L('Pfeiltasten oder Leertaste zum Weiterschalten', 'Use arrow keys or space to advance')}
-            </div>
+            <span className="text-2xs text-text-tertiary tabular-nums font-bold px-1 min-w-[45px] text-center">
+              {deck.length > 0 ? `${i + 1}/${deck.length}` : '0/0'}
+            </span>
             <button
               type="button"
               onClick={next}
-              className="px-6 py-3 rounded-control bg-accent text-accent-contrast font-bold text-sm cursor-pointer min-h-[48px] flex items-center gap-2 shadow-xs"
+              disabled={deck.length <= 1}
+              className="p-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center transition-colors"
+              title={L('Nächste Karte', 'Next card')}
+              aria-label={L('Nächste Karte', 'Next card')}
             >
-              <span>{L('Weiter', 'Next')}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShuffle}
+              className="p-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center transition-colors ml-0.5"
+              title={L('Neu mischen', 'Shuffle deck')}
+              aria-label={L('Neu mischen', 'Shuffle deck')}
+            >
+              <Shuffle className="w-3.5 h-3.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowHelp(!showHelp)}
+              className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors cursor-pointer ${
+                showHelp
+                  ? 'bg-accent/15 border-accent text-accent'
+                  : 'bg-surface-2 hover:bg-surface-raised border-border text-text-secondary hover:text-text'
+              }`}
+              title={L('Hilfe', 'Help')}
+              aria-label={L('Hilfe', 'Help')}
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Expandable Help */}
+      {showHelp && (
+        <div className="bg-surface-2 rounded-card border border-border p-3 text-xs text-text-secondary leading-relaxed animate-in fade-in duration-150">
+          <p>
+            {L(
+              'Gesprächskarten für Reflexionsrunden im Kreis. Wähle ein Thema aus dem Juniorjugendprogramm, lies die Karte vor und vertiefe das Gespräch mit den Zusatzfragen. Zitate enthalten anklickbare Quellen zur Bahá’í-Bibliothek.',
+              'Conversation cards for reflection in the circle. Pick a theme, read the card aloud, and deepen the discussion with follow-up questions. All quotes include clickable source links.'
+            )}
+          </p>
+        </div>
+      )}
+
+      {filteredCards.length === 0 ? (
+        <Panel className="py-8 text-center space-y-3">
+          <p className="text-base text-text-secondary font-medium">
+            {L('Keine Gesprächskarten für diese Filter gefunden.', 'No conversation cards matched these filters.')}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedTheme('all');
+              setSearchQuery('');
+            }}
+            className="text-xs text-accent font-semibold hover:underline cursor-pointer"
+          >
+            {L('Alle Themen anzeigen', 'Show all themes')}
+          </button>
+        </Panel>
+      ) : (
+        <>
+          {/* Main Card View with Swipe gesture */}
+          {card && (
+            <Panel className="py-5 sm:py-8 space-y-4 sm:space-y-5 select-none touch-pan-y shadow-xs">
+              <div
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                className="space-y-6"
+              >
+                {/* Meta pills: Theme & Book */}
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="px-2.5 py-1 rounded-full bg-accent-subtle text-accent-text font-semibold inline-flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {card.theme[language]}
+                  </span>
+                  {card.book && (
+                    <span className="px-2.5 py-1 rounded-full bg-surface-2 text-text-secondary font-medium inline-flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-text-tertiary" />
+                      {card.book[language]}
+                    </span>
+                  )}
+                </div>
+
+                {/* Core Discussion Question */}
+                <h2 className="text-2xl sm:text-3xl font-bold text-text leading-snug text-balance">
+                  {stripQuotes(card.coreQuestion[language])}
+                </h2>
+
+                {/* Sacred Quote in Lora Serif font with clickable authoritative source */}
+                <div className="my-6 pl-5 border-l-2 border-accent/50 py-1.5 space-y-2">
+                  <blockquote className="font-serif text-lg sm:text-xl text-text leading-relaxed italic select-text">
+                    {formattedQuote}
+                  </blockquote>
+                  {card.source && (
+                    <cite className="not-italic block text-xs sm:text-sm text-text-secondary font-sans font-medium">
+                      —{' '}
+                      <a
+                        href={getBahaiLibraryUrl(card.source[language], language)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={
+                          language === 'de'
+                            ? `Quelle „${card.source.de}“ in der Bahá'í-Bibliothek öffnen`
+                            : `Open source "${card.source.en}" in Bahá'í Reference Library`
+                        }
+                        className="hover:text-accent hover:underline inline-flex items-center gap-1 transition-colors group/src"
+                      >
+                        <span>{card.source[language]}</span>
+                        <ExternalLink className="w-3 h-3 opacity-0 group-hover/src:opacity-80 transition-opacity shrink-0" />
+                      </a>
+                    </cite>
+                  )}
+                </div>
+
+                {/* Deepening Questions */}
+                {deepening.length > 0 && (
+                  <div className="pt-6 border-t border-border space-y-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-text-secondary">
+                      {L('Zum Vertiefen im Kreis', 'To go deeper in the circle')}
+                    </p>
+                    <ul className="space-y-2.5 text-sm sm:text-base text-text-secondary leading-relaxed">
+                      {deepening.map((q, k) => (
+                        <li key={k} className="flex items-start gap-2.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2.5 shrink-0" />
+                          <span>{q}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </Panel>
+          )}
+
+          {/* Bottom Action Button */}
+          <button type="button" onClick={next} className={`${primaryBtn} w-full`}>
+            <span>{L('Nächste Karte', 'Next card')}</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </>
       )}
     </div>
   );

@@ -2,9 +2,9 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
   Search, X, BookOpen, Zap, Layers, Sparkles, Heart, RotateCcw,
-  ArrowRight, Laptop, Play
+  ArrowRight, Play, Check
 } from 'lucide-react';
-import { QuotePhase, QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
+import { QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { QUOTES_DATA, JUNIOR_YOUTH_BOOKS } from '../data/quotes';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -14,25 +14,17 @@ import { Dialog } from './ui/Dialog';
 import { Button } from './ui/Button';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
 import { EmptyState } from './ui/EmptyState';
-import { usePlanner } from '../context/PlannerContext';
-import { useToast } from '../context/ToastContext';
 
 // Quote Card & Detail
 import { QuoteCard, isPrayerQuote, formatQuoteSection } from './QuoteCard';
 import { QuoteDetail } from './QuoteDetail';
 
-// 11 Interactive Practice Simulators (lazy-loaded on studio tab)
-const Chalkboard = React.lazy(() => import('./quotes/Chalkboard').then(m => ({ default: m.Chalkboard })));
-const FirstLetterBoard = React.lazy(() => import('./quotes/FirstLetterBoard').then(m => ({ default: m.FirstLetterBoard })));
-const ClozeTest = React.lazy(() => import('./quotes/ClozeTest').then(m => ({ default: m.ClozeTest })));
-const WordPuzzle = React.lazy(() => import('./quotes/WordPuzzle').then(m => ({ default: m.WordPuzzle })));
-const ImposterDetector = React.lazy(() => import('./quotes/ImposterDetector').then(m => ({ default: m.ImposterDetector })));
-const TypeRecall = React.lazy(() => import('./quotes/TypeRecall').then(m => ({ default: m.TypeRecall })));
-const CumulativeCascade = React.lazy(() => import('./quotes/CumulativeCascade').then(m => ({ default: m.CumulativeCascade })));
-const MetronomePacer = React.lazy(() => import('./quotes/MetronomePacer').then(m => ({ default: m.MetronomePacer })));
-const CodeClicker = React.lazy(() => import('./quotes/CodeClicker').then(m => ({ default: m.CodeClicker })));
-const SpeedRunTimer = React.lazy(() => import('./quotes/SpeedRunTimer').then(m => ({ default: m.SpeedRunTimer })));
-const FlashReader = React.lazy(() => import('./quotes/FlashReader').then(m => ({ default: m.FlashReader })));
+// Interactive Tool Renderer & Maps
+import { 
+  InteractiveTool, 
+  InteractiveToolRenderer, 
+  METHOD_TO_TOOL_MAP 
+} from './quotes/InteractiveToolRenderer';
 
 interface QuotesViewProps {
   searchQuery?: string;
@@ -44,35 +36,7 @@ interface QuotesViewProps {
   onSelectQuote?: (quote: QuoteItem) => void;
 }
 
-export type InteractiveTool = 
-  | 'chalkboard' 
-  | 'firstLetter' 
-  | 'cloze' 
-  | 'wordPuzzle' 
-  | 'imposter' 
-  | 'typeRecall' 
-  | 'cascade' 
-  | 'metronome' 
-  | 'codeClicker' 
-  | 'speedRun' 
-  | 'flashReader';
-
 type ViewTab = 'quotes' | 'practice';
-type LearningSubTab = 'studio' | 'methods';
-
-const METHOD_TO_TOOL_MAP: Record<string, InteractiveTool> = {
-  'die-verschwindende-tafel': 'chalkboard',
-  'erstbuchstaben-geruest': 'firstLetter',
-  'zitate-lochkarte': 'cloze',
-  'zitate-puzzle-im-raum': 'wordPuzzle',
-  'fehler-sucher': 'imposter',
-  'kollektives-tafel-schreiben': 'typeRecall',
-  'zitate-treppe': 'cascade',
-  'metronom-steigerung': 'metronome',
-  'der-klick-ersatz': 'codeClicker',
-  'kreis-sprint': 'speedRun',
-  'echokammer': 'flashReader',
-};
 
 export const QuotesView: React.FC<QuotesViewProps> = ({
   searchQuery: externalSearchQuery,
@@ -86,9 +50,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const effectiveQuoteId = propQuoteId ?? routeQuoteId;
   const t = UI_TRANSLATIONS[language];
+  const isDe = language === 'de';
   const navigate = useNavigate();
-  const { addSlotToPlan } = usePlanner();
-  const { showToast } = useToast();
 
   // Route detail page mode: if URL has an ID, display QuoteDetail
   const activeDetailQuote = useMemo(() => {
@@ -103,12 +66,6 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     return 'quotes';
   });
 
-  const [learningSubTab, setLearningSubTab] = useState<LearningSubTab>(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam === 'methods') return 'methods';
-    return 'studio';
-  });
-
   // Filters for Quotes Catalog (initialized from URL searchParams)
   const [localSearch, setLocalSearch] = useState(() => searchParams.get('q') || '');
   const [selectedBook, setSelectedBook] = useState<string>(() => searchParams.get('buch') || 'all');
@@ -118,28 +75,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   );
   const [onlyPrayers, setOnlyPrayers] = useState<boolean>(() => searchParams.get('gebete') === '1');
 
-  // URL query params updater
-  const updateParams = useCallback((updates: Record<string, string | null>) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      for (const [k, v] of Object.entries(updates)) {
-        if (v == null || v === '' || v === 'all') next.delete(k);
-        else next.set(k, v);
-      }
-      return next;
-    }, { replace: true });
-  }, [setSearchParams]);
-
-  // Sync state with URL params
-  useEffect(() => {
-    setLocalSearch(searchParams.get('q') || '');
-    setSelectedBook(searchParams.get('buch') || 'all');
-    setSelectedSection(searchParams.get('lektion') || 'all');
-    setSelectedTopic((searchParams.get('thema') as QuoteGeneralTopic) || 'all');
-    setOnlyPrayers(searchParams.get('gebete') === '1');
-  }, [searchParams]);
-
-  // Active Quote in Practice Studio
+  // Practice State
   const [practiceQuote, setPracticeQuote] = useState<QuoteItem>(() => {
     const qParam = searchParams.get('quote');
     if (qParam) {
@@ -148,44 +84,73 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     }
     return QUOTES_DATA[0];
   });
-
-  // Active Interactive Simulator Tool
-  const [activeTool, setActiveTool] = useState<InteractiveTool>(() => {
-    const toolParam = searchParams.get('tool') as InteractiveTool | null;
-    if (toolParam && [
-      'chalkboard', 'firstLetter', 'cloze', 'wordPuzzle', 'imposter', 
-      'typeRecall', 'cascade', 'metronome', 'codeClicker', 'speedRun', 'flashReader'
-    ].includes(toolParam)) {
+  const [activeTool, setActiveTool] = useState<InteractiveTool | null>(() => {
+    const toolParam = searchParams.get('tool') as InteractiveTool;
+    if (toolParam && Object.values(METHOD_TO_TOOL_MAP).includes(toolParam)) {
       return toolParam;
     }
-    return 'chalkboard';
+    if (searchParams.get('practice') === '1') {
+      return 'chalkboard';
+    }
+    return null;
   });
-
   const [isQuotePickerOpen, setIsQuotePickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState('');
 
-  // 50 Methods Filter & Detail Modal
-  const [methodPhaseFilter, setMethodPhaseFilter] = useState<QuotePhase | 'all'>('all');
+  // 50 Methods Catalog Filter State (search only, no phase filters)
   const [methodSearch, setMethodSearch] = useState('');
   const [selectedMethodForDetail, setSelectedMethodForDetail] = useState<QuoteMethod | null>(null);
 
-  // Sync viewTab with URL
-  const handleTabChange = (tab: ViewTab) => {
-    setViewTab(tab);
+  // Sync practice quote & tool when URL searchParams change
+  useEffect(() => {
+    const qParam = searchParams.get('quote');
+    if (qParam) {
+      const match = QUOTES_DATA.find((q) => q.id === qParam);
+      if (match) {
+        setPracticeQuote(match);
+      }
+    }
+    const toolParam = searchParams.get('tool') as InteractiveTool;
+    if (toolParam && Object.values(METHOD_TO_TOOL_MAP).includes(toolParam)) {
+      setActiveTool(toolParam);
+    } else if (searchParams.get('practice') === '1') {
+      setActiveTool('chalkboard');
+    }
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'practice' || tabParam === 'lernen' || tabParam === 'methods') {
+      setViewTab('practice');
+    } else if (tabParam === 'quotes') {
+      setViewTab('quotes');
+    }
+  }, [searchParams]);
+
+  // Sync external search prop if provided
+  useEffect(() => {
+    if (externalSearchQuery !== undefined) {
+      setLocalSearch(externalSearchQuery);
+    }
+  }, [externalSearchQuery]);
+
+  // URL Query Params updates helper
+  const updateParams = useCallback((newParams: Record<string, string | null>) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      if (tab === 'quotes') {
-        next.delete('tab');
-      } else {
-        next.set('tab', 'practice');
-      }
+      Object.entries(newParams).forEach(([k, v]) => {
+        if (v === null || v === '' || v === 'all') next.delete(k);
+        else next.set(k, v);
+      });
       return next;
     }, { replace: true });
+  }, [setSearchParams]);
+
+  const handleTabChange = (tab: ViewTab) => {
+    setViewTab(tab);
+    updateParams({ tab: tab === 'practice' ? 'practice' : null });
   };
 
-  const effectiveSearch = externalSearchQuery || localSearch;
+  const effectiveSearch = localSearch.trim();
 
-  // Sorting helper: Rank by Junior Youth book sequence, then lesson number
+  // Books rank order for sorting
   const getBookRank = (quote: QuoteItem): number => {
     const bookTitleDe = quote.mainBook ? quote.mainBook.de : quote.book.de.split(',')[0].trim();
     const bookTitleEn = quote.mainBook ? quote.mainBook.en : quote.book.en.split(',')[0].trim();
@@ -210,7 +175,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
       if (effectiveSearch) {
         const query = effectiveSearch.toLowerCase();
-        const textMatch = (language === 'de' ? quote.textDe : quote.textEn).toLowerCase().includes(query);
+        const textMatch = (isDe ? quote.textDe : quote.textEn).toLowerCase().includes(query);
         const sourceMatch = quote.source[language].toLowerCase().includes(query);
         const themeMatch = quote.theme[language].toLowerCase().includes(query);
         const keywordMatch = quote.keywords?.some((k) => k.toLowerCase().includes(query));
@@ -244,7 +209,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
       return 0;
     });
-  }, [effectiveSearch, selectedTopic, selectedBook, selectedSection, onlyPrayers, showOnlyFavorites, favorites, language]);
+  }, [effectiveSearch, selectedTopic, selectedBook, selectedSection, onlyPrayers, showOnlyFavorites, favorites, language, isDe]);
 
   // Unique sections/lessons for selected book
   const availableSections = useMemo(() => {
@@ -258,38 +223,37 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       }
     });
     return Array.from(set).sort((a, b) => {
-      const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
-      const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+      const numA = parseInt(a.match(/\d+/)?.[0] || '0', 10);
+      const numB = parseInt(b.match(/\d+/)?.[0] || '0', 10);
       return numA - numB;
     });
   }, [selectedBook, language]);
 
+  // Dropdown options
   const bookOptions = useMemo(() => [
-    { value: 'all', label: language === 'de' ? 'Alle Bücher' : 'All books' },
+    { value: 'all', label: isDe ? 'Alle Bücher' : 'All Books' },
     ...JUNIOR_YOUTH_BOOKS.map((b) => ({
       value: b.title[language],
-      label: `${b.title[language]}${b.isOfficialJYBook ? ` (${b.targetAge})` : ''}`,
+      label: b.title[language],
     })),
-  ], [language]);
+  ], [language, isDe]);
 
-  const activeBookOption = bookOptions.find((b) => b.value === selectedBook);
+  const activeBookOption = bookOptions.find((o) => o.value === selectedBook);
   const activeBookLabel = activeBookOption && activeBookOption.value !== 'all' ? activeBookOption.label : undefined;
 
-  const sectionOptions = useMemo(() => {
-    if (availableSections.length === 0) return [];
-    return [
-      { value: 'all', label: language === 'de' ? 'Alle Lektionen' : 'All lessons' },
-      ...availableSections.map((sec) => ({
-        value: sec,
-        label: sec,
-      })),
-    ];
-  }, [availableSections, language]);
+  const sectionOptions = useMemo(() => [
+    { value: 'all', label: isDe ? 'Alle Lektionen' : 'All Lessons' },
+    ...availableSections.map((sec) => ({
+      value: sec,
+      label: sec,
+    })),
+  ], [availableSections, isDe]);
 
-  const activeSectionLabel = selectedSection !== 'all' ? selectedSection : undefined;
+  const activeSectionOption = sectionOptions.find((o) => o.value === selectedSection);
+  const activeSectionLabel = activeSectionOption && activeSectionOption.value !== 'all' ? activeSectionOption.label : undefined;
 
   const topicOptions = useMemo(() => [
-    { value: 'all', label: t.allTopics },
+    { value: 'all', label: isDe ? 'Alle Themen' : 'All Themes' },
     { value: 'einheit', label: t.topicEinheit },
     { value: 'wahrhaftigkeit', label: t.topicWahrhaftigkeit },
     { value: 'dienst', label: t.topicDienst },
@@ -298,7 +262,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     { value: 'seele', label: t.topicSeele },
     { value: 'freude', label: t.topicFreude },
     { value: 'gebet', label: t.topicGebet },
-  ], [t]);
+  ], [t, isDe]);
 
   const activeTopicOption = topicOptions.find((o) => o.value === selectedTopic);
   const activeTopicLabel = activeTopicOption && activeTopicOption.value !== 'all' ? activeTopicOption.label : undefined;
@@ -327,42 +291,6 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     });
   };
 
-  // Action handlers
-  const handleAddToPlan = (quote: QuoteItem) => {
-    const isPrayer = isPrayerQuote(quote);
-    const result = addSlotToPlan({
-      type: isPrayer ? 'devotional' : 'study',
-      title: { 
-        de: `${isPrayer ? 'Gebet' : 'Zitat'}: ${quote.theme.de}`, 
-        en: `${isPrayer ? 'Prayer' : 'Quote'}: ${quote.theme.en}` 
-      },
-      durationMinutes: isPrayer ? 10 : 20,
-      description: { de: quote.textDe, en: quote.textEn },
-      referenceId: quote.id,
-      referenceType: 'quote',
-    });
-
-    showToast({
-      text: isPrayer ? t.addedAsDevotional : (language === 'de' ? 'Zitat zum Treffen hinzugefügt' : 'Quote added to meeting'),
-      action: {
-        label: language === 'de' ? 'Plan öffnen' : 'Open Plan',
-        onClick: () => navigate('/planner'),
-      },
-      undo: {
-        label: language === 'de' ? 'Rückgängig' : 'Undo',
-        onClick: () => result.undo(),
-      },
-    });
-  };
-
-  const handleStartPractice = (quote: QuoteItem, toolId?: InteractiveTool) => {
-    setPracticeQuote(quote);
-    if (toolId) setActiveTool(toolId);
-    setViewTab('practice');
-    setLearningSubTab('studio');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const handleNextQuoteInBook = () => {
     const bookTitleDe = practiceQuote.mainBook?.de || practiceQuote.book.de.split(',')[0].trim();
     const bookQuotes = QUOTES_DATA.filter(
@@ -373,10 +301,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     setPracticeQuote(bookQuotes[nextIdx]);
   };
 
-  // Filtered 50 Methods catalog
+  // Filtered 50 Methods catalog (flat list, no phase filter)
   const filtered50Methods = useMemo(() => {
     return QUOTE_METHODS_DATA.filter((m) => {
-      if (methodPhaseFilter !== 'all' && m.phase !== methodPhaseFilter) return false;
       if (methodSearch) {
         const query = methodSearch.toLowerCase();
         const nameMatch = m.name[language].toLowerCase().includes(query);
@@ -385,14 +312,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       }
       return true;
     });
-  }, [methodPhaseFilter, methodSearch, language]);
+  }, [methodSearch, language]);
 
   // Filtered quotes in picker dialog
   const pickerQuotes = useMemo(() => {
     if (!pickerSearch) return QUOTES_DATA;
     const query = pickerSearch.toLowerCase();
     return QUOTES_DATA.filter((q) => {
-      const text = language === 'de' ? q.textDe : q.textEn;
+      const text = isDe ? q.textDe : q.textEn;
       return (
         text.toLowerCase().includes(query) ||
         q.source[language].toLowerCase().includes(query) ||
@@ -400,28 +327,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         q.theme[language].toLowerCase().includes(query)
       );
     });
-  }, [pickerSearch, language]);
-
-  // The 11 Digital Practice Tools
-  const interactiveTools: {
-    id: InteractiveTool;
-    nameDe: string;
-    nameEn: string;
-    descDe: string;
-    descEn: string;
-  }[] = [
-    { id: 'chalkboard', nameDe: 'Verschwindende Tafel', nameEn: 'Disappearing Board', descDe: 'Wörter schrittweise ausblenden', descEn: 'Progressively blank out words' },
-    { id: 'firstLetter', nameDe: 'Erstbuchstaben', nameEn: 'First Letters', descDe: 'Nur noch Anfangsbuchstaben als Stütze', descEn: 'Initial letters as minimal cues' },
-    { id: 'cloze', nameDe: 'Lückentext', nameEn: 'Cloze Test', descDe: 'Wörter aus Speicher in Lücken setzen', descEn: 'Fill missing words from the pool' },
-    { id: 'wordPuzzle', nameDe: 'Wort-Puzzle', nameEn: 'Word Puzzle', descDe: 'Wörter in Reihenfolge setzen', descEn: 'Reassemble scrambled words' },
-    { id: 'imposter', nameDe: 'Fehler-Sucher', nameEn: 'Imposter Spotter', descDe: 'Falsche Wörter im Text finden', descEn: 'Find and fix decoy words' },
-    { id: 'typeRecall', nameDe: 'Schreibtrainer', nameEn: 'Type Recall', descDe: 'Aus dem Kopf tippen mit Live-Feedback', descEn: 'Type letter-by-letter from memory' },
-    { id: 'cascade', nameDe: 'Zitate-Treppe', nameEn: 'Cascade', descDe: 'Satz für Satz stufenweise aufbauen', descEn: 'Accumulate phrases step by step' },
-    { id: 'metronome', nameDe: 'Metronom', nameEn: 'Metronome', descDe: 'Im Takt sprechen zur Verankerung', descEn: 'Recite in rhythmic tempo' },
-    { id: 'codeClicker', nameDe: 'Code-Klicker', nameEn: 'Action Triggers', descDe: 'Wörter durch Klatschen ersetzen', descEn: 'Substitute words with actions' },
-    { id: 'speedRun', nameDe: 'Speed-Run', nameEn: 'Speed Challenge', descDe: 'Stoppuhr-Challenge im Kreis', descEn: 'Group stopwatch challenge' },
-    { id: 'flashReader', nameDe: 'Blitz-Leser', nameEn: 'Flash Reader', descDe: 'Wörter strömen in schnellem Tempo', descEn: 'Flash words at high speed' },
-  ];
+  }, [pickerSearch, language, isDe]);
 
   // If viewing a detail page, render QuoteDetail directly!
   if (activeDetailQuote) {
@@ -432,23 +338,20 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         favorites={favorites}
         onToggleFavorite={onToggleFavorite}
         onBack={() => navigate('/quotes')}
-        onAddToMeeting={handleAddToPlan}
-        onUseAsDevotional={handleAddToPlan}
-        onPracticeTool={(quote, toolId) => handleStartPractice(quote, toolId as InteractiveTool)}
       />
     );
   }
 
   return (
     <div className="space-y-6 max-w-6xl w-full mx-auto pb-20 animate-in fade-in duration-200">
-      {/* 1. Header (No Kopfkarte, clean design token pattern like Phase 00) */}
+      {/* 1. Header */}
       <div className="space-y-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
             {t.tabQuotes}
           </h1>
           <p className="text-xs sm:text-sm text-text-secondary mt-1">
-            {language === 'de'
+            {isDe
               ? 'Heilige Zitate und Gebete zum Lesen, Reflektieren und Auswendiglernen.'
               : 'Holy scripture verses and prayers for reading, reflection, and memorisation.'}
           </p>
@@ -479,7 +382,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       {/* ========================================================================= */}
       {viewTab === 'quotes' && (
         <div className="space-y-3">
-          {/* 1. Full-Width Search Input (consistent with Games & Service/Arts) */}
+          {/* 1. Full-Width Search Input */}
           <div className="relative">
             <Search
               className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
@@ -493,11 +396,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 updateParams({ q: e.target.value || null });
               }}
               placeholder={
-                language === 'de'
+                isDe
                   ? 'Zitate nach Text, Thema oder Quelle durchsuchen...'
                   : 'Search quotes by text, theme, or source...'
               }
-              aria-label={language === 'de' ? 'Zitate durchsuchen' : 'Search quotes'}
+              aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
               className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
             />
             {localSearch && (
@@ -507,7 +410,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   setLocalSearch('');
                   updateParams({ q: null });
                 }}
-                aria-label={language === 'de' ? 'Suche löschen' : 'Clear search'}
+                aria-label={isDe ? 'Suche löschen' : 'Clear search'}
                 className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -515,11 +418,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             )}
           </div>
 
-          {/* 2. Coherent Single-Row Filter Bar directly underneath */}
+          {/* 2. Coherent Single-Row Filter Bar */}
           <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap sm:overflow-x-auto sm:no-scrollbar w-full py-0.5 mb-2 select-none">
             {/* Buch Dropdown */}
             <FilterPillDropdown
-              label={language === 'de' ? 'Buch' : 'Book'}
+              label={isDe ? 'Buch' : 'Book'}
               activeLabel={activeBookLabel}
               isActive={selectedBook !== 'all'}
               icon={<BookOpen className="w-3.5 h-3.5 shrink-0" />}
@@ -536,10 +439,10 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               }}
             />
 
-            {/* Lektion Dropdown (revealed when a book with sections is selected) */}
+            {/* Lektion Dropdown */}
             {selectedBook !== 'all' && sectionOptions.length > 0 && (
               <FilterPillDropdown
-                label={language === 'de' ? 'Lektion' : 'Lesson'}
+                label={isDe ? 'Lektion' : 'Lesson'}
                 activeLabel={activeSectionLabel}
                 isActive={selectedSection !== 'all'}
                 icon={<Layers className="w-3.5 h-3.5 shrink-0" />}
@@ -555,7 +458,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
             {/* Thema Dropdown */}
             <FilterPillDropdown
-              label={language === 'de' ? 'Thema' : 'Theme'}
+              label={isDe ? 'Thema' : 'Theme'}
               activeLabel={activeTopicLabel}
               isActive={selectedTopic !== 'all'}
               icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
@@ -580,16 +483,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               icon={<Heart className="w-3.5 h-3.5 shrink-0" />}
             />
 
-            {/* Clear Filters Button (when any filter is active) */}
+            {/* Clear Filters Button */}
             {(activeFilterCount > 0 || localSearch) && (
               <button
                 type="button"
                 onClick={handleResetFilters}
                 className="inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-xs font-medium text-text-tertiary hover:text-accent hover:bg-surface-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ml-1"
-                aria-label={language === 'de' ? 'Filter zurücksetzen' : 'Reset filters'}
+                aria-label={isDe ? 'Filter zurücksetzen' : 'Reset filters'}
               >
                 <RotateCcw className="w-3 h-3 shrink-0" aria-hidden="true" />
-                <span>{language === 'de' ? 'Filter zurücksetzen' : 'Reset filters'}</span>
+                <span>{isDe ? 'Filter zurücksetzen' : 'Reset filters'}</span>
               </button>
             )}
           </div>
@@ -599,30 +502,28 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             <>
               {(effectiveSearch || activeFilterCount > 0) && (
                 <div className="text-xs text-text-tertiary font-medium mb-1 px-1" aria-live="polite">
-                  {filteredQuotes.length} {language === 'de' ? (filteredQuotes.length === 1 ? 'Zitat gefunden' : 'Zitate gefunden') : (filteredQuotes.length === 1 ? 'quote found' : 'quotes found')}
+                  {filteredQuotes.length} {isDe ? (filteredQuotes.length === 1 ? 'Zitat gefunden' : 'Zitate gefunden') : (filteredQuotes.length === 1 ? 'quote found' : 'quotes found')}
                 </div>
               )}
               <div className="columns-1 md:columns-2 gap-5 [column-fill:_balance]">
-              {filteredQuotes.map((quote) => (
-                <QuoteCard
-                  key={quote.id}
-                  quote={quote}
-                  language={language}
-                  isFavorite={favorites.includes(quote.id)}
-                  onToggleFavorite={onToggleFavorite}
-                  onSelectQuote={(q) => navigate(`/quotes/${q.id}`)}
-                  onPracticeQuote={(q) => handleStartPractice(q)}
-                  onAddToMeeting={handleAddToPlan}
-                  onUseAsDevotional={handleAddToPlan}
-                />
-              ))}
-            </div>
-          </>
-        ) : (
+                {filteredQuotes.map((quote) => (
+                  <QuoteCard
+                    key={quote.id}
+                    quote={quote}
+                    language={language}
+                    isFavorite={favorites.includes(quote.id)}
+                    onToggleFavorite={onToggleFavorite}
+                    onSelectQuote={(q) => navigate(`/quotes/${q.id}`)}
+                    onPracticeQuote={(q) => navigate(`/quotes?tab=practice&quote=${q.id}`)}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
             <EmptyState
-              title={language === 'de' ? 'Keine Zitate gefunden' : 'No quotes found'}
-              description={language === 'de' ? 'Passe die Filter an oder ändere den Suchbegriff.' : 'Adjust filters or change search term.'}
-              actionLabel={language === 'de' ? 'Filter zurücksetzen' : 'Reset filters'}
+              title={isDe ? 'Keine Zitate gefunden' : 'No quotes found'}
+              description={isDe ? 'Passe die Filter an oder ändere den Suchbegriff.' : 'Adjust filters or change search term.'}
+              actionLabel={isDe ? 'Filter zurücksetzen' : 'Reset filters'}
               onAction={handleResetFilters}
             />
           )}
@@ -630,27 +531,30 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: AUSWENDIG LERNEN (Studio + 50 Methods Catalog) */}
+      {/* TAB 2: AUSWENDIG LERNEN (Flat Overview of Methods & Interactive Web-Apps) */}
       {/* ========================================================================= */}
       {viewTab === 'practice' && (
         <div className="space-y-6">
-          {/* Active Quote Selector Banner */}
+          {/* Active Practice Quote Banner (always visible at top of practice view) */}
           <div className="bg-surface rounded-2xl border border-border p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-            <div className="space-y-1 max-w-2xl">
+            <div className="space-y-1.5 max-w-2xl">
               <div className="flex items-center gap-2 text-2xs text-text-tertiary">
-                <span className="font-semibold text-accent">{t.activePracticeQuote}</span>
+                <span className="font-semibold text-accent inline-flex items-center gap-1">
+                  <Zap className="w-3.5 h-3.5" />
+                  {t.activePracticeQuote}
+                </span>
                 <span>·</span>
                 <span>{practiceQuote.book[language]}</span>
               </div>
               <p className="font-serif text-base sm:text-lg text-text line-clamp-2 italic">
-                „{language === 'de' ? practiceQuote.textDe : practiceQuote.textEn}“
+                „{isDe ? practiceQuote.textDe : practiceQuote.textEn}“
               </p>
               <p className="text-2xs text-text-secondary font-serif">
                 — {practiceQuote.source[language]}
               </p>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               <Button
                 variant="secondary"
                 onClick={() => setIsQuotePickerOpen(true)}
@@ -664,324 +568,259 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 variant="outline"
                 onClick={handleNextQuoteInBook}
                 className="min-h-[44px]"
-                title={language === 'de' ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
+                title={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
               >
-                <span>{language === 'de' ? 'Nächstes' : 'Next'}</span>
+                <span>{isDe ? 'Nächstes' : 'Next'}</span>
                 <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/quotes/${practiceQuote.id}`)}
+                className="min-h-[44px]"
+                title={isDe ? 'Im Lesemodus ansehen' : 'View in reading mode'}
+              >
+                <BookOpen className="w-4 h-4 mr-1.5" />
+                <span>{isDe ? 'Lesen' : 'Read'}</span>
               </Button>
             </div>
           </div>
 
-          {/* Sub Navigation: Interactive Studio vs All 50 Methods */}
-          <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setLearningSubTab('studio')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer min-h-[44px] flex items-center gap-2 ${
-                  learningSubTab === 'studio'
-                    ? 'bg-accent text-accent-contrast shadow-xs'
-                    : 'bg-surface-2 text-text-secondary hover:text-text'
-                }`}
-              >
-                <Laptop className="w-4 h-4" />
-                <span>{language === 'de' ? 'Interaktive Web-Methoden (11)' : 'Interactive Web Tools (11)'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setLearningSubTab('methods')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer min-h-[44px] flex items-center gap-2 ${
-                  learningSubTab === 'methods'
-                    ? 'bg-accent text-accent-contrast shadow-xs'
-                    : 'bg-surface-2 text-text-secondary hover:text-text'
-                }`}
-              >
-                <Layers className="w-4 h-4" />
-                <span>{language === 'de' ? 'Alle 50 Methoden' : 'All 50 Methods'}</span>
-              </button>
+          {/* Active Interactive Simulator (when a Web-App tool is launched) */}
+          {activeTool && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              {/* The Active Simulator Container */}
+              <InteractiveToolRenderer
+                tool={activeTool}
+                quote={practiceQuote}
+                language={language}
+                onClose={() => setActiveTool(null)}
+                onSelectTool={(toolId) => setActiveTool(toolId)}
+                showSwitcher={true}
+              />
             </div>
+          )}
+
+          {/* Flat Overview of all 50 Methods (no phase filter) */}
+          <div className="space-y-4">
+            {/* Section Header & Search Input */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-text tracking-tight">
+                  {isDe ? 'Auswendiglernmethoden' : 'Memorisation Methods'}
+                </h2>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  {isDe 
+                    ? '50 Methoden im Überblick – klicke auf eine Web-App zum sofortigen interaktiven Üben.' 
+                    : '50 methods overview – tap on any web app for instant interactive practice.'}
+                </p>
+              </div>
+
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="search"
+                  value={methodSearch}
+                  onChange={(e) => setMethodSearch(e.target.value)}
+                  placeholder={isDe ? 'Methoden durchsuchen...' : 'Search methods...'}
+                  aria-label={isDe ? 'Methoden durchsuchen' : 'Search methods'}
+                  className="w-full pl-9 pr-10 py-2 text-xs rounded-xl bg-surface border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
+                />
+                {methodSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setMethodSearch('')}
+                    aria-label={isDe ? 'Suche löschen' : 'Clear search'}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Flat Grid of Methods */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {filtered50Methods.map((method) => {
+                const toolId = METHOD_TO_TOOL_MAP[method.id];
+                const isCurrentToolActive = activeTool === toolId;
+
+                return (
+                  <article
+                    key={method.id}
+                    onClick={() => {
+                      if (toolId) {
+                        setActiveTool(toolId);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      } else {
+                        setSelectedMethodForDetail(method);
+                      }
+                    }}
+                    className={`bg-surface rounded-2xl border p-4 sm:p-5 transition-all duration-150 cursor-pointer flex flex-col justify-between space-y-3 ${
+                      isCurrentToolActive
+                        ? 'border-accent shadow-1 ring-1 ring-accent/30'
+                        : 'border-border hover:bg-surface-2/40 hover:shadow-2'
+                    }`}
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xs text-text-tertiary font-medium">{method.durationMinutes}</span>
+                          {method.space && (
+                            <span className="text-2xs text-text-tertiary truncate">· {method.space[language]}</span>
+                          )}
+                        </div>
+                        {toolId && (
+                          <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text border border-accent/20">
+                            <Zap className="w-2.5 h-2.5 text-accent" />
+                            Web-App
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="font-semibold text-sm sm:text-base text-text">
+                        {method.name[language]}
+                      </h3>
+
+                      <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed">
+                        {method.summary[language]}
+                      </p>
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-between border-t border-border text-xs text-accent font-semibold">
+                      {toolId ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Play className="w-3.5 h-3.5 fill-current" />
+                          <span>{isCurrentToolActive ? (isDe ? 'Wird oben ausgeführt' : 'Running above') : (isDe ? 'Web-App starten' : 'Launch Web-App')}</span>
+                        </span>
+                      ) : (
+                        <span>{isDe ? 'Anleitung ansehen' : 'View instructions'}</span>
+                      )}
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            {filtered50Methods.length === 0 && (
+              <EmptyState
+                title={isDe ? 'Keine Methoden gefunden' : 'No methods found'}
+                description={isDe ? 'Passe den Suchbegriff an.' : 'Adjust search term.'}
+                actionLabel={isDe ? 'Suche zurücksetzen' : 'Reset search'}
+                onAction={() => {
+                  setMethodSearch('');
+                }}
+              />
+            )}
           </div>
 
-          {/* SUB-VIEW 1: Interactive Practice Studio */}
-          {learningSubTab === 'studio' && (
-            <div className="space-y-6">
-              {/* Tool Selector (Horizontal scrollable pills) */}
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                {interactiveTools.map((tool) => {
-                  const isActive = activeTool === tool.id;
-                  return (
-                    <button
-                      key={tool.id}
-                      type="button"
-                      onClick={() => setActiveTool(tool.id)}
-                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold whitespace-nowrap transition-all cursor-pointer min-h-[44px] shrink-0 ${
-                        isActive
-                          ? 'bg-accent text-accent-contrast border-accent shadow-xs'
-                          : 'bg-surface hover:bg-surface-2 border-border text-text'
-                      }`}
-                    >
-                      <span>{language === 'de' ? tool.nameDe : tool.nameEn}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Active Hosted Simulator */}
-              <div className="bg-surface rounded-3xl border border-border p-4 sm:p-6 shadow-xs">
-                <React.Suspense fallback={<div className="h-48 animate-pulse bg-surface-2 rounded-2xl" />}>
-                  {activeTool === 'chalkboard' && (
-                    <Chalkboard quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'firstLetter' && (
-                    <FirstLetterBoard quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'cloze' && (
-                    <ClozeTest quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'wordPuzzle' && (
-                    <WordPuzzle quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'imposter' && (
-                    <ImposterDetector quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'typeRecall' && (
-                    <TypeRecall quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'cascade' && (
-                    <CumulativeCascade quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'metronome' && (
-                    <MetronomePacer quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'codeClicker' && (
-                    <CodeClicker quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'speedRun' && (
-                    <SpeedRunTimer quote={practiceQuote} language={language} />
-                  )}
-                  {activeTool === 'flashReader' && (
-                    <FlashReader quote={practiceQuote} language={language} />
-                  )}
-                </React.Suspense>
-              </div>
-            </div>
-          )}
-
-          {/* SUB-VIEW 2: All 50 Methods Catalog */}
-          {learningSubTab === 'methods' && (
-            <div className="space-y-4">
-              {/* Phases Segmented Control + Search */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <SegmentedControl<string>
-                  options={[
-                    { id: 'all', label: language === 'de' ? 'Alle' : 'All' },
-                    { id: '1', label: t.phase1Short },
-                    { id: '2', label: t.phase2Short },
-                    { id: '3', label: t.phase3Short },
-                  ]}
-                  value={String(methodPhaseFilter)}
-                  onChange={(val) => setMethodPhaseFilter(val === 'all' ? 'all' : Number(val) as QuotePhase)}
-                />
-
-                <div className="relative w-full sm:w-64">
-                  <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <input
-                    type="text"
-                    value={methodSearch}
-                    onChange={(e) => setMethodSearch(e.target.value)}
-                    placeholder={language === 'de' ? 'Methoden durchsuchen...' : 'Search methods...'}
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-surface border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
-                  />
-                </div>
-              </div>
-
-              {/* Methods List */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {filtered50Methods.map((method) => {
-                  const digitalTool = METHOD_TO_TOOL_MAP[method.id];
-                  return (
-                    <article
-                      key={method.id}
-                      onClick={() => setSelectedMethodForDetail(method)}
-                      className="bg-surface rounded-2xl border border-border p-4 sm:p-5 transition-all duration-150 hover:border-text-secondary/40 cursor-pointer flex flex-col justify-between space-y-3"
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-2xs font-semibold px-2 py-0.5 rounded-md bg-surface-2 text-text-secondary">
-                            {method.phase === 1 ? t.phase1Label : method.phase === 2 ? t.phase2Label : t.phase3Label}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-2xs text-text-tertiary">{method.durationMinutes}</span>
-                            {digitalTool && (
-                              <span
-                                className="inline-flex items-center gap-1 text-2xs font-medium text-accent bg-accent/10 px-2 py-0.5 rounded-full"
-                                title={t.digitalMethodTooltip}
-                              >
-                                <Laptop className="w-3 h-3" />
-                                <span>{t.digitalMethodBadge}</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <h3 className="font-semibold text-sm sm:text-base text-text">
-                          {method.name[language]}
-                        </h3>
-
-                        <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed">
-                          {method.summary[language]}
-                        </p>
-                      </div>
-
-                      <div className="pt-2 flex items-center justify-between border-t border-border text-xs text-accent font-medium">
-                        <span>{language === 'de' ? 'Details ansehen' : 'View details'}</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-
-              {/* Method Detail Sheet */}
-              <Sheet
-                isOpen={!!selectedMethodForDetail}
-                onClose={() => setSelectedMethodForDetail(null)}
-                title={selectedMethodForDetail?.name[language] || ''}
-              >
-                {selectedMethodForDetail && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-2 text-xs text-text-tertiary">
-                      <span className="font-semibold px-2 py-0.5 rounded-md bg-surface-2 text-text">
-                        {selectedMethodForDetail.phase === 1
-                          ? t.phase1Label
-                          : selectedMethodForDetail.phase === 2
-                          ? t.phase2Label
-                          : t.phase3Label}
-                      </span>
+          {/* Method Detail Sheet (for instructions) */}
+          <Sheet
+            isOpen={!!selectedMethodForDetail}
+            onClose={() => setSelectedMethodForDetail(null)}
+            title={selectedMethodForDetail?.name[language] || ''}
+          >
+            {selectedMethodForDetail && (
+              <div className="space-y-4 py-2 text-sm text-text">
+                <div className="flex items-center gap-2 text-xs text-text-tertiary">
+                  <span className="font-semibold">{selectedMethodForDetail.durationMinutes}</span>
+                  {selectedMethodForDetail.space && (
+                    <>
                       <span>·</span>
-                      <span>{selectedMethodForDetail.durationMinutes}</span>
-                      {METHOD_TO_TOOL_MAP[selectedMethodForDetail.id] && (
-                        <>
-                          <span>·</span>
-                          <span className="inline-flex items-center gap-1 text-accent font-semibold">
-                            <Laptop className="w-3.5 h-3.5" />
-                            <span>{t.digitalMethodBadge}</span>
-                          </span>
-                        </>
-                      )}
-                    </div>
+                      <span>{selectedMethodForDetail.space[language]}</span>
+                    </>
+                  )}
+                </div>
 
-                    {/* Single "Üben" button in accent if interactive tool available */}
-                    {METHOD_TO_TOOL_MAP[selectedMethodForDetail.id] && (
-                      <Button
-                        variant="primary"
-                        onClick={() => {
-                          const tool = METHOD_TO_TOOL_MAP[selectedMethodForDetail.id];
-                          setActiveTool(tool);
-                          setLearningSubTab('studio');
-                          setSelectedMethodForDetail(null);
-                        }}
-                        className="w-full min-h-[44px]"
-                      >
-                        <Play className="w-4 h-4 mr-2" />
-                        <span>{t.practiceDigitallyNow}</span>
-                      </Button>
-                    )}
+                <div className="p-4 rounded-xl bg-surface-2 border border-border">
+                  <p className="font-medium text-text">{selectedMethodForDetail.summary[language]}</p>
+                </div>
 
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-text-tertiary">
-                        {language === 'de' ? 'Ziel der Methode' : 'Objective'}
-                      </h4>
-                      <p className="text-sm text-text leading-relaxed">
-                        {selectedMethodForDetail.idea[language]}
-                      </p>
-                    </div>
+                <div className="space-y-2">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-text-tertiary">
+                    {isDe ? 'Schritt-für-Schritt-Anleitung' : 'Step-by-step instructions'}
+                  </h4>
+                  <ol className="list-decimal pl-5 space-y-1.5 text-xs sm:text-sm text-text-secondary">
+                    {selectedMethodForDetail.steps.map((step, idx) => (
+                      <li key={idx} className="leading-relaxed">
+                        <strong className="text-text font-semibold mr-1">{step.name[language]}:</strong>
+                        <span>{step.description[language]}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
 
-                    <div className="space-y-3">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-text-tertiary">
-                        {language === 'de' ? 'Schritte' : 'Steps'}
-                      </h4>
-                      <ol className="space-y-2 list-decimal list-inside text-xs sm:text-sm text-text leading-relaxed">
-                        {selectedMethodForDetail.steps.map((st, i) => (
-                          <li key={i} className="pl-1">
-                            <span className="font-semibold">{st.name[language]}:</span> {st.description[language]}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-
-                    <div className="space-y-2">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-text-tertiary">
-                        {language === 'de' ? 'Warum es funktioniert' : 'Why it works'}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-                        {selectedMethodForDetail.whyItWorks[language]}
-                      </p>
-                    </div>
-
-                    {selectedMethodForDetail.animatorTips[language]?.length > 0 && (
-                      <div className="space-y-2 p-4 rounded-2xl bg-surface-2 border border-border">
-                        <h4 className="text-xs font-bold text-text">
-                          {language === 'de' ? 'Tipps für Animatoren' : 'Animator tips'}
-                        </h4>
-                        <ul className="space-y-1 list-disc list-inside text-xs text-text-secondary">
-                          {selectedMethodForDetail.animatorTips[language].map((tip, idx) => (
-                            <li key={idx}>{tip}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                {METHOD_TO_TOOL_MAP[selectedMethodForDetail.id] && (
+                  <div className="pt-2">
+                    <Button
+                      variant="primary"
+                      className="w-full min-h-[44px]"
+                      onClick={() => {
+                        const tool = METHOD_TO_TOOL_MAP[selectedMethodForDetail.id];
+                        setSelectedMethodForDetail(null);
+                        setActiveTool(tool);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                    >
+                      <Play className="w-4 h-4 mr-2 fill-current" />
+                      <span>{isDe ? 'Jetzt mit Web-App üben' : 'Practice with Web-App now'}</span>
+                    </Button>
                   </div>
                 )}
-              </Sheet>
-            </div>
-          )}
+              </div>
+            )}
+          </Sheet>
         </div>
       )}
 
-      {/* Quote Picker Dialog */}
+      {/* Quote Picker Modal Dialog */}
       <Dialog
         isOpen={isQuotePickerOpen}
         onClose={() => setIsQuotePickerOpen(false)}
-        title={t.selectQuoteToPractice}
+        title={t.chooseAnotherQuote}
       >
-        <div className="space-y-4 max-h-[70vh] flex flex-col">
+        <div className="space-y-4">
           <div className="relative">
-            <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
             <input
-              type="text"
+              type="search"
               value={pickerSearch}
               onChange={(e) => setPickerSearch(e.target.value)}
-              placeholder={language === 'de' ? 'Zitat oder Buch suchen...' : 'Search quote or book...'}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-surface-2 border border-border text-text placeholder:text-text-tertiary min-h-[44px]"
+              placeholder={isDe ? 'Zitate durchsuchen...' : 'Search quotes...'}
+              aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
             />
           </div>
 
-          <div className="overflow-y-auto space-y-2 pr-1 flex-1">
-            {pickerQuotes.map((q) => (
-              <button
-                key={q.id}
-                type="button"
-                onClick={() => {
-                  setPracticeQuote(q);
-                  setIsQuotePickerOpen(false);
-                }}
-                className={`w-full text-left p-3 rounded-xl border transition-colors cursor-pointer min-h-[44px] ${
-                  practiceQuote.id === q.id
-                    ? 'border-accent bg-accent/5'
-                    : 'border-border bg-surface hover:bg-surface-2'
-                }`}
-              >
-                <div className="flex items-center justify-between text-2xs text-text-tertiary mb-1">
-                  <span>{q.book[language]}{formatQuoteSection(q.section?.[language]) ? ` · ${formatQuoteSection(q.section?.[language])}` : ''}</span>
-                  <span className="font-semibold text-text">{q.theme[language]}</span>
+          <div className="max-h-80 overflow-y-auto space-y-2 pr-1">
+            {pickerQuotes.map((q) => {
+              const isSelected = q.id === practiceQuote.id;
+              return (
+                <div
+                  key={q.id}
+                  onClick={() => {
+                    setPracticeQuote(q);
+                    setIsQuotePickerOpen(false);
+                  }}
+                  className={`p-3 rounded-xl border text-left cursor-pointer transition-colors ${
+                    isSelected
+                      ? 'border-accent bg-accent-subtle/50'
+                      : 'border-border hover:bg-surface-2'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="text-2xs font-bold text-text-tertiary">
+                      {q.book[language]}
+                    </span>
+                    {isSelected && <Check className="w-4 h-4 text-accent" />}
+                  </div>
+                  <p className="font-serif text-xs text-text line-clamp-2">
+                    „{isDe ? q.textDe : q.textEn}“
+                  </p>
                 </div>
-                <p className="font-serif text-xs line-clamp-2 text-text">
-                  „{language === 'de' ? q.textDe : q.textEn}“
-                </p>
-              </button>
-            ))}
+              );
+            })}
           </div>
         </div>
       </Dialog>
