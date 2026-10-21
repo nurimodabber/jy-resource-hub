@@ -68,10 +68,10 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({ language }) => {
             {isDe ? 'Zitate' : 'Quotes'}
           </Link>
           <Link
-            to="/planner"
+            to="/service-arts"
             className="p-3 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border-subtle transition-colors text-text font-medium"
           >
-            {isDe ? 'Planer' : 'Planner'}
+            {isDe ? 'Dienst & Kunst' : 'Service & Arts'}
           </Link>
           <Link
             to="/tools"

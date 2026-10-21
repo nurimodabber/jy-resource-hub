@@ -96,7 +96,7 @@ export const Dialog: React.FC<DialogProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 transition-opacity duration-150 ease-out"
+        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-150 ease-out"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -105,11 +105,11 @@ export const Dialog: React.FC<DialogProps> = ({
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`relative w-full ${maxWidthClasses[maxWidth]} bg-surface rounded-dialog shadow-2 border-0 overflow-hidden z-10 my-auto flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] animate-in fade-in zoom-in-95 duration-150 ease-out outline-hidden`}
+        className={`relative w-full ${maxWidthClasses[maxWidth]} glass-surface-panel rounded-dialog shadow-2 border border-border overflow-hidden z-10 my-auto flex flex-col max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] animate-in fade-in zoom-in-95 duration-150 ease-out outline-hidden`}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-5 sm:p-6 border-b border-border bg-surface sticky top-0 z-10 shrink-0">
+          <div className="flex items-center justify-between p-5 sm:p-6 border-b border-line glass-surface sticky top-0 z-10 shrink-0">
             <div>
               {title && (
                 <h2 id="dialog-title" className="text-xl font-bold tracking-tight text-text">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Users, MapPin, Bookmark, BookOpen } from 'lucide-react';
+import { Bookmark, BookOpen, Clock, Heart, Palette } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getBookById } from '../utils/bookProgress';
@@ -42,30 +42,23 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
     ? t.artFormVisual
     : t.artFormMural;
 
-  const settingLabel =
-    activity.setting === 'drinnen'
-      ? t.settingDrinnen
-      : activity.setting === 'draussen'
-      ? t.settingDraussen
-      : t.settingBeides;
-
-  const shortDurationStr =
-    activity.durationMin === activity.durationMax
-      ? `${activity.durationMin} ${language === 'de' ? 'Min.' : 'min.'}`
-      : `${activity.durationMin}–${activity.durationMax} ${language === 'de' ? 'Min.' : 'min.'}`;
-
-  const isCamp = activity.occasion === 'camp' || activity.occasion === 'beides';
   const description = isService
-    ? activity.objective[language]
+    ? (activity.guidedBy ? activity.guidedBy[language] : activity.objective[language])
     : activity.description[language];
 
   // Associated book & lesson if present
   const bookMeta = activity.relatedBook ? getBookById(activity.relatedBook) : null;
-  const bookTitle = bookMeta ? bookMeta.title[language] : (activity.kind === 'kunst' && activity.book ? activity.book[language] : null);
+  const bookTitle = bookMeta
+    ? bookMeta.title[language]
+    : activity.kind === 'kunst' && activity.book
+    ? activity.book[language]
+    : null;
   const lessonNumber = activity.lesson;
 
+  const themeLabel = activity.theme ? activity.theme[language] : undefined;
+
   return (
-    <div className="group relative h-full flex flex-col justify-between bg-surface border border-border rounded-card hover:border-accent hover:shadow-2 transition-all duration-150 ease-out p-4 sm:p-5">
+    <div className="group relative h-full flex flex-col justify-between bg-surface border border-border rounded-card hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 ease-out p-4 sm:p-5">
       {/* Optional image preview if imageUrl is present */}
       {activity.imageUrl && (
         <div className="mb-3.5 -mx-4 -mt-4 sm:-mx-5 sm:-mt-5 overflow-hidden rounded-t-card border-b border-border aspect-16/9 bg-surface-2 relative z-[1] pointer-events-none">
@@ -78,23 +71,13 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         </div>
       )}
 
-      {/* Top area with badges, title, description */}
+      {/* Top area with primary category badge, title, description */}
       <div className="flex-1 min-w-0 pr-10">
-        <div className="flex flex-wrap items-center gap-1.5 mb-2 relative z-[1] pointer-events-none">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent/15 text-accent">
-            {categoryLabel}
+        <div className="flex items-center gap-1.5 mb-2 relative z-[1] pointer-events-none">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle text-accent-text">
+            {isService ? <Heart className="w-3 h-3" /> : <Palette className="w-3 h-3" />}
+            <span>{categoryLabel}</span>
           </span>
-          {isCamp && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-2xs font-semibold bg-surface-2 text-text-secondary">
-              Camp
-            </span>
-          )}
-          {bookTitle && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-medium bg-surface-2 text-text-tertiary">
-              <BookOpen className="w-3 h-3 text-text-tertiary" />
-              <span className="truncate max-w-[160px]">{bookTitle}{lessonNumber ? ` · ${language === 'de' ? 'Lektion' : 'Lesson'} ${lessonNumber}` : ''}</span>
-            </span>
-          )}
         </div>
 
         <Link
@@ -125,35 +108,27 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
       </button>
 
-      {/* Bottom meta row: Dauer · Personen links, Ort (Drinnen/Draußen) rechts */}
-      <div className="relative z-[1] pointer-events-none flex items-center gap-3 pt-3 mt-3 border-t border-border/50 text-xs text-text-secondary">
-        <div
-          className="inline-flex items-center gap-1.5 shrink-0"
-          title={`${t.filterDuration}: ${shortDurationStr}`}
-        >
-          <Clock className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
-          <span>{shortDurationStr}</span>
-        </div>
+      {/* Bottom meta row: calm contextual info (no "Inspiration lesen" button) */}
+      <div className="relative z-[1] pointer-events-none flex items-center justify-between gap-2 pt-2.5 mt-3 border-t border-border/50 text-2xs text-text-tertiary">
+        {bookTitle ? (
+          <span className="inline-flex items-center gap-1 font-medium truncate max-w-[200px]">
+            <BookOpen className="w-3 h-3 text-text-tertiary shrink-0" />
+            <span className="truncate">{bookTitle}{lessonNumber ? ` · L. ${lessonNumber}` : ''}</span>
+          </span>
+        ) : activity.duration ? (
+          <span className="inline-flex items-center gap-1 font-medium truncate max-w-[200px]">
+            <Clock className="w-3 h-3 text-text-tertiary shrink-0" />
+            <span className="truncate">{activity.duration[language]}</span>
+          </span>
+        ) : (
+          <span />
+        )}
 
-        <span className="text-border" aria-hidden="true">·</span>
-
-        <div
-          className="inline-flex items-center gap-1.5 shrink-0"
-          title={`${t.filterGroupSize}: ${activity.groupSize.min}–${activity.groupSize.max} ${t.peopleSuffix}`}
-        >
-          <Users className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
-          <span>{activity.groupSize.min}–{activity.groupSize.max}</span>
-        </div>
-
-        <span className="text-border" aria-hidden="true">·</span>
-
-        <div
-          className="inline-flex items-center gap-1.5 ml-auto shrink-0"
-          title={`${t.settingLabel}: ${settingLabel}`}
-        >
-          <MapPin className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
-          <span className="text-xs text-text-secondary">{settingLabel}</span>
-        </div>
+        {themeLabel && themeLabel !== categoryLabel && (
+          <span className="truncate text-text-secondary max-w-[150px] text-right font-medium">
+            {themeLabel}
+          </span>
+        )}
       </div>
     </div>
   );

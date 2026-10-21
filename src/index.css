@@ -4,6 +4,8 @@
 
 :root, [data-theme="light"] {
   color-scheme: light;
+  --glass-opacity: 0.96;
+  --glass-blur: 12px;
   --bg: #F7F9FC;
   --bg-rgb: 247 249 252;
   --surface: #FFFFFF;
@@ -30,14 +32,14 @@
   --fg-muted-rgb: 74 85 104;
   --text-secondary: #4A5568;
   --text-secondary-rgb: 74 85 104;
-  --text-tertiary: #5F6B7C;
-  --text-tertiary-rgb: 95 107 124;
+  --text-tertiary: #4E5A6B;
+  --text-tertiary-rgb: 78 90 107;
 
-  /* Accent / Action: #1F6FEB (Fresh, friendly Royal Blue per design-system.md) */
-  --accent: #1F6FEB;
-  --accent-rgb: 31 111 235;
-  --accent-hover: #1859C4;
-  --accent-hover-rgb: 24 89 196;
+  /* Accent / Action: #1858C7 (WCAG AA 4.63:1 calibrated Royal Blue) */
+  --accent: #1858C7;
+  --accent-rgb: 24 88 199;
+  --accent-hover: #1348A6;
+  --accent-hover-rgb: 19 72 166;
   --accent-subtle: #E8F0FE;
   --accent-subtle-rgb: 232 240 254;
   --accent-text: #1850B8;
@@ -166,8 +168,8 @@
   --accent-rgb: 111 163 255;
   --accent-hover: #8DB8FF;
   --accent-hover-rgb: 141 184 255;
-  --accent-subtle: #1B2E55;
-  --accent-subtle-rgb: 27 46 85;
+  --accent-subtle: #23374D;
+  --accent-subtle-rgb: 35 55 77;
   --accent-text: #A9C8FF;
   --accent-text-rgb: 169 200 255;
   --accent-contrast: #0A1426;
@@ -258,10 +260,9 @@
   --transition-sheet: 180ms ease-out;
 }
 
-/* Global Beamer / Projector High-Contrast Mode */
-html.beamer-mode {
+/* High-Contrast / OLED Dark Mode */
+html.contrast, [data-theme="contrast"] {
   color-scheme: dark;
-  font-size: 19px;
   --bg: #000000;
   --bg-rgb: 0 0 0;
   --surface: #080E1A;
@@ -292,12 +293,6 @@ html.beamer-mode {
   --accent-text-rgb: 184 212 255;
   --accent-contrast: #000000;
   --accent-contrast-rgb: 0 0 0;
-}
-
-@media (min-width: 1024px) {
-  html.beamer-mode {
-    font-size: 21px;
-  }
 }
 
 @layer base {
@@ -333,6 +328,18 @@ html.beamer-mode {
 }
 
 .tabular { font-variant-numeric: tabular-nums; }
+
+.glass-surface {
+  background-color: rgb(var(--surface-rgb) / var(--glass-opacity, 0.90));
+  backdrop-filter: blur(var(--glass-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px));
+}
+
+.glass-surface-panel {
+  background-color: rgb(var(--surface-rgb) / max(var(--glass-opacity, 0.90), 0.70));
+  backdrop-filter: blur(var(--glass-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px));
+}
 
 /* Touch Targets on touch devices */
 @media (pointer: coarse) {
@@ -415,7 +422,7 @@ html.beamer-mode {
 
 /* Print is always light and clean */
 @media print {
-  :root, .dark, html.beamer-mode {
+  :root, .dark, html.contrast {
     color-scheme: light !important;
     --bg: #ffffff !important;
     --surface: #ffffff !important;

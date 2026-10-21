@@ -11,37 +11,25 @@ interface DocumentHeadProps {
 }
 
 const TOOL_META: Record<string, { de: [string, string]; en: [string, string] }> = {
-  empire: {
-    de: ['Empire', 'Kategorien, Begriffe vorlesen und Reiche verfolgen für das Gruppenspiel Empire.'],
-    en: ['Empire', 'Categories, reading terms and tracking kingdoms for the Empire group game.'],
-  },
-  roles: {
-    de: ['Rollenverteiler', 'Geheime Rollen für Spion, Wer bin ich, Werwölfe und Mörder auf einem Handy verteilen.'],
-    en: ['Role dealer', 'Deal secret roles for Spy, Who am I, Werewolf and Killer on a single phone.'],
-  },
-  scoreboard: {
-    de: ['Punktetafel', 'Punkte für Stationen oder Quizrunden ohne Beschämung erfassen.'],
-    en: ['Scoreboard', 'Track points for stations or quiz rounds without shaming.'],
-  },
   teams: {
     de: ['Teams und Zweiergruppen', 'Zufällig und fair einteilen, ohne dieselben Paare zu wiederholen.'],
     en: ['Teams and pairs', 'Split fairly at random without repeating the same pairs.'],
   },
   timer: {
-    de: ['Timer & Intervall', 'Große Anzeige mit Signalton und Runden für Handy und Beamer.'],
-    en: ['Timer & Interval', 'Large display with chime and rounds for phone and projector.'],
+    de: ['Timer & Intervall', 'Große Anzeige mit Signalton und Runden für die Gruppe.'],
+    en: ['Timer & Interval', 'Large display with chime and rounds for the group.'],
   },
-  finder: {
-    de: ['Spielfinder', 'Gruppengröße und Zeit eingeben und sofort passende Spiele erhalten.'],
-    en: ['Game finder', 'Enter group size and time to get matching group games immediately.'],
-  },
-  ideas: {
-    de: ['Spontane Impulse', 'Sortierkriterien, Geschichtenanfänge und Psychiater-Regeln für die Gruppe.'],
-    en: ['Spontaneous prompts', 'Line-up criteria, story starters and psychiatrist rules for the group.'],
+  scoreboard: {
+    de: ['Punktetafel', 'Punkte für Stationen oder Quizrunden ohne Beschämung erfassen.'],
+    en: ['Scoreboard', 'Track points for stations or quiz rounds without shaming.'],
   },
   cards: {
     de: ['Gesprächskarten', 'Fragen und heilige Zitate für das vertiefende Gespräch im Kreis.'],
     en: ['Conversation cards', 'Questions and sacred scripture for deeper circle conversations.'],
+  },
+  group: {
+    de: ['Meine Gruppe', 'Gemeinsame Namens- und Anwesenheitsliste für alle Werkzeuge.'],
+    en: ['My group', 'Shared member presence list across all tools.'],
   },
 };
 
@@ -55,8 +43,8 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
 
     let title: string;
     let description = isDe
-      ? 'Spiele, heilige Zitate, Dienst- und Kunstprojekte, Treffen-Planer und Live-Werkzeuge für Animatoren von Bahá\'í-Juniorjugendgruppen.'
-      : 'Curated games, sacred scripture quotes, service and arts projects, session planner, and live tools for Bahá\'í junior youth animators.';
+      ? 'Spiele, heilige Zitate, Dienst- und Kunstprojekte und Live-Werkzeuge für Animatoren von Bahá\'í-Juniorjugendgruppen.'
+      : 'Curated games, sacred scripture quotes, service and arts projects, and live tools for Bahá\'í junior youth animators.';
     let ogType = 'website';
     const ogParams = new URLSearchParams();
     let jsonLd: Record<string, unknown> | null = null;
@@ -67,7 +55,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         : 'Junior Youth Hub — Games, quotes and tools for animators';
       ogParams.set('type', 'home');
       ogParams.set('title', 'Junior Youth Hub');
-      ogParams.set('subtitle', isDe ? 'Spiele · Heilige Zitate · Treffen · Werkzeuge' : 'Games · Sacred Quotes · Gatherings · Tools');
+      ogParams.set('subtitle', isDe ? 'Spiele · Heilige Zitate · Werkzeuge' : 'Games · Sacred Quotes · Tools');
 
       jsonLd = {
         '@context': 'https://schema.org',
@@ -169,14 +157,6 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
       } else {
         title = isDe ? 'Zitat nicht gefunden — Junior Youth Hub' : 'Quote not found — Junior Youth Hub';
       }
-    } else if (pathname.startsWith('/treffen') || pathname.startsWith('/planner')) {
-      title = isDe ? 'Treffen planen — Junior Youth Hub' : 'Plan Gathering — Junior Youth Hub';
-      description = isDe
-        ? 'Gruppentreffen, Andachten und Camp-Abende mit Zeitplan und Packliste planen und live begleiten.'
-        : 'Plan group gatherings, devotionals and camp evenings with timeline, packing list and live guide.';
-      ogParams.set('type', 'section');
-      ogParams.set('title', isDe ? 'Treffen planen' : 'Plan Gathering');
-      ogParams.set('subtitle', description);
     } else if (pathname === '/service') {
       title = isDe ? 'Dienstprojekte — Junior Youth Hub' : 'Service Projects — Junior Youth Hub';
       description = isDe
@@ -259,8 +239,8 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
     } else if (pathname === '/tools') {
       title = isDe ? 'Werkzeuge — Junior Youth Hub' : 'Tools — Junior Youth Hub';
       description = isDe
-        ? 'Live-Werkzeuge für Handy und Beamer: Empire, Rollenverteiler, Teams, Timer, Punktetafel und Gesprächskarten.'
-        : 'Live tools for phone and projector: Empire, role dealer, teams, timer, scoreboard and conversation cards.';
+        ? 'Live-Werkzeuge für die Gruppe: Teams, Timer, Punktetafel, Gesprächskarten und Namensliste.'
+        : 'Live tools for the group: Teams, timer, scoreboard, conversation cards and member list.';
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Werkzeuge' : 'Tools');
       ogParams.set('subtitle', description);

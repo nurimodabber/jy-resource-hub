@@ -18,21 +18,42 @@ export const ToolHeader: React.FC<{
   backLabel,
   actions,
 }) => (
-  <div className="mb-6 print:hidden">
-    <button
-      type="button"
-      onClick={onBack}
-      className="inline-flex items-center gap-2 -ml-2 px-3 min-h-[44px] rounded-control text-sm text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out"
-    >
-      <ArrowLeft className="w-4 h-4" strokeWidth={1.75} />
-      {backLabel}
-    </button>
-    <div className="flex items-start justify-between gap-4 mt-1">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-text">{title}</h1>
-        {subtitle && <p className="text-sm text-text-secondary mt-1 max-w-prose">{subtitle}</p>}
+  <div className="mb-2 sm:mb-4 print:hidden">
+    {/* Desktop/Tablet view (sm and up) */}
+    <div className="hidden sm:block">
+      <button
+        type="button"
+        onClick={onBack}
+        className="inline-flex items-center gap-2 -ml-2 px-3 min-h-[44px] rounded-control text-sm text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out cursor-pointer"
+      >
+        <ArrowLeft className="w-4 h-4" strokeWidth={1.75} />
+        {backLabel}
+      </button>
+      <div className="flex items-start justify-between gap-4 mt-1">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-text">{title}</h1>
+          {subtitle && <p className="text-sm text-text-secondary mt-1 max-w-prose">{subtitle}</p>}
+        </div>
+        {actions}
       </div>
-      {actions}
+    </div>
+
+    {/* Mobile compact view (< sm) */}
+    <div className="sm:hidden flex items-center justify-between gap-2 min-h-[44px]">
+      <div className="flex items-center gap-1.5 min-w-0">
+        <button
+          type="button"
+          onClick={onBack}
+          className="-ml-2 p-2 min-h-[44px] min-w-[44px] rounded-control text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out flex items-center justify-center shrink-0 cursor-pointer"
+          aria-label={backLabel}
+        >
+          <ArrowLeft className="w-5 h-5" strokeWidth={2} />
+        </button>
+        <h1 className="text-lg font-bold tracking-tight text-text truncate">
+          {title}
+        </h1>
+      </div>
+      {actions && <div className="shrink-0">{actions}</div>}
     </div>
   </div>
 );

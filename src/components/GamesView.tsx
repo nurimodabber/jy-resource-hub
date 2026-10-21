@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Search, X, ArrowLeft, Clock, Users, Zap, Compass, ArrowUpDown, MapPin, Shuffle } from 'lucide-react';
+import { Search, X, ArrowLeft, Clock, Users, Zap, Compass, ArrowUpDown, MapPin, Shuffle, SlidersHorizontal } from 'lucide-react';
 import { Language, GamePurpose, EnergyLevel } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { GameCard } from './GameCard';
@@ -46,6 +46,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
   const [filters, setFilters] = useState<GameFilterState>(() =>
     parseGameFilters(searchParams),
   );
+  const [showFilters, setShowFilters] = useState(false);
 
   // Sync state when URL searchParams change
   useEffect(() => {
@@ -224,162 +225,199 @@ export const GamesView: React.FC<GamesViewProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto pb-20">
-      {/* 1. Header: H1, one sentence, count on search/filter */}
-      <header className="mb-6">
-        <div className="flex items-baseline gap-3 flex-wrap">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
-            {t.tabGames}
-          </h1>
-          {hasActiveFilterOrSearch && (
-            <div aria-live="polite" aria-atomic="true">
-              <Badge category="neutral" size="md">
-                {filteredGames.length} {t.gamesFound}
-              </Badge>
-            </div>
-          )}
+      {/* 1. Header: H1, one sentence, count on search/filter, and random button aligned right */}
+      <header className="mb-4 sm:mb-6 flex items-start justify-between gap-3">
+        <div>
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
+              {t.tabGames}
+            </h1>
+            {hasActiveFilterOrSearch && (
+              <div aria-live="polite" aria-atomic="true">
+                <Badge category="neutral" size="md">
+                  {filteredGames.length} {t.gamesFound}
+                </Badge>
+              </div>
+            )}
+          </div>
+          <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
+            {L(
+              'Spiele für den Kreis, die Wiese und den Gruppenraum.',
+              'Games for the circle, lawn, and group room.'
+            )}
+          </p>
         </div>
-        <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
-          {L(
-            'Spiele für den Kreis, die Wiese und den Gruppenraum.',
-            'Games for the circle, lawn, and group room.'
-          )}
-        </p>
-      </header>
 
-      {/* 2. Full-Width Search Input */}
-      <div className="relative mb-3">
-        <Search
-          className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
-          aria-hidden="true"
-        />
-        <input
-          type="search"
-          value={filters.q || ''}
-          onChange={(e) =>
-            updateFilters(
-              {
-                ...filters,
-                q: e.target.value || undefined,
-              },
-              true
-            )
-          }
-          placeholder={L('Spiel suchen...', 'Search games...')}
-          aria-label={L('Spiel suchen', 'Search games')}
-          className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-        />
-        {filters.q && (
-          <button
-            type="button"
-            onClick={() => updateFilters({ ...filters, q: undefined })}
-            aria-label={L('Suche löschen', 'Clear search')}
-            className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-
-      {/* 3. Coherent Filter Bar with scroll-fade indicators & scroll-snap */}
-      <ScrollableFilterBar
-        activeFilterCount={totalActiveFilterCount}
-        onClearAll={handleClearAll}
-        clearLabel={t.clearAllFilters}
-      >
-        {/* Wirkung Dropdown */}
-        <FilterPillDropdown
-          label={t.purposeLabel}
-          activeLabel={activePurposeLabel}
-          isActive={Boolean(filters.wirkung)}
-          icon={<Compass className="w-3.5 h-3.5 shrink-0" />}
-          options={purposeOptions}
-          selectedValue={filters.wirkung || null}
-          onSelect={(val) => updateFilters({ ...filters, wirkung: (val as GamePurpose) || null })}
-        />
-
-        {/* Ort Dropdown */}
-        <FilterPillDropdown
-          label={L('Ort', 'Setting')}
-          activeLabel={activeOrtLabel}
-          isActive={Boolean(filters.ort)}
-          icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
-          options={ortOptions}
-          selectedValue={filters.ort || null}
-          onSelect={(val) => updateFilters({ ...filters, ort: (val as 'drinnen' | 'draussen') || null })}
-        />
-
-        {/* Ohne Material Pill (1-Click Toggle) */}
-        <FilterPillButton
-          label={t.filterNoMaterial}
-          isActive={filters.material === 'ohne'}
-          onClick={() =>
-            updateFilters({
-              ...filters,
-              material: filters.material === 'ohne' ? null : 'ohne',
-            })
-          }
-        />
-
-        {/* Dauer Dropdown */}
-        <FilterPillDropdown
-          label={t.filterDuration}
-          activeLabel={filters.dauer ? `≤ ${filters.dauer} Min.` : undefined}
-          isActive={filters.dauer != null}
-          icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
-          options={durationOptions}
-          selectedValue={filters.dauer || null}
-          onSelect={(val) => updateFilters({ ...filters, dauer: val as number | null })}
-        />
-
-        {/* Gruppengröße Dropdown */}
-        <FilterPillDropdown
-          label={t.groupLabel}
-          activeLabel={activeGroupLabel}
-          isActive={filters.personen != null}
-          icon={<Users className="w-3.5 h-3.5 shrink-0" />}
-          options={groupSizeOptions}
-          selectedValue={filters.personen || null}
-          onSelect={(val) => updateFilters({ ...filters, personen: val as number | null })}
-        />
-
-        {/* Energie Dropdown */}
-        <FilterPillDropdown
-          label={t.filterEnergy}
-          activeLabel={activeEnergyLabel}
-          isActive={Boolean(filters.energie)}
-          icon={<Zap className="w-3.5 h-3.5 shrink-0" />}
-          options={energyOptions}
-          selectedValue={filters.energie || null}
-          onSelect={(val) => updateFilters({ ...filters, energie: (val as EnergyLevel) || null })}
-        />
-
-        {/* Sortierung Dropdown */}
-        <FilterPillDropdown
-          label={t.filterSort}
-          activeLabel={activeSortLabel}
-          isActive={Boolean(filters.sort && filters.sort !== 'match')}
-          icon={<ArrowUpDown className="w-3.5 h-3.5 shrink-0" />}
-          options={sortOptions}
-          selectedValue={filters.sort || 'match'}
-          onSelect={(val) => updateFilters({ ...filters, sort: (val as 'match' | 'duration' | 'groupSize') || 'match' })}
-        />
-      </ScrollableFilterBar>
-
-      {/* Live count and "Überrasch mich" (random game) */}
-      <div className="flex items-center justify-between gap-3 text-xs text-text-secondary pt-1 pb-1">
-        <span className="font-medium">
-          {filteredGames.length} {filteredGames.length === 1 ? (language === 'de' ? 'Spiel gefunden' : 'game found') : (language === 'de' ? 'Spiele gefunden' : 'games found')}
-        </span>
+        {/* Random Game Button (Icon-only, aligned with header) */}
         {filteredGames.length > 0 && (
           <button
             type="button"
             onClick={handleRandomGame}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label={language === 'de' ? 'Zufälliges Spiel' : 'Random game'}
+            title={language === 'de' ? 'Zufälliges Spiel' : 'Random game'}
+            className="p-2.5 sm:p-3 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-accent hover:text-accent-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
           >
-            <Shuffle className="w-3.5 h-3.5 text-accent" />
-            <span>{language === 'de' ? 'Überrasch mich' : 'Surprise me'}</span>
+            <Shuffle className="w-5 h-5" />
           </button>
         )}
+      </header>
+
+      {/* 2. Search Input with Filter Button on the right */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="relative flex-1 min-w-0">
+          <Search
+            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            value={filters.q || ''}
+            onChange={(e) =>
+              updateFilters(
+                {
+                  ...filters,
+                  q: e.target.value || undefined,
+                },
+                true
+              )
+            }
+            placeholder={L('Spiel suchen...', 'Search games...')}
+            aria-label={L('Spiel suchen', 'Search games')}
+            className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+          />
+          {filters.q && (
+            <button
+              type="button"
+              onClick={() => updateFilters({ ...filters, q: undefined })}
+              aria-label={L('Suche löschen', 'Clear search')}
+              className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Filter Toggle Button */}
+        <button
+          type="button"
+          onClick={() => setShowFilters((prev) => !prev)}
+          aria-expanded={showFilters}
+          aria-controls="games-filters-drawer"
+          aria-label={
+            showFilters
+              ? L('Filter schließen', 'Hide filters')
+              : L('Filter öffnen', 'Show filters')
+          }
+          className={`h-11 px-3 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-colors cursor-pointer shrink-0 min-w-[44px] justify-center ${
+            showFilters || totalActiveFilterCount > 0
+              ? 'bg-accent/15 border-accent text-accent'
+              : 'bg-surface hover:bg-surface-2 border-border text-text-secondary hover:text-text'
+          }`}
+        >
+          <SlidersHorizontal className="w-4 h-4 shrink-0" />
+          <span className="hidden sm:inline">{L('Filter', 'Filters')}</span>
+          {totalActiveFilterCount > 0 && (
+            <span className="w-5 h-5 rounded-full bg-accent text-accent-contrast text-2xs font-bold inline-flex items-center justify-center">
+              {totalActiveFilterCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* 3. Collapsible Filter Bar */}
+      {showFilters && (
+        <div id="games-filters-drawer" className="mb-3 animate-in fade-in duration-150">
+          <ScrollableFilterBar
+            activeFilterCount={totalActiveFilterCount}
+            onClearAll={handleClearAll}
+            clearLabel={t.clearAllFilters}
+          >
+            {/* Wirkung Dropdown */}
+            <FilterPillDropdown
+              label={t.purposeLabel}
+              activeLabel={activePurposeLabel}
+              isActive={Boolean(filters.wirkung)}
+              icon={<Compass className="w-3.5 h-3.5 shrink-0" />}
+              options={purposeOptions}
+              selectedValue={filters.wirkung || null}
+              onSelect={(val) => updateFilters({ ...filters, wirkung: (val as GamePurpose) || null })}
+            />
+
+            {/* Ort Dropdown */}
+            <FilterPillDropdown
+              label={L('Ort', 'Setting')}
+              activeLabel={activeOrtLabel}
+              isActive={Boolean(filters.ort)}
+              icon={<MapPin className="w-3.5 h-3.5 shrink-0" />}
+              options={ortOptions}
+              selectedValue={filters.ort || null}
+              onSelect={(val) => updateFilters({ ...filters, ort: (val as 'drinnen' | 'draussen') || null })}
+            />
+
+            {/* Ohne Material Pill (1-Click Toggle) */}
+            <FilterPillButton
+              label={t.filterNoMaterial}
+              isActive={filters.material === 'ohne'}
+              onClick={() =>
+                updateFilters({
+                  ...filters,
+                  material: filters.material === 'ohne' ? null : 'ohne',
+                })
+              }
+            />
+
+            {/* Dauer Dropdown */}
+            <FilterPillDropdown
+              label={t.filterDuration}
+              activeLabel={filters.dauer ? `≤ ${filters.dauer} Min.` : undefined}
+              isActive={filters.dauer != null}
+              icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
+              options={durationOptions}
+              selectedValue={filters.dauer || null}
+              onSelect={(val) => updateFilters({ ...filters, dauer: val as number | null })}
+            />
+
+            {/* Gruppengröße Dropdown */}
+            <FilterPillDropdown
+              label={t.groupLabel}
+              activeLabel={activeGroupLabel}
+              isActive={filters.personen != null}
+              icon={<Users className="w-3.5 h-3.5 shrink-0" />}
+              options={groupSizeOptions}
+              selectedValue={filters.personen || null}
+              onSelect={(val) => updateFilters({ ...filters, personen: val as number | null })}
+            />
+
+            {/* Energie Dropdown */}
+            <FilterPillDropdown
+              label={t.filterEnergy}
+              activeLabel={activeEnergyLabel}
+              isActive={Boolean(filters.energie)}
+              icon={<Zap className="w-3.5 h-3.5 shrink-0" />}
+              options={energyOptions}
+              selectedValue={filters.energie || null}
+              onSelect={(val) => updateFilters({ ...filters, energie: (val as EnergyLevel) || null })}
+            />
+
+            {/* Sortierung Dropdown */}
+            <FilterPillDropdown
+              label={t.filterSort}
+              activeLabel={activeSortLabel}
+              isActive={Boolean(filters.sort && filters.sort !== 'match')}
+              icon={<ArrowUpDown className="w-3.5 h-3.5 shrink-0" />}
+              options={sortOptions}
+              selectedValue={filters.sort || 'match'}
+              onSelect={(val) => updateFilters({ ...filters, sort: (val as 'match' | 'duration' | 'groupSize') || 'match' })}
+            />
+          </ScrollableFilterBar>
+        </div>
+      )}
+
+      {/* Live count */}
+      <div className="flex items-center justify-between gap-3 text-xs text-text-secondary pt-0.5 pb-2">
+        <span className="font-medium">
+          {filteredGames.length} {filteredGames.length === 1 ? (language === 'de' ? 'Spiel gefunden' : 'game found') : (language === 'de' ? 'Spiele gefunden' : 'games found')}
+        </span>
       </div>
 
       {/* 4. Games Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}

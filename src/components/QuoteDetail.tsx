@@ -1,22 +1,17 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
-  ArrowLeft, Bookmark, Share2, Copy, Check, Heart, Plus, Maximize2, 
-  Play, ChevronDown, ChevronUp, Sun, Moon, Sparkles, X, ChevronLeft, ChevronRight,
-  Laptop, Music, ExternalLink, Image as ImageIcon
+  ArrowLeft, ArrowRight, Bookmark, Music, ExternalLink, Zap
 } from 'lucide-react';
-import { QuoteItem, Language, QuoteMethod } from '../types';
+import { QuoteItem, Language } from '../types';
 import { QUOTES_DATA } from '../data/quotes';
-import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getQuoteSong } from '../data/quoteSongs';
 import { Button } from './ui/Button';
 import { IconButton } from './ui/IconButton';
-import { useToast } from '../context/ToastContext';
-import { useWakeLock } from '../hooks/useWakeLock';
-import { shareResource } from '../utils/share';
-import { shareQuoteAsImage } from '../utils/quoteImage';
-import { stripQuotes } from '../utils/random';
+import { ShareMenu } from './ui/ShareMenu';
 import { isPrayerQuote, formatQuoteSection } from './QuoteCard';
+import { getBahaiLibraryUrl } from '../utils/libraryLinks';
 
 interface QuoteDetailProps {
   quote: QuoteItem;
@@ -24,24 +19,9 @@ interface QuoteDetailProps {
   favorites: string[];
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
   onBack: () => void;
-  onAddToMeeting: (quote: QuoteItem) => void;
-  onUseAsDevotional: (quote: QuoteItem) => void;
-  onPracticeTool: (quote: QuoteItem, toolId: string) => void;
+  onPracticeTool?: (quote: QuoteItem, toolId: string) => void;
+  initialTool?: string | null;
 }
-
-const METHOD_TO_TOOL_MAP: Record<string, string> = {
-  'die-verschwindende-tafel': 'chalkboard',
-  'erstbuchstaben-geruest': 'firstLetter',
-  'zitate-lochkarte': 'cloze',
-  'zitate-puzzle-im-raum': 'wordPuzzle',
-  'fehler-sucher': 'imposter',
-  'kollektives-tafel-schreiben': 'typeRecall',
-  'zitate-treppe': 'cascade',
-  'metronom-steigerung': 'metronome',
-  'der-klick-ersatz': 'codeClicker',
-  'kreis-sprint': 'speedRun',
-  'echokammer': 'flashReader',
-};
 
 export const QuoteDetail: React.FC<QuoteDetailProps> = ({
   quote,
@@ -49,154 +29,53 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
   favorites,
   onToggleFavorite,
   onBack,
-  onAddToMeeting,
-  onUseAsDevotional,
-  onPracticeTool,
 }) => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const t = UI_TRANSLATIONS[language];
-  const { showToast } = useToast();
-  const [copied, setCopied] = useState(false);
-  const [showAllMethods, setShowAllMethods] = useState(false);
+  const isDe = language === 'de';
 
-  // Presentation / Reading Mode state
-  const [isReadingMode, setIsReadingMode] = useState(false);
-  const [beamerHighContrast, setBeamerHighContrast] = useState(false);
-  const [fontSizeStep, setFontSizeStep] = useState(1); // 0 = standard, 1 = large, 2 = extra large, 3 = beamer huge
-  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(() => {
-    const idx = QUOTES_DATA.findIndex((q) => q.id === quote.id);
-    return idx >= 0 ? idx : 0;
-  });
+  // If URL explicitly requests practice mode or a specific tool, redirect cleanly to practice tab
+  useEffect(() => {
+    if (searchParams.get('practice') === '1' || searchParams.get('tool')) {
+      const toolParam = searchParams.get('tool');
+      const toolQuery = toolParam ? `&tool=${toolParam}` : '';
+      navigate(`/quotes?tab=practice&quote=${quote.id}${toolQuery}`, { replace: true });
+    }
+  }, [searchParams, quote.id, navigate]);
 
-  const activeQuote = QUOTES_DATA[currentQuoteIndex] || quote;
+  const activeQuote = quote;
   const isFavorite = favorites.includes(activeQuote.id);
   const isPrayer = isPrayerQuote(activeQuote);
 
-  const text = language === 'de' ? activeQuote.textDe : activeQuote.textEn;
+  const text = isDe ? activeQuote.textDe : activeQuote.textEn;
   const bookName = activeQuote.mainBook ? activeQuote.mainBook[language] : activeQuote.book[language].split(',')[0].trim();
   const sectionName = formatQuoteSection(activeQuote.section ? activeQuote.section[language] : undefined);
   const song = getQuoteSong(activeQuote.id, language);
 
-  // Keep screen awake during reading mode
-  useWakeLock(isReadingMode);
+  const formattedShareText = `„${text}“\n— ${activeQuote.source[language]} (${activeQuote.book[language]})`;
+  const quoteUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/quotes/${activeQuote.id}`;
 
-  // Sync index when prop changes
-  useEffect(() => {
-    const idx = QUOTES_DATA.findIndex((q) => q.id === quote.id);
-    if (idx >= 0) setCurrentQuoteIndex(idx);
-  }, [quote.id]);
-
-  // Methods recommendations based on quote length
-  const recommendedMethods = useMemo(() => {
-    const wordCount = (language === 'de' ? activeQuote.textDe : activeQuote.textEn).trim().split(/\s+/).length;
-    let targetIds: string[];
-
-    if (wordCount < 18) {
-      targetIds = ['erstbuchstaben-geruest', 'die-verschwindende-tafel', 'kreis-sprint'];
-    } else if (wordCount <= 35) {
-      targetIds = ['zitate-treppe', 'zitate-lochkarte', 'fehler-sucher'];
-    } else {
-      targetIds = ['zitate-treppe', 'kollektives-tafel-schreiben', 'erstbuchstaben-geruest'];
-    }
-
-    return targetIds
-      .map((id) => QUOTE_METHODS_DATA.find((m) => m.id === id))
-      .filter((m): m is QuoteMethod => !!m);
-  }, [activeQuote, language]);
-
-  // Remaining methods
-  const remainingMethods = useMemo(() => {
-    const recIds = new Set(recommendedMethods.map((m) => m.id));
-    return QUOTE_METHODS_DATA.filter((m) => !recIds.has(m.id));
-  }, [recommendedMethods]);
-
-  const handleCopy = () => {
-    const formatted = `„${text}“\n— ${activeQuote.source[language]} (${activeQuote.book[language]})`;
-    navigator.clipboard.writeText(formatted);
-    setCopied(true);
-    showToast({
-      text: language === 'de' ? 'Zitat kopiert' : 'Quote copied',
+  // Sibling quotes in the same book for gentle pagination
+  const bookQuotes = useMemo(() => {
+    const bookTitleDe = activeQuote.mainBook ? activeQuote.mainBook.de : activeQuote.book.de.split(',')[0].trim();
+    return QUOTES_DATA.filter((q) => {
+      const b = q.mainBook ? q.mainBook.de : q.book.de.split(',')[0].trim();
+      return b === bookTitleDe;
     });
-    setTimeout(() => setCopied(false), 2000);
-  };
+  }, [activeQuote]);
 
-  const handleShare = async () => {
-    await shareResource({
-      title: activeQuote.theme[language],
-      text: `„${text}“\n— ${activeQuote.source[language]}`,
-      url: window.location.href,
-    });
-  };
+  const currentIndex = useMemo(() => {
+    return bookQuotes.findIndex((q) => q.id === activeQuote.id);
+  }, [bookQuotes, activeQuote.id]);
 
-  const handleShareImage = async () => {
-    try {
-      const res = await shareQuoteAsImage(activeQuote, language, {
-        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-      });
-      showToast({
-        text:
-          res === 'shared'
-            ? language === 'de'
-              ? 'Zitat als Bild geteilt'
-              : 'Quote shared as image'
-            : language === 'de'
-            ? 'Zitat-Bild heruntergeladen'
-            : 'Quote image downloaded',
-      });
-    } catch {
-      showToast({
-        text:
-          language === 'de'
-            ? 'Fehler beim Erstellen des Bildes'
-            : 'Failed to generate image',
-      });
-    }
-  };
-
-  // Keyboard navigation & gestures for Presentation Mode
-  useEffect(() => {
-    if (!isReadingMode) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsReadingMode(false);
-      } else if (e.key === 'ArrowRight' || e.key === ' ') {
-        e.preventDefault();
-        setCurrentQuoteIndex((prev) => (prev + 1) % QUOTES_DATA.length);
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        setCurrentQuoteIndex((prev) => (prev - 1 + QUOTES_DATA.length) % QUOTES_DATA.length);
-      } else if (e.key === '+' || e.key === '=') {
-        setFontSizeStep((prev) => Math.min(3, prev + 1));
-      } else if (e.key === '-' || e.key === '_') {
-        setFontSizeStep((prev) => Math.max(0, prev - 1));
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isReadingMode]);
-
-  // Touch swipe support
-  const touchStartXRef = useRef<number | null>(null);
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartXRef.current = e.touches[0].clientX;
-  };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null) return;
-    const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
-    if (deltaX < -50) {
-      setCurrentQuoteIndex((prev) => (prev + 1) % QUOTES_DATA.length);
-    } else if (deltaX > 50) {
-      setCurrentQuoteIndex((prev) => (prev - 1 + QUOTES_DATA.length) % QUOTES_DATA.length);
-    }
-    touchStartXRef.current = null;
-  };
-
+  const prevQuote = currentIndex > 0 ? bookQuotes[currentIndex - 1] : null;
+  const nextQuote = currentIndex >= 0 && currentIndex < bookQuotes.length - 1 ? bookQuotes[currentIndex + 1] : null;
 
   return (
-    <div className="max-w-6xl w-full mx-auto space-y-8 pb-36 lg:pb-24 pt-2">
-      {/* Top Header Navigation */}
-      <div className="flex items-center justify-between gap-4">
+    <div className="max-w-4xl w-full mx-auto space-y-6 pb-28 pt-2 animate-in fade-in duration-200">
+      {/* 1. Top Header Navigation & Action Bar */}
+      <div className="flex items-center justify-between gap-3">
         <Button
           variant="secondary"
           icon={<ArrowLeft className="w-4 h-4 shrink-0" />}
@@ -206,54 +85,54 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
           {t.backToQuotes}
         </Button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Subtle Auswendiglernen Button in top action bar */}
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={<Zap className="w-4 h-4 text-accent shrink-0" />}
+            onClick={() => navigate(`/quotes?tab=practice&quote=${activeQuote.id}`)}
+            className="min-h-[44px] text-xs font-semibold"
+            title={isDe ? 'Auswendiglernen öffnen' : 'Open memorisation'}
+          >
+            <span className="hidden sm:inline">{isDe ? 'Auswendiglernen' : 'Memorise'}</span>
+          </Button>
+
+          {/* Song (if available) */}
           {song && (
             <a
               href={song.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text text-xs sm:text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent"
-              title={language === 'de' ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
+              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+              title={isDe ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
               aria-label={t.quoteSongAriaLabel}
             >
               <Music className="w-4 h-4 text-accent" />
-              <span>{t.quoteSongLink}</span>
-              <ExternalLink className="w-3.5 h-3.5 text-text-tertiary" />
             </a>
           )}
+
+          {/* Bookmark Button */}
           <IconButton
-            label={isFavorite ? t.savedItems : (language === 'de' ? 'Merken' : 'Save')}
+            label={isFavorite ? t.savedItems : (isDe ? 'Merken' : 'Save')}
             variant="outline"
-            className={isFavorite ? 'text-accent' : 'text-text-secondary'}
+            className={`min-h-[44px] min-w-[44px] ${isFavorite ? 'text-accent' : 'text-text-secondary'}`}
             onClick={(e) => onToggleFavorite(activeQuote.id, e)}
           >
             <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent' : ''}`} />
           </IconButton>
-          <IconButton
-            label={copied ? (language === 'de' ? 'Kopiert' : 'Copied') : (language === 'de' ? 'Kopieren' : 'Copy')}
-            variant="outline"
-            onClick={handleCopy}
-          >
-            {copied ? <Check className="w-4 h-4 text-accent" /> : <Copy className="w-4 h-4" />}
-          </IconButton>
-          <IconButton
-            label={language === 'de' ? 'Als Bild teilen' : 'Share as image'}
-            variant="outline"
-            onClick={handleShareImage}
-          >
-            <ImageIcon className="w-4 h-4" />
-          </IconButton>
-          <IconButton
-            label={language === 'de' ? 'Teilen' : 'Share'}
-            variant="outline"
-            onClick={handleShare}
-          >
-            <Share2 className="w-4 h-4" />
-          </IconButton>
+
+          {/* Compact Share Menu: Text kopieren / Link kopieren */}
+          <ShareMenu
+            textToCopy={formattedShareText}
+            urlToCopy={quoteUrl}
+            language={language}
+            align="right"
+          />
         </div>
       </div>
 
-      {/* Main Sacred Text Reading Card (Calm surface, generous margin, Lora serif) */}
+      {/* 2. Main Sacred Text Reading Card (Calm surface, generous margin, Lora serif) */}
       <section className="bg-surface rounded-3xl border border-border p-6 sm:p-12 lg:p-16 space-y-8 shadow-xs">
         <div className="flex items-center justify-between gap-3 text-xs text-text-tertiary">
           <span className="font-medium tracking-wide">
@@ -261,362 +140,63 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
           </span>
           {isPrayer && (
             <span className="text-2xs font-semibold px-2.5 py-1 rounded-full bg-surface-2 text-text-secondary border border-border">
-              {language === 'de' ? 'Gebet & Andacht' : 'Prayer & Devotion'}
+              {isDe ? 'Gebet & Andacht' : 'Prayer & Devotion'}
             </span>
           )}
         </div>
 
-        {/* The Holy Text: strictly unmodified, Lora font, max-w 4xl */}
-        <div className="max-w-4xl mx-auto py-2">
-          <blockquote className="font-serif text-2xl sm:text-3xl leading-[1.65] text-text text-center sm:text-left select-text">
+        {/* The Holy Text: strictly unmodified, Lora font */}
+        <div className="max-w-3xl mx-auto py-2">
+          <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-[1.7] text-text text-center sm:text-left select-text">
             „{text}“
           </blockquote>
-
-          <div className="mt-8 text-center sm:text-left">
-            <cite className="not-italic text-sm sm:text-base text-text-secondary font-serif italic block">
-              — {activeQuote.source[language]}
-            </cite>
-            <span className="text-xs text-text-tertiary mt-1 block">
-              {activeQuote.book[language]}
-            </span>
-          </div>
         </div>
 
-        {/* Lesemodus & Lied Button */}
-        <div className="pt-6 border-t border-border flex flex-wrap items-center justify-center sm:justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setIsReadingMode(true)}
-              className="min-h-[44px]"
+        {/* Bottom meta */}
+        <div className="pt-6 sm:pt-8 border-t border-border/60">
+          <cite className="not-italic text-sm sm:text-base text-text-secondary font-serif italic block">
+            —{' '}
+            <a
+              href={getBahaiLibraryUrl(activeQuote.source[language], language)}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={
+                isDe
+                  ? `Quelle „${activeQuote.source.de}“ in der Bahá'í-Bibliothek öffnen`
+                  : `Open source "${activeQuote.source.en}" in Bahá'í Reference Library`
+              }
+              className="hover:text-accent hover:underline inline-flex items-center gap-1.5 transition-colors group/src focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-accent rounded-xs"
             >
-              <Maximize2 className="w-4 h-4 mr-2 text-accent" />
-              <span>{t.presentationMode}</span>
-            </Button>
-
-            {song && (
-              <a
-                href={song.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2.5 min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text text-xs sm:text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent shadow-xs"
-                title={language === 'de' ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
-              >
-                <Music className="w-4 h-4 text-accent shrink-0" />
-                <span>{language === 'de' ? `Lied: ${song.title}` : `Song: ${song.title}`}</span>
-                <ExternalLink className="w-3.5 h-3.5 text-text-tertiary ml-0.5" />
-              </a>
-            )}
-          </div>
-
-          <span className="text-xs text-text-tertiary">
-            {language === 'de' ? 'Vollbild · Beamer · Bildschirm bleibt an' : 'Fullscreen · Beamer · Screen kept awake'}
-          </span>
+              <span>{activeQuote.source[language]}</span>
+              <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover/src:opacity-100 transition-opacity shrink-0 not-italic" />
+            </a>
+          </cite>
         </div>
       </section>
 
-      {/* Devotional / Memorisation Section */}
-      {isPrayer ? (
-        <section className="bg-surface rounded-2xl border border-border p-6 space-y-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-accent" />
-            <h2 className="text-base sm:text-lg font-semibold text-text">
-              {language === 'de' ? 'Andacht & Gebet in der Gruppe' : 'Devotions & Prayer in the Group'}
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-            {t.prayerDevotionalTip1}
-          </p>
-          <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-            {t.prayerDevotionalTip2}
-          </p>
-          <div className="pt-2">
-            <Button
-              variant="primary"
-              onClick={() => onUseAsDevotional(activeQuote)}
-              className="min-h-[44px]"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              <span>{t.useAsDevotional}</span>
-            </Button>
-          </div>
-        </section>
-      ) : (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-bold text-text">
-                {t.recommendedMethodsTitle}
-              </h2>
-              <p className="text-xs text-text-secondary">
-                {language === 'de'
-                  ? '3 Methoden abgestimmt auf die Länge dieses Zitats'
-                  : '3 methods matched to the length of this verse'}
-              </p>
-            </div>
-          </div>
-
-          {/* 3 Recommended Methods */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {recommendedMethods.map((method) => {
-              const toolId = METHOD_TO_TOOL_MAP[method.id];
-              return (
-                <div
-                  key={method.id}
-                  className="bg-surface rounded-2xl border border-border p-5 flex flex-col justify-between space-y-4"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-2xs font-semibold px-2 py-0.5 rounded-md bg-surface-2 text-text-secondary">
-                        {method.phase === 1 ? t.phase1Short : method.phase === 2 ? t.phase2Short : t.phase3Short}
-                      </span>
-                      <span className="text-2xs text-text-tertiary">
-                        {method.durationMinutes}
-                      </span>
-                    </div>
-
-                    <h3 className="font-semibold text-sm text-text">
-                      {method.name[language]}
-                    </h3>
-
-                    <p className="text-xs text-text-secondary line-clamp-3">
-                      {method.summary[language]}
-                    </p>
-                  </div>
-
-                  <div>
-                    {toolId ? (
-                      <Button
-                        variant="primary"
-                        onClick={() => onPracticeTool(activeQuote, toolId)}
-                        className="w-full min-h-[44px]"
-                      >
-                        <Play className="w-4 h-4 mr-1.5" />
-                        <span>{t.practiceDigitallyNow}</span>
-                      </Button>
-                    ) : (
-                      <div className="text-2xs text-text-tertiary text-center py-2">
-                        {language === 'de' ? 'Praktische Gruppenübung' : 'Practical group exercise'}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Collapsible toggle for remaining methods */}
-          <div className="pt-2">
+      {/* 3. Subtle Sibling Quotes Navigation (within same book) */}
+      {bookQuotes.length > 1 && (
+        <div className="flex items-center justify-between gap-4 text-xs text-text-secondary px-1">
+          {prevQuote ? (
             <button
               type="button"
-              onClick={() => setShowAllMethods(!showAllMethods)}
-              className="inline-flex items-center gap-2 text-xs font-semibold text-accent hover:underline py-2 min-h-[44px] cursor-pointer"
+              onClick={() => navigate(`/quotes/${prevQuote.id}`)}
+              className="inline-flex items-center gap-1.5 hover:text-text transition-colors min-h-[44px] py-2 px-3 rounded-control hover:bg-surface-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
             >
-              {showAllMethods ? (
-                <>
-                  <ChevronUp className="w-4 h-4" />
-                  <span>{t.fewerMethodsToggle}</span>
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="w-4 h-4" />
-                  <span>{t.moreMethodsToggle} ({remainingMethods.length})</span>
-                </>
-              )}
+              <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate max-w-[140px] sm:max-w-xs">{isDe ? 'Vorheriges Zitat' : 'Previous quote'}</span>
             </button>
-
-            {showAllMethods && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 animate-in fade-in duration-200">
-                {remainingMethods.map((method) => {
-                  const toolId = METHOD_TO_TOOL_MAP[method.id];
-                  return (
-                    <div
-                      key={method.id}
-                      className="bg-surface rounded-xl border border-border p-4 flex items-start justify-between gap-3"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xs font-semibold px-2 py-0.5 rounded-md bg-surface-2 text-text-secondary">
-                            {method.phase === 1 ? t.phase1Short : method.phase === 2 ? t.phase2Short : t.phase3Short}
-                          </span>
-                          <span className="text-2xs text-text-tertiary">{method.durationMinutes}</span>
-                          {toolId && (
-                            <span className="inline-flex items-center gap-1 text-2xs text-accent font-medium">
-                              <Laptop className="w-3 h-3" />
-                              <span>{t.digitalMethodBadge}</span>
-                            </span>
-                          )}
-                        </div>
-                        <h4 className="text-xs font-semibold text-text">{method.name[language]}</h4>
-                        <p className="text-2xs text-text-secondary line-clamp-2">{method.summary[language]}</p>
-                      </div>
-
-                      {toolId && (
-                        <Button
-                          variant="secondary"
-                          onClick={() => onPracticeTool(activeQuote, toolId)}
-                          className="shrink-0 min-h-[44px] text-xs px-3 py-1.5"
-                        >
-                          <Play className="w-3 h-3 mr-1" />
-                          <span>{t.practiceTextLink}</span>
-                        </Button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* Sticky Bottom Action Bar on Mobile (<1024px) above BottomTabBar */}
-      <div className="lg:hidden fixed bottom-16 inset-x-0 z-30 bg-surface/96 backdrop-blur-md border-t border-border p-3 shadow-2 flex items-center gap-2 print:hidden">
-        {isPrayer ? (
-          <Button
-            variant="primary"
-            size="md"
-            icon={<Sparkles className="w-4 h-4 shrink-0" />}
-            onClick={() => onUseAsDevotional(activeQuote)}
-            className="flex-1 justify-center min-h-[44px] whitespace-nowrap"
-          >
-            {t.quoteAsDevotional}
-          </Button>
-        ) : (
-          <Button
-            variant="primary"
-            size="md"
-            icon={<Plus className="w-4 h-4 shrink-0" />}
-            onClick={() => onAddToMeeting(activeQuote)}
-            className="flex-1 justify-center min-h-[44px] whitespace-nowrap"
-          >
-            {t.addToMeeting}
-          </Button>
-        )}
-      </div>
-
-      {/* Fullscreen Reading / Presentation Mode */}
-      {isReadingMode && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className={`fixed inset-0 z-50 flex flex-col justify-between p-6 sm:p-12 transition-colors duration-200 select-text ${
-            beamerHighContrast
-              ? 'bg-black text-white'
-              : 'bg-surface text-text'
-          }`}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Top Control Bar in Reading Mode */}
-          <div className="flex items-center justify-between gap-3 max-w-5xl mx-auto w-full">
-            <div className="flex items-center gap-2">
-              <span className="text-xs opacity-70 font-sans">
-                {currentQuoteIndex + 1} / {QUOTES_DATA.length}
-              </span>
-              <span className="text-xs opacity-50 hidden sm:inline">·</span>
-              <span className="text-xs opacity-70 font-sans hidden sm:inline">
-                {bookName} {sectionName ? `· ${sectionName}` : ''}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {/* Font Size A- / A+ */}
-              <button
-                type="button"
-                onClick={() => setFontSizeStep((prev) => Math.max(0, prev - 1))}
-                aria-label={t.fontSizeSmaller}
-                className="px-3 py-1.5 rounded-lg border border-current opacity-80 hover:opacity-100 min-h-[44px] min-w-[44px] text-xs font-semibold cursor-pointer"
-              >
-                A−
-              </button>
-              <button
-                type="button"
-                onClick={() => setFontSizeStep((prev) => Math.min(3, prev + 1))}
-                aria-label={t.fontSizeLarger}
-                className="px-3 py-1.5 rounded-lg border border-current opacity-80 hover:opacity-100 min-h-[44px] min-w-[44px] text-xs font-semibold cursor-pointer"
-              >
-                A+
-              </button>
-
-              {/* Beamer Contrast Toggle */}
-              <button
-                type="button"
-                onClick={() => setBeamerHighContrast(!beamerHighContrast)}
-                aria-label={t.beamerContrast}
-                className="px-3 py-1.5 rounded-lg border border-current opacity-80 hover:opacity-100 min-h-[44px] text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-              >
-                {beamerHighContrast ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                <span className="hidden sm:inline">{t.beamerContrast}</span>
-              </button>
-
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => setIsReadingMode(false)}
-                aria-label={t.exitPresentation}
-                className="p-2.5 rounded-full border border-current opacity-80 hover:opacity-100 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Central Sacred Text Area: pure black background, brass quotes, clamp up to 64px */}
-          <div className="max-w-4xl mx-auto w-full my-auto py-8 text-center px-4">
-            <blockquote
-              className="font-serif leading-[1.55] select-text text-white font-normal"
-              style={{
-                fontSize:
-                  fontSizeStep === 3
-                    ? 'clamp(2rem, 5vw, 4rem)'
-                    : fontSizeStep === 2
-                    ? 'clamp(1.75rem, 4vw, 3rem)'
-                    : fontSizeStep === 1
-                    ? 'clamp(1.5rem, 3.2vw, 2.5rem)'
-                    : 'clamp(1.25rem, 2.5vw, 2rem)',
-                hyphens: 'auto',
-              }}
-              lang={language}
-            >
-              <span className="text-accent font-serif select-none mr-1" aria-hidden="true">{language === 'de' ? '„' : '“'}</span>
-              {stripQuotes(text)}
-              <span className="text-accent font-serif select-none ml-1" aria-hidden="true">{language === 'de' ? '“' : '”'}</span>
-            </blockquote>
-            <cite className="not-italic mt-8 font-serif italic text-base sm:text-xl text-white/75 block">
-              — {activeQuote.source[language]}
-            </cite>
-            <span className="mt-2 text-xs sm:text-sm text-white/50 block font-sans">
-              {activeQuote.book[language]}
-            </span>
-          </div>
-
-          {/* Bottom Bar in Reading Mode: Prev / Next buttons and Hints */}
-          <div className="flex items-center justify-between gap-4 max-w-5xl mx-auto w-full text-xs opacity-75">
+          ) : <div />}
+          {nextQuote ? (
             <button
               type="button"
-              onClick={() => setCurrentQuoteIndex((prev) => (prev - 1 + QUOTES_DATA.length) % QUOTES_DATA.length)}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg border border-current hover:opacity-100 min-h-[44px] cursor-pointer"
+              onClick={() => navigate(`/quotes/${nextQuote.id}`)}
+              className="inline-flex items-center gap-1.5 hover:text-text transition-colors min-h-[44px] py-2 px-3 rounded-control hover:bg-surface-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
             >
-              <ChevronLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">{language === 'de' ? 'Vorheriges' : 'Previous'}</span>
+              <span className="truncate max-w-[140px] sm:max-w-xs">{isDe ? 'Nächstes Zitat' : 'Next quote'}</span>
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
             </button>
-
-            <span className="text-2xs opacity-60 hidden md:inline font-sans">
-              {language === 'de'
-                ? 'Tastatur: ← / → Zitat wechseln · + / − Schriftgröße · Esc Schließen'
-                : 'Keyboard: ← / → Change quote · + / − Font size · Esc Close'}
-            </span>
-
-            <button
-              type="button"
-              onClick={() => setCurrentQuoteIndex((prev) => (prev + 1) % QUOTES_DATA.length)}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg border border-current hover:opacity-100 min-h-[44px] cursor-pointer"
-            >
-              <span className="hidden sm:inline">{language === 'de' ? 'Nächstes' : 'Next'}</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          ) : <div />}
         </div>
       )}
     </div>

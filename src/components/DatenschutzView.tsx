@@ -1,27 +1,31 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ShieldCheck, Check, Trash2 } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Check, Trash2, Mail } from 'lucide-react';
 import { Language } from '../types';
 import { Button } from './ui/Button';
 
 export interface DatenschutzViewProps {
   language: Language;
   onBack: () => void;
+  onOpenContact?: () => void;
 }
 
-export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBack }) => {
+export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBack, onOpenContact }) => {
   const [cleared, setCleared] = useState(false);
+  const isDe = language === 'de';
 
   const handleClearData = () => {
     if (window.confirm(
-      language === 'de'
-        ? 'Möchtest du alle lokal im Browser gespeicherten Daten (Favoriten, Pläne, Einstellungen) wirklich löschen?'
-        : 'Are you sure you want to clear all locally stored data (favorites, plans, settings)?'
+      isDe
+        ? 'Möchtest du alle lokal im Browser gespeicherten Daten (Favoriten, Einstellungen, Gruppenliste) wirklich löschen?'
+        : 'Are you sure you want to clear all locally stored data (favorites, settings, group roster)?'
     )) {
       localStorage.removeItem('jy_favorites');
       localStorage.removeItem('jy_lang');
       localStorage.removeItem('jy_theme');
-      localStorage.removeItem('jy_plans');
-      localStorage.removeItem('jy_active_plan_id');
+      localStorage.removeItem('jy_group_names');
+      localStorage.removeItem('jy_scoreboard_teams');
+      localStorage.removeItem('jy_timer_presets');
+      localStorage.removeItem('jy_user_email');
       localStorage.removeItem('jy_quick_pick');
       setCleared(true);
       setTimeout(() => setCleared(false), 3000);
@@ -29,7 +33,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
   };
 
   return (
-    <div className="max-w-6xl w-full mx-auto py-4 sm:py-8 px-2 animate-in fade-in duration-200">
+    <div className="max-w-4xl w-full mx-auto py-4 sm:py-8 px-4 sm:px-6 animate-in fade-in duration-200">
       <Button
         variant="ghost"
         size="sm"
@@ -38,7 +42,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
         iconPosition="left"
         className="mb-6"
       >
-        {language === 'de' ? 'Zurück' : 'Back'}
+        {isDe ? 'Zurück' : 'Back'}
       </Button>
 
       <div className="bg-surface rounded-3xl border border-border-subtle p-6 sm:p-10 shadow-apple-card space-y-8">
@@ -47,55 +51,67 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
             <ShieldCheck className="w-6 h-6" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-text tracking-tight">
-            {language === 'de' ? 'Datenschutzerklärung' : 'Privacy Policy'}
+            {isDe ? 'Datenschutzerklärung' : 'Privacy Policy'}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            {language === 'de' 
-              ? 'Datenschutz nach DSGVO (GDPR) — Radikal sparsam & privat' 
-              : 'Data protection compliant with GDPR — Privacy by Design'}
+            {isDe 
+              ? 'Transparente Information nach Art. 13 DSGVO — Sparsamkeit by Design & kein Tracking' 
+              : 'Information pursuant to Art. 13 GDPR — Privacy by Design & Zero Tracking'}
           </p>
         </div>
 
-        {/* Grundsatz: Keine Cookies, kein Tracking */}
+        {/* 1. Verantwortlicher & Grundsatz */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {language === 'de' ? '1. Keine Tracking-Cookies, keine Werbenetzwerke' : '1. No Tracking Cookies, No Ad Networks'}
+            {isDe ? '1. Verantwortliche Stelle & Grundsatz' : '1. Controller & Principles'}
           </h2>
           <p>
-            {language === 'de'
-              ? 'Der Junior Youth Resource Hub verwendet bewusst keine Analyse-Dienste von Drittanbietern (wie Google Analytics, Meta Pixel), keine Werbenetzwerke und keine Marketing-Cookies. Dein Besuch wird nicht über Websites hinweg nachverfolgt.'
-              : 'The Junior Youth Resource Hub deliberately does not use third-party tracking services (such as Google Analytics or Meta Pixel), ad networks, or marketing cookies. Your visit is never tracked across websites.'}
+            {isDe
+              ? 'Verantwortlicher im Sinne der Datenschutz-Grundverordnung (DSGVO) ist Nuri Modabber, Cluster Rhein-Neckar, Deutschland (E-Mail: kontakt@junior-youth.de). Der Schutz deiner Privatsphäre ist für dieses Projekt oberste Priorität. Diese Web-App wurde nach dem Grundsatz „Privacy by Design“ entwickelt: Sie funktioniert ohne Benutzerkonto, ohne Registrierung und ohne den Einsatz von Tracking- oder Analysediensten Dritter.'
+              : 'The data controller pursuant to the General Data Protection Regulation (GDPR) is Nuri Modabber, Cluster Rhein-Neckar, Germany (Email: kontakt@junior-youth.de). This application is built around Privacy by Design: no user registration, no user profiles, and no third-party tracking.'}
           </p>
         </section>
 
-        {/* Schutz von Juniorjugendlichen */}
+        {/* 2. Keine Cookies & kein Tracking */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {language === 'de' ? '2. Konsequenter Schutz von Minderjährigen & Jugendlichen' : '2. Strict Safeguarding of Minors & Youth'}
+            {isDe ? '2. Keine Tracking-Cookies, keine Werbenetzwerke' : '2. No Tracking Cookies, No Ad Networks'}
           </h2>
-          <div className="p-4 rounded-2xl bg-accent/5 border border-accent/20">
+          <p>
+            {isDe
+              ? 'Wir setzen keine Marketing-Cookies, keine Werbetracker und keine Webanalyse-Tools (wie Google Analytics, Meta Pixel etc.) ein. Dein Nutzungsverhalten wird zu keinem Zeitpunkt ausgewertet, profiliert oder an Werbepartner übertragen.'
+              : 'We do not employ marketing cookies, ad networks, or third-party web analytics (such as Google Analytics or Meta Pixel). Your activity is never profiled or shared with advertising partners.'}
+          </p>
+        </section>
+
+        {/* 3. Konsequenter Schutz von Minderjährigen & Jugendlichen */}
+        <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
+          <h2 className="text-base font-semibold text-text">
+            {isDe ? '3. Konsequenter Schutz von Minderjährigen & Juniorjugendlichen' : '3. Strict Safeguarding of Minors & Youth'}
+          </h2>
+          <div className="p-4 rounded-2xl bg-accent-subtle/40 border border-accent/20">
             <p className="font-medium text-text">
-              {language === 'de'
-                ? 'Diese Plattform erfasst, speichert und verarbeitet zu keinem Zeitpunkt personenbezogene Daten, Namen oder Bildaufnahmen von Juniorjugendlichen oder Kindern.'
-                : 'This platform at no point collects, processes, or stores any personal data, names, or identifiable photographs of junior youth or children.'}
+              {isDe
+                ? 'Diese Plattform erfasst, speichert und verarbeitet zu keinem Zeitpunkt personenbezogene Daten, Namen oder Bildaufnahmen von Juniorjugendlichen oder Kindern auf Servern.'
+                : 'This platform at no point collects, processes, or transmits personal data, names, or photos of junior youth or children to servers.'}
             </p>
             <p className="text-xs text-text-secondary mt-2">
-              {language === 'de'
-                ? 'Ressourcen und Planungswerkzeuge richten sich ausschließlich an erwachsene Animatoren, Mentor*innen und Koordinatoren.'
-                : 'All planning tools and resources are intended exclusively for adult animators, mentors, and coordinators.'}
+              {isDe
+                ? 'Die angebotenen Ressourcen und didaktischen Werkzeuge richten sich ausschließlich an erwachsene und jugendliche Animatoren zur Vorbereitung und Begleitung ihrer Aktivitäten.'
+                : 'All resources and companion tools are directed exclusively to animators for session preparation and activity facilitation.'}
             </p>
           </div>
         </section>
 
-        {/* Lokale Speicherung */}
+        {/* 4. Lokale Speicherung im Browser (LocalStorage) */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {language === 'de' ? '3. Lokale Speicherung im Browser (LocalStorage)' : '3. Local Storage in Your Browser (LocalStorage)'}
+            {isDe ? '4. Lokale Speicherung im Browser (LocalStorage gem. § 25 Abs. 2 Nr. 2 TDDDG)' : '4. Local Storage (§ 25 (2) No. 2 TDDDG)'}
           </h2>
           <p>
-            {language === 'de'
-              ? 'Deine Favoriten, die gewählte Sprache (DE/EN) und dein bevorzugtes Farbschema (Hell/Dunkel) werden ausschließlich lokal in deinem Browser gespeichert. Diese Informationen verlassen dein Endgerät zu keinem Zeitpunkt.'
-              : 'Your favorites, language preference (DE/EN), and theme mode (Light/Dark) are stored strictly locally in your browser. This information never leaves your device.'}
+            {isDe
+              ? 'Damit du die Web-App komfortabel und offline nutzen kannst, werden deine persönlichen Einstellungen (Sprachwahl DE/EN, Farbschema, Glaseffekt-Transparenz, Lesezeichen/Merkliste sowie lokal in den Werkzeugen geführte Namenslisten) ausschließlich im lokalen Speicher deines Browsers (LocalStorage) abgelegt. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG (technisch erforderlich zur Bereitstellung der von dir aufgerufenen Funktionen). Diese Daten verlassen dein Gerät zu keinem Zeitpunkt.'
+              : 'To enable offline functionality and preserve your preferences (language, theme mode, transparency slider, bookmarks, and local tool rosters), data is stored strictly in your browser’s local storage pursuant to § 25 (2) No. 2 TDDDG. These items never leave your device.'}
           </p>
 
           <div className="pt-2 flex items-center gap-3">
@@ -106,63 +122,97 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
               icon={<Trash2 className="w-3.5 h-3.5" />}
               iconPosition="left"
             >
-              {language === 'de' ? 'Lokale Browserdaten jetzt löschen' : 'Clear local browser data now'}
+              {isDe ? 'Lokale Browserdaten jetzt löschen' : 'Clear local browser data now'}
             </Button>
             {cleared && (
               <span className="text-xs text-success flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" />
-                {language === 'de' ? 'Gelöscht!' : 'Cleared!'}
+                {isDe ? 'Gelöscht!' : 'Cleared!'}
               </span>
             )}
           </div>
         </section>
 
-        {/* Hosting bei Vercel */}
+        {/* 5. Hosting bei Vercel Inc. */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {language === 'de' ? '4. Hosting & Server-Logfiles' : '4. Hosting & Server Log Files'}
+            {isDe ? '5. Hosting & Technisch erforderliche Server-Logfiles' : '5. Hosting & Server Log Files'}
           </h2>
           <p>
-            {language === 'de'
-              ? 'Diese Anwendung wird über Vercel Inc. (San Francisco, CA, USA) ausgeliefert. Beim Abruf einer Webseite erhebt der Provider technisch erforderliche Daten (wie anonymisierte IP-Adresse, Datum und Uhrzeit des Abrufs), um den sicheren Betrieb zu gewährleisten (Art. 6 Abs. 1 lit. f DSGVO).'
-              : 'This application is hosted and delivered via Vercel Inc. When accessing a page, the hosting provider processes standard technical server logs (such as truncated IP address, date and time of request) solely to ensure server security and performance (Art. 6 (1) (f) GDPR).'}
+            {isDe
+              ? 'Diese Website wird über Vercel Inc. (San Francisco, CA, USA) gehostet. Beim technischen Aufruf einer Seite erfasst der Hoster flüchtige Server-Logdaten (wie IP-Adresse, Datum/Uhrzeit des Abrufs, User-Agent des Browsers), die ausschließlich zur Aufrechterhaltung der Netzsicherheit und Fehleranalyse erforderlich sind. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren Betrieb). Vercel Inc. ist zertifiziert nach dem EU-U.S. Data Privacy Framework bzw. verwendet Standardvertragsklauseln der EU-Kommission (Art. 46 DSGVO).'
+              : 'This site is hosted via Vercel Inc. Server logs (truncated IP address, request timestamp, user agent) are processed strictly for technical stability and cybersecurity (Art. 6 (1) (f) GDPR). Vercel is certified under the EU-U.S. Data Privacy Framework.'}
           </p>
         </section>
 
-        {/* Externe Einbindungen: bahaisongs.com */}
+        {/* 6. Kontaktaufnahme per E-Mail */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {language === 'de' ? '5. Externe Einbindung (bahaisongs.com via Zwei-Klick-Lösung)' : '5. External Embeds (bahaisongs.com via 2-Click Pattern)'}
+            {isDe ? '6. Kontaktaufnahme per E-Mail oder Kontakt-Dialog' : '6. Contact by Email or Contact Dialog'}
           </h2>
           <p>
-            {language === 'de'
-              ? 'Für Andachtslieder bieten wir eine optionale Einbindung des externen Noten- und Liedarchivs bahaisongs.com an. Um deine Privatsphäre zu schützen, wird dieser Dienst standardmäßig blockiert (Click-to-Load / Zwei-Klick-Lösung). Erst wenn du aktiv auf „Lieder-Archiv laden“ klickst, wird eine Verbindung zu bahaisongs.com aufgebaut und deine IP-Adresse an den Betreiber übertragen.'
-              : 'For devotional songs, we provide an optional embed of the external sheet music archive bahaisongs.com. To protect your privacy, this service is blocked by default (click-to-load / two-click pattern). Only when you actively click "Load songs archive", a connection to bahaisongs.com is established and your IP address is transmitted to the provider.'}
+            {isDe
+              ? 'Wenn du über den Kontakt-Button oder per E-Mail an kontakt@junior-youth.de mit uns in Verbindung trittst, werden deine Angaben (wie E-Mail-Adresse, Name und der Inhalt deiner Nachricht) ausschließlich zur Bearbeitung und Beantwortung deiner Anfrage verarbeitet (Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO). Deine Daten werden nicht für Werbezwecke verwendet und nach Abschluss der Bearbeitung gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.'
+              : 'When you contact us via the contact dialog or email to kontakt@junior-youth.de, your email address, message, and details are processed solely to address your inquiry (Art. 6 (1) (f)/(b) GDPR). No marketing use occurs.'}
+          </p>
+          {onOpenContact && (
+            <div className="pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onOpenContact}
+                icon={<Mail className="w-3.5 h-3.5 text-accent" />}
+                iconPosition="left"
+              >
+                {isDe ? 'Kontakt aufnehmen / E-Mail hinterlegen' : 'Open Contact Dialog'}
+              </Button>
+            </div>
+          )}
+        </section>
+
+        {/* 7. Externe Einbindungen: bahaisongs.com via Zwei-Klick-Lösung */}
+        <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
+          <h2 className="text-base font-semibold text-text">
+            {isDe ? '7. Externe Einbindung (bahaisongs.com via Zwei-Klick-Lösung)' : '7. External Embeds (bahaisongs.com via Two-Click Solution)'}
+          </h2>
+          <p>
+            {isDe
+              ? 'Für Noten und Audioaufnahmen von Andachtsliedern verlinken wir auf das gemeinnützige Liedarchiv bahaisongs.com. Zum Schutz deiner Privatsphäre wird eine externe Einbindung standardmäßig blockiert (Click-to-Load). Erst wenn du aktiv auf „Lieder-Archiv laden“ klickst, wird eine Verbindung zu bahaisongs.com aufgebaut und deine IP-Adresse übertragen (Art. 6 Abs. 1 lit. a DSGVO).'
+              : 'For sheet music and audio, optional embeds from bahaisongs.com are blocked by default. Only upon active user click is a connection initiated (Art. 6 (1) (a) GDPR).'}
           </p>
         </section>
 
-        {/* Vorschläge einreichen (GitHub Issues) */}
+        {/* 8. Vorschläge einreichen (GitHub Issues) */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {language === 'de' ? '6. Vorschläge einreichen (GitHub Issues)' : '6. Submitting Proposals (GitHub Issues)'}
+            {isDe ? '8. Vorschläge für Spiele & Projekte einreichen' : '8. Submitting Game & Project Proposals'}
           </h2>
           <p>
-            {language === 'de'
-              ? 'Wenn du über das Formular „Vorschlag einreichen“ ein Spiel oder Projekt einsendest, werden die von dir eingegebenen Inhaltsdaten (Titel, Ablauf, Material usw.) sowie optional dein Name oder deine E-Mail-Adresse über eine serverlose Funktion als öffentliches GitHub-Issue im Projekt-Repository (GitHub Inc., San Francisco, CA, USA) angelegt. Name und E-Mail-Adresse sind vollkommen freiwillig und dienen ausschließlich eventuellen Rückfragen. Du kannst jederzeit die Berichtigung oder Löschung eines eingereichten Vorschlags verlangen (Art. 17 DSGVO).'
-              : 'When you submit a game or project proposal, the content fields (title, steps, materials, etc.) along with your optional name or email address are processed via a serverless function and posted as a public GitHub Issue in the project repository (GitHub Inc., San Francisco, CA, USA). Name and email are completely voluntary and used solely for clarifying questions. You can request rectification or deletion of any submitted proposal at any time (Art. 17 GDPR).'}
+            {isDe
+              ? 'Über das Formular „Vorschlag einreichen“ eingesendete Beiträge werden über eine serverseitige Schnittstelle als Issue im Projekt-Repository angelegt. Die Angabe von Name und E-Mail-Adresse ist freiwillig und dient lediglich eventuellen Rückfragen zur didaktischen Umsetzung (Art. 6 Abs. 1 lit. a / f DSGVO).'
+              : 'Proposals submitted via the contribution form are processed into repository issues. Providing your name or email is strictly voluntary and used only for pedagogical clarification.'}
           </p>
         </section>
 
-        {/* Betroffenenrechte */}
+        {/* 9. Betroffenenrechte & Aufsichtsbehörde */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {language === 'de' ? '7. Deine Rechte' : '7. Your Rights'}
+            {isDe ? '9. Deine Rechte & Aufsichtsbehörde' : '9. Your Rights & Supervisory Authority'}
           </h2>
           <p>
-            {language === 'de'
-              ? 'Du hast jederzeit das Recht auf Auskunft, Berichtigung oder Löschung deiner Daten nach Art. 15–21 DSGVO. Bei Fragen zum Datenschutz wende dich bitte an die im Impressum hinterlegte Kontaktadresse.'
-              : 'You have the right to access, rectify, or delete your personal data under Art. 15–21 GDPR at any time. For questions regarding data privacy, please contact the address provided in the Legal Notice.'}
+            {isDe
+              ? 'Du hast jederzeit das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung (Art. 17 DSGVO) und Einschränkung der Verarbeitung (Art. 18 DSGVO) bezüglich deiner personenbezogenen Daten.'
+              : 'You have the right to access (Art. 15 GDPR), rectification (Art. 16 GDPR), deletion (Art. 17 GDPR), and restriction of processing (Art. 18 GDPR) regarding your data.'}
           </p>
+          <div className="p-4 rounded-2xl bg-surface-2 border border-border-subtle text-xs space-y-1">
+            <p className="font-bold text-text">
+              {isDe ? 'Zuständige Aufsichtsbehörde für Baden-Württemberg (Cluster Rhein-Neckar):' : 'Supervisory Authority (Baden-Württemberg, Cluster Rhein-Neckar):'}
+            </p>
+            <p>Der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Baden-Württemberg (LfDI BW)</p>
+            <p>Lautenschlagerstraße 20, 70173 Stuttgart · Telefon: 0711/61 55 41-0</p>
+            <p>Web: https://www.baden-wuerttemberg.datenschutz.de</p>
+          </div>
         </section>
       </div>
     </div>

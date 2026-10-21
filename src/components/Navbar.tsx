@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Bookmark, Settings, Monitor } from 'lucide-react';
+import { Search, Bookmark, Settings } from 'lucide-react';
 import { Logo } from './Logo';
 import { Language, NavTab } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -9,8 +9,6 @@ interface NavbarProps {
   activeTab: NavTab;
   language: Language;
   favoriteCount: number;
-  isBeamerMode?: boolean;
-  onToggleBeamerMode?: () => void;
   onOpenCommandPalette: () => void;
   onOpenSettings: () => void;
 }
@@ -28,8 +26,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   language,
   favoriteCount,
-  isBeamerMode = false,
-  onToggleBeamerMode,
   onOpenCommandPalette,
   onOpenSettings,
 }) => {
@@ -56,7 +52,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-surface/96 backdrop-blur-md border-b border-line print:hidden safe-top transition-transform duration-200 ${
+      style={{
+        backgroundColor: `rgb(var(--surface-rgb) / var(--glass-opacity, 0.96))`,
+      }}
+      className={`sticky top-0 z-40 backdrop-blur-md border-b border-line print:hidden safe-top transition-transform duration-200 ${
         isHidden ? 'short:-translate-y-full' : ''
       }`}
     >
@@ -94,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right: Search, Beamer, Saved, Settings */}
+        {/* Right: Search, Saved, Settings */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Desktop & Tablet Search trigger button */}
           <button
@@ -119,24 +118,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Search className="w-5 h-5" strokeWidth={1.75} />
           </button>
-
-          {/* Global Beamer Mode button */}
-          {onToggleBeamerMode && (
-            <button
-              type="button"
-              onClick={onToggleBeamerMode}
-              aria-pressed={isBeamerMode}
-              aria-label={`${t.beamerModeToggle} (B)`}
-              title={`${t.beamerModeToggle} (B)`}
-              className={`hidden md:flex w-11 h-11 min-w-[44px] min-h-[44px] rounded-control items-center justify-center transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent ${
-                isBeamerMode
-                  ? 'bg-accent text-accent-contrast'
-                  : 'text-text-secondary hover:text-text hover:bg-surface-2'
-              }`}
-            >
-              <Monitor className="w-5 h-5" strokeWidth={1.75} />
-            </button>
-          )}
 
           {/* Saved Items */}
           <Link

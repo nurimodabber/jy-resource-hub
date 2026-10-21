@@ -30,7 +30,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-surface/96 backdrop-blur-md border-t border-line shadow-2 md:hidden short:hidden safe-bottom print:hidden"
+      style={{
+        backgroundColor: `rgb(var(--surface-rgb) / var(--glass-opacity, 0.96))`,
+      }}
+      className="fixed bottom-0 left-0 right-0 z-40 backdrop-blur-md border-t border-line shadow-2 md:hidden short:hidden safe-bottom print:hidden"
       aria-label="Mobile Navigation"
     >
       <div className="grid grid-cols-6 h-16 max-w-lg mx-auto px-1 items-center">
@@ -47,9 +50,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
               className="relative flex flex-col items-center justify-center h-full min-h-[48px] py-1 select-none transition-colors group focus-visible:ring-2 focus-visible:ring-accent rounded-control"
             >
               <div
-                className={`flex items-center justify-center px-2 py-0.5 rounded-full transition-all duration-150 ease-out ${
+                className={`flex items-center justify-center px-2 py-0.5 rounded-full transition-colors duration-150 ease-out ${
                   isActive
-                    ? 'bg-accent/15 text-accent shadow-xs scale-105'
+                    ? 'bg-accent/15 text-accent'
                     : 'text-text-secondary group-hover:text-text'
                 }`}
               >

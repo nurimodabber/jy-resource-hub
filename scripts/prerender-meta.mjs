@@ -41,7 +41,7 @@ async function run() {
     roles: ['Rollenverteiler', 'Geheime Rollen für Spion, Wer bin ich, Werwölfe und Mörder auf einem Handy verteilen.'],
     scoreboard: ['Punktetafel', 'Punkte für Stationen oder Quizrunden ohne Beschämung erfassen.'],
     teams: ['Teams und Zweiergruppen', 'Zufällig und fair einteilen, ohne dieselben Paare zu wiederholen.'],
-    timer: ['Timer & Intervall', 'Große Anzeige mit Signalton und Runden für Handy und Beamer.'],
+    timer: ['Timer & Intervall', 'Große Anzeige mit Signalton und Runden für die Gruppe.'],
     finder: ['Spielfinder', 'Gruppengröße und Zeit eingeben und sofort passende Spiele erhalten.'],
     ideas: ['Spontane Impulse', 'Sortierkriterien, Geschichtenanfänge und Psychiater-Regeln für die Gruppe.'],
     cards: ['Gesprächskarten', 'Fragen und heilige Zitate für das vertiefende Gespräch im Kreis.'],
@@ -130,7 +130,7 @@ async function run() {
       priority: '0.8',
       title: 'Werkzeuge — Junior Youth Hub',
       description:
-        'Live-Werkzeuge für Handy und Beamer: Empire, Rollenverteiler, Teams, Timer, Punktetafel und Gesprächskarten.',
+        'Live-Werkzeuge für die Gruppe: Teams, Timer, Punktetafel, Gesprächskarten und Namensliste.',
       ogType: 'website',
       ogQuery: 'type=section&title=Werkzeuge',
     },
@@ -326,7 +326,7 @@ ${routes
       const cleanHeading = r.title
         .replace(/\s*[—|]\s*Junior Youth Hub.*$/, '')
         .replace(/\s*–\s*(Spiel|Zitat|Dienstprojekt|Kunst & Ausdruck|Werkzeug).*$/, '');
-      const leadText = `${r.description} Entwickelt für Animatoren von Bahá’í-Juniorjugendgruppen (11 bis 15 Jahre) zur Vorbereitung am Laptop und für den unmittelbaren Live-Einsatz auf dem Smartphone oder per Beamer in der Gruppe – inklusive Offline-Unterstützung, Filterung nach Gruppengröße und Energielevel sowie interaktiven Werkzeuge für Treffen und Camps.`;
+      const leadText = `${r.description} Entwickelt für Animatoren von Bahá’í-Juniorjugendgruppen (11 bis 15 Jahre) zur Vorbereitung am Laptop und für den unmittelbaren Live-Einsatz auf dem Smartphone in der Gruppe – inklusive Offline-Unterstützung, Filterung nach Gruppengröße und Energielevel sowie interaktiven Werkzeuge für Treffen und Camps.`;
       return `<div id="root"><div class="min-h-screen bg-bg text-text flex flex-col"><header class="sticky top-0 z-40 h-16 bg-surface border-b border-border flex items-center px-4 sm:px-6"><span class="font-bold text-base text-text">Junior Youth Hub</span></header><main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-28"><div class="max-w-4xl mx-auto space-y-6"><section class="space-y-3"><h1 class="text-2xl sm:text-3xl font-bold text-text tracking-tight">${escapeHtml(cleanHeading)}</h1><p class="text-base sm:text-lg text-text leading-relaxed">${escapeHtml(leadText)}</p></section></div></main></div></div>`;
     };
 

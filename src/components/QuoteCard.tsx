@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Bookmark, ArrowRight, MoreVertical, Copy, Check, Share2, Plus, Heart, Music, ExternalLink } from 'lucide-react';
+import React from 'react';
+import { Bookmark, Zap, Music, ExternalLink } from 'lucide-react';
 import { QuoteItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getQuoteSong } from '../data/quoteSongs';
 import { IconButton } from './ui/IconButton';
-import { useToast } from '../context/ToastContext';
-import { shareResource } from '../utils/share';
+import { ShareMenu } from './ui/ShareMenu';
+import { getBahaiLibraryUrl } from '../utils/libraryLinks';
 
 interface QuoteCardProps {
   quote: QuoteItem;
@@ -14,8 +14,6 @@ interface QuoteCardProps {
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
   onSelectQuote: (quote: QuoteItem) => void;
   onPracticeQuote: (quote: QuoteItem) => void;
-  onAddToMeeting: (quote: QuoteItem) => void;
-  onUseAsDevotional: (quote: QuoteItem) => void;
 }
 
 export const isPrayerQuote = (quote: QuoteItem): boolean => {
@@ -43,63 +41,28 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   onToggleFavorite,
   onSelectQuote,
   onPracticeQuote,
-  onAddToMeeting,
-  onUseAsDevotional,
 }) => {
   const t = UI_TRANSLATIONS[language];
-  const { showToast } = useToast();
-  const [copied, setCopied] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isDe = language === 'de';
 
   const isPrayer = isPrayerQuote(quote);
-  const text = language === 'de' ? quote.textDe : quote.textEn;
+  const text = isDe ? quote.textDe : quote.textEn;
   const bookName = quote.mainBook ? quote.mainBook[language] : quote.book[language].split(',')[0].trim();
   const sectionName = formatQuoteSection(quote.section ? quote.section[language] : undefined);
   const song = getQuoteSong(quote.id, language);
 
-  const handleCopy = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    const formatted = `„${text}“\n— ${quote.source[language]} (${quote.book[language]})`;
-    navigator.clipboard.writeText(formatted);
-    setCopied(true);
-    setIsMenuOpen(false);
-    showToast({
-      text: language === 'de' ? 'Zitat kopiert' : 'Quote copied',
-    });
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleShare = async (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setIsMenuOpen(false);
-    const title = quote.theme[language];
-    const shareText = `„${text}“\n— ${quote.source[language]}`;
-    await shareResource({
-      title,
-      text: shareText,
-      url: `${window.location.origin}/quotes/${quote.id}`,
-    });
-  };
-
-  const handleMeetingAction = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setIsMenuOpen(false);
-    if (isPrayer) {
-      onUseAsDevotional(quote);
-    } else {
-      onAddToMeeting(quote);
-    }
-  };
+  const formattedShareText = `„${text}“\n— ${quote.source[language]} (${quote.book[language]})`;
+  const quoteUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/quotes/${quote.id}`;
 
   return (
     <article
       onClick={() => onSelectQuote(quote)}
-      className="break-inside-avoid bg-surface/80 rounded-card border border-border p-5 sm:p-6 mb-5 transition-all duration-150 ease-out hover:border-accent hover:shadow-2 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-xs"
+      className="break-inside-avoid bg-surface rounded-card border border-border p-5 sm:p-6 mb-5 transition-all duration-150 ease-out hover:bg-surface-2/40 hover:shadow-2 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-1"
       tabIndex={0}
       role="article"
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          if ((e.target as HTMLElement).tagName !== 'BUTTON') {
+          if ((e.target as HTMLElement).tagName !== 'BUTTON' && (e.target as HTMLElement).tagName !== 'A') {
             e.preventDefault();
             onSelectQuote(quote);
           }
@@ -114,12 +77,12 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           </span>
           {isPrayer && (
             <span className="shrink-0 text-2xs font-semibold px-2 py-0.5 rounded-control bg-surface-2 text-text-secondary border border-line">
-              {language === 'de' ? 'Gebet' : 'Prayer'}
+              {isDe ? 'Gebet' : 'Prayer'}
             </span>
           )}
         </div>
 
-        {/* Holy Text in Lora Serif font (unaltered, up to 6 lines in list) */}
+        {/* Holy Text in Lora Serif font (strictly unmodified, up to 6 lines in list) */}
         <div className="w-full">
           <p
             className="font-serif text-lg sm:text-xl leading-relaxed text-text line-clamp-6 select-text"
@@ -130,132 +93,80 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           </p>
         </div>
 
-        {/* Source underneath in text-secondary */}
+        {/* Source underneath in text-secondary with authoritative library link */}
         <div>
           <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium">
-            — {quote.source[language]}
+            —{' '}
+            <a
+              href={getBahaiLibraryUrl(quote.source[language], language)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title={
+                isDe
+                  ? `Quelle „${quote.source.de}“ in der Bahá'í-Bibliothek öffnen`
+                  : `Open source "${quote.source.en}" in Bahá'í Reference Library`
+              }
+              className="hover:text-accent hover:underline inline-flex items-center gap-1 transition-colors group/src focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-accent rounded-xs"
+            >
+              <span>{quote.source[language]}</span>
+              <ExternalLink className="w-3 h-3 opacity-0 group-hover/src:opacity-80 transition-opacity shrink-0" />
+            </a>
           </p>
         </div>
       </div>
 
-      {/* Bottom Action Row */}
+      {/* Bottom Action Row: minimal, uncrowded toolbar */}
       <div
-        className="mt-5 pt-3.5 border-t border-line flex items-center justify-between gap-2 relative"
+        className="mt-5 pt-3 border-t border-line flex items-center justify-between gap-2 relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-1.5 relative">
+        <div className="flex items-center gap-1">
           {/* Bookmark Button */}
           <IconButton
-            label={isFavorite ? t.savedItems : (language === 'de' ? 'Merken' : 'Save')}
+            label={isFavorite ? t.savedItems : (isDe ? 'Merken' : 'Save')}
             variant="outline"
-            className={isFavorite ? 'text-accent' : 'text-text-secondary'}
+            size="md"
+            className={`min-w-[44px] min-h-[44px] ${isFavorite ? 'text-accent' : 'text-text-secondary'}`}
             onClick={(e) => onToggleFavorite(quote.id, e)}
           >
             <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent' : ''}`} />
           </IconButton>
 
-          {/* More Menu Trigger */}
-          <div className="relative">
-            <IconButton
-              label={language === 'de' ? 'Mehr Optionen' : 'More options'}
-              variant="outline"
-              className="text-text-secondary"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <MoreVertical className="w-4 h-4" />
-            </IconButton>
+          {/* Compact Share Dropdown: Text kopieren / Link kopieren */}
+          <ShareMenu
+            textToCopy={formattedShareText}
+            urlToCopy={quoteUrl}
+            language={language}
+            direction="up"
+            align="left"
+          />
 
-            {isMenuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsMenuOpen(false)}
-                />
-                <div className="absolute left-0 bottom-full mb-2 w-48 bg-surface rounded-xl border border-border shadow-lg z-50 p-1.5 animate-in fade-in zoom-in-95 duration-150">
-                  <button
-                    type="button"
-                    onClick={handleMeetingAction}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors cursor-pointer text-left"
-                  >
-                    {isPrayer ? <Heart className="w-4 h-4 text-accent" /> : <Plus className="w-4 h-4" />}
-                    <span>{isPrayer ? t.useAsDevotional : t.addToPlanner}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleCopy}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors cursor-pointer text-left"
-                  >
-                    {copied ? <Check className="w-4 h-4 text-accent" /> : <Copy className="w-4 h-4" />}
-                    <span>{copied ? (language === 'de' ? 'Kopiert' : 'Copied') : (language === 'de' ? 'Text kopieren' : 'Copy text')}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleShare}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors cursor-pointer text-left"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    <span>{language === 'de' ? 'Teilen' : 'Share'}</span>
-                  </button>
-
-                  {song && (
-                    <a
-                      href={song.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors cursor-pointer text-left"
-                    >
-                      <Music className="w-4 h-4 text-accent" />
-                      <span>{t.quoteSongDetailCta}</span>
-                      <ExternalLink className="w-3.5 h-3.5 ml-auto opacity-60" />
-                    </a>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Song Link to BahaiSongs.com */}
+          {/* Optional song reference */}
           {song && (
             <a
               href={song.url}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[44px] text-xs font-semibold text-text-secondary hover:text-accent rounded-control hover:bg-surface-2 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-text-secondary hover:text-accent rounded-control hover:bg-surface-2 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
               aria-label={t.quoteSongAriaLabel}
-              title={language === 'de' ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
+              title={isDe ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
             >
-              <Music className="w-3.5 h-3.5 text-accent" />
-              <span>{t.quoteSongLink}</span>
-              <ExternalLink className="w-3 h-3 opacity-60" />
+              <Music className="w-4 h-4 text-accent" />
             </a>
           )}
         </div>
 
-        {/* Primary contextual textual link / button */}
-        <div className="flex items-center gap-2">
-          {isPrayer ? (
-            <button
-              type="button"
-              onClick={() => onUseAsDevotional(quote)}
-              className="text-xs sm:text-sm font-semibold text-accent hover:underline flex items-center gap-1.5 px-2 py-1.5 min-h-[44px] cursor-pointer"
-            >
-              <Heart className="w-4 h-4" />
-              <span>{t.useAsDevotional}</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onPracticeQuote(quote)}
-              className="text-xs sm:text-sm font-semibold text-accent hover:underline flex items-center gap-1 px-2 py-1.5 min-h-[44px] cursor-pointer"
-            >
-              <span>{t.practiceTextLink}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          )}
-        </div>
+        {/* Single discreet icon button for "Auswendiglernen" */}
+        <IconButton
+          label={t.practiceTextLink}
+          variant="secondary"
+          size="md"
+          className="min-w-[44px] min-h-[44px] text-accent hover:text-accent-hover hover:bg-accent-subtle/80"
+          onClick={() => onPracticeQuote(quote)}
+        >
+          <Zap className="w-4 h-4" />
+        </IconButton>
       </div>
     </article>
   );

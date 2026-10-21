@@ -13,7 +13,8 @@ export interface EmpireCategoryV2 {
   status: ContentStatus;            // always 'draft'
 }
 export interface StoryStarter { id: string; text: LS; genre: 'adventure' | 'mystery' | 'funny' | 'fantasy' | 'everyday'; status: ContentStatus }
-export interface SortCriterion { id: string; text: LS; needsTalking: boolean; status: ContentStatus }   // for a silent line-up game, e.g. "nach Geburtstag im Jahr"; needsTalking must be false for all (players sort silently)
+export type SortCategory = 'alltag' | 'zahlen' | 'sprache' | 'vorlieben';
+export interface SortCriterion { id: string; text: LS; category: SortCategory; needsTalking: boolean; status: ContentStatus }   // for a silent line-up game, e.g. "nach Geburtstag im Jahr"; needsTalking must be false for all (players sort silently)
 export interface RuleIdea { id: string; text: LS; difficulty: 1 | 2 | 3; status: ContentStatus }    // hidden rules for the game "Der Psychiater": one player leaves, group agrees on a rule, e.g. "Antworte so, als wärst du die Person links von dir"
 
 export const EMPIRE_CATEGORIES_V2: EmpireCategoryV2[] = [
@@ -173,36 +174,36 @@ export const STORY_STARTERS: StoryStarter[] = [
 ];
 
 export const SORT_CRITERIA: SortCriterion[] = [
-  { id: 'geburtstag', text: { de: 'nach Geburtstag im Jahr (Januar bis Dezember)', en: 'by birthday in the year (January to December)' }, needsTalking: false, status: 'draft' },
-  { id: 'schuhgroesse', text: { de: 'nach Schuhgröße', en: 'by shoe size' }, needsTalking: false, status: 'draft' },
-  { id: 'vorname-alphabet', text: { de: 'nach dem Anfangsbuchstaben des Vornamens (A bis Z)', en: 'by the first letter of your first name (A to Z)' }, needsTalking: false, status: 'draft' },
-  { id: 'anzahl-geschwister', text: { de: 'nach Zahl der Geschwister', en: 'by number of siblings' }, needsTalking: false, status: 'draft' },
-  { id: 'schulweg-dauer', text: { de: 'nach Dauer des Schulwegs', en: 'by length of your trip to school' }, needsTalking: false, status: 'draft' },
-  { id: 'aufsteh-zeit', text: { de: 'nach der Uhrzeit, zu der du morgens aufstehst', en: 'by the time you get up in the morning' }, needsTalking: false, status: 'draft' },
-  { id: 'lieblingszahl', text: { de: 'nach deiner Lieblingszahl, von klein nach groß', en: 'by your favorite number, small to large' }, needsTalking: false, status: 'draft' },
-  { id: 'haarlaenge', text: { de: 'nach Haarlänge, kurz bis lang', en: 'by hair length, short to long' }, needsTalking: false, status: 'draft' },
-  { id: 'nachname-laenge', text: { de: 'nach der Zahl der Buchstaben im Nachnamen', en: 'by the number of letters in your last name' }, needsTalking: false, status: 'draft' },
-  { id: 'wohnort-entfernung', text: { de: 'nach Entfernung deines Wohnorts vom Treffpunkt', en: 'by how far your home is from here' }, needsTalking: false, status: 'draft' },
-  { id: 'sprachen', text: { de: 'nach Zahl der Sprachen, die du sprichst', en: 'by number of languages you speak' }, needsTalking: false, status: 'draft' },
-  { id: 'jahreszeit', text: { de: 'nach deiner Lieblingsjahreszeit, Frühling bis Winter', en: 'by favorite season, spring to winter' }, needsTalking: false, status: 'draft' },
-  { id: 'tiere-zuhause', text: { de: 'nach Zahl der Haustiere bei dir zu Hause', en: 'by number of pets at home' }, needsTalking: false, status: 'draft' },
-  { id: 'mittagessen-zeit', text: { de: 'nach der Uhrzeit, zu der du am liebsten Mittag isst', en: 'by the time you like to have lunch' }, needsTalking: false, status: 'draft' },
-  { id: 'stockwerk', text: { de: 'nach dem Stockwerk, in dem du wohnst', en: 'by the floor you live on' }, needsTalking: false, status: 'draft' },
-  { id: 'schlaf-stunden', text: { de: 'nach der Zahl der Stunden, die du letzte Nacht geschlafen hast', en: 'by the hours you slept last night' }, needsTalking: false, status: 'draft' },
-  { id: 'kuehl-heiss', text: { de: 'nach der Temperatur, bei der du dich am wohlsten fühlst', en: 'by the temperature you feel best in' }, needsTalking: false, status: 'draft' },
-  { id: 'jackentaschen', text: { de: 'nach der Zahl der Dinge in deinen Jackentaschen', en: 'by the number of things in your jacket pockets' }, needsTalking: false, status: 'draft' },
-  { id: 'zungenbrecher-wort', text: { de: 'nach der Länge deines Lieblingsworts', en: 'by the length of your favorite word' }, needsTalking: false, status: 'draft' },
-  { id: 'weiteste-reise', text: { de: 'nach der Zahl der Kilometer, die du schon mal weit weg von zu Hause warst', en: 'by the farthest you have traveled from home' }, needsTalking: false, status: 'draft' },
-  { id: 'fruehstueck-uhrzeit', text: { de: 'nach der Uhrzeit, zu der du frühstückst', en: 'by the time you have breakfast' }, needsTalking: false, status: 'draft' },
-  { id: 'kleidung-farbe', text: { de: 'nach der Farbe deiner Kleidung, von hell bis dunkel', en: 'by the color of your clothes, light to dark' }, needsTalking: false, status: 'draft' },
-  { id: 'hausnummer', text: { de: 'nach den letzten beiden Ziffern deiner Hausnummer', en: 'by the last two digits of your house number' }, needsTalking: false, status: 'draft' },
-  { id: 'sportarten', text: { de: 'nach der Zahl der Sportarten, die du schon ausprobiert hast', en: 'by number of sports you have tried' }, needsTalking: false, status: 'draft' },
-  { id: 'lieblings-essen-alphabet', text: { de: 'nach dem Anfangsbuchstaben deines Lieblingsessens (A bis Z)', en: 'by the first letter of your favorite food (A to Z)' }, needsTalking: false, status: 'draft' },
-  { id: 'tiername-laenge', text: { de: 'nach der Zahl der Buchstaben im Namen deines Lieblingstiers', en: 'by the number of letters in your favorite animal\'s name' }, needsTalking: false, status: 'draft' },
-  { id: 'bett-zeit', text: { de: 'nach der Uhrzeit, zu der du abends ins Bett gehst', en: 'by the time you go to bed' }, needsTalking: false, status: 'draft' },
-  { id: 'laender-besucht', text: { de: 'nach der Zahl der Länder, in denen du schon warst', en: 'by number of countries you have visited' }, needsTalking: false, status: 'draft' },
-  { id: 'handspanne', text: { de: 'nach der Größe deiner Handspanne', en: 'by the size of your hand span' }, needsTalking: false, status: 'draft' },
-  { id: 'lieder-summen', text: { de: 'nach der Zahl der Lieder, die du ohne Text mitsummen kannst', en: 'by the number of songs you can hum' }, needsTalking: false, status: 'draft' },
+  { id: 'geburtstag', text: { de: 'nach Geburtstag im Jahr (Januar bis Dezember)', en: 'by birthday in the year (January to December)' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'schuhgroesse', text: { de: 'nach Schuhgröße', en: 'by shoe size' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'vorname-alphabet', text: { de: 'nach dem Anfangsbuchstaben des Vornamens (A bis Z)', en: 'by the first letter of your first name (A to Z)' }, category: 'sprache', needsTalking: false, status: 'draft' },
+  { id: 'anzahl-geschwister', text: { de: 'nach Zahl der Geschwister', en: 'by number of siblings' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'schulweg-dauer', text: { de: 'nach Dauer des Schulwegs', en: 'by length of your trip to school' }, category: 'alltag', needsTalking: false, status: 'draft' },
+  { id: 'aufsteh-zeit', text: { de: 'nach der Uhrzeit, zu der du morgens aufstehst', en: 'by the time you get up in the morning' }, category: 'alltag', needsTalking: false, status: 'draft' },
+  { id: 'lieblingszahl', text: { de: 'nach deiner Lieblingszahl, von klein nach groß', en: 'by your favorite number, small to large' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'haarlaenge', text: { de: 'nach Haarlänge, kurz bis lang', en: 'by hair length, short to long' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'nachname-laenge', text: { de: 'nach der Zahl der Buchstaben im Nachnamen', en: 'by the number of letters in your last name' }, category: 'sprache', needsTalking: false, status: 'draft' },
+  { id: 'wohnort-entfernung', text: { de: 'nach Entfernung deines Wohnorts vom Treffpunkt', en: 'by how far your home is from here' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'sprachen', text: { de: 'nach Zahl der Sprachen, die du sprichst', en: 'by number of languages you speak' }, category: 'sprache', needsTalking: false, status: 'draft' },
+  { id: 'jahreszeit', text: { de: 'nach deiner Lieblingsjahreszeit, Frühling bis Winter', en: 'by favorite season, spring to winter' }, category: 'vorlieben', needsTalking: false, status: 'draft' },
+  { id: 'tiere-zuhause', text: { de: 'nach Zahl der Haustiere bei dir zu Hause', en: 'by number of pets at home' }, category: 'vorlieben', needsTalking: false, status: 'draft' },
+  { id: 'mittagessen-zeit', text: { de: 'nach der Uhrzeit, zu der du am liebsten Mittag isst', en: 'by the time you like to have lunch' }, category: 'alltag', needsTalking: false, status: 'draft' },
+  { id: 'stockwerk', text: { de: 'nach dem Stockwerk, in dem du wohnst', en: 'by the floor you live on' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'schlaf-stunden', text: { de: 'nach der Zahl der Stunden, die du letzte Nacht geschlafen hast', en: 'by the hours you slept last night' }, category: 'alltag', needsTalking: false, status: 'draft' },
+  { id: 'kuehl-heiss', text: { de: 'nach der Temperatur, bei der du dich am wohlsten fühlst', en: 'by the temperature you feel best in' }, category: 'vorlieben', needsTalking: false, status: 'draft' },
+  { id: 'jackentaschen', text: { de: 'nach der Zahl der Dinge in deinen Jackentaschen', en: 'by the number of things in your jacket pockets' }, category: 'alltag', needsTalking: false, status: 'draft' },
+  { id: 'zungenbrecher-wort', text: { de: 'nach der Länge deines Lieblingsworts', en: 'by the length of your favorite word' }, category: 'sprache', needsTalking: false, status: 'draft' },
+  { id: 'weiteste-reise', text: { de: 'nach der Zahl der Kilometer, die du schon mal weit weg von zu Hause warst', en: 'by the farthest you have traveled from home' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'fruehstueck-uhrzeit', text: { de: 'nach der Uhrzeit, zu der du frühstückst', en: 'by the time you have breakfast' }, category: 'alltag', needsTalking: false, status: 'draft' },
+  { id: 'kleidung-farbe', text: { de: 'nach der Farbe deiner Kleidung, von hell bis dunkel', en: 'by the color of your clothes, light to dark' }, category: 'vorlieben', needsTalking: false, status: 'draft' },
+  { id: 'hausnummer', text: { de: 'nach den letzten beiden Ziffern deiner Hausnummer', en: 'by the last two digits of your house number' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'sportarten', text: { de: 'nach der Zahl der Sportarten, die du schon ausprobiert hast', en: 'by number of sports you have tried' }, category: 'vorlieben', needsTalking: false, status: 'draft' },
+  { id: 'lieblings-essen-alphabet', text: { de: 'nach dem Anfangsbuchstaben deines Lieblingsessens (A bis Z)', en: 'by the first letter of your favorite food (A to Z)' }, category: 'sprache', needsTalking: false, status: 'draft' },
+  { id: 'tiername-laenge', text: { de: 'nach der Zahl der Buchstaben im Namen deines Lieblingstiers', en: 'by the number of letters in your favorite animal\'s name' }, category: 'sprache', needsTalking: false, status: 'draft' },
+  { id: 'bett-zeit', text: { de: 'nach der Uhrzeit, zu der du abends ins Bett gehst', en: 'by the time you go to bed' }, category: 'alltag', needsTalking: false, status: 'draft' },
+  { id: 'laender-besucht', text: { de: 'nach der Zahl der Länder, in denen du schon warst', en: 'by number of countries you have visited' }, category: 'vorlieben', needsTalking: false, status: 'draft' },
+  { id: 'handspanne', text: { de: 'nach der Größe deiner Handspanne', en: 'by the size of your hand span' }, category: 'zahlen', needsTalking: false, status: 'draft' },
+  { id: 'lieder-summen', text: { de: 'nach der Zahl der Lieder, die du ohne Text mitsummen kannst', en: 'by the number of songs you can hum' }, category: 'vorlieben', needsTalking: false, status: 'draft' },
 ];
 
 export const PSYCHIATRIST_RULES: RuleIdea[] = [

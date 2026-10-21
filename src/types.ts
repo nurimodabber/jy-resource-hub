@@ -110,9 +110,12 @@ export interface DiscussionCard {
   id: string;
   title: LocalizedString;
   quoteSnippet: LocalizedString;
+  source?: LocalizedString;
+  book?: LocalizedString;
   coreQuestion: LocalizedString;
   deepeningQuestions: LocalizedArray;
   theme: LocalizedString;
+  status?: 'draft';
 }
 
 export interface CampBestPractice {
@@ -130,7 +133,7 @@ export interface EmpirePlayer {
   isEliminated: boolean;
 }
 
-export type NavTab = 'home' | 'games' | 'quotes' | 'service' | 'arts' | 'planner' | 'service-arts' | 'tools' | 'saved' | 'impressum' | 'datenschutz' | 'vorschlagen';
+export type NavTab = 'home' | 'games' | 'quotes' | 'service' | 'arts' | 'tools' | 'saved' | 'impressum' | 'datenschutz' | 'vorschlagen';
 
 export interface DevotionalSong {
   id: string;
@@ -168,6 +171,8 @@ export interface ServiceProject {
   kind: 'dienst';
   title: LocalizedString;
   category: ServiceProjectCategory;
+  theme?: LocalizedString;
+  guidedBy?: LocalizedString;
   scope: ServiceProjectScope;
   duration: LocalizedString;
   durationMin: number;
@@ -222,44 +227,4 @@ export interface ArtsPrompt {
 
 export type ActivityItem = ServiceProject | ArtsPrompt;
 
-export type SessionSlotType = 'warmup' | 'devotional' | 'study' | 'arts_discussion' | 'service' | 'closing' | 'custom';
-
-export interface SessionSlot {
-  id: string;
-  type: SessionSlotType;
-  title: LocalizedString;
-  durationMinutes: number;
-  description: LocalizedString;
-  materials?: LocalizedArray;
-  tips?: LocalizedString;
-  referenceId?: string;
-  referenceType?: 'game' | 'quote' | 'method' | 'song' | 'service' | 'art';
-}
-
-export interface SessionPreset {
-  id: string;
-  title: LocalizedString;
-  focus: LocalizedString;
-  totalDuration: number;
-  slots: SessionSlot[];
-}
-
-export interface SessionReview {
-  whatWentWell?: string;
-  insights?: string;
-  nextSteps?: string;
-  savedAt?: string;
-}
-
-export interface SessionPlan {
-  id: string;
-  name: string;
-  createdAt: number;
-  updatedAt: number;
-  slots: SessionSlot[];
-  startTime?: string;
-  targetDurationMinutes?: number;
-  date?: string;
-  review?: SessionReview;
-}
 
