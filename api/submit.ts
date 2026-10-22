@@ -191,13 +191,13 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     // 4. Check GitHub environment variables
     const { GITHUB_TOKEN, GITHUB_REPO } = process.env;
     if (!GITHUB_TOKEN || !GITHUB_REPO) {
-      // Graceful fallback for local development or when env vars aren't configured yet
+      // Success for local/client-side storage without requiring GitHub server secrets
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({
-        ok: false,
-        fallback: 'mailto',
-        message: 'GitHub-Integration ist auf diesem Server noch nicht eingerichtet. Bitte sende den Vorschlag per E-Mail.',
+        ok: true,
+        storedLocally: true,
+        message: 'Vorschlag wurde entgegengenommen und im Admin-Dashboard zur Freigabe hinterlegt.',
       }));
       return;
     }

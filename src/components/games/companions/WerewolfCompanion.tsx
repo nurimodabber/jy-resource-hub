@@ -18,7 +18,6 @@ import { Language } from '../../../types';
 import {
   WEREWOLF_ROLES,
   WEREWOLF_NARRATOR,
-  WEREWOLF_VARIANTS,
   WerewolfRole,
 } from '../../../data/roleContent';
 import { shuffle } from '../../../utils/random';
@@ -67,14 +66,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
   const [includeUrwolf, setIncludeUrwolf] = useState(false);
   const [includeWhiteWolf, setIncludeWhiteWolf] = useState(false);
   const [includeThief, setIncludeThief] = useState(false);
-  const [includeFool, setIncludeFool] = useState(false);
-  const [includeScapegoat, setIncludeScapegoat] = useState(false);
   const [includePiper, setIncludePiper] = useState(false);
-  const [includeMasons, setIncludeMasons] = useState(false); // 2 players
-  const [includeApprenticeSeer, setIncludeApprenticeSeer] = useState(false);
-
-  // Variant ("Niemand scheidet aus")
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
   // Dealt roles map: player -> WerewolfRole
   const [assignments, setAssignments] = useState<Record<string, WerewolfRole>>({});
@@ -91,19 +83,13 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
 
   useWakeLock(phase !== 'setup');
 
-  const selectedVariant = WEREWOLF_VARIANTS.find((v) => v.id === selectedVariantId);
-
   // Calculate roles tally
   const activeExtendedCount =
     (includeGirl ? 1 : 0) +
     (includeUrwolf ? 1 : 0) +
     (includeWhiteWolf ? 1 : 0) +
     (includeThief ? 1 : 0) +
-    (includeFool ? 1 : 0) +
-    (includeScapegoat ? 1 : 0) +
-    (includePiper ? 1 : 0) +
-    (includeMasons ? 2 : 0) +
-    (includeApprenticeSeer ? 1 : 0);
+    (includePiper ? 1 : 0);
 
   const specialCount =
     wolvesCount +
@@ -156,15 +142,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
     if (includeUrwolf) deck.push(getRole('urwolf'));
     if (includeWhiteWolf) deck.push(getRole('weisser-werwolf'));
     if (includeThief) deck.push(getRole('dieb'));
-    if (includeFool) deck.push(getRole('dorfdepp'));
-    if (includeScapegoat) deck.push(getRole('suendenbock'));
     if (includePiper) deck.push(getRole('floetenspieler'));
-    if (includeMasons) {
-      const masonRole = getRole('freimaurer');
-      deck.push(masonRole);
-      deck.push(masonRole);
-    }
-    if (includeApprenticeSeer) deck.push(getRole('seherin-lehrling'));
 
     // Fill remainder with villagers
     while (deck.length < playerNames.length) {
@@ -192,9 +170,8 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
   const activeNarratorSteps = WEREWOLF_NARRATOR.filter((step) => {
     if (step.id.includes('dieb') && !includeThief) return false;
     if (step.id.includes('amor') && !includeCupid) return false;
-    if (step.id.includes('freimaurer') && !includeMasons) return false;
     if (step.id.includes('beschuetzer') && !includeProtector) return false;
-    if (step.id.includes('seherin') && !includeSeer && !includeApprenticeSeer) return false;
+    if (step.id.includes('seherin') && !includeSeer) return false;
     if (step.id.includes('urwolf') && !includeUrwolf) return false;
     if (step.id.includes('weisser-werwolf') && !includeWhiteWolf) return false;
     if (step.id.includes('hexe') && !includeWitch) return false;
@@ -259,8 +236,8 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
               </div>
             </div>
 
-            {/* Standard Special Roles */}
-            <div className="space-y-2 pt-1">
+            {/* Standard Special Roles in clean responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
               {[
                 {
                   id: 'seherin',
@@ -295,25 +272,33 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
               ].map(({ id, role, checked, set }) => (
                 <div
                   key={id}
-                  className="flex items-center justify-between gap-3 py-2 border-b border-border/40"
+                  onClick={() => set(!checked)}
+                  className={`flex items-center justify-between gap-2.5 p-2.5 rounded-control border transition-all cursor-pointer select-none active:scale-[0.99] ${
+                    checked
+                      ? 'bg-accent/10 border-accent/40 text-text ring-1 ring-accent/20'
+                      : 'bg-surface border-border hover:bg-surface-2 text-text'
+                  }`}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-bold text-text">{role.name[language]}</span>
+                      <span className="text-xs font-bold text-text truncate">{role.name[language]}</span>
                       <button
                         type="button"
-                        onClick={() => setInfoRole(role)}
-                        className="text-text-tertiary hover:text-accent p-0.5 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setInfoRole(role);
+                        }}
+                        className="text-text-tertiary hover:text-accent p-0.5 cursor-pointer shrink-0"
                         title={L('Rollenregeln anzeigen', 'Show role rules')}
                       >
                         <Info className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                    <p className="text-2xs text-text-tertiary line-clamp-1">
+                    <p className="text-2xs text-text-tertiary truncate">
                       {role.description[language]}
                     </p>
                   </div>
-                  <div className="w-36 shrink-0 flex justify-end">
+                  <div className="shrink-0">
                     <ToggleSwitch
                       checked={checked}
                       onChange={set}
@@ -325,7 +310,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
             </div>
 
             {/* Extended Roles Collapsible */}
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="button"
                 onClick={() => setShowExtendedRoles(!showExtendedRoles)}
@@ -348,7 +333,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
               </button>
 
               {showExtendedRoles && (
-                <div className="space-y-2 pt-3 pl-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2.5">
                   {[
                     {
                       id: 'maedchen',
@@ -375,57 +360,41 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
                       set: setIncludeThief,
                     },
                     {
-                      id: 'dorfdepp',
-                      role: WEREWOLF_ROLES.find((r) => r.id === 'dorfdepp')!,
-                      checked: includeFool,
-                      set: setIncludeFool,
-                    },
-                    {
-                      id: 'suendenbock',
-                      role: WEREWOLF_ROLES.find((r) => r.id === 'suendenbock')!,
-                      checked: includeScapegoat,
-                      set: setIncludeScapegoat,
-                    },
-                    {
                       id: 'floetenspieler',
                       role: WEREWOLF_ROLES.find((r) => r.id === 'floetenspieler')!,
                       checked: includePiper,
                       set: setIncludePiper,
                     },
-                    {
-                      id: 'freimaurer',
-                      role: WEREWOLF_ROLES.find((r) => r.id === 'freimaurer')!,
-                      checked: includeMasons,
-                      set: setIncludeMasons,
-                    },
-                    {
-                      id: 'seherin-lehrling',
-                      role: WEREWOLF_ROLES.find((r) => r.id === 'seherin-lehrling')!,
-                      checked: includeApprenticeSeer,
-                      set: setIncludeApprenticeSeer,
-                    },
                   ].map(({ id, role, checked, set }) => (
                     <div
                       key={id}
-                      className="flex items-center justify-between gap-3 py-2 border-b border-border/40"
+                      onClick={() => set(!checked)}
+                      className={`flex items-center justify-between gap-2.5 p-2.5 rounded-control border transition-all cursor-pointer select-none active:scale-[0.99] ${
+                        checked
+                          ? 'bg-accent/10 border-accent/40 text-text ring-1 ring-accent/20'
+                          : 'bg-surface border-border hover:bg-surface-2 text-text'
+                      }`}
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-text">{role.name[language]}</span>
+                          <span className="text-xs font-bold text-text truncate">{role.name[language]}</span>
                           <button
                             type="button"
-                            onClick={() => setInfoRole(role)}
-                            className="text-text-tertiary hover:text-accent p-0.5 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setInfoRole(role);
+                            }}
+                            className="text-text-tertiary hover:text-accent p-0.5 cursor-pointer shrink-0"
                             title={L('Rollenregeln anzeigen', 'Show role rules')}
                           >
                             <Info className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <p className="text-2xs text-text-tertiary line-clamp-1">
+                        <p className="text-2xs text-text-tertiary truncate">
                           {role.description[language]}
                         </p>
                       </div>
-                      <div className="w-36 shrink-0 flex justify-end">
+                      <div className="shrink-0">
                         <ToggleSwitch
                           checked={checked}
                           onChange={set}
@@ -462,50 +431,6 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
               )}
             </div>
           </Panel>
-
-          {/* 3. Option: Niemand scheidet aus */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-text uppercase tracking-wider block">
-              {L('Option: Niemand scheidet aus', 'Option: Nobody leaves the game')}
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedVariantId(null)}
-                className={`p-3 rounded-card border text-left cursor-pointer transition-all ${
-                  selectedVariantId === null
-                    ? 'bg-accent/15 border-accent text-accent'
-                    : 'bg-surface border-border hover:bg-surface-2 text-text'
-                }`}
-              >
-                <p className="font-bold text-xs">{L('Klassisch', 'Classic')}</p>
-                <p className="text-2xs text-text-tertiary">{L('Mit Ausscheiden', 'With elimination')}</p>
-              </button>
-
-              {WEREWOLF_VARIANTS.map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  onClick={() => setSelectedVariantId(v.id)}
-                  className={`p-3 rounded-card border text-left cursor-pointer transition-all ${
-                    selectedVariantId === v.id
-                      ? 'bg-accent/15 border-accent text-accent'
-                      : 'bg-surface border-border hover:bg-surface-2 text-text'
-                  }`}
-                >
-                  <p className="font-bold text-xs">{v.name[language]}</p>
-                  <p className="text-2xs text-text-tertiary truncate">{v.summary[language]}</p>
-                </button>
-              ))}
-            </div>
-
-            {selectedVariant && (
-              <div className="p-3.5 rounded-card bg-surface-2 border border-border text-xs text-text-secondary mt-2">
-                <p className="font-bold text-text mb-1">{selectedVariant.summary[language]}</p>
-                <p className="text-2xs leading-relaxed">{selectedVariant.rules[language][0]}</p>
-              </div>
-            )}
-          </div>
 
           {/* Start Dealing */}
           <button

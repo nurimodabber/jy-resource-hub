@@ -3,12 +3,13 @@ import {
   Shuffle,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   BookOpen,
 } from 'lucide-react';
 import { Language } from '../../../types';
 import { STORY_STARTERS, StoryStarter } from '../../../data/empireContent';
 import { shuffle } from '../../../utils/random';
-import { tr, Panel, primaryBtn, chipCls } from '../../tools/common';
+import { tr, Panel, primaryBtn } from '../../tools/common';
 
 interface StoryStarterCompanionProps {
   language: Language;
@@ -16,11 +17,10 @@ interface StoryStarterCompanionProps {
 
 export const StoryStarterCompanion: React.FC<StoryStarterCompanionProps> = ({ language }) => {
   const L = tr(language);
-  const [storyMode, setStoryMode] = useState<'word' | 'sentence'>('word');
-  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState<string>('all');
 
   const filteredStarters = useMemo(() => {
-    if (!selectedGenre) return STORY_STARTERS;
+    if (selectedGenre === 'all') return STORY_STARTERS;
     return STORY_STARTERS.filter((s) => s.genre === selectedGenre);
   }, [selectedGenre]);
 
@@ -89,80 +89,40 @@ export const StoryStarterCompanion: React.FC<StoryStarterCompanionProps> = ({ la
   };
 
   return (
-    <div className="space-y-6 text-center">
-      {/* Mode Selector: Word vs Sentence */}
-      <div className="bg-surface-2/60 p-1.5 rounded-control border border-border inline-flex items-center gap-1 mx-auto" role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={storyMode === 'word'}
-          onClick={() => setStoryMode('word')}
-          className={`px-3.5 py-1.5 min-h-[38px] rounded-control text-xs font-bold transition-all cursor-pointer ${
-            storyMode === 'word'
-              ? 'bg-accent text-accent-contrast shadow-xs'
-              : 'text-text-secondary hover:text-text'
-          }`}
-        >
-          {L('Wort für Wort', 'Word by word')}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={storyMode === 'sentence'}
-          onClick={() => setStoryMode('sentence')}
-          className={`px-3.5 py-1.5 min-h-[38px] rounded-control text-xs font-bold transition-all cursor-pointer ${
-            storyMode === 'sentence'
-              ? 'bg-accent text-accent-contrast shadow-xs'
-              : 'text-text-secondary hover:text-text'
-          }`}
-        >
-          {L('Satz für Satz', 'Sentence by sentence')}
-        </button>
-      </div>
+    <div className="space-y-4 text-center max-w-xl mx-auto">
+      {/* Top Toolbar: Dropdown Genre Selection · Index · Shuffle */}
+      <div className="flex items-center justify-between gap-2 px-1">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="relative">
+            <select
+              value={selectedGenre}
+              onChange={(e) => setSelectedGenre(e.target.value)}
+              aria-label={L('Genre wählen', 'Choose genre')}
+              className="appearance-none pl-3 pr-8 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text cursor-pointer focus:border-accent focus:outline-hidden transition-colors"
+            >
+              <option value="all">{L('Alle Genres', 'All genres')} ({STORY_STARTERS.length})</option>
+              {Object.entries(genreLabels).map(([key, label]) => {
+                const count = STORY_STARTERS.filter((s) => s.genre === key).length;
+                return (
+                  <option key={key} value={key}>
+                    {label[language]} ({count})
+                  </option>
+                );
+              })}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-text-tertiary absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
 
-      {/* Quick Rule Reminder Pill */}
-      <p className="text-2xs text-text-tertiary">
-        {storyMode === 'word'
-          ? L('Spielregel: Reihum steuert jede Person genau 1 Wort bei.', 'Rule: Each person contributes exactly 1 word in turn.')
-          : L('Spielregel: Reihum steuert jede Person genau 1 vollständigen Satz bei.', 'Rule: Each person contributes exactly 1 full sentence in turn.')}
-      </p>
-
-      {/* Genre Filter Chips */}
-      <div className="flex flex-wrap items-center justify-center gap-1.5">
-        <button
-          type="button"
-          onClick={() => setSelectedGenre(null)}
-          className={chipCls(selectedGenre === null)}
-        >
-          {L('Alle Genres', 'All genres')}
-        </button>
-        {Object.entries(genreLabels).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setSelectedGenre(key)}
-            className={chipCls(selectedGenre === key)}
-          >
-            {label[language]}
-          </button>
-        ))}
-      </div>
-
-      {/* Header index & Shuffle */}
-      <div className="flex items-center justify-between px-1">
-        <span className="text-xs font-bold uppercase tracking-wider text-text-tertiary">
-          {current?.genre && (
-            <span className="text-accent mr-2">
-              • {genreLabels[current.genre]?.[language]}
-            </span>
-          )}
-          {index + 1} / {deck.length}
-        </span>
+          <span className="text-xs font-bold text-text-tertiary tabular-nums whitespace-nowrap">
+            {index + 1} / {deck.length}
+          </span>
+        </div>
 
         <button
           type="button"
           onClick={handleShuffle}
-          className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer"
+          className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-[0.98]"
+          title={L('Zufällig mischen', 'Shuffle')}
         >
           <Shuffle className="w-3.5 h-3.5" />
           <span>{L('Mischen', 'Shuffle')}</span>
@@ -175,33 +135,33 @@ export const StoryStarterCompanion: React.FC<StoryStarterCompanionProps> = ({ la
         onTouchEnd={handleTouchEnd}
         className="touch-pan-y"
       >
-        <Panel className="p-8 sm:p-14 min-h-[240px] flex flex-col justify-center items-center text-center space-y-4">
-          <BookOpen className="w-6 h-6 text-accent" />
-          <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-text tracking-tight max-w-xl leading-relaxed font-serif">
+        <Panel className="p-6 sm:p-10 min-h-[220px] flex flex-col justify-center items-center text-center space-y-3">
+          <BookOpen className="w-6 h-6 text-accent shrink-0" strokeWidth={1.75} />
+          <div className="text-xl sm:text-2xl font-bold text-text tracking-tight max-w-lg leading-relaxed font-serif">
             „{current?.text[language]}“
           </div>
-          <p className="text-2xs text-text-tertiary pt-2">
-            {L('Wische oder tippe auf Weiter für den nächsten Anfang', 'Swipe or click next for another opener')}
+          <p className="text-2xs text-text-tertiary pt-1">
+            {L('Reihum die Geschichte weiterspinnen · Wische oder tippe auf Weiter', 'Continue the story in turn · Swipe or tap next')}
           </p>
         </Panel>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between gap-3 max-w-md mx-auto">
+      {/* Navigation Controls */}
+      <div className="flex items-center justify-between gap-3 max-w-md mx-auto pt-1">
         <button
           type="button"
           disabled={index === 0}
           onClick={handlePrev}
-          className="px-4 py-2 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text disabled:opacity-30 cursor-pointer flex items-center gap-1.5"
+          className="px-4 py-2 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text disabled:opacity-30 cursor-pointer flex items-center gap-1.5 active:scale-[0.98] transition-all"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span>{L('Vorheriger', 'Previous')}</span>
+          <span>{L('Zurück', 'Previous')}</span>
         </button>
 
         <button
           type="button"
           onClick={handleNext}
-          className={`${primaryBtn} px-6 py-2.5 min-h-[44px] text-sm sm:text-base flex items-center gap-1.5`}
+          className={`${primaryBtn} px-6 py-2.5 min-h-[44px] text-sm flex items-center gap-1.5`}
         >
           <span>{L('Nächster Anfang', 'Next opener')}</span>
           <ChevronRight className="w-4 h-4" />

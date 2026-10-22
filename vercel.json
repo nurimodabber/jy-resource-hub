@@ -19,6 +19,7 @@
     { "source": "/impressum", "destination": "/impressum/index.html" },
     { "source": "/datenschutz", "destination": "/datenschutz/index.html" },
     { "source": "/vorschlagen", "destination": "/vorschlagen/index.html" },
+    { "source": "/admin", "destination": "/admin/index.html" },
     { "source": "/_design", "destination": "/index.html" }
   ]
 }

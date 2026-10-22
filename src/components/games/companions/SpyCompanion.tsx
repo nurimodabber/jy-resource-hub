@@ -228,7 +228,10 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
             </div>
 
             {/* 4. Spion-Hinweis (Imposter Hint Toggle) */}
-            <div className="flex items-center justify-between gap-4 py-2 border-b border-border/50">
+            <div
+              onClick={() => setImposterHint(!imposterHint)}
+              className="flex items-center justify-between gap-4 py-2 border-b border-border/50 cursor-pointer select-none"
+            >
               <div className="min-w-0 flex-1 space-y-0.5">
                 <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-accent" />
@@ -249,7 +252,10 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
 
             {/* 5. Runden-Timer (Standard Toggle + Duration Stepper) */}
             <div className="py-2 border-b border-border/50 space-y-2">
-              <div className="flex items-center justify-between gap-4">
+              <div
+                onClick={() => setTimerEnabled(!timerEnabled)}
+                className="flex items-center justify-between gap-4 cursor-pointer select-none"
+              >
                 <div className="min-w-0 flex-1 space-y-0.5">
                   <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-accent" />
