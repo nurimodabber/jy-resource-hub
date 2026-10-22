@@ -11,7 +11,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'Beistand & Gebet',
       en: 'Assistance & Prayer'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/remover-of-difficulties',
     key: 'D / C'
   },
   {
@@ -24,7 +24,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'Andacht & Lobpreis',
       en: 'Devotion & Praise'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/blessed-is-the-spot',
     key: 'C / G'
   },
   {
@@ -37,7 +37,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'Mut & Tatkraft',
       en: 'Courage & Strength'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/armed',
     key: 'Em / Am'
   },
   {
@@ -50,7 +50,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'Liebe & Einheit',
       en: 'Love & Unity'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/love-is-the-light',
     key: 'G / D'
   },
   {
@@ -63,7 +63,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'Loslösung & Dienst',
       en: 'Detachment & Service'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/be-unrestrained-as-the-wind',
     key: 'A / G'
   },
   {
@@ -76,7 +76,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'Vertrauen & Zuflucht',
       en: 'Trust & Reliance'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/say-god-sufficeth',
     key: 'C / D'
   },
   {
@@ -89,7 +89,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'Führung & Schutz',
       en: 'Guidance & Protection'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/o-god-guide-me',
     key: 'G / Em'
   },
   {
@@ -102,7 +102,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'Einheit der Menschheit',
       en: 'Unity of Humanity'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/so-so-powerful',
     key: 'D / G'
   },
   {
@@ -115,7 +115,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'Herzen einen',
       en: 'Uniting Hearts'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/unite',
     key: 'C / Am'
   },
   {
@@ -128,7 +128,7 @@ export const DEVOTIONAL_SONGS_DATA: DevotionalSong[] = [
       de: 'International & Rhythmus',
       en: 'Global Devotional'
     },
-    bahaiSongsUrl: 'https://www.bahaisongs.com/',
+    bahaiSongsUrl: 'https://www.bahaisongs.com/songs/kodi-palinso-wina',
     key: 'G'
   }
 ];

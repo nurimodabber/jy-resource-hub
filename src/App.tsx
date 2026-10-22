@@ -236,6 +236,59 @@ export const AppContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [navigate]);
 
+  // Scroll management: record scroll positions and restore on navigation back
+  const scrollPositionsRef = useRef<Record<string, number>>({});
+  const lastLocationRef = useRef<string>(location.pathname);
+
+  // Continuously record scroll position for overview pages
+  useEffect(() => {
+    const handleScroll = () => {
+      const path = location.pathname;
+      if (path === '/games' || path === '/quotes' || path === '/service' || path === '/arts' || path === '/tools') {
+        scrollPositionsRef.current[path] = window.scrollY;
+        try {
+          sessionStorage.setItem(`jy_scroll_${path}`, String(window.scrollY));
+        } catch {
+          /* ignore */
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [location.pathname]);
+
+  // Handle route transitions (Scroll-to-top on detail & Scroll restoration on overview)
+  useEffect(() => {
+    const prevPath = lastLocationRef.current;
+    const currentPath = location.pathname;
+    lastLocationRef.current = currentPath;
+
+    const isDetailRoute = /^\/(games|quotes|service|arts)\/[^/]+$/.test(currentPath);
+    const isOverviewRoute = currentPath === '/games' || currentPath === '/quotes' || currentPath === '/service' || currentPath === '/arts';
+
+    if (isDetailRoute) {
+      // 4. Scroll-to-Top on Game/Item Detail
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    } else if (isOverviewRoute && prevPath.startsWith(currentPath + '/')) {
+      // 5. Scroll Restoration when returning from detail view to overview
+      const cachedY = scrollPositionsRef.current[currentPath] ?? (() => {
+        try {
+          const val = sessionStorage.getItem(`jy_scroll_${currentPath}`);
+          return val ? Number(val) : 0;
+        } catch {
+          return 0;
+        }
+      })();
+
+      if (cachedY > 0) {
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: cachedY, left: 0, behavior: 'instant' });
+        });
+      }
+    }
+  }, [location.pathname]);
+
   // Shift focus to H1 after route change (skip initial mount so 'Skip to content' is first focusable element on Tab)
   useEffect(() => {
     if (isFirstMountRef.current) {

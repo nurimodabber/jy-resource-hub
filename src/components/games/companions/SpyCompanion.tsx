@@ -5,15 +5,16 @@ import {
   RotateCcw,
   Eye,
   Clock,
-  Sparkles,
   MapPin,
   CheckCircle,
+  Sparkles,
+  ShieldAlert,
+  ChevronDown,
 } from 'lucide-react';
 import { Language } from '../../../types';
 import { SPY_PACKS, SpyLocation } from '../../../data/roleContent';
-import { loadPresentNames } from '../../../utils/groupNames';
 import { shuffle } from '../../../utils/random';
-import { tr, Panel, primaryBtn, secondaryBtn } from '../../tools/common';
+import { tr, Panel, primaryBtn, secondaryBtn, Stepper, ToggleSwitch, PlayerSetupSection, usePlayerList } from '../../tools/common';
 import { PassAround } from '../../tools/PassAround';
 import { useWakeLock } from '../../../hooks/useWakeLock';
 
@@ -26,17 +27,38 @@ type Phase = 'setup' | 'deal' | 'play';
 export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
   const L = tr(language);
   const [phase, setPhase] = useState<Phase>('setup');
-  const [players, setPlayers] = useState<string[]>(() => loadPresentNames());
-  const [packId, setPackId] = useState<string>(SPY_PACKS[0]?.id || 'schule');
+
+  const {
+    playerCount,
+    setPlayerCount,
+    playerNames,
+    handleRename,
+    handleResetToGroup,
+    hasGroupNames,
+  } = usePlayerList(5, language, 3);
+
+  // Imposters count
+  const [imposterCount, setImposterCount] = useState<number>(1);
+
+  // Imposter hint toggle (yes/no)
+  const [imposterHint, setImposterHint] = useState<boolean>(false);
+
+  // Selected Category Pack ID or 'all'
+  const [selectedPackId, setSelectedPackId] = useState<string>(SPY_PACKS[0]?.id || 'places');
+
+  // Round Timer toggle & duration in minutes
+  const [timerEnabled, setTimerEnabled] = useState<boolean>(true);
+  const [timerMinutes, setTimerMinutes] = useState<number>(8);
 
   // Dealing outcome
   const [deal, setDeal] = useState<{
     location: SpyLocation;
-    spyName: string;
+    packName: string;
+    spyNames: string[];
     roles: Record<string, string>;
   } | null>(null);
 
-  // Round Timer (8 minutes default = 480 seconds)
+  // Active round timer
   const [secondsLeft, setSecondsLeft] = useState(480);
   const [timerRunning, setTimerRunning] = useState(false);
   const endRef = useRef(0);
@@ -47,11 +69,17 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
 
   useWakeLock(phase !== 'setup');
 
-  const selectedPack = SPY_PACKS.find((p) => p.id === packId) || SPY_PACKS[0];
+  // Adjust max imposters when player count changes
+  useEffect(() => {
+    const maxAllowed = Math.max(1, playerCount - 1);
+    if (imposterCount > maxAllowed) {
+      setImposterCount(maxAllowed);
+    }
+  }, [playerCount, imposterCount]);
 
   // Timer countdown loop
   useEffect(() => {
-    if (!timerRunning || phase !== 'play') return;
+    if (!timerRunning || phase !== 'play' || !timerEnabled) return;
     const interval = setInterval(() => {
       const left = Math.max(0, Math.ceil((endRef.current - Date.now()) / 1000));
       setSecondsLeft(left);
@@ -65,14 +93,26 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
       }
     }, 250);
     return () => clearInterval(interval);
-  }, [timerRunning, phase]);
+  }, [timerRunning, phase, timerEnabled]);
 
   const toggleTimer = () => {
     if (timerRunning) {
       setTimerRunning(false);
     } else {
-      endRef.current = Date.now() + secondsLeft * 1000;
+      const current = secondsLeft > 0 ? secondsLeft : timerMinutes * 60;
+      if (secondsLeft <= 0) {
+        setSecondsLeft(current);
+      }
+      endRef.current = Date.now() + current * 1000;
       setTimerRunning(true);
+    }
+  };
+
+  const resetTimer = () => {
+    const total = timerMinutes * 60;
+    setSecondsLeft(total);
+    if (timerRunning) {
+      endRef.current = Date.now() + total * 1000;
     }
   };
 
@@ -85,7 +125,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
   };
 
   const startDealing = () => {
-    if (players.length < 3) {
+    if (playerNames.length < 3) {
       alert(
         L(
           'Für Spion werden mindestens 3 Personen benötigt.',
@@ -95,16 +135,24 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
       return;
     }
 
-    const loc = shuffle(selectedPack.locations)[0];
+    // Pick location from chosen pack or all packs
+    const poolPacks =
+      selectedPackId === 'all'
+        ? SPY_PACKS
+        : SPY_PACKS.filter((p) => p.id === selectedPackId);
+    const chosenPack = shuffle(poolPacks)[0] || SPY_PACKS[0];
+    const loc = shuffle(chosenPack.locations)[0];
     const shuffledRoles = shuffle(loc.roles).map((r) => r[language]);
-    const spyIdx = Math.floor(Math.random() * players.length);
-    const spyName = players[spyIdx];
+
+    // Choose N spies
+    const shuffledPlayers = shuffle([...playerNames]);
+    const chosenSpies = shuffledPlayers.slice(0, imposterCount);
 
     const rolesMap: Record<string, string> = {};
     let rolePointer = 0;
 
-    players.forEach((p) => {
-      if (p === spyName) {
+    playerNames.forEach((p) => {
+      if (chosenSpies.includes(p)) {
         rolesMap[p] = 'SPY';
       } else {
         rolesMap[p] = shuffledRoles[rolePointer % shuffledRoles.length];
@@ -114,14 +162,15 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
 
     setDeal({
       location: loc,
-      spyName,
+      packName: chosenPack.name[language],
+      spyNames: chosenSpies,
       roles: rolesMap,
     });
     setPhase('deal');
   };
 
   const finishDealAndStartGame = () => {
-    setSecondsLeft(480);
+    setSecondsLeft(timerMinutes * 60);
     setTimerRunning(false);
     setAccusedPlayer(null);
     setIsRevealed(false);
@@ -131,97 +180,151 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
   const fmt = (s: number) =>
     `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
+  const currentPack = SPY_PACKS.find((p) => p.id === selectedPackId);
+
   return (
     <div className="space-y-6">
       {/* =================================================================== */}
-      {/* PHASE 1: SETUP & PACK-AUSWAHL                                       */}
+      {/* PHASE 1: EINHEITLICHES, KLARES SETUP OHNE KARTEN-VERSCHACHTELUNG    */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-6 text-left">
-          {/* Intro Box */}
-          <div className="p-4 rounded-card bg-surface-2 border border-border space-y-1">
-            <h2 className="text-sm font-bold text-text flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-accent" />
-              <span>{L('Spion Assistent', 'Spy Game Assistant')}</span>
-            </h2>
-            <p className="text-xs text-text-secondary leading-relaxed">
-              {L(
-                'Alle Spieler erhalten denselben geheimen Ort und eine passende Rolle – außer der Spion, der nicht weiß, wo er ist. Durch geschickte Fragen versucht die Gruppe den Spion zu entlarven.',
-                'All players receive the same location and a role – except the spy, who has no idea where they are. Ask questions to unmask the spy.'
-              )}
-            </p>
-          </div>
+        <div className="space-y-5 text-left max-w-lg mx-auto">
+          <Panel className="p-5 sm:p-6 space-y-4">
+            {/* 1. Spielende & Namen */}
+            <PlayerSetupSection
+              language={language}
+              playerCount={playerCount}
+              playerNames={playerNames}
+              minPlayers={3}
+              maxPlayers={25}
+              onCountChange={setPlayerCount}
+              onRename={handleRename}
+              onResetToGroup={handleResetToGroup}
+              hasGroupNames={hasGroupNames}
+              countLabel={L('Spielende', 'Players')}
+              countSubtitle={L('Gesamtzahl der Personen im Kreis', 'Total number of people in the circle')}
+            />
 
-          {/* Group Presence */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 p-3.5 rounded-card bg-surface border border-border">
-            <div>
-              <span className="text-xs font-bold text-text block">
-                {players.length} {L('Personen in der Gruppe', 'players in group')}
-              </span>
-              <p className="text-2xs text-text-tertiary">
-                {players.join(', ')}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setPlayers(loadPresentNames())}
-              className="px-2.5 py-1 text-2xs font-semibold rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-text transition-colors cursor-pointer"
-            >
-              {L('Aktualisieren', 'Refresh')}
-            </button>
-          </div>
-
-          {/* Pack Selection */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-text-secondary block">
-              {L('Themenpaket wählen', 'Choose Theme Pack')}
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {SPY_PACKS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => setPackId(p.id)}
-                  className={`p-3 rounded-card border text-left transition-all cursor-pointer ${
-                    packId === p.id
-                      ? 'bg-accent/15 border-accent text-accent'
-                      : 'bg-surface border-border hover:bg-surface-2 text-text'
-                  }`}
-                >
-                  <p className="font-bold text-xs">{p.name[language]}</p>
-                  <p className="text-2xs text-text-tertiary mt-0.5">
-                    {p.locations.length} {L('Orte', 'locations')}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Locations Preview */}
-          <div className="p-4 rounded-card bg-surface border border-border space-y-2">
-            <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-              {L('Enthaltene Orte im Paket:', 'Included locations in pack:')}
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {selectedPack.locations.map((loc) => (
-                <span
-                  key={loc.id}
-                  className="text-2xs px-2.5 py-1 rounded-control bg-surface-2 text-text border border-border"
-                >
-                  {loc.name[language]}
+            {/* 3. Spione (Imposters) */}
+            <div className="flex items-center justify-between gap-4 py-2 border-b border-border/50">
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldAlert className="w-3.5 h-3.5 text-accent" />
+                  <span>{L('Spione', 'Spies')}</span>
                 </span>
-              ))}
+                <p className="text-2xs text-text-tertiary">
+                  {L('Wie viele Personen den Ort nicht kennen', 'How many players are in the dark')}
+                </p>
+              </div>
+              <div className="w-36 shrink-0 flex justify-end">
+                <Stepper
+                  value={imposterCount}
+                  min={1}
+                  max={Math.max(1, playerCount - 1)}
+                  onChange={(n) => setImposterCount(n)}
+                  label={L('Anzahl Spione', 'Number of spies')}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Start Dealing Button */}
+            {/* 4. Spion-Hinweis (Imposter Hint Toggle) */}
+            <div className="flex items-center justify-between gap-4 py-2 border-b border-border/50">
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-accent" />
+                  <span>{L('Spion-Hinweis', 'Spy Hint')}</span>
+                </span>
+                <p className="text-2xs text-text-tertiary">
+                  {L('Gibt dem Spion einen dezenten Hinweis auf die Kategorie', 'Gives the spy a subtle hint about the category')}
+                </p>
+              </div>
+              <div className="w-36 shrink-0 flex justify-end">
+                <ToggleSwitch
+                  checked={imposterHint}
+                  onChange={setImposterHint}
+                  label={L('Spion-Hinweis', 'Spy Hint')}
+                />
+              </div>
+            </div>
+
+            {/* 5. Runden-Timer (Standard Toggle + Duration Stepper) */}
+            <div className="py-2 border-b border-border/50 space-y-2">
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-accent" />
+                    <span>{L('Runden-Timer', 'Round Timer')}</span>
+                  </span>
+                  <p className="text-2xs text-text-tertiary">
+                    {timerEnabled
+                      ? `${timerMinutes} ${L('Minuten Diskussion mit Schlusston', 'minutes with alert')}`
+                      : L('Ohne Zeitbegrenzung spielen', 'Play without time limit')}
+                  </p>
+                </div>
+                <div className="w-36 shrink-0 flex justify-end">
+                  <ToggleSwitch
+                    checked={timerEnabled}
+                    onChange={setTimerEnabled}
+                    label={L('Runden-Timer', 'Round Timer')}
+                  />
+                </div>
+              </div>
+
+              {timerEnabled && (
+                <div className="flex items-center justify-between pt-1 text-2xs">
+                  <span className="text-text-secondary font-medium">
+                    {L('Dauer festlegen:', 'Set duration:')}
+                  </span>
+                  <div className="w-36 flex justify-end">
+                    <Stepper
+                      value={timerMinutes}
+                      min={3}
+                      max={15}
+                      onChange={setTimerMinutes}
+                      label={L('Dauer in Minuten', 'Duration in minutes')}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 6. Kategorien Dropdown */}
+            <div className="pt-2 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-text uppercase tracking-wider">
+                  {L('Kategorien', 'Categories')}
+                </span>
+                <span className="text-2xs text-text-tertiary">
+                  {currentPack ? `${currentPack.locations.length} ${L('Orte', 'locations')}` : L('Alle gemischt', 'All mixed')}
+                </span>
+              </div>
+
+              <div className="relative">
+                <select
+                  value={selectedPackId}
+                  onChange={(e) => setSelectedPackId(e.target.value)}
+                  className="w-full appearance-none px-3.5 py-2.5 rounded-control bg-surface-2 border border-border/80 text-xs font-bold text-text cursor-pointer pr-9 focus:border-accent focus:outline-hidden"
+                >
+                  <option value="all">{L('Alle Kategorien gemischt', 'All Categories Mixed')}</option>
+                  {SPY_PACKS.map((pack) => (
+                    <option key={pack.id} value={pack.id}>
+                      {pack.name[language]} ({pack.locations.length})
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-4 h-4 text-text-tertiary absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+            </div>
+          </Panel>
+
+          {/* Big Start Button */}
           <button
             type="button"
             onClick={startDealing}
-            className={`${primaryBtn} w-full py-3 text-base flex items-center justify-center gap-2`}
+            className={`${primaryBtn} w-full py-3.5 text-base flex items-center justify-center gap-2`}
           >
             <Eye className="w-4 h-4" />
-            <span>{L('Rollen geheim verteilen (Handy weitergeben)', 'Deal secret roles (Pass phone)')}</span>
+            <span>{L('Rollen geheim verteilen', 'Deal secret roles')}</span>
           </button>
         </div>
       )}
@@ -232,30 +335,39 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
       {phase === 'deal' && deal && (
         <PassAround
           language={language}
-          players={players}
-          doneLabel={L('Verteilung abgeschlossen · Spiel starten', 'Deal complete · Start game')}
+          players={playerNames}
+          doneLabel={L('Verteilung abgeschlossen · Runde starten', 'Deal complete · Start round')}
           onDone={finishDealAndStartGame}
           renderCard={(playerIdx) => {
-            const p = players[playerIdx];
-            const isSpy = deal.roles[p] === 'SPY';
+            const p = playerNames[playerIdx];
+            const isSpy = deal.spyNames.includes(p);
 
             return (
               <div className="space-y-4 py-2 text-center w-full">
                 {isSpy ? (
-                  <div className="space-y-3 p-5 rounded-card bg-red-500/10 border border-red-500/30">
-                    <span className="text-3xl">🕵️</span>
-                    <h3 className="text-2xl font-black text-red-400 tracking-tight">
-                      {L('Du bist der SPION!', 'You are the SPY!')}
+                  <div className="space-y-3.5 p-6 rounded-card bg-surface-2 border border-accent/40 text-text">
+                    <span className="text-xs font-bold uppercase tracking-wider text-accent block">
+                      {L('Deine geheime Rolle', 'Your Secret Role')}
+                    </span>
+                    <h3 className="text-2xl sm:text-3xl font-black text-text tracking-tight">
+                      {L('Du bist der Spion!', 'You are the Spy!')}
                     </h3>
+
+                    {imposterHint && (
+                      <div className="p-2.5 rounded-control bg-accent/10 border border-accent/30 text-accent text-xs font-semibold">
+                        {L('Kategorie-Hinweis:', 'Category hint:')} „{deal.packName}“
+                      </div>
+                    )}
+
                     <p className="text-xs text-text-secondary leading-relaxed">
                       {L(
-                        'Du weißt nicht, an welchem Ort die anderen sind! Höre den Fragen und Antworten genau zu und versuche den Ort zu erraten, ohne dich zu verraten.',
-                        'You don\'t know the secret location! Listen carefully to questions and try to deduce where you are without getting caught.'
+                        'Du weißt nicht, an welchem Ort die anderen sind. Höre allen Fragen und Antworten genau zu und errate den Ort, ohne aufzufliegen.',
+                        'You do not know the secret location. Listen carefully to questions and deduce where you are without getting caught.'
                       )}
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4 p-5 rounded-card bg-surface-2 border border-border">
+                  <div className="space-y-4 p-6 rounded-card bg-surface-2 border border-border text-text">
                     <div className="space-y-1">
                       <span className="text-2xs font-bold uppercase tracking-wider text-accent flex items-center justify-center gap-1">
                         <MapPin className="w-3.5 h-3.5" />
@@ -278,7 +390,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
                     <p className="text-2xs text-text-tertiary pt-1">
                       {L(
                         'Antworte so, dass Mitwisser verstehen, dass du den Ort kennst – aber nicht so deutlich, dass der Spion es sofort weiß.',
-                        'Give answers that signal you know the location without making it too obvious for the spy.'
+                        'Give answers that signal you know the location without giving it away to the spy.'
                       )}
                     </p>
                   </div>
@@ -290,64 +402,77 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
       )}
 
       {/* =================================================================== */}
-      {/* PHASE 3: RUNDEN-TIMER & ABSTIMMUNGSHILFE                            */}
+      {/* PHASE 3: SPIELPHASE (TIMER & ABSTIMMUNG)                            */}
       {/* =================================================================== */}
       {phase === 'play' && deal && (
-        <div className="space-y-6 text-left">
-          {/* Active Round Timer Card */}
-          <Panel className="p-6 text-center space-y-4">
-            <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-text-tertiary">
-              <Clock className="w-4 h-4 text-accent" />
-              <span>{L('Runden-Timer (8 Minuten)', 'Round Timer (8 minutes)')}</span>
-            </div>
+        <div className="space-y-6 text-left max-w-lg mx-auto">
+          {/* Active Round Timer Card (if enabled) */}
+          {timerEnabled && (
+            <Panel className="p-6 text-center space-y-4">
+              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-text-tertiary">
+                <Clock className="w-4 h-4 text-accent" />
+                <span>{L('Runden-Timer', 'Round Timer')}</span>
+              </div>
 
-            <div className="text-6xl sm:text-7xl font-sans font-black tabular-nums tracking-tight text-text">
-              {fmt(secondsLeft)}
-            </div>
+              <div className="text-6xl sm:text-7xl font-sans font-black tabular-nums tracking-tight text-text">
+                {fmt(secondsLeft)}
+              </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-              <button
-                type="button"
-                onClick={toggleTimer}
-                className={`${primaryBtn} min-w-[130px]`}
-              >
-                {timerRunning ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
-                <span>{timerRunning ? L('Pause', 'Pause') : L('Start', 'Start')}</span>
-              </button>
+              <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={toggleTimer}
+                  className={`${primaryBtn} min-w-[130px]`}
+                >
+                  {timerRunning ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
+                  <span>{timerRunning ? L('Pause', 'Pause') : L('Start', 'Start')}</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => adjustTimer(-30)}
-                className={secondaryBtn}
-              >
-                -30s
-              </button>
-              <button
-                type="button"
-                onClick={() => adjustTimer(60)}
-                className={secondaryBtn}
-              >
-                +1m
-              </button>
-            </div>
-          </Panel>
+                <button
+                  type="button"
+                  onClick={() => adjustTimer(-30)}
+                  className={secondaryBtn}
+                  title={L('30 Sekunden abziehen', 'Subtract 30 seconds')}
+                >
+                  -30s
+                </button>
+                <button
+                  type="button"
+                  onClick={() => adjustTimer(60)}
+                  className={secondaryBtn}
+                  title={L('1 Minute hinzufügen', 'Add 1 minute')}
+                >
+                  +1m
+                </button>
+                <button
+                  type="button"
+                  onClick={resetTimer}
+                  className={secondaryBtn}
+                  title={L('Timer zurücksetzen', 'Reset timer')}
+                  aria-label={L('Timer zurücksetzen', 'Reset timer')}
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              </div>
+            </Panel>
+          )}
 
           {/* Voting Assistant */}
           <div className="space-y-3">
             <div>
               <h3 className="text-sm font-bold text-text">
-                {L('Abstimmungshilfe: Wer wird verdächtigt?', 'Voting: Who is suspected?')}
+                {L('Abstimmung: Wer wird verdächtigt?', 'Voting: Who is suspected?')}
               </h3>
               <p className="text-2xs text-text-tertiary">
                 {L(
-                  'Wenn die Zeit abgelaufen ist oder ein Spieler eine Anklage erhebt, tippe auf den verdächtigten Namen.',
-                  'When time is up or an accusation is made, select the suspected player.'
+                  'Tippe auf den Namen der Person, die die Gruppe als Spion anklagt.',
+                  'Tap the name of the player the group accuses of being a spy.'
                 )}
               </p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {players.map((p) => {
+              {playerNames.map((p) => {
                 const isSelected = accusedPlayer === p;
                 return (
                   <button
@@ -356,12 +481,12 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
                     onClick={() => setAccusedPlayer(isSelected ? null : p)}
                     className={`p-3 rounded-card border font-bold text-xs text-left flex items-center justify-between transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-amber-500/15 border-amber-500/40 text-amber-400 ring-1 ring-amber-500/30'
+                        ? 'bg-accent/15 border-accent text-accent ring-1 ring-accent/30'
                         : 'bg-surface border-border hover:bg-surface-2 text-text'
                     }`}
                   >
-                    <span>{p}</span>
-                    {isSelected && <CheckCircle className="w-4 h-4 text-amber-400 shrink-0" />}
+                    <span className="truncate">{p}</span>
+                    {isSelected && <CheckCircle className="w-4 h-4 text-accent shrink-0" />}
                   </button>
                 );
               })}
@@ -376,7 +501,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
                   {L('Auflösung der Runde', 'Round Solution')}
                 </h4>
                 <p className="text-2xs text-text-tertiary">
-                  {L('Nur aufdecken, wenn die Abstimmung abgeschlossen ist.', 'Reveal only once voting has ended.')}
+                  {L('Erst aufdecken, wenn die Abstimmung fertig ist.', 'Reveal only once voting has ended.')}
                 </p>
               </div>
 
@@ -390,10 +515,16 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
             </div>
 
             {isRevealed && (
-              <div className="pt-2 border-t border-border/50 space-y-3">
-                <div className="p-3.5 rounded-control bg-red-500/10 border border-red-500/30 flex items-center justify-between">
-                  <span className="text-xs text-text-secondary">{L('Der Spion war:', 'The spy was:')}</span>
-                  <span className="font-black text-red-400 text-sm">{deal.spyName}</span>
+              <div className="pt-2 border-t border-border/50 space-y-2.5">
+                <div className="p-3.5 rounded-control bg-surface border border-accent/40 flex items-center justify-between">
+                  <span className="text-xs text-text-secondary">
+                    {deal.spyNames.length > 1
+                      ? L('Die Spione waren:', 'The spies were:')
+                      : L('Der Spion war:', 'The spy was:')}
+                  </span>
+                  <span className="font-bold text-text text-sm">
+                    {deal.spyNames.join(', ')}
+                  </span>
                 </div>
 
                 <div className="p-3.5 rounded-control bg-accent/10 border border-accent/30 flex items-center justify-between">

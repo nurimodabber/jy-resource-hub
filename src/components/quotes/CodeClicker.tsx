@@ -10,15 +10,14 @@ interface CodeClickerProps {
 
 interface ActionBadge {
   type: 'clap' | 'snap' | 'stomp';
-  icon: string;
   labelDe: string;
   labelEn: string;
 }
 
 const ACTIONS: ActionBadge[] = [
-  { type: 'clap', icon: '👏', labelDe: 'Klatschen', labelEn: 'Clap' },
-  { type: 'snap', icon: '🫰', labelDe: 'Schnippen', labelEn: 'Snap' },
-  { type: 'stomp', icon: '🦶', labelDe: 'Stampfen', labelEn: 'Stomp' },
+  { type: 'clap', labelDe: 'Klatschen', labelEn: 'Clap' },
+  { type: 'snap', labelDe: 'Schnippen', labelEn: 'Snap' },
+  { type: 'stomp', labelDe: 'Stampfen', labelEn: 'Stomp' },
 ];
 
 export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => {
@@ -91,9 +90,8 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-accent-subtle text-accent-text border border-accent/20 cursor-pointer hover:bg-accent/20 transition-colors"
                   title={language === 'de' ? 'Klicken zum Entfernen' : 'Click to remove'}
                 >
-                  <span>{action.icon}</span>
                   <span className="capitalize">{word}</span>
-                  <span className="text-2xs text-accent-text">({language === 'de' ? action.labelDe : action.labelEn})</span>
+                  <span className="text-2xs text-accent-text font-bold">[{language === 'de' ? action.labelDe : action.labelEn}]</span>
                 </button>
               ))
             )}
@@ -130,8 +128,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
               >
                 {action ? (
                   <span className="inline-flex items-center gap-1">
-                    <span className="text-2xl">{action.icon}</span>
-                    <span className="text-xs font-sans uppercase font-bold text-accent-text">
+                    <span className="text-xs font-sans uppercase font-bold text-accent-text px-2 py-0.5 rounded-md bg-accent/20 border border-accent/40">
                       [{language === 'de' ? action.labelDe : action.labelEn}]
                     </span>
                     <span className="opacity-70">{punctuation}</span>

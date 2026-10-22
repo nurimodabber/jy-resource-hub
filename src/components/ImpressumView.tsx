@@ -85,7 +85,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
               </span>
               <span className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
-                <span className="font-mono select-all">kontakt@junior-youth.de</span>
+                <span className="font-mono select-all">nuri@modabber.net · lasse.nieruch@bahai.de</span>
               </span>
               <span className="flex items-center gap-2">
                 <Globe className="w-3.5 h-3.5 text-accent shrink-0" />
@@ -107,7 +107,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
                 </Button>
               ) : (
                 <a
-                  href="mailto:kontakt@junior-youth.de"
+                  href="mailto:nuri@modabber.net,lasse.nieruch@bahai.de"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-3 border border-border text-text transition-colors"
                 >
                   <Mail className="w-3.5 h-3.5 text-accent" />
@@ -125,8 +125,8 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
           </h2>
           <p>
             {isDe
-              ? 'Verantwortlich für redaktionell-didaktische Inhalte im Sinne des § 18 Abs. 2 MStV: Nuri Modabber, Region Rhein-Neckar, Deutschland (Erreichbarkeit über oben angegebene E-Mail-Adresse).'
-              : 'Responsible for editorial and pedagogical content pursuant to § 18 (2) MStV: Nuri Modabber, Rhine-Neckar region, Germany.'}
+              ? 'Verantwortlich für redaktionell-didaktische Inhalte im Sinne des § 18 Abs. 2 MStV: Nuri Modabber, Cluster Rhein-Neckar, Deutschland (in redaktioneller Begleitung und Zusammenarbeit mit Lasse Nieruch; Erreichbarkeit über oben angegebene E-Mail-Adressen).'
+              : 'Responsible for editorial and pedagogical content pursuant to § 18 (2) MStV: Nuri Modabber, Cluster Rhein-Neckar, Germany (in editorial collaboration with Lasse Nieruch; reachable via the email addresses above).'}
           </p>
         </section>
 

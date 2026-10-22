@@ -67,8 +67,8 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
           </h2>
           <p>
             {isDe
-              ? 'Verantwortlicher im Sinne der Datenschutz-Grundverordnung (DSGVO) ist Nuri Modabber, Cluster Rhein-Neckar, Deutschland (E-Mail: kontakt@junior-youth.de). Der Schutz deiner Privatsphäre ist für dieses Projekt oberste Priorität. Diese Web-App wurde nach dem Grundsatz „Privacy by Design“ entwickelt: Sie funktioniert ohne Benutzerkonto, ohne Registrierung und ohne den Einsatz von Tracking- oder Analysediensten Dritter.'
-              : 'The data controller pursuant to the General Data Protection Regulation (GDPR) is Nuri Modabber, Cluster Rhein-Neckar, Germany (Email: kontakt@junior-youth.de). This application is built around Privacy by Design: no user registration, no user profiles, and no third-party tracking.'}
+              ? 'Verantwortlicher im Sinne der Datenschutz-Grundverordnung (DSGVO) ist Nuri Modabber, Cluster Rhein-Neckar, Deutschland (in redaktioneller Zusammenarbeit mit Lasse Nieruch; E-Mail: nuri@modabber.net · lasse.nieruch@bahai.de). Der Schutz deiner Privatsphäre ist für dieses Projekt oberste Priorität. Diese Web-App wurde nach dem Grundsatz „Privacy by Design“ entwickelt: Sie funktioniert ohne Benutzerkonto, ohne Registrierung und ohne den Einsatz von Tracking- oder Analysediensten Dritter.'
+              : 'The data controller pursuant to the General Data Protection Regulation (GDPR) is Nuri Modabber, Cluster Rhein-Neckar, Germany (in editorial collaboration with Lasse Nieruch; Email: nuri@modabber.net · lasse.nieruch@bahai.de). This application is built around Privacy by Design: no user registration, no user profiles, and no third-party tracking.'}
           </p>
         </section>
 
@@ -152,8 +152,8 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
           </h2>
           <p>
             {isDe
-              ? 'Wenn du über den Kontakt-Button oder per E-Mail an kontakt@junior-youth.de mit uns in Verbindung trittst, werden deine Angaben (wie E-Mail-Adresse, Name und der Inhalt deiner Nachricht) ausschließlich zur Bearbeitung und Beantwortung deiner Anfrage verarbeitet (Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO). Deine Daten werden nicht für Werbezwecke verwendet und nach Abschluss der Bearbeitung gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.'
-              : 'When you contact us via the contact dialog or email to kontakt@junior-youth.de, your email address, message, and details are processed solely to address your inquiry (Art. 6 (1) (f)/(b) GDPR). No marketing use occurs.'}
+              ? 'Wenn du über den Kontakt-Button oder per E-Mail an nuri@modabber.net oder lasse.nieruch@bahai.de mit uns in Verbindung trittst, werden deine Angaben (wie E-Mail-Adresse, Name und der Inhalt deiner Nachricht) ausschließlich zur Bearbeitung und Beantwortung deiner Anfrage verarbeitet (Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO). Deine Daten werden nicht für Werbezwecke verwendet und nach Abschluss der Bearbeitung gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.'
+              : 'When you contact us via the contact dialog or email to nuri@modabber.net or lasse.nieruch@bahai.de, your email address, message, and details are processed solely to address your inquiry (Art. 6 (1) (f)/(b) GDPR). No marketing use occurs.'}
           </p>
           {onOpenContact && (
             <div className="pt-1">

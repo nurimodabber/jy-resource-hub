@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Clock, Bookmark, Zap } from 'lucide-react';
+import { Users, Clock, Bookmark, Play } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -148,8 +148,8 @@ export const GameCard: React.FC<GameCardProps> = ({
           </span>
           {hasCompanion && (
             <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text border border-accent/20">
-              <Zap className="w-2.5 h-2.5 text-accent" />
-              <span>{language === 'de' ? 'Web-App' : 'Web app'}</span>
+              <Play className="w-2.5 h-2.5 fill-current text-accent" />
+              <span>{language === 'de' ? 'Jetzt spielen' : 'Play now'}</span>
             </span>
           )}
         </div>

@@ -142,47 +142,45 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
       position="bottom"
     >
       <div className="space-y-4 max-w-xl mx-auto pb-4">
-        {/* 1. Darstellung & Sprache nebeneinander */}
-        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3 sm:p-4">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <section className="space-y-1.5">
-              <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-                {t.settingsAppearance}
-              </label>
-              <SegmentedControl
-                options={[
-                  { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
-                  { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
-                  { id: 'contrast', label: language === 'de' ? 'Kontrast' : 'Contrast' },
-                  { id: 'system', label: language === 'de' ? 'System' : 'System' },
-                ]}
-                value={theme}
-                onChange={(v) => setTheme(v as Theme)}
-                fullWidth
-                size="sm"
-              />
-            </section>
+        {/* 1. Erscheinungsbild & Sprache */}
+        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3.5 sm:p-4 space-y-3.5">
+          <section className="space-y-1.5">
+            <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+              {t.settingsAppearance}
+            </label>
+            <SegmentedControl
+              options={[
+                { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
+                { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
+                { id: 'contrast', label: language === 'de' ? 'Kontrast' : 'Contrast' },
+                { id: 'system', label: language === 'de' ? 'System' : 'System' },
+              ]}
+              value={theme}
+              onChange={(v) => setTheme(v as Theme)}
+              fullWidth
+              size="sm"
+            />
+          </section>
 
-            <section className="space-y-1.5">
-              <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-                {t.settingsLanguage}
-              </label>
-              <SegmentedControl
-                options={[
-                  { id: 'de', label: 'Deutsch' },
-                  { id: 'en', label: 'English' },
-                ]}
-                value={language}
-                onChange={(v) => setLanguage(v as Language)}
-                fullWidth
-                size="sm"
-              />
-            </section>
-          </div>
+          <section className="space-y-1.5">
+            <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+              {t.settingsLanguage}
+            </label>
+            <SegmentedControl
+              options={[
+                { id: 'de', label: 'Deutsch' },
+                { id: 'en', label: 'English' },
+              ]}
+              value={language}
+              onChange={(v) => setLanguage(v as Language)}
+              fullWidth
+              size="sm"
+            />
+          </section>
         </div>
 
-        {/* 2. Glaseffekt Collapsible Card (Progressive Disclosure) */}
-        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3 sm:p-4">
+        {/* 2. Milchglas & Transparenz (Refined Modern Glass Control with Live Preview) */}
+        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3.5 sm:p-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-control bg-accent-subtle flex items-center justify-center shrink-0 text-accent-text">
@@ -190,7 +188,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               </div>
               <div className="min-w-0">
                 <span className="block text-xs font-bold text-text truncate">
-                  {language === 'de' ? 'Glaseffekt' : 'Glass Effect'}
+                  {language === 'de' ? 'Milchglas & Transparenz' : 'Frosted Glass & Blur'}
                 </span>
                 <span className="block text-2xs text-text-secondary truncate">
                   {glassSubtitle}
@@ -201,62 +199,87 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             <button
               type="button"
               onClick={() => setIsGlassExpanded((prev) => !prev)}
-              className="inline-flex items-center gap-1 min-h-[44px] px-2.5 py-1 text-xs font-semibold rounded-control text-accent hover:bg-surface-2 transition-colors cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-accent outline-hidden"
+              className="inline-flex items-center gap-1 min-h-[36px] px-2.5 py-1 text-xs font-semibold rounded-control text-accent hover:bg-surface-2 transition-colors cursor-pointer shrink-0"
               aria-expanded={isGlassExpanded}
-              aria-controls="glass-controls"
             >
-              <span>{isGlassExpanded ? (language === 'de' ? 'Schließen' : 'Close') : (language === 'de' ? 'Anpassen' : 'Customize')}</span>
+              <span>{isGlassExpanded ? (language === 'de' ? 'Weniger' : 'Fewer') : (language === 'de' ? 'Feinjustieren' : 'Fine-tune')}</span>
               {isGlassExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
           </div>
 
-          <div
-            id="glass-controls"
-            className={`transition-all duration-200 ease-out overflow-hidden ${
-              isGlassExpanded
-                ? 'max-h-60 opacity-100 pt-3.5 mt-3 border-t border-border/60 space-y-3'
-                : 'max-h-0 opacity-0 pointer-events-none'
-            } motion-reduce:transition-none`}
-          >
-            {/* Slider Row: [Kristall] -----●----- [Solide]  60 % */}
-            <div className="flex items-center gap-2.5">
-              <span className="text-2xs text-text-secondary select-none font-medium shrink-0">
-                {language === 'de' ? 'Kristall' : 'Crystal'}
-              </span>
-              <input
-                id="glass-slider"
-                type="range"
-                min="0"
-                max="100"
-                step="1"
-                value={glassOpacity}
-                onChange={(e) => setGlassOpacity(Number(e.target.value))}
-                className="flex-1 h-2 bg-surface-2 rounded-full appearance-none cursor-pointer accent-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-                aria-label={language === 'de' ? 'Glaseffekt von kristallklar bis solide einstellen' : 'Adjust glass effect from crystal to solid'}
-              />
-              <span className="text-2xs text-text-secondary select-none font-medium shrink-0">
-                {language === 'de' ? 'Solide' : 'Solid'}
-              </span>
-              <span className="text-xs text-text font-semibold tabular-nums w-12 text-right select-none shrink-0">
-                {glassOpacity} %
-              </span>
-            </div>
-
-            {/* 3-Preset SegmentedControl: Kristall (0%) · Sanft (60%) · Solide (100%) */}
-            <SegmentedControl
-              options={[
-                { id: '0', label: language === 'de' ? 'Kristall' : 'Crystal' },
-                { id: '60', label: language === 'de' ? 'Sanft' : 'Soft' },
-                { id: '100', label: language === 'de' ? 'Solide' : 'Solid' },
-              ]}
-              value={
-                glassOpacity === 0 ? '0' : glassOpacity === 60 ? '60' : glassOpacity === 100 ? '100' : ''
-              }
-              onChange={(v) => setGlassOpacity(Number(v))}
-              fullWidth
-              size="sm"
-            />
+          {/* Quick Presets always visible: Sanft (80%) · Klassisch (60%) · Solide (100% / Aus) */}
+          <div className="grid grid-cols-3 gap-1.5">
+            <button
+              type="button"
+              onClick={() => setGlassOpacity(80)}
+              className={`py-1.5 px-2 text-xs font-medium rounded-control border transition-all cursor-pointer ${
+                glassOpacity === 80
+                  ? 'bg-accent text-accent-contrast border-accent font-semibold shadow-xs'
+                  : 'bg-surface border-border text-text hover:bg-surface-2'
+              }`}
+            >
+              {language === 'de' ? 'Sanft (80 %)' : 'Subtle (80%)'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setGlassOpacity(60)}
+              className={`py-1.5 px-2 text-xs font-medium rounded-control border transition-all cursor-pointer ${
+                glassOpacity === 60
+                  ? 'bg-accent text-accent-contrast border-accent font-semibold shadow-xs'
+                  : 'bg-surface border-border text-text hover:bg-surface-2'
+              }`}
+            >
+              {language === 'de' ? 'Klassisch (60 %)' : 'Classic (60%)'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setGlassOpacity(100)}
+              className={`py-1.5 px-2 text-xs font-medium rounded-control border transition-all cursor-pointer ${
+                glassOpacity >= 100
+                  ? 'bg-accent text-accent-contrast border-accent font-semibold shadow-xs'
+                  : 'bg-surface border-border text-text hover:bg-surface-2'
+              }`}
+            >
+              {language === 'de' ? 'Solide (Aus)' : 'Solid (Off)'}
+            </button>
           </div>
+
+          {/* Expanded Fine Tuning with Live Preview Pill */}
+          {isGlassExpanded && (
+            <div className="pt-2 border-t border-border/60 space-y-3 animate-in fade-in duration-150">
+              {/* Live Preview Box */}
+              <div className="relative overflow-hidden rounded-control p-3 bg-gradient-to-r from-accent/20 via-surface-2 to-accent/15 border border-border flex items-center justify-center min-h-[56px]">
+                <div className="absolute inset-0 flex items-center justify-around opacity-30 pointer-events-none">
+                  <div className="w-10 h-10 rounded-full bg-accent blur-xs" />
+                  <div className="w-8 h-8 rounded-full bg-accent-contrast blur-xs" />
+                </div>
+                <div className="relative z-10 glass-surface px-4 py-1.5 rounded-full border border-border/80 text-xs font-semibold text-text shadow-xs">
+                  {language === 'de' ? 'Live-Vorschau Milchglas' : 'Live Glass Preview'} · {glassOpacity}%
+                </div>
+              </div>
+
+              {/* Slider Row */}
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xs text-text-secondary select-none font-medium shrink-0">
+                  {language === 'de' ? 'Glasig (0%)' : 'Glass (0%)'}
+                </span>
+                <input
+                  id="glass-slider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={glassOpacity}
+                  onChange={(e) => setGlassOpacity(Number(e.target.value))}
+                  className="flex-1 h-2 bg-surface-2 rounded-full appearance-none cursor-pointer accent-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                  aria-label={language === 'de' ? 'Transparenz einstellen' : 'Adjust glass opacity'}
+                />
+                <span className="text-2xs text-text-secondary select-none font-medium shrink-0">
+                  {language === 'de' ? 'Solide' : 'Solid'}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 3. Entwürfe Filter Card */}

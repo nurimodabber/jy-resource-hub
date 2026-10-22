@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
-  Search, X, BookOpen, Zap, Layers, Sparkles, Heart, RotateCcw,
-  ArrowRight, Play, Check
+  Search, X, BookOpen, Zap, Layers, Sparkles, Heart,
+  ArrowRight, Play, Check, SlidersHorizontal
 } from 'lucide-react';
 import { QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
@@ -13,6 +13,7 @@ import { Sheet } from './ui/Sheet';
 import { Dialog } from './ui/Dialog';
 import { Button } from './ui/Button';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
+import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { EmptyState } from './ui/EmptyState';
 
 // Quote Card & Detail
@@ -276,6 +277,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     return count;
   }, [selectedBook, selectedSection, selectedTopic, onlyPrayers]);
 
+  const [showFilters, setShowFilters] = useState<boolean>(() => activeFilterCount > 0);
+
   const handleResetFilters = () => {
     setSelectedBook('all');
     setSelectedSection('all');
@@ -382,120 +385,140 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       {/* ========================================================================= */}
       {viewTab === 'quotes' && (
         <div className="space-y-3">
-          {/* 1. Full-Width Search Input */}
-          <div className="relative">
-            <Search
-              className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
-              aria-hidden="true"
-            />
-            <input
-              type="search"
-              value={localSearch}
-              onChange={(e) => {
-                setLocalSearch(e.target.value);
-                updateParams({ q: e.target.value || null });
-              }}
-              placeholder={
-                isDe
-                  ? 'Zitate nach Text, Thema oder Quelle durchsuchen...'
-                  : 'Search quotes by text, theme, or source...'
-              }
-              aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-              className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-            />
-            {localSearch && (
-              <button
-                type="button"
-                onClick={() => {
-                  setLocalSearch('');
-                  updateParams({ q: null });
+          {/* 1. Search Input with Filter Toggle Button */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search
+                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+                aria-hidden="true"
+              />
+              <input
+                type="search"
+                value={localSearch}
+                onChange={(e) => {
+                  setLocalSearch(e.target.value);
+                  updateParams({ q: e.target.value || null });
                 }}
-                aria-label={isDe ? 'Suche löschen' : 'Clear search'}
-                className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+                placeholder={
+                  isDe
+                    ? 'Zitate nach Text, Thema oder Quelle durchsuchen...'
+                    : 'Search quotes by text, theme, or source...'
+                }
+                aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
+                className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+              />
+              {localSearch && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocalSearch('');
+                    updateParams({ q: null });
+                  }}
+                  aria-label={isDe ? 'Suche löschen' : 'Clear search'}
+                  className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Native Filter Toggle Button (Matches GamesView & ServiceArtsView) */}
+            <button
+              type="button"
+              onClick={() => setShowFilters((prev) => !prev)}
+              aria-expanded={showFilters}
+              aria-label={
+                showFilters
+                  ? (isDe ? 'Filter schließen' : 'Hide filters')
+                  : (isDe ? 'Filter öffnen' : 'Show filters')
+              }
+              className={`min-h-[44px] h-11 px-3.5 rounded-control border text-sm font-semibold inline-flex items-center gap-2 shrink-0 transition-all cursor-pointer ${
+                showFilters || activeFilterCount > 0
+                  ? 'bg-accent/10 border-accent/30 text-accent hover:bg-accent/15'
+                  : 'bg-surface border-border text-text hover:bg-surface-2'
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4 shrink-0" />
+              <span className="hidden sm:inline">{isDe ? 'Filter' : 'Filters'}</span>
+              {activeFilterCount > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-2xs font-bold bg-accent text-accent-contrast">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
           </div>
 
-          {/* 2. Coherent Single-Row Filter Bar */}
-          <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap sm:overflow-x-auto sm:no-scrollbar w-full py-0.5 mb-2 select-none">
-            {/* Buch Dropdown */}
-            <FilterPillDropdown
-              label={isDe ? 'Buch' : 'Book'}
-              activeLabel={activeBookLabel}
-              isActive={selectedBook !== 'all'}
-              icon={<BookOpen className="w-3.5 h-3.5 shrink-0" />}
-              options={bookOptions}
-              selectedValue={selectedBook}
-              onSelect={(val) => {
-                const nextBook = (val as string) || 'all';
-                setSelectedBook(nextBook);
-                setSelectedSection('all');
-                updateParams({
-                  buch: nextBook === 'all' ? null : nextBook,
-                  lektion: null,
-                });
-              }}
-            />
-
-            {/* Lektion Dropdown */}
-            {selectedBook !== 'all' && sectionOptions.length > 0 && (
+          {/* 2. Collapsible Filter Bar */}
+          {showFilters && (
+            <ScrollableFilterBar
+              activeFilterCount={activeFilterCount + (localSearch ? 1 : 0)}
+              onClearAll={handleResetFilters}
+              clearLabel={isDe ? 'Filter zurücksetzen' : 'Reset filters'}
+            >
+              {/* Buch Dropdown */}
               <FilterPillDropdown
-                label={isDe ? 'Lektion' : 'Lesson'}
-                activeLabel={activeSectionLabel}
-                isActive={selectedSection !== 'all'}
-                icon={<Layers className="w-3.5 h-3.5 shrink-0" />}
-                options={sectionOptions}
-                selectedValue={selectedSection}
+                label={isDe ? 'Buch' : 'Book'}
+                activeLabel={activeBookLabel}
+                isActive={selectedBook !== 'all'}
+                icon={<BookOpen className="w-3.5 h-3.5 shrink-0" />}
+                options={bookOptions}
+                selectedValue={selectedBook}
                 onSelect={(val) => {
-                  const nextSec = (val as string) || 'all';
-                  setSelectedSection(nextSec);
-                  updateParams({ lektion: nextSec === 'all' ? null : nextSec });
+                  const nextBook = (val as string) || 'all';
+                  setSelectedBook(nextBook);
+                  setSelectedSection('all');
+                  updateParams({
+                    buch: nextBook === 'all' ? null : nextBook,
+                    lektion: null,
+                  });
                 }}
               />
-            )}
 
-            {/* Thema Dropdown */}
-            <FilterPillDropdown
-              label={isDe ? 'Thema' : 'Theme'}
-              activeLabel={activeTopicLabel}
-              isActive={selectedTopic !== 'all'}
-              icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
-              options={topicOptions}
-              selectedValue={selectedTopic}
-              onSelect={(val) => {
-                const nextTopic = (val as QuoteGeneralTopic | 'all') || 'all';
-                setSelectedTopic(nextTopic);
-                updateParams({ thema: nextTopic === 'all' ? null : nextTopic });
-              }}
-            />
+              {/* Lektion Dropdown */}
+              {selectedBook !== 'all' && sectionOptions.length > 0 && (
+                <FilterPillDropdown
+                  label={isDe ? 'Lektion' : 'Lesson'}
+                  activeLabel={activeSectionLabel}
+                  isActive={selectedSection !== 'all'}
+                  icon={<Layers className="w-3.5 h-3.5 shrink-0" />}
+                  options={sectionOptions}
+                  selectedValue={selectedSection}
+                  onSelect={(val) => {
+                    const nextSec = (val as string) || 'all';
+                    setSelectedSection(nextSec);
+                    updateParams({ lektion: nextSec === 'all' ? null : nextSec });
+                  }}
+                />
+              )}
 
-            {/* Nur Gebete 1-Click Toggle Pill */}
-            <FilterPillButton
-              label={t.filterOnlyPrayers}
-              isActive={onlyPrayers}
-              onClick={() => {
-                const next = !onlyPrayers;
-                setOnlyPrayers(next);
-                updateParams({ gebete: next ? '1' : null });
-              }}
-              icon={<Heart className="w-3.5 h-3.5 shrink-0" />}
-            />
+              {/* Thema Dropdown */}
+              <FilterPillDropdown
+                label={isDe ? 'Thema' : 'Theme'}
+                activeLabel={activeTopicLabel}
+                isActive={selectedTopic !== 'all'}
+                icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
+                options={topicOptions}
+                selectedValue={selectedTopic}
+                onSelect={(val) => {
+                  const nextTopic = (val as QuoteGeneralTopic | 'all') || 'all';
+                  setSelectedTopic(nextTopic);
+                  updateParams({ thema: nextTopic === 'all' ? null : nextTopic });
+                }}
+              />
 
-            {/* Clear Filters Button */}
-            {(activeFilterCount > 0 || localSearch) && (
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="inline-flex items-center gap-1 h-8 px-2.5 rounded-full text-xs font-medium text-text-tertiary hover:text-accent hover:bg-surface-2 transition-colors whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ml-1"
-                aria-label={isDe ? 'Filter zurücksetzen' : 'Reset filters'}
-              >
-                <RotateCcw className="w-3 h-3 shrink-0" aria-hidden="true" />
-                <span>{isDe ? 'Filter zurücksetzen' : 'Reset filters'}</span>
-              </button>
-            )}
-          </div>
+              {/* Nur Gebete 1-Click Toggle Pill */}
+              <FilterPillButton
+                label={t.filterOnlyPrayers}
+                isActive={onlyPrayers}
+                onClick={() => {
+                  const next = !onlyPrayers;
+                  setOnlyPrayers(next);
+                  updateParams({ gebete: next ? '1' : null });
+                }}
+                icon={<Heart className="w-3.5 h-3.5 shrink-0" />}
+              />
+            </ScrollableFilterBar>
+          )}
 
           {/* Masonry Columns of Quote Cards: 1 col on mobile, 2 cols on desktop */}
           {filteredQuotes.length > 0 ? (

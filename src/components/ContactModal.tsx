@@ -11,7 +11,8 @@ export interface ContactModalProps {
   language: Language;
 }
 
-const CONTACT_EMAIL = 'kontakt@junior-youth.de';
+const CONTACT_EMAILS = ['nuri@modabber.net', 'lasse.nieruch@bahai.de'];
+const CONTACT_EMAIL_DISPLAY = 'nuri@modabber.net, lasse.nieruch@bahai.de';
 const STORAGE_EMAIL_KEY = 'jy_user_email';
 
 export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, language }) => {
@@ -44,7 +45,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
 
   const handleCopyAddress = async () => {
     try {
-      await navigator.clipboard.writeText(CONTACT_EMAIL);
+      await navigator.clipboard.writeText(CONTACT_EMAILS.join(', '));
       setCopiedAddress(true);
       setTimeout(() => setCopiedAddress(false), 2500);
     } catch {
@@ -77,12 +78,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
     ].filter(Boolean);
 
     const body = encodeURIComponent(bodyLines.join('\n'));
-    return `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+    return `mailto:${CONTACT_EMAILS.join(',')}?subject=${subject}&body=${body}`;
   };
 
   const handleCopyMessage = async () => {
     const fullText = [
-      `An: ${CONTACT_EMAIL}`,
+      `An: ${CONTACT_EMAILS.join(', ')}`,
       `Betreff: [Junior Youth Hub] ${getTopicLabel(topic)}`,
       '',
       message.trim(),
@@ -130,10 +131,10 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
-                {L('Direkte Kontaktadresse', 'Direct contact address')}
+                {L('Direkte Kontaktadressen', 'Direct contact addresses')}
               </p>
-              <p className="font-mono text-sm font-semibold text-text select-all mt-0.5">
-                {CONTACT_EMAIL}
+              <p className="font-mono text-xs sm:text-sm font-semibold text-text select-all mt-0.5">
+                {CONTACT_EMAIL_DISPLAY}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -148,7 +149,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
                 {copiedAddress ? L('Kopiert!', 'Copied!') : L('Kopieren', 'Copy')}
               </Button>
               <a
-                href={`mailto:${CONTACT_EMAIL}`}
+                href={`mailto:${CONTACT_EMAILS.join(',')}`}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-accent text-accent-contrast hover:bg-accent-hover transition-colors min-h-[36px]"
               >
                 <Mail className="w-3.5 h-3.5" />

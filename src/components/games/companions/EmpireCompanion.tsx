@@ -7,16 +7,22 @@ import {
   ChevronRight,
   ChevronLeft,
   Check,
+  Plus,
   FileText,
   Smartphone,
-  List,
-  Sparkles,
+  Crown,
 } from 'lucide-react';
 import { Language } from '../../../types';
 import { EMPIRE_CATEGORIES_V2, EmpireCategoryV2 } from '../../../data/empireContent';
-import { loadPresentNames } from '../../../utils/groupNames';
 import { shuffle } from '../../../utils/random';
-import { tr, Panel, primaryBtn, chipCls } from '../../tools/common';
+import {
+  tr,
+  Panel,
+  primaryBtn,
+  chipCls,
+  PlayerSetupSection,
+  usePlayerList,
+} from '../../tools/common';
 import { useWakeLock } from '../../../hooks/useWakeLock';
 
 interface EmpireCompanionProps {
@@ -29,8 +35,14 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
   const L = tr(language);
   const [phase, setPhase] = useState<Phase>('setup');
 
-  // Group setup
-  const [players, setPlayers] = useState<string[]>(() => loadPresentNames());
+  const {
+    playerCount,
+    setPlayerCount,
+    playerNames,
+    handleRename,
+    handleResetToGroup,
+    hasGroupNames,
+  } = usePlayerList(8, language, 3);
 
   // Input mode: pass around phone or classic paper slips
   const [entryMode, setEntryMode] = useState<'passAround' | 'paper'>('passAround');
@@ -46,8 +58,8 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
   // Filter state for categories
   const [moodFilter, setMoodFilter] = useState<string | null>(null);
 
-  // Secret terms entered per player: map of player -> term
-  const [terms, setTerms] = useState<Record<string, string>>({});
+  // Secret terms entered per player index
+  const [enteredTerms, setEnteredTerms] = useState<string[]>([]);
 
   // Pass-around state
   const [passIndex, setPassIndex] = useState(0);
@@ -86,18 +98,22 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
     ? L('Schreibe einen passenden Begriff auf.', 'Write a matching term.')
     : selectedCat.hint[language];
 
+  const getPlayerLabel = (idx: number) => {
+    return playerNames[idx] || `${L('Person', 'Player')} ${idx + 1}`;
+  };
+
   // Start Secret Entry
   const startEntry = () => {
-    if (players.length < 2) {
+    if (playerNames.length < 3) {
       alert(
         L(
-          'Bitte mindestens 2 Personen in der Gruppe haben, um Empire zu spielen.',
-          'Please have at least 2 players in the group to play Empire.'
+          'Bitte mindestens 3 Personen in der Gruppe haben, um Empire zu spielen.',
+          'Please have at least 3 players to play Empire.'
         )
       );
       return;
     }
-    setTerms({});
+    setEnteredTerms([]);
     setPassIndex(0);
     setCurrentInput('');
     setCardRevealed(false);
@@ -107,18 +123,16 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
   // Handle Pass-Around step
   const handlePassNext = () => {
     const trimmed = currentInput.trim() || L('Geheimnis', 'Secret');
-    const currentPlayer = players[passIndex];
-    const newTerms = { ...terms, [currentPlayer]: trimmed };
-    setTerms(newTerms);
+    const newTerms = [...enteredTerms, trimmed];
+    setEnteredTerms(newTerms);
     setCurrentInput('');
     setCardRevealed(false);
 
-    if (passIndex + 1 < players.length) {
+    if (passIndex + 1 < playerNames.length) {
       setPassIndex(passIndex + 1);
     } else {
       // All players done! Proceed to Reading phase
-      const allWords = Object.values(newTerms);
-      setReadingList(shuffle(allWords));
+      setReadingList(shuffle(newTerms));
       setReadIndex(0);
       setReadRound(1);
       setPhase('read');
@@ -131,11 +145,11 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
       .split('\n')
       .map((s) => s.trim())
       .filter(Boolean);
-    if (lines.length < 2) {
+    if (lines.length < 3) {
       alert(
         L(
-          'Bitte mindestens 2 Begriffe (jeweils eine Zeile) eingeben.',
-          'Please enter at least 2 terms (one per line).'
+          'Bitte mindestens 3 Begriffe (jeweils eine Zeile) eingeben.',
+          'Please enter at least 3 terms (one per line).'
         )
       );
       return;
@@ -176,113 +190,36 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
 
   const restartAll = () => {
     setPhase('setup');
-    setTerms({});
+    setEnteredTerms([]);
     setCrossedOut({});
   };
 
   return (
     <div className="space-y-6">
       {/* =================================================================== */}
-      {/* PHASE 1: SETUP & KATEGORIE                                          */}
+      {/* PHASE 1: STREAMLINED SETUP                                          */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-6">
-          {/* Header Note */}
-          <div className="p-4 rounded-card bg-surface-2 border border-border space-y-1 text-left">
-            <h2 className="text-sm font-bold text-text flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-accent" />
-              <span>{L('Empire Spiel-Assistent', 'Empire Game Companion')}</span>
-            </h2>
-            <p className="text-xs text-text-secondary leading-relaxed">
-              {L(
-                'Begleitet deine Gruppe durch die Zetteleingabe und das zweimalige Vorlesen. Das Erraten und Zusammenwachsen zu Reichen findet live im Kreis statt.',
-                'Guides your group through secret term entry and reading twice. Guessing and joining empires happens live in the circle.'
-              )}
-            </p>
-          </div>
-
-          {/* Group Presence Pill */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 p-3.5 rounded-card bg-surface border border-border">
-            <div className="text-left">
-              <span className="text-xs font-bold text-text block">
-                {players.length} {L('Personen bereit', 'players ready')}
-              </span>
-              <p className="text-2xs text-text-tertiary">
-                {players.join(', ')}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setPlayers(loadPresentNames())}
-              className="px-2.5 py-1 text-2xs font-semibold rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-text transition-colors cursor-pointer"
-            >
-              {L('Aktualisieren', 'Refresh')}
-            </button>
-          </div>
-
-          {/* Eingabemethode: Handy weitergeben vs Papierzettel */}
-          <div className="space-y-2 text-left">
-            <label className="text-xs font-bold text-text-secondary block">
-              {L('Zetteleingabe', 'Slip Entry Method')}
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={() => setEntryMode('passAround')}
-                className={`p-3.5 rounded-card border text-left transition-all cursor-pointer flex items-start gap-3 ${
-                  entryMode === 'passAround'
-                    ? 'bg-accent/10 border-accent text-text'
-                    : 'bg-surface border-border hover:bg-surface-2 text-text-secondary'
-                }`}
-              >
-                <Smartphone className={`w-5 h-5 shrink-0 mt-0.5 ${entryMode === 'passAround' ? 'text-accent' : 'text-text-tertiary'}`} />
-                <div>
-                  <p className="font-bold text-xs text-text">{L('Handy im Kreis weitergeben', 'Pass phone in circle')}</p>
-                  <p className="text-2xs text-text-secondary mt-0.5">
-                    {L('Jeder tippt geheim seinen Begriff auf dem Handy ein.', 'Each player secretly types their word on screen.')}
-                  </p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setEntryMode('paper')}
-                className={`p-3.5 rounded-card border text-left transition-all cursor-pointer flex items-start gap-3 ${
-                  entryMode === 'paper'
-                    ? 'bg-accent/10 border-accent text-text'
-                    : 'bg-surface border-border hover:bg-surface-2 text-text-secondary'
-                }`}
-              >
-                <FileText className={`w-5 h-5 shrink-0 mt-0.5 ${entryMode === 'paper' ? 'text-accent' : 'text-text-tertiary'}`} />
-                <div>
-                  <p className="font-bold text-xs text-text">{L('Klassisch mit Papierzetteln', 'Classic with paper slips')}</p>
-                  <p className="text-2xs text-text-secondary mt-0.5">
-                    {L('Zettel und Stifte im Raum. Begriffe hier eintragen oder vorlesen.', 'Paper & pens. Enter words here to shuffle and read.')}
-                  </p>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Category Card & Selector */}
-          <div className="space-y-3 text-left">
+        <div className="space-y-5 text-left max-w-lg mx-auto">
+          {/* 1. Category Suggestion Card at Top */}
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-text-secondary">
+              <label className="text-xs font-bold text-text uppercase tracking-wider">
                 {L('Kategorie für diese Runde', 'Category for this round')}
               </label>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setIsCustomCat(!isCustomCat)}
-                  className="text-2xs font-semibold text-accent hover:underline cursor-pointer"
-                >
-                  {isCustomCat ? L('Zufällige Kategorie', 'Random category') : L('Eigene eingeben', 'Custom')}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsCustomCat(!isCustomCat)}
+                className="text-2xs font-semibold text-accent hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3 h-3" />
+                <span>{isCustomCat ? L('Zufallsvorschlag', 'Random suggestion') : L('Eigene Kategorie', 'Custom')}</span>
+              </button>
             </div>
 
+            {/* Mood Chips */}
             {!isCustomCat && (
-              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              <div className="flex flex-wrap items-center gap-1.5 pb-1">
                 <button
                   type="button"
                   onClick={() => setMoodFilter(null)}
@@ -316,37 +253,38 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
 
             {isCustomCat ? (
               <Panel className="p-4 space-y-2">
+                <label className="text-2xs font-bold text-text-secondary uppercase tracking-wider">
+                  {L('Eigene Kategorie formulieren:', 'Formulate custom category:')}
+                </label>
                 <input
                   type="text"
-                  placeholder={L('z. B. Was in keinem Rucksack fehlen darf', 'e.g. Things no backpack should lack')}
+                  placeholder={L('z. B. Dinge, die man im Jugendcamp um 2 Uhr nachts hört', 'e.g. Things heard at 2am in camp')}
                   value={customPrompt}
                   onChange={(e) => setCustomPrompt(e.target.value)}
-                  className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-sm font-semibold text-text"
+                  className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm font-semibold text-text focus:border-accent focus:outline-hidden"
                 />
               </Panel>
             ) : (
-              <Panel className="p-5 space-y-3 relative">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1">
-                    <span className="text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20">
-                      {selectedCat.mood === 'fun'
-                        ? L('Lustig', 'Fun')
-                        : selectedCat.mood === 'calm'
-                        ? L('Ruhig', 'Calm')
-                        : L('Nachdenklich', 'Thoughtful')}
-                    </span>
-                    <h3 className="text-lg sm:text-xl font-bold text-text pt-1">
-                      {selectedCat.prompt[language]}
-                    </h3>
-                    <p className="text-xs text-text-secondary">
-                      {selectedCat.hint[language]}
-                    </p>
-                  </div>
+              <Panel className="p-5 sm:p-6 space-y-3 relative">
+                <div className="space-y-1">
+                  <span className="text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/20">
+                    {selectedCat.mood === 'fun'
+                      ? L('Lustig', 'Fun')
+                      : selectedCat.mood === 'calm'
+                      ? L('Ruhig', 'Calm')
+                      : L('Nachdenklich', 'Thoughtful')}
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-bold text-text pt-1">
+                    {selectedCat.prompt[language]}
+                  </h3>
+                  <p className="text-xs text-text-secondary">
+                    {selectedCat.hint[language]}
+                  </p>
                 </div>
 
                 {/* Example chips */}
                 <div className="pt-2 border-t border-border/50">
-                  <p className="text-2xs text-text-tertiary font-semibold mb-1">
+                  <p className="text-2xs text-text-tertiary font-semibold mb-1.5">
                     {L('Beispiele:', 'Examples:')}
                   </p>
                   <div className="flex flex-wrap gap-1.5">
@@ -368,42 +306,88 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                     className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Shuffle className="w-3.5 h-3.5" />
-                    <span>{L('Andere Kategorie ziehen', 'Draw another')}</span>
+                    <span>{L('Andere Kategorie ziehen', 'Shuffle category')}</span>
                   </button>
                 </div>
               </Panel>
             )}
           </div>
 
-          {/* Action button to proceed */}
+          {/* 2. Directly Below: Player Count & Names */}
+          <Panel className="p-5 sm:p-6 space-y-4">
+            <PlayerSetupSection
+              language={language}
+              playerCount={playerCount}
+              playerNames={playerNames}
+              minPlayers={3}
+              maxPlayers={30}
+              onCountChange={setPlayerCount}
+              onRename={handleRename}
+              onResetToGroup={handleResetToGroup}
+              hasGroupNames={hasGroupNames}
+              countLabel={L('Personen im Kreis', 'Players in circle')}
+              countSubtitle={L('Gesamtzahl der Personen in der Runde', 'Total number of players in this round')}
+            />
+          </Panel>
+
+          {/* 3. Input Mode Toggle (Pass-around vs Paper slips) */}
+          <div className="flex items-center justify-center gap-2 text-2xs text-text-tertiary pt-1">
+            <button
+              type="button"
+              onClick={() => setEntryMode('passAround')}
+              className={`px-3 py-1 rounded-full border transition-all cursor-pointer flex items-center gap-1.5 ${
+                entryMode === 'passAround'
+                  ? 'bg-accent/15 border-accent/40 text-accent font-bold'
+                  : 'bg-surface-2 border-border text-text-tertiary hover:text-text'
+              }`}
+            >
+              <Smartphone className="w-3 h-3" />
+              <span>{L('Handy weitergeben', 'Pass phone')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setEntryMode('paper')}
+              className={`px-3 py-1 rounded-full border transition-all cursor-pointer flex items-center gap-1.5 ${
+                entryMode === 'paper'
+                  ? 'bg-accent/15 border-accent/40 text-accent font-bold'
+                  : 'bg-surface-2 border-border text-text-tertiary hover:text-text'
+              }`}
+            >
+              <FileText className="w-3 h-3" />
+              <span>{L('Papierzettel vorlesen', 'Read paper slips')}</span>
+            </button>
+          </div>
+
+          {/* 4. Directly Below: Large Start Button */}
           {entryMode === 'passAround' ? (
             <button
               type="button"
               onClick={startEntry}
-              className={`${primaryBtn} w-full text-base py-3`}
+              className={`${primaryBtn} w-full text-base py-3.5 flex items-center justify-center gap-2`}
             >
               <Smartphone className="w-4 h-4" />
-              <span>{L('Weiter: Zettel geheim eingeben', 'Next: Secret Slip Entry')}</span>
+              <span>
+                {L('Zettel geheim eingeben', 'Secret slip entry')} ({playerCount} {L('Personen', 'players')})
+              </span>
             </button>
           ) : (
-            <div className="space-y-3 text-left">
+            <div className="space-y-3">
               <label className="text-xs font-bold text-text-secondary block">
-                {L('Begriffe eintragen (ein Begriff pro Zeile):', 'Enter terms (one per line):')}
+                {L('Begriffe von Papierzetteln abtippen (1 pro Zeile):', 'Type terms from paper slips (1 per line):')}
               </label>
               <textarea
-                rows={5}
+                rows={4}
                 value={paperText}
                 onChange={(e) => setPaperText(e.target.value)}
                 placeholder={L('Apfelkuchen\nFahrradkette\nSchlafsack...', 'Apple pie\nBicycle chain\nSleeping bag...')}
-                className="w-full p-3 rounded-card bg-surface-2 border border-border text-xs font-mono text-text"
+                className="w-full p-3 rounded-card bg-surface-2 border border-border text-xs font-mono text-text focus:border-accent focus:outline-hidden"
               />
               <button
                 type="button"
                 onClick={startReadingFromPaper}
                 className={`${primaryBtn} w-full text-base py-3`}
               >
-                <List className="w-4 h-4" />
-                <span>{L('Begriffe mischen & vorlesen', 'Shuffle & Read terms')}</span>
+                <span>{L('Begriffe mischen & vorlesen', 'Shuffle & read terms')}</span>
               </button>
             </div>
           )}
@@ -417,7 +401,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
         <div className="space-y-5 max-w-md mx-auto text-center">
           {/* Progress dots */}
           <div className="flex items-center justify-center gap-1.5 py-1">
-            {players.map((_, i) => (
+            {Array.from({ length: playerCount }).map((_, i) => (
               <span
                 key={i}
                 className={`w-2 h-2 rounded-full transition-all duration-200 ${
@@ -432,7 +416,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
           </div>
 
           <p className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary tabular-nums">
-            {passIndex + 1} / {players.length} {L('Personen', 'players')}
+            {passIndex + 1} / {playerCount} {L('Personen', 'players')}
           </p>
 
           <Panel className="p-6 sm:p-8 space-y-5 text-center">
@@ -442,7 +426,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                   {L('Gib das Handy an:', 'Hand the phone to:')}
                 </p>
                 <h3 className="text-3xl sm:text-4xl font-black text-text tracking-tight">
-                  {players[passIndex]}
+                  {getPlayerLabel(passIndex)}
                 </h3>
                 <p className="text-xs text-text-tertiary max-w-xs mx-auto">
                   {L('Nur diese Person schaut jetzt auf das Display.', 'Only this player should view the screen now.')}
@@ -454,7 +438,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                     className={`${primaryBtn} mx-auto px-6 py-3 text-base flex items-center gap-2`}
                   >
                     <Eye className="w-4 h-4" />
-                    <span>{L('Ich bin bereit · Zettel eingeben', 'I am ready · Enter slip')}</span>
+                    <span>{L('Ich bin bereit · Begriff eingeben', 'I am ready · Enter term')}</span>
                   </button>
                 </div>
               </div>
@@ -462,7 +446,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
               <div className="space-y-4 text-left py-2">
                 <div className="text-center pb-2 border-b border-border/50">
                   <p className="text-2xs font-bold uppercase text-accent tracking-wider">
-                    {players[passIndex]}
+                    {getPlayerLabel(passIndex)}
                   </p>
                   <p className="text-sm font-bold text-text mt-0.5">
                     {activeCategoryTitle}
@@ -474,7 +458,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-text-secondary block">
-                    {L('Dein geheimer Begriff:', 'Your secret term:')}
+                    {L('Dein geheimer Zettel-Begriff:', 'Your secret term:')}
                   </label>
                   <input
                     type="text"
@@ -503,7 +487,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                   >
                     <EyeOff className="w-4 h-4" />
                     <span>
-                      {passIndex + 1 < players.length
+                      {passIndex + 1 < playerCount
                         ? L('Verbergen & an nächste Person', 'Hide & pass to next player')
                         : L('Verbergen & zum Vorlesen', 'Hide & proceed to reading')}
                     </span>
@@ -579,28 +563,39 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
       {/* PHASE 4: SPICKZETTEL & REGELN (KEINE DIGITALE STEUERUNG!)           */}
       {/* =================================================================== */}
       {phase === 'cheatSheet' && (
-        <div className="space-y-6 text-left">
-          {/* Rules Reminder Card */}
-          <div className="p-4 rounded-card bg-surface-2 border border-border space-y-2">
-            <h3 className="text-sm font-bold text-text">
-              {L('Spielregeln für das Erraten im Kreis:', 'Guessing rules for the circle:')}
+        <div className="space-y-6 text-left max-w-xl mx-auto">
+          {/* Minimalist Intro Banner */}
+          <div className="p-4 rounded-card bg-surface-2 border border-border text-center space-y-1">
+            <h3 className="text-base font-bold text-text flex items-center justify-center gap-2">
+              <Crown className="w-4 h-4 text-accent" />
+              <span>{L('Viel Spaß beim Raten im Kreis!', 'Have fun guessing in the circle!')}</span>
             </h3>
-            <ul className="text-xs text-text-secondary space-y-1.5 pl-4 list-disc">
+            <p className="text-xs text-text-secondary">
+              {L('Das Spiel läuft frei in der Gruppe. Tippe unten auf Begriffe, um sie abzustreichen.', 'Play freely in the circle. Tap terms below to cross them off.')}
+            </p>
+          </div>
+
+          {/* Rules Reminder Card */}
+          <div className="p-4 rounded-card bg-surface border border-border space-y-2">
+            <h4 className="text-xs font-bold text-text uppercase tracking-wider">
+              {L('Spielregeln für das Erraten:', 'Guessing rules:')}
+            </h4>
+            <ul className="text-xs text-text-secondary space-y-1 pl-4 list-disc">
               <li>
                 <strong>{L('Reihum raten:', 'Take turns:')}</strong>{' '}
-                {L('Person A fragt Person B nach einem Begriff: „Bist du [Begriff]?“', 'Player A asks Player B for a term: "Are you [Term]?"')}
+                {L('Person A fragt Person B nach einem Begriff: „Bist du [Begriff]?“', 'Player A asks Player B: "Are you [Term]?"')}
               </li>
               <li>
-                <strong>{L('Richtig geraten:', 'Correct guess:')}</strong>{' '}
-                {L('Person B (und ihr gesamtes Reich) schließt sich A an. Person A darf sofort weiterraten.', 'Player B (and their entire empire) joins A. Player A continues guessing.')}
+                <strong>{L('Richtig:', 'Correct:')}</strong>{' '}
+                {L('Person B (und ihr gesamtes Reich) schließt sich A an. A rät weiter.', 'Player B (and their empire) joins A. A continues guessing.')}
               </li>
               <li>
-                <strong>{L('Falsch geraten:', 'Incorrect guess:')}</strong>{' '}
-                {L('Der Zug endet. Die gefragte Person B ist als nächste mit Raten an der Reihe.', 'Turn ends. Player B is next to guess.')}
+                <strong>{L('Falsch:', 'Incorrect:')}</strong>{' '}
+                {L('Der Zug endet. Die gefragte Person B rät als nächste.', 'Turn ends. Player B guesses next.')}
               </li>
               <li>
                 <strong>{L('Nur der König rät:', 'Only the King guesses:')}</strong>{' '}
-                {L('Nur die Person an der Spitze darf raten. Wer erobert wurde, berät seinen König leise.', 'Only the person at the top guesses. Captured members advise their king quietly.')}
+                {L('Nur die Person an der Spitze darf raten. Berater flüstern nur.', 'Only the person at the top guesses. Others whisper advice.')}
               </li>
             </ul>
           </div>
@@ -609,9 +604,9 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-text">
-                  {L('Spickzettel aller Begriffe', 'Cheat sheet of all terms')}
-                </h3>
+                <h4 className="text-xs font-bold text-text uppercase tracking-wider">
+                  {L('Begriffe auf dem Tisch', 'Terms on the table')}
+                </h4>
                 <p className="text-2xs text-text-tertiary">
                   {L('Tippe auf einen Begriff, wenn er erraten wurde.', 'Tap a term when it was guessed.')}
                 </p>
@@ -621,7 +616,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {readingList.map((term, i) => {
                 const isCrossed = !!crossedOut[term];
                 return (
@@ -635,8 +630,8 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                         : 'bg-surface border-border hover:bg-surface-2 text-text font-bold'
                     }`}
                   >
-                    <span className="text-sm truncate">„{term}“</span>
-                    {isCrossed && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
+                    <span className="text-xs truncate">„{term}“</span>
+                    {isCrossed && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                   </button>
                 );
               })}
@@ -644,7 +639,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
           </div>
 
           {/* Reset / New Round Button */}
-          <div className="pt-4 border-t border-border flex justify-end">
+          <div className="pt-2 border-t border-border flex justify-end">
             <button
               type="button"
               onClick={restartAll}

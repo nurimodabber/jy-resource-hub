@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import {
   RotateCcw,
-  Sparkles,
   Eye,
+  Users,
+  Moon,
+  Search,
 } from 'lucide-react';
 import { Language } from '../../../types';
 import {
@@ -10,9 +12,16 @@ import {
   KILLER_VARIANTS,
   KillerRole,
 } from '../../../data/roleContent';
-import { loadPresentNames } from '../../../utils/groupNames';
 import { shuffle } from '../../../utils/random';
-import { tr, Panel, primaryBtn, Stepper } from '../../tools/common';
+import {
+  tr,
+  Panel,
+  primaryBtn,
+  Stepper,
+  ToggleSwitch,
+  PlayerSetupSection,
+  usePlayerList,
+} from '../../tools/common';
 import { PassAround } from '../../tools/PassAround';
 import { useWakeLock } from '../../../hooks/useWakeLock';
 
@@ -25,7 +34,15 @@ type Phase = 'setup' | 'deal' | 'play';
 export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) => {
   const L = tr(language);
   const [phase, setPhase] = useState<Phase>('setup');
-  const [players, setPlayers] = useState<string[]>(() => loadPresentNames());
+
+  const {
+    playerCount,
+    setPlayerCount,
+    playerNames,
+    handleRename,
+    handleResetToGroup,
+    hasGroupNames,
+  } = usePlayerList(8, language, 5);
 
   // Settings
   const [killerCount, setKillerCount] = useState(1);
@@ -43,7 +60,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
   const selectedVariant = KILLER_VARIANTS.find((v) => v.id === selectedVariantId);
 
   const startDealing = () => {
-    if (players.length < 5) {
+    if (playerNames.length < 5) {
       alert(
         L(
           'Mord in der Disco benötigt mindestens 5 Personen.',
@@ -60,13 +77,13 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
 
     for (let i = 0; i < killerCount; i++) deck.push(killerRole);
     if (hasDetective) deck.push(detectiveRole);
-    while (deck.length < players.length) {
+    while (deck.length < playerNames.length) {
       deck.push(citizenRole);
     }
 
     const shuffledDeck = shuffle(deck);
     const map: Record<string, KillerRole> = {};
-    players.forEach((p, idx) => {
+    playerNames.forEach((p, idx) => {
       map[p] = shuffledDeck[idx];
     });
 
@@ -86,43 +103,27 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
       {/* PHASE 1: SETUP & VARIANTEN                                          */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-6 text-left">
-          {/* Header Box */}
-          <div className="p-4 rounded-card bg-surface-2 border border-border space-y-1">
-            <h2 className="text-sm font-bold text-text flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-accent" />
-              <span>{L('Mord in der Disco', 'Wink Murder')}</span>
-            </h2>
-            <p className="text-xs text-text-secondary leading-relaxed">
-              {L(
-                'Ein geheimer Täter schaltet Mitspieler unauffällig aus (per Zwinkern, Händedruck oder im Dunkeln). Der Detektiv versucht, ihn vor Ablauf der Runden zu überführen.',
-                'A secret culprit eliminates players quietly (by winking, handshake or in the dark). The detective tries to catch them.'
-              )}
-            </p>
-          </div>
-
-          {/* Group Presence Pill */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5 p-3.5 rounded-card bg-surface border border-border">
-            <div>
-              <span className="text-xs font-bold text-text block">
-                {players.length} {L('Personen bereit', 'players ready')}
-              </span>
-              <p className="text-2xs text-text-tertiary">
-                {players.join(', ')}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setPlayers(loadPresentNames())}
-              className="px-2.5 py-1 text-2xs font-semibold rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-text transition-colors cursor-pointer"
-            >
-              {L('Aktualisieren', 'Refresh')}
-            </button>
-          </div>
+        <div className="space-y-5 text-left max-w-lg mx-auto">
+          {/* Player Count & Names */}
+          <Panel className="p-5 sm:p-6 space-y-4">
+            <PlayerSetupSection
+              language={language}
+              playerCount={playerCount}
+              playerNames={playerNames}
+              minPlayers={5}
+              maxPlayers={30}
+              onCountChange={setPlayerCount}
+              onRename={handleRename}
+              onResetToGroup={handleResetToGroup}
+              hasGroupNames={hasGroupNames}
+              countLabel={L('Spielende', 'Players')}
+              countSubtitle={L('Gesamtzahl der Personen im Kreis (mind. 5)', 'Total people in the circle (min. 5)')}
+            />
+          </Panel>
 
           {/* Spiel-Art: Zwinkern vs Händedruck vs Im Dunkeln */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-text-secondary block">
+            <label className="text-xs font-bold text-text uppercase tracking-wider block">
               {L('Aktion des Täters', 'Culprit Action')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -135,8 +136,11 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
                     : 'bg-surface border-border hover:bg-surface-2 text-text'
                 }`}
               >
-                <p className="font-bold text-xs">😉 {L('Zwinkern', 'Wink')}</p>
-                <p className="text-2xs text-text-tertiary">{L('Blickkontakt im Sitzkreis', 'Eye contact in circle')}</p>
+                <div className="flex items-center gap-1.5 font-bold text-xs">
+                  <Eye className="w-3.5 h-3.5 shrink-0" />
+                  <span>{L('Zwinkern', 'Wink')}</span>
+                </div>
+                <p className="text-2xs text-text-tertiary mt-1">{L('Blickkontakt im Sitzkreis', 'Eye contact in circle')}</p>
               </button>
               <button
                 type="button"
@@ -147,8 +151,11 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
                     : 'bg-surface border-border hover:bg-surface-2 text-text'
                 }`}
               >
-                <p className="font-bold text-xs">🤝 {L('Händedruck', 'Handshake')}</p>
-                <p className="text-2xs text-text-tertiary">{L('Geheimes Drücken im Stehen', 'Secret squeeze in crowd')}</p>
+                <div className="flex items-center gap-1.5 font-bold text-xs">
+                  <Users className="w-3.5 h-3.5 shrink-0" />
+                  <span>{L('Händedruck', 'Handshake')}</span>
+                </div>
+                <p className="text-2xs text-text-tertiary mt-1">{L('Geheimes Drücken im Stehen', 'Secret squeeze in crowd')}</p>
               </button>
               <button
                 type="button"
@@ -159,44 +166,58 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
                     : 'bg-surface border-border hover:bg-surface-2 text-text'
                 }`}
               >
-                <p className="font-bold text-xs">🌑 {L('Mord im Dunkeln', 'In the dark')}</p>
-                <p className="text-2xs text-text-tertiary">{L('Im abgedunkelten Raum', 'In darkened room')}</p>
+                <div className="flex items-center gap-1.5 font-bold text-xs">
+                  <Moon className="w-3.5 h-3.5 shrink-0" />
+                  <span>{L('Im Dunkeln', 'In the dark')}</span>
+                </div>
+                <p className="text-2xs text-text-tertiary mt-1">{L('Im abgedunkelten Raum', 'In darkened room')}</p>
               </button>
             </div>
           </div>
 
           {/* Rollen-Konfiguration */}
-          <Panel className="p-4 space-y-3">
-            <div className="flex items-center justify-between border-b border-border/50 pb-2.5">
-              <div>
+          <Panel className="p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between gap-4 py-1 border-b border-border/50">
+              <div className="min-w-0 flex-1 space-y-0.5">
                 <p className="font-bold text-xs text-text">{L('Anzahl Täter (Mörder)', 'Culprit count')}</p>
                 <p className="text-2xs text-text-tertiary">{L('Empfohlen: 1 bei unter 15 Personen', 'Recommended: 1 under 15 players')}</p>
               </div>
-              <Stepper
-                value={killerCount}
-                min={1}
-                max={Math.max(1, Math.floor(players.length / 4))}
-                onChange={setKillerCount}
-                label={L('Anzahl Täter', 'Number of culprits')}
-              />
+              <div className="w-36 shrink-0 flex justify-end">
+                <Stepper
+                  value={killerCount}
+                  min={1}
+                  max={Math.max(1, Math.floor(playerNames.length / 4))}
+                  onChange={setKillerCount}
+                  label={L('Anzahl Täter', 'Number of culprits')}
+                />
+              </div>
             </div>
 
-            <label className="flex items-center gap-2.5 cursor-pointer pt-1">
-              <input
-                type="checkbox"
-                checked={hasDetective}
-                onChange={(e) => setHasDetective(e.target.checked)}
-                className="w-4 h-4 accent-accent rounded-xs"
-              />
-              <span className="text-xs font-bold text-text">
-                🕵️ {L('Detektiv ermittelt (steht in der Mitte)', 'Detective in the center')}
-              </span>
-            </label>
+            <div className="flex items-center justify-between gap-3 pt-1">
+              <div className="flex items-center gap-2">
+                <Search className="w-4 h-4 text-accent shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-text block">
+                    {L('Detektiv ermittelt', 'Detective investigates')}
+                  </span>
+                  <span className="text-2xs text-text-tertiary">
+                    {L('Steht in der Mitte des Kreises', 'Stands in the center of circle')}
+                  </span>
+                </div>
+              </div>
+              <div className="w-36 shrink-0 flex justify-end">
+                <ToggleSwitch
+                  checked={hasDetective}
+                  onChange={setHasDetective}
+                  label={L('Detektiv ermittelt', 'Detective investigates')}
+                />
+              </div>
+            </div>
           </Panel>
 
           {/* Niemand-scheidet-aus Varianten */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-text-secondary block">
+            <label className="text-xs font-bold text-text uppercase tracking-wider block">
               {L('Variante, wenn man getroffen wird', 'When tagged')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -218,21 +239,21 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
             </div>
 
             {selectedVariant && (
-              <div className="p-3.5 rounded-card bg-surface-2 border border-border text-xs text-text-secondary mt-1">
+              <div className="p-3.5 rounded-card bg-surface-2 border border-border text-xs text-text-secondary mt-2">
                 <p className="font-bold text-text mb-1">{selectedVariant.summary[language]}</p>
                 <p className="text-2xs leading-relaxed">{selectedVariant.rules[language][0]}</p>
               </div>
             )}
           </div>
 
-          {/* Start Dealing Button */}
+          {/* Start Dealing */}
           <button
             type="button"
             onClick={startDealing}
-            className={`${primaryBtn} w-full py-3 text-base flex items-center justify-center gap-2`}
+            className={`${primaryBtn} w-full py-3.5 text-base flex items-center justify-center gap-2`}
           >
             <Eye className="w-4 h-4" />
-            <span>{L('Rollen geheim verteilen', 'Deal secret roles')}</span>
+            <span>{L('Rollen geheim verteilen', 'Deal roles secretly')}</span>
           </button>
         </div>
       )}
@@ -243,17 +264,17 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
       {phase === 'deal' && (
         <PassAround
           language={language}
-          players={players}
-          doneLabel={L('Rollen verteilt · Runde starten', 'Roles dealt · Start round')}
+          players={playerNames}
+          doneLabel={L('Verteilung abgeschlossen · Spiel starten', 'Deal complete · Start game')}
           onDone={finishDealAndPlay}
           renderCard={(playerIdx) => {
-            const p = players[playerIdx];
+            const p = playerNames[playerIdx];
             const role = assignments[p];
             const isKiller = role.id === 'zwinkerer';
-            const isDet = role.id === 'detektiv';
+            const isDetective = role.id === 'detektiv';
 
             return (
-              <div className="space-y-4 py-3 text-center w-full">
+              <div className="space-y-4 py-4 text-center w-full">
                 <span className="text-2xs font-bold uppercase tracking-wider text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20">
                   {p}
                 </span>
@@ -262,30 +283,17 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
                   className={`p-6 rounded-card border ${
                     isKiller
                       ? 'bg-red-500/10 border-red-500/30 text-red-400'
-                      : isDet
+                      : isDetective
                       ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
                       : 'bg-surface-2 border-border text-text'
                   }`}
                 >
                   <div className="text-3xl sm:text-4xl font-black tracking-tight mb-2">
-                    {isKiller
-                      ? interactionMethod === 'wink'
-                        ? L('Der Zwinkerer', 'The Winker')
-                        : interactionMethod === 'handshake'
-                        ? L('Der Drücker', 'The Squeezer')
-                        : L('Der Täter', 'The Culprit')
-                      : role.name[language]}
+                    {role.name[language]}
                   </div>
-                  <span className="text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10">
-                    {isKiller
-                      ? L('Täter-Rolle', 'Culprit Role')
-                      : isDet
-                      ? L('Detektiv', 'Detective')
-                      : L('Mitspieler', 'Citizen')}
-                  </span>
                 </div>
 
-                <p className="text-xs text-text-secondary leading-relaxed max-w-sm mx-auto">
+                <p className="text-xs text-text-secondary leading-relaxed max-w-xs mx-auto">
                   {role.description[language]}
                 </p>
               </div>
@@ -295,89 +303,108 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
       )}
 
       {/* =================================================================== */}
-      {/* PHASE 3: SPIELPHASE & DETEKTIV-HILFE                                */}
+      {/* PHASE 3: LIVE-SPIEL (DETEKTIV-RATEVERSUCHE & AUFLÖSUNG)              */}
       {/* =================================================================== */}
       {phase === 'play' && (
-        <div className="space-y-6 text-left">
-          {/* Rules / Interaction summary */}
-          <div className="p-4 rounded-card bg-surface-2 border border-border space-y-2">
-            <h3 className="text-sm font-bold text-text">
-              {interactionMethod === 'wink'
-                ? L('Spiel läuft: Zwinkern im Kreis', 'Play: Winking in the circle')
-                : interactionMethod === 'handshake'
-                ? L('Spiel läuft: Händedruck im Raum', 'Play: Handshake in the room')
-                : L('Spiel läuft: Mord im Dunkeln', 'Play: Murder in the dark')}
-            </h3>
-            <p className="text-xs text-text-secondary leading-relaxed">
-              {L(
-                'Der Detektiv darf genau 3 Mal tippen, wer der Täter ist. Die Mitspieler verhalten sich ruhig und natürlich.',
-                'The detective may guess up to 3 times. Citizens behave naturally and follow the chosen variant when tagged.'
+        <div className="space-y-6 text-left max-w-xl mx-auto">
+          {/* Status Box */}
+          <div className="p-4 sm:p-5 rounded-card bg-surface border border-border space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-text uppercase tracking-wider">
+                {hasDetective ? L('Detektiv-Rateversuche', 'Detective Guesses') : L('Status', 'Status')}
+              </span>
+              {hasDetective && (
+                <span className="text-xs font-bold text-accent tabular-nums">
+                  {guessesLeft} {L('übrig', 'left')}
+                </span>
               )}
+            </div>
+
+            {hasDetective && (
+              <div className="flex items-center gap-2">
+                {[1, 2, 3].map((g) => (
+                  <div
+                    key={g}
+                    className={`h-2 flex-1 rounded-full transition-all ${
+                      g <= guessesLeft ? 'bg-accent' : 'bg-surface-2 border border-border'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-text-secondary leading-relaxed">
+              {hasDetective
+                ? L(
+                    'Der Detektiv steht in der Mitte und hat 3 Versuche, den Täter zu enttarnen.',
+                    'The detective stands in the center and has 3 attempts to catch the culprit.'
+                  )
+                : L(
+                    'Das Spiel läuft frei in der Gruppe, bis der Täter enttarnt ist.',
+                    'Play freely until the culprit is identified.'
+                  )}
             </p>
           </div>
 
-          {/* Detective Guess Tracker */}
-          {hasDetective && (
-            <Panel className="p-5 text-center space-y-3">
-              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-                {L('Verbleibende Detektiv-Tipps', 'Remaining detective guesses')}
-              </span>
-              <div className="flex items-center justify-center gap-3">
-                {[1, 2, 3].map((num) => (
-                  <button
-                    key={num}
-                    type="button"
-                    onClick={() => setGuessesLeft(num - 1)}
-                    className={`w-12 h-12 rounded-full font-black text-lg border transition-all cursor-pointer ${
-                      num <= guessesLeft
-                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-xs'
-                        : 'bg-surface-2 text-text-tertiary border-border opacity-30 line-through'
-                    }`}
-                  >
-                    {num}
-                  </button>
-                ))}
-              </div>
-              <p className="text-2xs text-text-tertiary">
-                {guessesLeft > 0
-                  ? L(`Noch ${guessesLeft} Versuch(e)`, `${guessesLeft} guess(es) remaining`)
-                  : L('Keine Versuche mehr! Der Täter gewinnt.', 'No guesses left! Culprit wins.')}
-              </p>
-            </Panel>
-          )}
-
-          {/* Solution / Reveal */}
-          <div className="p-4 rounded-card bg-surface-2 border border-border flex items-center justify-between gap-3">
-            <div>
-              <p className="font-bold text-xs text-text">{L('Auflösung der Runde', 'Solution')}</p>
-              <p className="text-2xs text-text-tertiary">
-                {isRevealed
-                  ? Object.entries(assignments)
-                      .filter(([, r]) => r.id === 'zwinkerer')
-                      .map(([p]) => p)
-                      .join(', ') + ' ' + L('war der Täter!', 'was the culprit!')
-                  : L('Rolle erst am Rundenende aufdecken.', 'Reveal only at end of round.')}
-              </p>
+          {/* Facilitator Reveal Section */}
+          <Panel className="p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-text uppercase tracking-wider">
+                {L('Auflösung für Spielleitung', 'Facilitator Solution')}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsRevealed(!isRevealed)}
+                className="px-3 py-1.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text cursor-pointer transition-colors"
+              >
+                {isRevealed ? L('Verbergen', 'Hide') : L('Aufdecken', 'Reveal')}
+              </button>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsRevealed(!isRevealed)}
-              className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer"
-            >
-              {isRevealed ? L('Verbergen', 'Hide') : L('Aufdecken', 'Reveal')}
-            </button>
-          </div>
+            {isRevealed ? (
+              <div className="space-y-2 pt-1">
+                <div className="p-3.5 rounded-control bg-red-500/10 border border-red-500/30 text-xs">
+                  <span className="font-bold text-red-400 block mb-1">
+                    {L('Täter (Mörder):', 'Culprit(s):')}
+                  </span>
+                  <p className="text-sm font-black text-text">
+                    {Object.entries(assignments)
+                      .filter(([, r]) => r.id === 'zwinkerer')
+                      .map(([name]) => name)
+                      .join(', ')}
+                  </p>
+                </div>
 
-          {/* Reset */}
-          <div className="pt-2 flex justify-end">
+                {hasDetective && (
+                  <div className="p-3.5 rounded-control bg-amber-500/10 border border-amber-500/30 text-xs">
+                    <span className="font-bold text-amber-400 block mb-1">
+                      {L('Detektiv:', 'Detective:')}
+                    </span>
+                    <p className="text-sm font-black text-text">
+                      {Object.entries(assignments)
+                        .filter(([, r]) => r.id === 'detektiv')
+                        .map(([name]) => name)
+                        .join(', ')}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-text-tertiary italic">
+                {L('Tippe auf „Aufdecken“, um die geheimen Rollen zu sehen.', 'Tap "Reveal" to view secret roles.')}
+              </p>
+            )}
+          </Panel>
+
+          {/* Reset / New Game */}
+          <div className="pt-2 border-t border-border flex justify-end">
             <button
               type="button"
               onClick={() => setPhase('setup')}
               className="px-4 py-2 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>{L('Neue Runde starten', 'Start new round')}</span>
+              <span>{L('Neues Spiel einrichten', 'Reset to setup')}</span>
             </button>
           </div>
         </div>
