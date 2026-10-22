@@ -104,37 +104,73 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
             />
           </Panel>
 
-          {/* Pack Selection */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-text uppercase tracking-wider block">
-              {L('Themenpaket wählen', 'Choose Topic Pack')}
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {WHO_AM_I_PACKS.map((pack) => (
-                <button
-                  key={pack.id}
-                  type="button"
-                  onClick={() => setPackId(pack.id)}
-                  className={`p-3.5 rounded-card border text-left transition-all cursor-pointer ${
-                    packId === pack.id
-                      ? 'bg-accent/15 border-accent text-accent'
-                      : 'bg-surface border-border hover:bg-surface-2 text-text'
-                  }`}
-                >
-                  <p className="font-bold text-xs">{pack.name[language]}</p>
-                  <div className="flex items-center gap-1 mt-1 text-2xs text-text-tertiary">
-                    <span>{pack.entries.length} {L('Begriffe', 'terms')}</span>
-                    <span>·</span>
-                    <span>
-                      {pack.difficulty === 1
-                        ? L('Leicht', 'Easy')
-                        : pack.difficulty === 2
-                        ? L('Mittel', 'Medium')
-                        : L('Schwer', 'Hard')}
-                    </span>
-                  </div>
-                </button>
-              ))}
+          {/* Pack Selection Grouped by Difficulty */}
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-text uppercase tracking-wider block">
+                {L('Themenpaket wählen', 'Choose Topic Pack')}
+              </label>
+              <span className="text-2xs text-text-tertiary">
+                {selectedPack.name[language]} ({selectedPack.entries.length})
+              </span>
+            </div>
+
+            {/* Level 1: Leicht */}
+            <div className="space-y-1.5">
+              <span className="text-2xs font-bold uppercase tracking-wider text-accent block px-0.5">
+                {L('Stufe 1: Leicht & Bekannt', 'Level 1: Easy & Familiar')}
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {WHO_AM_I_PACKS.filter((p) => p.difficulty === 1).map((pack) => {
+                  const isSelected = packId === pack.id;
+                  return (
+                    <button
+                      key={pack.id}
+                      type="button"
+                      onClick={() => setPackId(pack.id)}
+                      className={`p-2.5 rounded-control border text-left transition-all cursor-pointer flex flex-col justify-between min-h-[58px] active:scale-[0.98] ${
+                        isSelected
+                          ? 'bg-accent/15 border-accent text-accent font-bold ring-1 ring-accent/30'
+                          : 'bg-surface border-border hover:bg-surface-2 text-text'
+                      }`}
+                    >
+                      <p className="text-xs font-bold leading-tight truncate">{pack.name[language]}</p>
+                      <span className="text-2xs opacity-70 mt-1">
+                        {pack.entries.length} {L('Begriffe', 'terms')}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Level 2: Mittel & Herausfordernd */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary block px-0.5">
+                {L('Stufe 2: Knifflig & Inspirierend', 'Level 2: Challenging & Thoughtful')}
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {WHO_AM_I_PACKS.filter((p) => p.difficulty >= 2).map((pack) => {
+                  const isSelected = packId === pack.id;
+                  return (
+                    <button
+                      key={pack.id}
+                      type="button"
+                      onClick={() => setPackId(pack.id)}
+                      className={`p-2.5 rounded-control border text-left transition-all cursor-pointer flex flex-col justify-between min-h-[58px] active:scale-[0.98] ${
+                        isSelected
+                          ? 'bg-accent/15 border-accent text-accent font-bold ring-1 ring-accent/30'
+                          : 'bg-surface border-border hover:bg-surface-2 text-text'
+                      }`}
+                    >
+                      <p className="text-xs font-bold leading-tight truncate">{pack.name[language]}</p>
+                      <span className="text-2xs opacity-70 mt-1">
+                        {pack.entries.length} {L('Begriffe', 'terms')}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

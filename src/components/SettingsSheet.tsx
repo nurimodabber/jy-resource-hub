@@ -8,9 +8,11 @@ import {
   Music,
   CheckCircle2,
   Users,
-  ChevronDown,
-  ChevronUp,
+  ChevronRight,
   Sparkles,
+  Palette,
+  Globe,
+  ShieldCheck,
 } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -18,7 +20,7 @@ import { useTheme, Theme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { exportLocalData, importLocalData, clearLocalData, downloadText } from '../utils/backup';
 import { loadGroupTitle, loadGroupNames, loadGroupPresent } from '../utils/groupNames';
-import { Sheet, SegmentedControl, Button } from './ui';
+import { Sheet, SegmentedControl } from './ui';
 import { GroupManager } from './tools/GroupManager';
 
 export interface SettingsSheetProps {
@@ -41,21 +43,13 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   const { showToast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);
-  const [isGlassExpanded, setIsGlassExpanded] = useState(false);
 
-  // Reset expanded state whenever sheet is closed
-  useEffect(() => {
-    if (!isOpen) {
-      setIsGlassExpanded(false);
-    }
-  }, [isOpen]);
-
-  // Draft setting
-  const [hideDrafts, setHideDrafts] = useState<boolean>(() => {
+  // Draft setting ('Entwürfe anzeigen' toggle)
+  const [showDrafts, setShowDrafts] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('jy_hide_drafts') === 'true';
+      return localStorage.getItem('jy_hide_drafts') !== 'true';
     } catch {
-      return false;
+      return true;
     }
   });
 
@@ -69,16 +63,16 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   }, []);
 
   const handleToggleDrafts = (val: boolean) => {
-    setHideDrafts(val);
+    setShowDrafts(val);
     try {
-      localStorage.setItem('jy_hide_drafts', val ? 'true' : 'false');
+      localStorage.setItem('jy_hide_drafts', val ? 'false' : 'true');
     } catch {
       /* ignore */
     }
     showToast({
       text: language === 'de'
-        ? (val ? 'Entwürfe werden ausgeblendet' : 'Entwürfe werden angezeigt')
-        : (val ? 'Draft content hidden' : 'Draft content shown'),
+        ? (val ? 'Entwürfe werden angezeigt' : 'Entwürfe werden ausgeblendet')
+        : (val ? 'Draft content shown' : 'Draft content hidden'),
     });
   };
 
@@ -113,24 +107,24 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   const groupPresent = loadGroupPresent();
   const presentCount = groupNames.filter((n) => groupPresent[n] !== false).length;
 
-  // Compact glass effect subtitle
-  const glassSubtitle = (() => {
+  // Indicator text for glass effect
+  const glassIndicator = (() => {
     if (glassOpacity === 0) {
-      return language === 'de' ? 'Kristallklar · 0 %' : 'Crystal clear · 0%';
+      return language === 'de' ? 'Kristallklar (0 %)' : 'Crystal clear (0%)';
     }
     if (glassOpacity <= 20) {
-      return language === 'de' ? `Ultra-Glas · ${glassOpacity} %` : `Ultra glass · ${glassOpacity}%`;
+      return language === 'de' ? `Ultra-Glas (${glassOpacity} %)` : `Ultra glass (${glassOpacity}%)`;
     }
     if (glassOpacity <= 50) {
-      return language === 'de' ? `Glasig · ${glassOpacity} %` : `Glassy · ${glassOpacity}%`;
+      return language === 'de' ? `Glasig (${glassOpacity} %)` : `Glassy (${glassOpacity}%)`;
     }
     if (glassOpacity <= 80) {
-      return language === 'de' ? `Sanft · ${glassOpacity} %` : `Soft · ${glassOpacity}%`;
+      return language === 'de' ? `Sanft (${glassOpacity} %)` : `Subtle (${glassOpacity}%)`;
     }
     if (glassOpacity < 100) {
-      return language === 'de' ? `Standard · ${glassOpacity} %` : `Default · ${glassOpacity}%`;
+      return language === 'de' ? `Standard (${glassOpacity} %)` : `Default (${glassOpacity}%)`;
     }
-    return language === 'de' ? 'Solide · 100 %' : 'Solid · 100%';
+    return language === 'de' ? 'Solide (100 %)' : 'Solid (100%)';
   })();
 
   return (
@@ -142,285 +136,356 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
       position="bottom"
     >
       <div className="space-y-4 max-w-xl mx-auto pb-4">
-        {/* 1. Erscheinungsbild & Sprache */}
-        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3.5 sm:p-4 space-y-3.5">
-          <section className="space-y-1.5">
-            <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-              {t.settingsAppearance}
-            </label>
-            <SegmentedControl
-              options={[
-                { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
-                { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
-                { id: 'contrast', label: language === 'de' ? 'Kontrast' : 'Contrast' },
-                { id: 'system', label: language === 'de' ? 'System' : 'System' },
-              ]}
-              value={theme}
-              onChange={(v) => setTheme(v as Theme)}
-              fullWidth
-              size="sm"
-            />
-          </section>
-
-          <section className="space-y-1.5">
-            <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-              {t.settingsLanguage}
-            </label>
-            <SegmentedControl
-              options={[
-                { id: 'de', label: 'Deutsch' },
-                { id: 'en', label: 'English' },
-              ]}
-              value={language}
-              onChange={(v) => setLanguage(v as Language)}
-              fullWidth
-              size="sm"
-            />
-          </section>
-        </div>
-
-        {/* 2. Milchglas & Transparenz (Refined Modern Glass Control with Live Preview) */}
-        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3.5 sm:p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-control bg-accent-subtle flex items-center justify-center shrink-0 text-accent-text">
-                <Sparkles className="w-4 h-4" />
+        {/* ================================================================= */}
+        {/* SECTION 1: DARSTELLUNG & SPRACHE                                  */}
+        {/* ================================================================= */}
+        <section className="space-y-1.5 text-left">
+          <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
+            {language === 'de' ? 'Darstellung & Sprache' : 'Appearance & Language'}
+          </h3>
+          <div className="bg-surface rounded-card border border-border/80 divide-y divide-border/60 overflow-hidden shadow-1">
+            {/* Theme 4-segment selector */}
+            <div className="p-3.5 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-text flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
+                  <span>{t.settingsAppearance}</span>
+                </span>
+                <span className="text-2xs font-medium text-text-secondary capitalize">
+                  {theme === 'light'
+                    ? (language === 'de' ? 'Hell' : 'Light')
+                    : theme === 'dark'
+                    ? (language === 'de' ? 'Dunkel' : 'Dark')
+                    : theme === 'contrast'
+                    ? (language === 'de' ? 'Kontrast' : 'Contrast')
+                    : (language === 'de' ? 'System' : 'System')}
+                </span>
               </div>
-              <div className="min-w-0">
-                <span className="block text-xs font-bold text-text truncate">
-                  {language === 'de' ? 'Milchglas & Transparenz' : 'Frosted Glass & Blur'}
+              <SegmentedControl
+                options={[
+                  { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
+                  { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
+                  { id: 'contrast', label: language === 'de' ? 'Kontrast' : 'Contrast' },
+                  { id: 'system', label: language === 'de' ? 'System' : 'System' },
+                ]}
+                value={theme}
+                onChange={(v) => setTheme(v as Theme)}
+                fullWidth
+                size="sm"
+              />
+            </div>
+
+            {/* Language 2-segment switch */}
+            <div className="p-3.5 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-text flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
+                  <span>{t.settingsLanguage}</span>
                 </span>
-                <span className="block text-2xs text-text-secondary truncate">
-                  {glassSubtitle}
+                <span className="text-2xs font-medium text-text-secondary">
+                  {language === 'de' ? 'Deutsch' : 'English'}
                 </span>
+              </div>
+              <SegmentedControl
+                options={[
+                  { id: 'de', label: 'Deutsch' },
+                  { id: 'en', label: 'English' },
+                ]}
+                value={language}
+                onChange={(v) => setLanguage(v as Language)}
+                fullWidth
+                size="sm"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================= */}
+        {/* SECTION 2: MILCHGLAS & TRANSPARENZ                                */}
+        {/* ================================================================= */}
+        <section className="space-y-1.5 text-left">
+          <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
+            {language === 'de' ? 'Milchglas & Transparenz' : 'Frosted Glass & Blur'}
+          </h3>
+          <div className="bg-surface rounded-card border border-border/80 divide-y divide-border/60 overflow-hidden shadow-1 p-3.5 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-control bg-accent-subtle flex items-center justify-center shrink-0 text-accent-text">
+                  <Sparkles className="w-4 h-4" strokeWidth={1.75} />
+                </div>
+                <div className="min-w-0">
+                  <span className="block text-xs font-semibold text-text truncate">
+                    {language === 'de' ? 'Hintergrund-Transparenz' : 'Background Blur & Tint'}
+                  </span>
+                  <span className="block text-2xs text-text-secondary truncate">
+                    {glassIndicator}
+                  </span>
+                </div>
+              </div>
+              <div className="text-xs font-bold text-accent tabular-nums bg-accent-subtle px-2.5 py-1 rounded-chip shrink-0">
+                {glassOpacity} %
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsGlassExpanded((prev) => !prev)}
-              className="inline-flex items-center gap-1 min-h-[36px] px-2.5 py-1 text-xs font-semibold rounded-control text-accent hover:bg-surface-2 transition-colors cursor-pointer shrink-0"
-              aria-expanded={isGlassExpanded}
-            >
-              <span>{isGlassExpanded ? (language === 'de' ? 'Weniger' : 'Fewer') : (language === 'de' ? 'Feinjustieren' : 'Fine-tune')}</span>
-              {isGlassExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-
-          {/* Quick Presets always visible: Sanft (80%) · Klassisch (60%) · Solide (100% / Aus) */}
-          <div className="grid grid-cols-3 gap-1.5">
-            <button
-              type="button"
-              onClick={() => setGlassOpacity(80)}
-              className={`py-1.5 px-2 text-xs font-medium rounded-control border transition-all cursor-pointer ${
-                glassOpacity === 80
-                  ? 'bg-accent text-accent-contrast border-accent font-semibold shadow-xs'
-                  : 'bg-surface border-border text-text hover:bg-surface-2'
-              }`}
-            >
-              {language === 'de' ? 'Sanft (80 %)' : 'Subtle (80%)'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setGlassOpacity(60)}
-              className={`py-1.5 px-2 text-xs font-medium rounded-control border transition-all cursor-pointer ${
-                glassOpacity === 60
-                  ? 'bg-accent text-accent-contrast border-accent font-semibold shadow-xs'
-                  : 'bg-surface border-border text-text hover:bg-surface-2'
-              }`}
-            >
-              {language === 'de' ? 'Klassisch (60 %)' : 'Classic (60%)'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setGlassOpacity(100)}
-              className={`py-1.5 px-2 text-xs font-medium rounded-control border transition-all cursor-pointer ${
-                glassOpacity >= 100
-                  ? 'bg-accent text-accent-contrast border-accent font-semibold shadow-xs'
-                  : 'bg-surface border-border text-text hover:bg-surface-2'
-              }`}
-            >
-              {language === 'de' ? 'Solide (Aus)' : 'Solid (Off)'}
-            </button>
-          </div>
-
-          {/* Expanded Fine Tuning with Live Preview Pill */}
-          {isGlassExpanded && (
-            <div className="pt-2 border-t border-border/60 space-y-3 animate-in fade-in duration-150">
-              {/* Live Preview Box */}
-              <div className="relative overflow-hidden rounded-control p-3 bg-gradient-to-r from-accent/20 via-surface-2 to-accent/15 border border-border flex items-center justify-center min-h-[56px]">
-                <div className="absolute inset-0 flex items-center justify-around opacity-30 pointer-events-none">
-                  <div className="w-10 h-10 rounded-full bg-accent blur-xs" />
-                  <div className="w-8 h-8 rounded-full bg-accent-contrast blur-xs" />
-                </div>
-                <div className="relative z-10 glass-surface px-4 py-1.5 rounded-full border border-border/80 text-xs font-semibold text-text shadow-xs">
-                  {language === 'de' ? 'Live-Vorschau Milchglas' : 'Live Glass Preview'} · {glassOpacity}%
-                </div>
-              </div>
-
-              {/* Slider Row */}
-              <div className="flex items-center gap-2.5">
-                <span className="text-2xs text-text-secondary select-none font-medium shrink-0">
-                  {language === 'de' ? 'Glasig (0%)' : 'Glass (0%)'}
+            {/* Inline Slider with clean indicator text */}
+            <div className="space-y-1.5 pt-1">
+              <div className="flex items-center gap-3">
+                <span className="text-2xs font-medium text-text-tertiary select-none shrink-0">
+                  {language === 'de' ? 'Glasig (0 %)' : 'Glass (0%)'}
                 </span>
                 <input
                   id="glass-slider"
                   type="range"
                   min="0"
                   max="100"
-                  step="1"
+                  step="5"
                   value={glassOpacity}
                   onChange={(e) => setGlassOpacity(Number(e.target.value))}
-                  className="flex-1 h-2 bg-surface-2 rounded-full appearance-none cursor-pointer accent-accent focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-                  aria-label={language === 'de' ? 'Transparenz einstellen' : 'Adjust glass opacity'}
+                  className="flex-1 h-2 bg-surface-2 rounded-full appearance-none cursor-pointer accent-accent focus-visible:outline-hidden"
+                  aria-label={language === 'de' ? 'Milchglas Transparenz' : 'Glass opacity'}
                 />
-                <span className="text-2xs text-text-secondary select-none font-medium shrink-0">
-                  {language === 'de' ? 'Solide' : 'Solid'}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* 3. Entwürfe Filter Card */}
-        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3 sm:p-3.5 flex items-center justify-between gap-3">
-          <div className="min-w-0 pr-2">
-            <span className="block text-xs font-semibold text-text">
-              {t.settingsHideDrafts}
-            </span>
-            <p className="text-2xs text-text-secondary mt-0.5 leading-snug">
-              {t.settingsHideDraftsHint}
-            </p>
-          </div>
-          <label className="relative inline-flex items-center cursor-pointer shrink-0 min-h-[44px]">
-            <input
-              type="checkbox"
-              checked={hideDrafts}
-              onChange={(e) => handleToggleDrafts(e.target.checked)}
-              className="sr-only peer"
-              aria-label={t.settingsHideDrafts}
-            />
-            <div className="w-11 h-6 bg-surface-2 border border-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[12px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent peer-checked:border-accent"></div>
-          </label>
-        </div>
-
-        {/* 4. Meine Gruppe Collapsible Card */}
-        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3 sm:p-4 space-y-3">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-control bg-accent-subtle flex items-center justify-center shrink-0 text-accent-text">
-                <Users className="w-4 h-4" />
-              </div>
-              <div className="min-w-0">
-                <span className="block text-xs font-bold text-text truncate">
-                  {groupTitle || (language === 'de' ? 'Meine Gruppe' : 'My Group')}
-                </span>
-                <span className="block text-2xs text-text-secondary truncate">
-                  {groupNames.length > 0
-                    ? (language === 'de' ? `${presentCount} von ${groupNames.length} anwesend` : `${presentCount} of ${groupNames.length} present`)
-                    : (language === 'de' ? 'Keine Namen hinterlegt' : 'No youth entered yet')}
+                <span className="text-2xs font-medium text-text-tertiary select-none shrink-0">
+                  {language === 'de' ? 'Solide (100 %)' : 'Solid (100%)'}
                 </span>
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setIsGroupExpanded((prev) => !prev)}
-              className="inline-flex items-center gap-1 min-h-[36px] px-2.5 py-1 text-xs font-semibold rounded-control text-accent hover:bg-surface-2 transition-colors cursor-pointer shrink-0"
-              aria-expanded={isGroupExpanded}
-            >
-              <span>{isGroupExpanded ? (language === 'de' ? 'Schließen' : 'Close') : (language === 'de' ? 'Verwalten' : 'Manage')}</span>
-              {isGroupExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-
-          {isGroupExpanded && (
-            <div className="pt-2 border-t border-border/60">
-              <GroupManager language={language} compact={true} />
-            </div>
-          )}
-        </div>
-
-        {/* 5. Daten & Sicherung */}
-        <div className="bg-surface-2/40 border border-border/80 rounded-card p-3 sm:p-4 space-y-2.5">
-          <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-            {t.settingsData}
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<Download className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />}
-              onClick={handleExport}
-              title={t.settingsBackup}
-              className="w-full justify-start text-xs min-h-[44px]"
-            >
-              <span className="truncate">{t.settingsBackup}</span>
-            </Button>
-
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<Upload className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />}
-              onClick={() => fileRef.current?.click()}
-              title={t.settingsRestore}
-              className="w-full justify-start text-xs min-h-[44px]"
-            >
-              <span className="truncate">{t.settingsRestore}</span>
-            </Button>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="application/json"
-              className="hidden"
-              onChange={(e) => handleImport(e.target.files?.[0])}
-            />
-
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<Printer className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />}
-              onClick={() => {
-                window.print();
-                onClose();
-              }}
-              className="w-full justify-start text-xs min-h-[44px]"
-            >
-              <span className="truncate">{t.printHandout}</span>
-            </Button>
-
-            {onOpenBahaiSongs && (
-              <Button
-                variant="secondary"
-                size="sm"
-                icon={<Music className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />}
-                onClick={() => {
-                  onOpenBahaiSongs();
-                  onClose();
-                }}
-                className="w-full justify-start text-xs min-h-[44px]"
+            {/* Symmetrical Quick Presets */}
+            <div className="grid grid-cols-3 gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setGlassOpacity(80)}
+                className={`py-1.5 px-2 text-2xs font-semibold rounded-control border transition-all cursor-pointer ${
+                  glassOpacity === 80
+                    ? 'bg-accent text-accent-contrast border-accent shadow-xs'
+                    : 'bg-surface-2 border-border/80 text-text hover:bg-surface-raised'
+                }`}
               >
-                <span className="truncate">Bahá'í Songs</span>
-              </Button>
-            )}
+                {language === 'de' ? 'Sanft (80 %)' : 'Subtle (80%)'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setGlassOpacity(60)}
+                className={`py-1.5 px-2 text-2xs font-semibold rounded-control border transition-all cursor-pointer ${
+                  glassOpacity === 60
+                    ? 'bg-accent text-accent-contrast border-accent shadow-xs'
+                    : 'bg-surface-2 border-border/80 text-text hover:bg-surface-raised'
+                }`}
+              >
+                {language === 'de' ? 'Klassisch (60 %)' : 'Classic (60%)'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setGlassOpacity(100)}
+                className={`py-1.5 px-2 text-2xs font-semibold rounded-control border transition-all cursor-pointer ${
+                  glassOpacity >= 100
+                    ? 'bg-accent text-accent-contrast border-accent shadow-xs'
+                    : 'bg-surface-2 border-border/80 text-text hover:bg-surface-raised'
+                }`}
+              >
+                {language === 'de' ? 'Solide (Aus)' : 'Solid (Off)'}
+              </button>
+            </div>
           </div>
+        </section>
 
-          <div className="pt-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={<Trash2 className="w-3.5 h-3.5 text-danger shrink-0" strokeWidth={1.75} />}
-              onClick={handleClear}
-              className="text-danger hover:bg-danger/10 w-full justify-start text-xs min-h-[40px]"
+        {/* ================================================================= */}
+        {/* SECTION 3: INHALTE & GRUPPE                                       */}
+        {/* ================================================================= */}
+        <section className="space-y-1.5 text-left">
+          <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
+            {language === 'de' ? 'Inhalte & Gruppe' : 'Content & Group'}
+          </h3>
+          <div className="bg-surface rounded-card border border-border/80 divide-y divide-border/60 overflow-hidden shadow-1">
+            {/* iOS toggle switch for 'Entwürfe anzeigen' */}
+            <div className="p-3.5 flex items-center justify-between gap-3">
+              <div className="min-w-0 pr-2">
+                <span className="block text-xs font-semibold text-text">
+                  {language === 'de' ? 'Entwürfe anzeigen' : 'Show Draft Content'}
+                </span>
+                <p className="text-2xs text-text-secondary mt-0.5 leading-snug">
+                  {language === 'de'
+                    ? 'Neue Spiel- & Projektentwürfe in den Übersichten einblenden'
+                    : 'Show newly drafted games and project templates in lists'}
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer shrink-0 min-h-[44px]">
+                <input
+                  type="checkbox"
+                  checked={showDrafts}
+                  onChange={(e) => handleToggleDrafts(e.target.checked)}
+                  className="sr-only peer"
+                  aria-label={language === 'de' ? 'Entwürfe anzeigen' : 'Show Draft Content'}
+                />
+                <div className="w-12 h-7 bg-surface-2 border border-border/80 rounded-full peer peer-checked:bg-accent peer-checked:border-accent transition-colors after:content-[''] after:absolute after:top-[11px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:shadow-sm after:transition-all peer-checked:after:translate-x-5"></div>
+              </label>
+            </div>
+
+            {/* Group member status row with a chevron */}
+            <div className="p-3.5 space-y-3">
+              <div
+                onClick={() => setIsGroupExpanded((prev) => !prev)}
+                className="flex items-center justify-between gap-3 cursor-pointer select-none group"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setIsGroupExpanded((prev) => !prev);
+                  }
+                }}
+                aria-expanded={isGroupExpanded}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-control bg-accent-subtle flex items-center justify-center shrink-0 text-accent-text group-hover:bg-accent/20 transition-colors">
+                    <Users className="w-4 h-4" strokeWidth={1.75} />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="block text-xs font-semibold text-text truncate">
+                      {groupTitle || (language === 'de' ? 'Meine Gruppe' : 'My Group')}
+                    </span>
+                    <span className="block text-2xs text-text-secondary truncate">
+                      {groupNames.length > 0
+                        ? (language === 'de'
+                            ? `${presentCount} von ${groupNames.length} Personen anwesend`
+                            : `${presentCount} of ${groupNames.length} members present`)
+                        : (language === 'de'
+                            ? 'Noch keine Namen hinterlegt'
+                            : 'No group members added yet')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-2xs font-semibold text-accent hidden sm:inline">
+                    {isGroupExpanded
+                      ? (language === 'de' ? 'Schließen' : 'Close')
+                      : (language === 'de' ? 'Verwalten' : 'Manage')}
+                  </span>
+                  <ChevronRight
+                    className={`w-4 h-4 text-text-tertiary transition-transform duration-200 ${
+                      isGroupExpanded ? 'rotate-90 text-accent' : 'group-hover:translate-x-0.5'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {isGroupExpanded && (
+                <div className="pt-2 border-t border-border/60 animate-in fade-in duration-150">
+                  <GroupManager language={language} compact={true} />
+                </div>
+              )}
+            </div>
+
+            {/* Admin Dashboard Entry */}
+            <Link
+              to="/admin"
+              onClick={onClose}
+              className="p-3.5 flex items-center justify-between gap-3 hover:bg-surface-2 transition-colors cursor-pointer group"
             >
-              <span>{t.settingsDeleteAll}</span>
-            </Button>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-control bg-accent/15 flex items-center justify-center shrink-0 text-accent group-hover:bg-accent/25 transition-colors">
+                  <ShieldCheck className="w-4 h-4" strokeWidth={1.75} />
+                </div>
+                <div className="min-w-0">
+                  <span className="block text-xs font-semibold text-text truncate">
+                    {language === 'de' ? 'Admin-Dashboard' : 'Admin Dashboard'}
+                  </span>
+                  <span className="block text-2xs text-text-secondary truncate">
+                    {language === 'de' ? 'Revisionssichere Verwaltung & Live-Sync' : 'Versioned CRUD & Live Sync'}
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:translate-x-0.5 transition-transform" />
+            </Link>
           </div>
-        </div>
+        </section>
 
-        {/* 6. Über die Seite & Offline Status */}
-        <div className="pt-2 border-t border-border/80 space-y-2">
-          <div className="flex items-center justify-between text-2xs text-text-secondary px-1">
+        {/* ================================================================= */}
+        {/* SECTION 4: DATEN & SICHERUNG                                      */}
+        {/* ================================================================= */}
+        <section className="space-y-1.5 text-left">
+          <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
+            {language === 'de' ? 'Daten & Sicherung' : 'Data & Backup'}
+          </h3>
+          <div className="bg-surface rounded-card border border-border/80 divide-y divide-border/60 overflow-hidden shadow-1">
+            {/* Symmetrical Flat Action Buttons (2-column grid) */}
+            <div className="p-3.5">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={handleExport}
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-colors cursor-pointer active:scale-[0.99]"
+                >
+                  <Download className="w-3.5 h-3.5 text-accent shrink-0" strokeWidth={1.75} />
+                  <span className="truncate">{language === 'de' ? 'Sichern' : 'Backup'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-colors cursor-pointer active:scale-[0.99]"
+                >
+                  <Upload className="w-3.5 h-3.5 text-accent shrink-0" strokeWidth={1.75} />
+                  <span className="truncate">{language === 'de' ? 'Einspielen' : 'Restore'}</span>
+                </button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="application/json"
+                  className="hidden"
+                  onChange={(e) => handleImport(e.target.files?.[0])}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.print();
+                    onClose();
+                  }}
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-colors cursor-pointer active:scale-[0.99]"
+                >
+                  <Printer className="w-3.5 h-3.5 text-text-secondary shrink-0" strokeWidth={1.75} />
+                  <span className="truncate">{language === 'de' ? 'Drucken' : 'Print'}</span>
+                </button>
+
+                {onOpenBahaiSongs ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onOpenBahaiSongs();
+                      onClose();
+                    }}
+                    className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-colors cursor-pointer active:scale-[0.99]"
+                  >
+                    <Music className="w-3.5 h-3.5 text-text-secondary shrink-0" strokeWidth={1.75} />
+                    <span className="truncate">Bahá'í Songs</span>
+                  </button>
+                ) : (
+                  <div className="hidden" />
+                )}
+              </div>
+            </div>
+
+            {/* Subtle Red Danger Action at the bottom */}
+            <div className="p-3 bg-danger/5">
+              <button
+                type="button"
+                onClick={handleClear}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 min-h-[40px] rounded-control text-xs font-semibold text-danger hover:bg-danger/10 transition-colors cursor-pointer active:scale-[0.99]"
+              >
+                <Trash2 className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
+                <span>{language === 'de' ? 'Alle lokalen Daten zurücksetzen' : 'Reset all local data'}</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================= */}
+        {/* FOOTER: ÜBER DIE SEITE, OFFLINE STATUS & RECHTLICHES              */}
+        {/* ================================================================= */}
+        <footer className="pt-2 border-t border-border/60 space-y-2 text-left">
+          <div className="flex items-center justify-between text-2xs text-text-secondary px-2">
             <span>{t.settingsVersion}</span>
             <div className="flex items-center gap-1.5 text-success font-medium">
               <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.75} />
@@ -428,7 +493,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-2xs text-text-secondary px-1">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-2xs text-text-secondary px-2">
             <div className="flex items-center gap-2.5">
               <Link to="/impressum" onClick={onClose} className="hover:text-text">
                 {t.impressumTitle}
@@ -442,7 +507,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               {t.settingsSubmitProposal}
             </Link>
           </div>
-        </div>
+        </footer>
       </div>
     </Sheet>
   );

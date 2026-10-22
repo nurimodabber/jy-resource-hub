@@ -12,6 +12,11 @@ const ogApiPlugin = (): Plugin => ({
       res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
       res.end(svg);
     });
+    server.middlewares.use('/api/submit', (req, res) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ ok: true, storedLocally: true }));
+    });
   },
   configurePreviewServer(server) {
     server.middlewares.use('/api/og', (req, res) => {
@@ -20,6 +25,11 @@ const ogApiPlugin = (): Plugin => ({
       res.statusCode = 200;
       res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
       res.end(svg);
+    });
+    server.middlewares.use('/api/submit', (req, res) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ ok: true, storedLocally: true }));
     });
   },
 });

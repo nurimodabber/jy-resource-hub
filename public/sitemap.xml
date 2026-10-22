@@ -97,6 +97,14 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://jy-resource-hub.vercel.app/datenschutz" />
   </url>
   <url>
+    <loc>https://jy-resource-hub.vercel.app/admin</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.1</priority>
+    <xhtml:link rel="alternate" hreflang="de" href="https://jy-resource-hub.vercel.app/admin" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://jy-resource-hub.vercel.app/admin" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://jy-resource-hub.vercel.app/admin" />
+  </url>
+  <url>
     <loc>https://jy-resource-hub.vercel.app/games/menschlicher-knoten</loc>
     <lastmod>2026-10-22</lastmod>
     <priority>0.8</priority>

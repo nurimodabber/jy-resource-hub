@@ -167,6 +167,14 @@ async function run() {
       ogType: 'website',
       ogQuery: 'type=section&title=Datenschutz',
     },
+    {
+      path: '/admin',
+      priority: '0.1',
+      title: 'Admin-Dashboard — Junior Youth Hub',
+      description: 'Revisionssichere Verwaltung von Spielen, Kategorien und Vorschlägen.',
+      ogType: 'website',
+      ogQuery: 'type=section&title=Admin',
+    },
   ];
 
   for (const game of GAMES_DATA) {

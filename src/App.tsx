@@ -7,6 +7,7 @@ import { LeftNavigationRail } from './components/LeftNavigationRail';
 import { Logo } from './components/Logo';
 import { DocumentHead } from './components/DocumentHead';
 import { ToastProvider } from './context/ToastContext';
+import { AdminDataProvider } from './context/AdminDataContext';
 import { Language, NavTab } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
 import { GAMES_DATA } from './data/games';
@@ -29,6 +30,7 @@ const DatenschutzView = lazy(() => import('./components/DatenschutzView').then(m
 const SavedView = lazy(() => import('./components/SavedView').then(m => ({ default: m.SavedView })));
 const GalleryView = lazy(() => import('./components/ui/Gallery').then(m => ({ default: m.Gallery })));
 const ProposalView = lazy(() => import('./components/ProposalView').then(m => ({ default: m.ProposalView })));
+const AdminView = lazy(() => import('./components/AdminView').then(m => ({ default: m.AdminView })));
 const SettingsSheet = lazy(() => import('./components/SettingsSheet').then(m => ({ default: m.SettingsSheet })));
 const CommandPalette = lazy(() => import('./components/CommandPalette').then(m => ({ default: m.CommandPalette })));
 const BahaiSongsModal = lazy(() => import('./components/BahaiSongsModal').then(m => ({ default: m.BahaiSongsModal })));
@@ -559,6 +561,11 @@ export const AppContent: React.FC = () => {
               element={<ProposalView language={language} />}
             />
 
+            <Route
+              path="/admin"
+              element={<AdminView language={language} />}
+            />
+
             <Route path="/_design" element={<GalleryView />} />
 
             {/* Real 404 Route */}
@@ -710,7 +717,9 @@ export const AppContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <ToastProvider>
-      <AppContent />
+      <AdminDataProvider>
+        <AppContent />
+      </AdminDataProvider>
     </ToastProvider>
   );
 };

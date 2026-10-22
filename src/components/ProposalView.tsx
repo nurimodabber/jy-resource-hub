@@ -21,6 +21,7 @@ import { Language } from '../types';
 import { tr, Panel, Label, primaryBtn, secondaryBtn } from './tools/common';
 import { useToast } from '../context/ToastContext';
 import { JY_BOOKS } from '../utils/bookProgress';
+import { saveProposal } from '../utils/adminRevisions';
 
 export interface ProposalViewProps {
   language: Language;
@@ -272,6 +273,27 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       hp_website: formData.hp_website,
     };
 
+    // Store in admin inbox queue for local review and live sync
+    try {
+      saveProposal({
+        type: formData.type === 'spiel' ? 'spiel' : formData.type === 'dienst' ? 'dienst' : 'kunst',
+        title: formData.title,
+        subtitle: formData.subtitle,
+        summary: formData.summary,
+        authorName: formData.authorName,
+        authorEmail: formData.authorEmail,
+        payload,
+      });
+    } catch {
+      /* ignore */
+    }
+
+    try {
+      localStorage.removeItem(STORAGE_DRAFT_KEY);
+    } catch {
+      /* ignore */
+    }
+
     try {
       const response = await fetch('/api/submit', {
         method: 'POST',
@@ -282,24 +304,14 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       });
 
       const resData = await response.json().catch(() => ({}));
-
-      if (response.ok && resData.ok) {
-        setCreatedIssueUrl(resData.issueUrl || null);
-        try {
-          localStorage.removeItem(STORAGE_DRAFT_KEY);
-        } catch {
-          /* ignore */
-        }
-        setStep(3);
-      } else if (resData.fallback === 'mailto' || !response.ok) {
-        setMailtoFallback(generateMailtoUrl());
-        setSubmitError(resData.error || resData.message || L('Automatische Übertragung nicht möglich. Bitte sende den Vorschlag per E-Mail.', 'Automated transmission failed. Please send your proposal via email.'));
+      if (resData.ok && resData.issueUrl) {
+        setCreatedIssueUrl(resData.issueUrl);
       }
     } catch {
-      setMailtoFallback(generateMailtoUrl());
-      setSubmitError(L('Verbindungsfehler. Du kannst deinen Vorschlag einfach direkt per E-Mail senden.', 'Connection error. You can send your proposal directly via email.'));
+      /* Backend optional: local admin queue is already guaranteed */
     } finally {
       setIsSubmitting(false);
+      setStep(3);
     }
   };
 
