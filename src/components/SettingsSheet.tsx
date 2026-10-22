@@ -6,7 +6,6 @@ import {
   Trash2,
   Printer,
   Music,
-  CheckCircle2,
   Users,
   ChevronRight,
   Sparkles,
@@ -100,7 +99,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
           <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
             {language === 'de' ? 'Darstellung & Sprache' : 'Appearance & Language'}
           </h3>
-          <div className="bg-surface rounded-card border border-border/80 p-4 space-y-4 overflow-hidden shadow-1">
+          <div className="glass-card rounded-card p-4 space-y-4 overflow-hidden shadow-1">
             {/* Theme 4-segment selector */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
@@ -182,13 +181,13 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         </section>
 
         {/* ================================================================= */}
-        {/* SECTION 2: INHALTE & GRUPPE                                       */}
+        {/* SECTION 2: GRUPPE                                                 */}
         {/* ================================================================= */}
         <section className="space-y-1.5 text-left">
           <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
-            {language === 'de' ? 'Inhalte & Gruppe' : 'Content & Group'}
+            {language === 'de' ? 'Gruppe' : 'Group'}
           </h3>
-          <div className="bg-surface rounded-card border border-border/80 divide-y divide-border/60 overflow-hidden shadow-1">
+          <div className="glass-card rounded-card overflow-hidden shadow-1">
             {/* Group member status row with a chevron */}
             <div className="p-3.5 space-y-3">
               <div
@@ -244,39 +243,17 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                 </div>
               )}
             </div>
-
-            {/* Admin Dashboard Entry */}
-            <Link
-              to="/admin"
-              onClick={onClose}
-              className="p-3.5 flex items-center justify-between gap-3 hover:bg-surface-2 transition-colors cursor-pointer group"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-control bg-accent/15 flex items-center justify-center shrink-0 text-accent group-hover:bg-accent/25 transition-colors">
-                  <ShieldCheck className="w-4 h-4" strokeWidth={1.75} />
-                </div>
-                <div className="min-w-0">
-                  <span className="block text-xs font-semibold text-text truncate">
-                    {language === 'de' ? 'Admin-Dashboard' : 'Admin Dashboard'}
-                  </span>
-                  <span className="block text-2xs text-text-secondary truncate">
-                    {language === 'de' ? 'Revisionssichere Verwaltung & Live-Sync' : 'Versioned CRUD & Live Sync'}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:translate-x-0.5 transition-transform" />
-            </Link>
           </div>
         </section>
 
         {/* ================================================================= */}
-        {/* SECTION 4: DATEN & SICHERUNG                                      */}
+        {/* SECTION 3: DATEN & SICHERUNG                                      */}
         {/* ================================================================= */}
         <section className="space-y-1.5 text-left">
           <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
             {language === 'de' ? 'Daten & Sicherung' : 'Data & Backup'}
           </h3>
-          <div className="bg-surface rounded-card border border-border/80 divide-y divide-border/60 overflow-hidden shadow-1">
+          <div className="glass-card rounded-card divide-y divide-border/60 overflow-hidden shadow-1">
             {/* Symmetrical Flat Action Buttons (2-column grid) */}
             <div className="p-3.5">
               <div className="grid grid-cols-2 gap-2">
@@ -352,28 +329,52 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         {/* ================================================================= */}
         {/* FOOTER: ÜBER DIE SEITE, OFFLINE STATUS & RECHTLICHES              */}
         {/* ================================================================= */}
-        <footer className="pt-2 border-t border-border/60 space-y-2 text-left">
-          <div className="flex items-center justify-between text-2xs text-text-secondary px-2">
-            <span>{t.settingsVersion}</span>
-            <div className="flex items-center gap-1.5 text-success font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5" strokeWidth={1.75} />
-              <span>{isOfflineReady ? t.settingsOfflineReady : t.settingsOfflineDesc}</span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-1 text-2xs text-text-secondary px-2">
-            <div className="flex items-center gap-2.5">
-              <Link to="/impressum" onClick={onClose} className="hover:text-text">
-                {t.impressumTitle}
-              </Link>
-              <span>·</span>
-              <Link to="/datenschutz" onClick={onClose} className="hover:text-text">
-                {t.datenschutzTitle}
-              </Link>
-            </div>
-            <Link to="/vorschlagen" onClick={onClose} className="hover:text-accent font-medium">
+        <footer className="pt-3 border-t border-border/50 text-center space-y-2 select-none">
+          {/* Row 1: Legal & Nav Links + Subtle Admin Dashboard Link */}
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-2xs text-text-secondary">
+            <Link
+              to="/impressum"
+              onClick={onClose}
+              className="hover:text-text transition-colors"
+            >
+              {t.impressumTitle}
+            </Link>
+            <span className="text-border-strong select-none">·</span>
+            <Link
+              to="/datenschutz"
+              onClick={onClose}
+              className="hover:text-text transition-colors"
+            >
+              {t.datenschutzTitle}
+            </Link>
+            <span className="text-border-strong select-none">·</span>
+            <Link
+              to="/vorschlagen"
+              onClick={onClose}
+              className="hover:text-accent font-medium transition-colors"
+            >
               {t.settingsSubmitProposal}
             </Link>
+            <span className="text-border-strong select-none">·</span>
+            <Link
+              to="/admin"
+              onClick={onClose}
+              className="text-text-tertiary hover:text-text transition-colors inline-flex items-center gap-1"
+              title={language === 'de' ? 'Admin-Dashboard' : 'Admin Dashboard'}
+            >
+              <ShieldCheck className="w-3 h-3 text-text-tertiary" strokeWidth={1.75} />
+              <span>Admin</span>
+            </Link>
+          </div>
+
+          {/* Row 2: Version & Offline Readiness */}
+          <div className="flex items-center justify-center gap-2 text-2xs text-text-tertiary">
+            <span>{t.siteTitle} · {t.settingsVersion}</span>
+            <span className="text-border-strong select-none">·</span>
+            <div className="inline-flex items-center gap-1">
+              <span className={`w-1.5 h-1.5 rounded-full ${isOfflineReady ? 'bg-emerald-500' : 'bg-emerald-500/80'} inline-block`} />
+              <span>{isOfflineReady ? t.settingsOfflineReady : t.settingsOfflineDesc}</span>
+            </div>
           </div>
         </footer>
       </div>

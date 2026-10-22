@@ -64,7 +64,32 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     if (isOpen) {
       setQuery('');
       setSelectedIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 60);
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 60);
+    }
+  }, [isOpen]);
+
+  // Track visualViewport on mobile to avoid virtual keyboard interference
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const updateHeight = () => {
+      if (typeof window !== 'undefined' && window.visualViewport) {
+        setViewportHeight(window.visualViewport.height);
+      }
+    };
+
+    updateHeight();
+
+    const vv = window.visualViewport;
+    if (vv) {
+      vv.addEventListener('resize', updateHeight);
+      vv.addEventListener('scroll', updateHeight);
+      return () => {
+        vv.removeEventListener('resize', updateHeight);
+        vv.removeEventListener('scroll', updateHeight);
+      };
     }
   }, [isOpen]);
 
@@ -318,10 +343,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-70 flex items-end sm:items-start justify-center p-0 sm:p-6 sm:pt-20 overflow-y-auto"
+      className="fixed inset-0 z-70 flex items-start justify-center p-0 sm:p-6 sm:pt-16 md:pt-20 overflow-hidden"
       role="dialog"
       aria-modal="true"
       aria-label="Schnellsuche"
+      style={viewportHeight ? { height: `${viewportHeight}px` } : undefined}
     >
       {/* Backdrop */}
       <div
@@ -330,27 +356,38 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         aria-hidden="true"
       />
 
-      {/* Modal / Mobile Sheet Panel */}
-      <div className="relative w-full max-w-2xl glass-surface-panel rounded-t-sheet sm:rounded-dialog shadow-2 border border-border overflow-hidden z-10 flex flex-col max-h-[92vh] sm:max-h-[80vh] animate-in slide-in-from-bottom sm:zoom-in-95 duration-150 ease-out outline-hidden safe-bottom">
-        {/* Input Bar */}
-        <div className="flex items-center px-4 sm:px-6 py-4 border-b border-line gap-3 glass-surface sticky top-0 z-10">
+      {/* Modal / Search Panel (Top-anchored and VisualViewport-adaptive on mobile) */}
+      <div
+        className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[80vh] glass-surface-panel rounded-none sm:rounded-dialog shadow-2 border-0 sm:border sm:border-border overflow-hidden z-10 flex flex-col animate-in fade-in sm:zoom-in-95 duration-150 ease-out outline-hidden"
+        style={viewportHeight ? { maxHeight: `${viewportHeight}px` } : undefined}
+      >
+        {/* Input Bar (includes safe-top for notched phones) */}
+        <div className="flex items-center px-4 sm:px-6 py-3.5 sm:py-4 border-b border-line gap-2.5 sm:gap-3 bg-surface/60 backdrop-blur-xs sticky top-0 z-10 safe-top">
           <Search className="w-5 h-5 text-text-tertiary shrink-0" strokeWidth={1.75} />
           <input
             ref={inputRef}
-            type="text"
+            type="search"
+            enterKeyHint="search"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            placeholder={isDe ? 'Spiele, Zitate, Methoden, Dienst, Werkzeuge suchen...' : 'Search games, quotes, methods, service, tools...'}
-            className="w-full bg-transparent text-base text-text placeholder:text-text-tertiary outline-hidden"
+            placeholder={isDe ? 'Spiele, Zitate, Methoden, Dienst suchen...' : 'Search games, quotes, methods, service...'}
+            className="flex-1 bg-transparent text-base text-text placeholder:text-text-tertiary outline-hidden min-h-[36px]"
           />
           {query ? (
             <button
               type="button"
-              onClick={() => setQuery('')}
-              className="p-1 rounded-full text-text-tertiary hover:text-text"
+              onClick={() => {
+                setQuery('');
+                inputRef.current?.focus();
+              }}
+              className="p-1 rounded-full text-text-tertiary hover:text-text cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center"
               aria-label="Suche löschen"
             >
               <X className="w-4 h-4" strokeWidth={1.75} />
@@ -360,10 +397,19 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               ESC
             </kbd>
           )}
+
+          {/* Mobile Cancel Button */}
+          <button
+            type="button"
+            onClick={onClose}
+            className="sm:hidden text-xs font-semibold text-accent hover:text-accent-hover px-1.5 py-1 min-h-[44px] flex items-center justify-center cursor-pointer shrink-0"
+          >
+            {isDe ? 'Abbrechen' : 'Cancel'}
+          </button>
         </div>
 
         {/* Results List */}
-        <div className="overflow-y-auto p-2 sm:p-3 custom-scrollbar divide-y divide-border/60">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-2 sm:p-3 custom-scrollbar divide-y divide-border/60">
           {results.length === 0 ? (
             <div className="py-12 text-center text-text-secondary text-sm">
               <p>{isDe ? `Keine Treffer für „${query}“.` : `No results for "${query}".`}</p>

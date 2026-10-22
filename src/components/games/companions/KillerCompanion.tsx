@@ -103,7 +103,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
       {/* PHASE 1: SETUP & VARIANTEN                                          */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-5 text-left max-w-lg mx-auto">
+        <div className="space-y-5 text-left w-full max-w-2xl">
           {/* Player Count & Names */}
           <Panel className="p-5 sm:p-6 space-y-4">
             <PlayerSetupSection
@@ -306,7 +306,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
       {/* PHASE 3: LIVE-SPIEL (DETEKTIV-RATEVERSUCHE & AUFLÖSUNG)              */}
       {/* =================================================================== */}
       {phase === 'play' && (
-        <div className="space-y-6 text-left max-w-xl mx-auto">
+        <div className="space-y-6 text-left w-full max-w-2xl">
           {/* Status Box */}
           <div className="p-4 sm:p-5 rounded-card bg-surface border border-border space-y-3">
             <div className="flex items-center justify-between">

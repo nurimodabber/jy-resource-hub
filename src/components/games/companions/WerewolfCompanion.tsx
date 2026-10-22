@@ -188,7 +188,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
       {/* PHASE 1: SETUP & ROLLEN-AUSWAHL                                     */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-5 text-left max-w-lg mx-auto">
+        <div className="space-y-5 text-left w-full max-w-2xl">
           {/* 1. Spielende & Namen */}
           <Panel className="p-5 sm:p-6 space-y-4">
             <PlayerSetupSection
@@ -497,7 +497,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
       {/* PHASE 3: VOLLWERTIGER ERZÄHLER-MODUS                                */}
       {/* =================================================================== */}
       {phase === 'narrator' && (
-        <div className="space-y-6 text-left max-w-xl mx-auto">
+        <div className="space-y-6 text-left w-full max-w-2xl">
           {/* Top Bar: Phase Badge & Step Counter & Mayor & Master Toggle */}
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span
@@ -661,9 +661,9 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
         >
-          <div className="w-full max-w-sm rounded-card bg-surface border border-border p-5 space-y-4 shadow-3">
+          <div className="relative w-full max-w-sm glass-surface-panel rounded-dialog shadow-2 border border-border p-5 space-y-4 text-left outline-hidden">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h4 className="text-base font-bold text-text">{infoRole.name[language]}</h4>

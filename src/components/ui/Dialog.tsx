@@ -96,7 +96,7 @@ export const Dialog: React.FC<DialogProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-150 ease-out"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-150 ease-out"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -109,7 +109,7 @@ export const Dialog: React.FC<DialogProps> = ({
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between p-5 sm:p-6 border-b border-line glass-surface sticky top-0 z-10 shrink-0">
+          <div className="flex items-center justify-between p-5 sm:p-6 border-b border-line bg-surface/50 backdrop-blur-xs sticky top-0 z-10 shrink-0">
             <div>
               {title && (
                 <h2 id="dialog-title" className="text-xl font-bold tracking-tight text-text">

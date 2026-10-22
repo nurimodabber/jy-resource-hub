@@ -87,7 +87,7 @@ export const Sheet: React.FC<SheetProps> = ({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/45 backdrop-blur-sm transition-opacity duration-150 ease-out"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-150 ease-out"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -102,7 +102,7 @@ export const Sheet: React.FC<SheetProps> = ({
               ? { transform: `translateY(${dragOffset}px)`, transition: 'none' }
               : undefined
           }
-          className="relative z-10 w-full sm:max-w-lg max-h-[88vh] sm:max-h-[80vh] glass-surface-panel rounded-t-sheet sm:rounded-dialog shadow-2 border-0 sm:border sm:border-border flex flex-col animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-150 ease-out outline-hidden safe-bottom"
+          className="relative z-10 w-full sm:max-w-lg max-h-[88vh] sm:max-h-[80vh] glass-surface-panel rounded-t-sheet sm:rounded-dialog shadow-2 border-t sm:border border-border flex flex-col animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-150 ease-out outline-hidden safe-bottom"
         >
           {/* Mobile Handle Bar with touch dismiss */}
           <div
@@ -155,7 +155,7 @@ export const Sheet: React.FC<SheetProps> = ({
         <div
           ref={sheetRef}
           tabIndex={-1}
-          className="relative z-10 w-full max-w-md h-full glass-surface-panel shadow-2 border-0 flex flex-col animate-in slide-in-from-right duration-150 ease-out outline-hidden"
+          className="relative z-10 w-full max-w-md h-full glass-surface-panel shadow-2 border-l border-border flex flex-col animate-in slide-in-from-right duration-150 ease-out outline-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 pt-4 pb-2 shrink-0">

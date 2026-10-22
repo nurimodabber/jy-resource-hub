@@ -1388,9 +1388,9 @@ const GameEditModal: React.FC<{
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-xs select-none"
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 select-none"
     >
-      <Panel className="max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 text-left shadow-2">
+      <div className="relative w-full max-w-lg max-h-[90vh] glass-surface-panel rounded-dialog shadow-2 border border-border overflow-y-auto p-6 space-y-4 text-left outline-hidden">
         <div className="flex items-center justify-between pb-2 border-b border-border/60">
           <h2 className="text-base font-bold text-text">
             {game ? L('Spiel bearbeiten', 'Edit Game') : L('Neues Spiel anlegen', 'New Game')}
@@ -1547,7 +1547,7 @@ const GameEditModal: React.FC<{
             </button>
           </div>
         </form>
-      </Panel>
+      </div>
     </div>
   );
 };

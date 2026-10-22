@@ -30,10 +30,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
 
   return (
     <nav
-      style={{
-        backgroundColor: `rgb(var(--surface-rgb) / var(--glass-opacity, 0.96))`,
-      }}
-      className="fixed bottom-0 left-0 right-0 z-40 backdrop-blur-md border-t border-line shadow-2 md:hidden short:hidden safe-bottom print:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 glass-surface border-t border-line shadow-2 md:hidden short:hidden safe-bottom print:hidden"
       aria-label="Mobile Navigation"
     >
       <div className="grid grid-cols-6 h-16 max-w-lg mx-auto px-1 items-center">

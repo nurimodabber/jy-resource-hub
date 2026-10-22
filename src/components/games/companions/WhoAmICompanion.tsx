@@ -89,7 +89,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
       {/* PHASE 1: SETUP & PACK-AUSWAHL                                       */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-5 text-left max-w-lg mx-auto">
+        <div className="space-y-5 text-left w-full max-w-2xl">
           {/* Player Count & Names */}
           <Panel className="p-5 sm:p-6 space-y-4">
             <PlayerSetupSection
@@ -236,7 +236,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
       {/* PHASE 3: SPIELPHASE & SPICKZETTEL                                   */}
       {/* =================================================================== */}
       {phase === 'play' && (
-        <div className="space-y-6 text-left max-w-xl mx-auto">
+        <div className="space-y-6 text-left w-full max-w-2xl">
           {/* Rules Reminder Card */}
           <Panel className="p-4 sm:p-5 space-y-2">
             <h4 className="text-xs font-bold text-text uppercase tracking-wider">
