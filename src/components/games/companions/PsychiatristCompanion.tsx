@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   Eye,
   EyeOff,
-  Brain,
 } from 'lucide-react';
 import { Language } from '../../../types';
 import { PSYCHIATRIST_RULES, RuleIdea } from '../../../data/empireContent';
@@ -62,20 +61,6 @@ export const PsychiatristCompanion: React.FC<PsychiatristCompanionProps> = ({ la
 
   return (
     <div className="space-y-6 text-center">
-      {/* Intro Box */}
-      <div className="p-4 rounded-card bg-surface-2 border border-border space-y-1 text-left">
-        <h2 className="text-sm font-bold text-text flex items-center gap-2">
-          <Brain className="w-4 h-4 text-accent" />
-          <span>{L('Psychiater-Regeln Begleiter', 'Psychiatrist Rules Companion')}</span>
-        </h2>
-        <p className="text-xs text-text-secondary leading-relaxed">
-          {L(
-            'Eine Person verlässt den Raum. Die Gruppe zieht eine geheime Antwort-Regel. Wenn die Person zurückkehrt, stellt sie Fragen an die Gruppe und versucht die Regel zu entlarven.',
-            'One person leaves the room. The group agrees on a secret answering rule. When the person returns, they ask questions to deduce the pattern.'
-          )}
-        </p>
-      </div>
-
       {/* Difficulty Filter Chips */}
       <div className="flex flex-wrap items-center justify-center gap-2">
         <button

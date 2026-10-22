@@ -170,7 +170,7 @@ const SpyGame: React.FC<{ language: Language; names: string[] }> = ({ language, 
         renderCard={(i) =>
           i === deal.spy ? (
             <div className="p-6 rounded-card bg-accent-subtle border border-accent/30 space-y-2">
-              <span className="text-2xs font-bold uppercase tracking-wider text-accent-text">🕵️ Geheime Rolle</span>
+              <span className="text-2xs font-bold uppercase tracking-wider text-accent-text">{L('Geheime Rolle', 'Secret Role')}</span>
               <p className="text-3xl font-extrabold text-accent-text">{L('Du bist der Spion!', 'You are the spy!')}</p>
               <p className="text-xs text-text-secondary mt-2">
                 {L('Du kennst den Ort nicht. Höre aufmerksam zu und versuche herauszufinden, wo ihr seid, ohne dich zu verraten.', 'You do not know the location. Listen carefully and deduce it without blowing your cover.')}
@@ -422,7 +422,7 @@ const WerewolfGame: React.FC<{ language: Language; names: string[] }> = ({ langu
 
           {/* Wolves Stepper */}
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-text">🐺 {L('Werwölfe', 'Werewolves')}</span>
+            <span className="text-xs font-semibold text-text">{L('Werwölfe', 'Werewolves')}</span>
             <div className="flex items-center gap-1 bg-surface-2 rounded-control p-1">
               <button
                 type="button"
@@ -449,28 +449,28 @@ const WerewolfGame: React.FC<{ language: Language; names: string[] }> = ({ langu
               onClick={() => setSeherinEnabled(!seherinEnabled)}
               className={chipCls(seherinEnabled)}
             >
-              🔮 {L('Seherin', 'Seer')}
+              {L('Seherin', 'Seer')}
             </button>
             <button
               type="button"
               onClick={() => setHexeEnabled(!hexeEnabled)}
               className={chipCls(hexeEnabled)}
             >
-              🧙‍♀️ {L('Hexe', 'Witch')}
+              {L('Hexe', 'Witch')}
             </button>
             <button
               type="button"
               onClick={() => setAmorEnabled(!amorEnabled)}
               className={chipCls(amorEnabled)}
             >
-              💘 {L('Amor', 'Cupid')}
+              {L('Amor', 'Cupid')}
             </button>
             <button
               type="button"
               onClick={() => setJaegerEnabled(!jaegerEnabled)}
               className={chipCls(jaegerEnabled)}
             >
-              🏹 {L('Jäger', 'Hunter')}
+              {L('Jäger', 'Hunter')}
             </button>
           </div>
 
@@ -552,7 +552,7 @@ const WerewolfGame: React.FC<{ language: Language; names: string[] }> = ({ langu
       {/* Large Narrator Card */}
       <Panel className="py-8 sm:py-12 text-center space-y-4">
         <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-          {step?.phase === 'night' ? '🌙 ' + L('Nacht', 'Night') : '☀️ ' + L('Tag', 'Day')} · {stepIdx + 1} / {steps.length}
+          {step?.phase === 'night' ? L('Nachtphase', 'Night Phase') : L('Tagphase', 'Day Phase')} · {stepIdx + 1} / {steps.length}
         </span>
         <h2 className="text-2xl font-bold text-text">{step?.title[language]}</h2>
         <p className="text-xl sm:text-2xl leading-relaxed text-text font-serif italic max-w-lg mx-auto">

@@ -3,7 +3,6 @@ import {
   Shuffle,
   ChevronRight,
   ChevronLeft,
-  Sparkles,
   BookOpen,
 } from 'lucide-react';
 import { Language } from '../../../types';
@@ -91,20 +90,6 @@ export const StoryStarterCompanion: React.FC<StoryStarterCompanionProps> = ({ la
 
   return (
     <div className="space-y-6 text-center">
-      {/* Intro Box */}
-      <div className="p-4 rounded-card bg-surface-2 border border-border space-y-1 text-left">
-        <h2 className="text-sm font-bold text-text flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-accent" />
-          <span>{L('Geschichtenkette Begleiter', 'Story Chain Companion')}</span>
-        </h2>
-        <p className="text-xs text-text-secondary leading-relaxed">
-          {L(
-            'Zieht einen inspirierenden ersten Satz als Startfunke. Reihum wird die Geschichte weitergesponnen – entweder Wort für Wort oder Satz für Satz.',
-            'Draw an inspiring opening line as a spark. Take turns continuing the narrative – either word by word or sentence by sentence.'
-          )}
-        </p>
-      </div>
-
       {/* Mode Selector: Word vs Sentence */}
       <div className="bg-surface-2/60 p-1.5 rounded-control border border-border inline-flex items-center gap-1 mx-auto" role="tablist">
         <button

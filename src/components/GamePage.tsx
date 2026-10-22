@@ -67,6 +67,11 @@ export const GamePage: React.FC<GamePageProps> = ({
   const initialMode = searchParams.get('mode') === 'play' && hasCompanion ? 'play' : 'rules';
   const [viewMode, setViewMode] = useState<'rules' | 'play'>(initialMode);
 
+  // Ensure top of detail view is immediately visible on mount or game change
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [game.id]);
+
   useEffect(() => {
     const targetMode = searchParams.get('mode') === 'play' && hasCompanion ? 'play' : 'rules';
     setViewMode(targetMode);

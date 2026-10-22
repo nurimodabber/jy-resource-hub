@@ -56,10 +56,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     if (glassOpacity >= 100) {
       root.style.setProperty('--glass-blur', '0px');
+      root.style.setProperty('--glass-specular', '0');
     } else {
       // Blur: 24px at 0% down to 10px at 98%
       const blurPx = Math.round(24 - (glassOpacity / 100) * 14);
       root.style.setProperty('--glass-blur', `${Math.max(8, blurPx)}px`);
+      const specular = ((100 - glassOpacity) / 100) * 0.22;
+      root.style.setProperty('--glass-specular', specular.toFixed(3));
     }
   }, [glassOpacity]);
 

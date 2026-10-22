@@ -3,7 +3,6 @@ import {
   Shuffle,
   ChevronRight,
   ChevronLeft,
-  Sparkles,
   Maximize2,
   Minimize2,
   VolumeX,
@@ -81,18 +80,12 @@ export const SilentSortCompanion: React.FC<SilentSortCompanionProps> = ({ langua
 
   return (
     <div className="space-y-6 text-center">
-      {/* Intro Box */}
-      <div className="p-4 rounded-card bg-surface-2 border border-border space-y-1 text-left">
-        <h2 className="text-sm font-bold text-text flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-accent" />
-          <span>{L('Schweigend sortieren Begleiter', 'Silent Sort Companion')}</span>
-        </h2>
-        <p className="text-xs text-text-secondary leading-relaxed">
-          {L(
-            'Alle sortieren sich schweigend in einer Reihe nach dem angezeigten Kriterium. Kein Sprechen, kein Flüstern – nur Zeichensprache, Mimik und Gesten sind erlaubt.',
-            'Everyone silently lines up according to the displayed criterion. No talking, no whispering – only sign language, facial expressions and gestures are permitted.'
-          )}
-        </p>
+      {/* Subtle rule reminder */}
+      <div className="flex items-center justify-between gap-2 px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text-secondary text-left">
+        <span className="flex items-center gap-1.5 font-medium">
+          <VolumeX className="w-3.5 h-3.5 text-accent shrink-0" />
+          <span>{L('Stille Regel: Nur Mimik & Gesten – kein Sprechen oder Flüstern.', 'Silence Rule: Gestures and facial expressions only – no speaking or whispering.')}</span>
+        </span>
       </div>
 
       {/* Category Filter Chips */}

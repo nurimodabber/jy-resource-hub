@@ -221,7 +221,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
     ].filter(Boolean);
 
     const body = encodeURIComponent(bodyLines.join('\n\n'));
-    return `mailto:kontakt@junior-youth.de?subject=${subject}&body=${body}`;
+    return `mailto:nuri@modabber.net,lasse.nieruch@bahai.de?subject=${subject}&body=${body}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

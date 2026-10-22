@@ -86,17 +86,17 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
         </Button>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          {/* Subtle Auswendiglernen Button in top action bar */}
-          <Button
-            variant="secondary"
-            size="sm"
-            icon={<Zap className="w-4 h-4 text-accent shrink-0" />}
+          {/* Symmetrical Auswendiglernen Button in top action bar */}
+          <button
+            type="button"
             onClick={() => navigate(`/quotes?tab=practice&quote=${activeQuote.id}`)}
-            className="min-h-[44px] text-xs font-semibold"
+            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] h-11 px-0 sm:px-3 gap-1.5 rounded-control border border-border bg-surface hover:bg-surface-2 text-text text-xs font-semibold transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             title={isDe ? 'Auswendiglernen öffnen' : 'Open memorisation'}
+            aria-label={isDe ? 'Auswendiglernen öffnen' : 'Open memorisation'}
           >
+            <Zap className="w-4 h-4 text-accent shrink-0" />
             <span className="hidden sm:inline">{isDe ? 'Auswendiglernen' : 'Memorise'}</span>
-          </Button>
+          </button>
 
           {/* Song (if available) */}
           {song && (

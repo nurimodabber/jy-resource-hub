@@ -429,7 +429,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
                 >
                   {kingdoms.map((k) => (
                     <option key={k.king} value={k.king}>
-                      👑 {k.king} ({k.members.length} {L('Mitglieder', 'members')})
+                      {k.king} ({k.members.length} {L('Mitglieder', 'members')})
                     </option>
                   ))}
                 </select>
