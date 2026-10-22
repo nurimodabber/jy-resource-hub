@@ -1,11 +1,13 @@
 /**
  * Lightweight, secure Admin Authentication & Session Management
- * Uses Web Crypto API SHA-256 for password verification.
- * Session is maintained under 'jy_admin_session' in sessionStorage.
+ * Uses Web Crypto API SHA-256 with salted cryptographic hashes for password verification.
+ * No plaintext passwords or confidential tokens are stored in the client codebase.
+ * Session is maintained under 'jy_admin_session' in sessionStorage & localStorage.
  */
 
 export interface AdminSession {
   authenticated: boolean;
+  username: string;
   author: string;
   loginTime: number;
   expiresAt: number;
@@ -13,15 +15,31 @@ export interface AdminSession {
 
 const SESSION_KEY = 'jy_admin_session';
 
-// SHA-256 hashes for standard passphrases:
-// "jy-admin" -> 08f53c1688c7f16b225590f992c5ac32d895558d74dd4be131d3401c38f491c1
-// "animator2025" -> a29a1425dc3e8dff30a75be9d4b1d2ff9f112aefadfaa33de626306a407ad9d6
-// "admin" -> 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-const ACCEPTED_HASHES = new Set([
-  '08f53c1688c7f16b225590f992c5ac32d895558d74dd4be131d3401c38f491c1', // "jy-admin"
-  'a29a1425dc3e8dff30a75be9d4b1d2ff9f112aefadfaa33de626306a407ad9d6', // "animator2025"
-  '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', // "admin"
-]);
+/**
+ * Account definitions: Only salted SHA-256 hashes are stored.
+ * Salt is 128-bit hex string, hash is SHA-256(salt + password).
+ */
+interface AdminAccount {
+  username: string;
+  displayName: string;
+  salt: string;
+  passwordHash: string;
+}
+
+const ADMIN_ACCOUNTS: Record<string, AdminAccount> = {
+  nuri: {
+    username: 'nuri',
+    displayName: 'Nuri',
+    salt: 'df4a77b3e2d79d80415584b6e9e5cf40',
+    passwordHash: 'db9ae929ade3d8dfce90aee1605b0068768cd7bfce5894452c1e3170514637e4',
+  },
+  lasse: {
+    username: 'lasse',
+    displayName: 'Lasse',
+    salt: '010df5c7e5225cf9c46e781079f86cca',
+    passwordHash: 'eab291016e9d8d6ac4ffe3e76d46f4fddead2d70208c884b0ef5679376cf3f5e',
+  },
+};
 
 /** Computes SHA-256 hex string using native Web Crypto */
 export async function sha256(text: string): Promise<string> {
@@ -52,21 +70,35 @@ export function isAuthenticated(): boolean {
   return getAdminSession() !== null;
 }
 
-/** Attempt login with passphrase and optional author name */
-export async function loginAdmin(passphrase: string, authorName = 'Administrator'): Promise<{ ok: boolean; error?: string }> {
-  const trimmed = passphrase.trim();
-  if (!trimmed) {
+/** Attempt login with username and password */
+export async function loginAdmin(
+  usernameInput: string,
+  passphraseInput: string
+): Promise<{ ok: boolean; error?: string; session?: AdminSession }> {
+  const normalizedUser = usernameInput.trim().toLowerCase();
+  const trimmedPass = passphraseInput.trim();
+
+  if (!normalizedUser) {
+    return { ok: false, error: 'Bitte einen Benutzernamen eingeben.' };
+  }
+  if (!trimmedPass) {
     return { ok: false, error: 'Bitte ein Passwort eingeben.' };
   }
 
-  const hash = await sha256(trimmed);
-  if (!ACCEPTED_HASHES.has(hash)) {
-    return { ok: false, error: 'Falsches Passwort. Bitte überprüfe deine Eingabe.' };
+  const account = ADMIN_ACCOUNTS[normalizedUser];
+  if (!account) {
+    return { ok: false, error: 'Unbekannter Benutzername oder falsches Passwort.' };
+  }
+
+  const computedHash = await sha256(account.salt + trimmedPass);
+  if (computedHash !== account.passwordHash) {
+    return { ok: false, error: 'Unbekannter Benutzername oder falsches Passwort.' };
   }
 
   const session: AdminSession = {
     authenticated: true,
-    author: authorName.trim() || 'Administrator',
+    username: account.username,
+    author: account.displayName,
     loginTime: Date.now(),
     expiresAt: Date.now() + 12 * 60 * 60 * 1000, // 12 hours
   };
@@ -78,7 +110,7 @@ export async function loginAdmin(passphrase: string, authorName = 'Administrator
     /* ignore storage quota */
   }
 
-  return { ok: true };
+  return { ok: true, session };
 }
 
 /** Log out current admin */

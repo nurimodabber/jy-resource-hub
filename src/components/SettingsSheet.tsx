@@ -44,15 +44,6 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   const fileRef = useRef<HTMLInputElement>(null);
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);
 
-  // Draft setting ('Entwürfe anzeigen' toggle)
-  const [showDrafts, setShowDrafts] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('jy_hide_drafts') !== 'true';
-    } catch {
-      return true;
-    }
-  });
-
   // Offline service worker state
   const [isOfflineReady, setIsOfflineReady] = useState(false);
 
@@ -61,20 +52,6 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
       navigator.serviceWorker.ready.then(() => setIsOfflineReady(true)).catch(() => {});
     }
   }, []);
-
-  const handleToggleDrafts = (val: boolean) => {
-    setShowDrafts(val);
-    try {
-      localStorage.setItem('jy_hide_drafts', val ? 'false' : 'true');
-    } catch {
-      /* ignore */
-    }
-    showToast({
-      text: language === 'de'
-        ? (val ? 'Entwürfe werden angezeigt' : 'Entwürfe werden ausgeblendet')
-        : (val ? 'Draft content shown' : 'Draft content hidden'),
-    });
-  };
 
   const handleExport = () => {
     downloadText(`jy-hub-backup-${new Date().toISOString().slice(0, 10)}.json`, exportLocalData());
@@ -107,26 +84,6 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   const groupPresent = loadGroupPresent();
   const presentCount = groupNames.filter((n) => groupPresent[n] !== false).length;
 
-  // Indicator text for glass effect
-  const glassIndicator = (() => {
-    if (glassOpacity === 0) {
-      return language === 'de' ? 'Kristallklar (0 %)' : 'Crystal clear (0%)';
-    }
-    if (glassOpacity <= 20) {
-      return language === 'de' ? `Ultra-Glas (${glassOpacity} %)` : `Ultra glass (${glassOpacity}%)`;
-    }
-    if (glassOpacity <= 50) {
-      return language === 'de' ? `Glasig (${glassOpacity} %)` : `Glassy (${glassOpacity}%)`;
-    }
-    if (glassOpacity <= 80) {
-      return language === 'de' ? `Sanft (${glassOpacity} %)` : `Subtle (${glassOpacity}%)`;
-    }
-    if (glassOpacity < 100) {
-      return language === 'de' ? `Standard (${glassOpacity} %)` : `Default (${glassOpacity}%)`;
-    }
-    return language === 'de' ? 'Solide (100 %)' : 'Solid (100%)';
-  })();
-
   return (
     <Sheet
       isOpen={isOpen}
@@ -137,7 +94,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
     >
       <div className="space-y-4 max-w-xl mx-auto pb-4">
         {/* ================================================================= */}
-        {/* SECTION 1: DARSTELLUNG & SPRACHE                                  */}
+        {/* SECTION 1: DARSTELLUNG & SPRACHE (IN EINEM EINHEITLICHEN BLOCK)    */}
         {/* ================================================================= */}
         <section className="space-y-1.5 text-left">
           <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
@@ -175,6 +132,30 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               />
             </div>
 
+            {/* Simple Transparenz Slider - unified, no extra subheaders or borders */}
+            <div className="p-3.5 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-text flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
+                  <span>{language === 'de' ? 'Transparenz' : 'Transparency'}</span>
+                </span>
+                <span className="text-2xs font-bold text-accent tabular-nums bg-accent-subtle px-2 py-0.5 rounded-chip">
+                  {glassOpacity} %
+                </span>
+              </div>
+              <input
+                id="glass-slider"
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value={glassOpacity}
+                onChange={(e) => setGlassOpacity(Number(e.target.value))}
+                className="w-full h-2 bg-surface-2 rounded-full appearance-none cursor-pointer accent-accent focus-visible:outline-hidden"
+                aria-label={language === 'de' ? 'Transparenz' : 'Transparency'}
+              />
+            </div>
+
             {/* Language 2-segment switch */}
             <div className="p-3.5 space-y-2">
               <div className="flex items-center justify-between text-xs">
@@ -201,126 +182,13 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         </section>
 
         {/* ================================================================= */}
-        {/* SECTION 2: MILCHGLAS & TRANSPARENZ                                */}
-        {/* ================================================================= */}
-        <section className="space-y-1.5 text-left">
-          <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
-            {language === 'de' ? 'Milchglas & Transparenz' : 'Frosted Glass & Blur'}
-          </h3>
-          <div className="bg-surface rounded-card border border-border/80 divide-y divide-border/60 overflow-hidden shadow-1 p-3.5 space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-control bg-accent-subtle flex items-center justify-center shrink-0 text-accent-text">
-                  <Sparkles className="w-4 h-4" strokeWidth={1.75} />
-                </div>
-                <div className="min-w-0">
-                  <span className="block text-xs font-semibold text-text truncate">
-                    {language === 'de' ? 'Hintergrund-Transparenz' : 'Background Blur & Tint'}
-                  </span>
-                  <span className="block text-2xs text-text-secondary truncate">
-                    {glassIndicator}
-                  </span>
-                </div>
-              </div>
-              <div className="text-xs font-bold text-accent tabular-nums bg-accent-subtle px-2.5 py-1 rounded-chip shrink-0">
-                {glassOpacity} %
-              </div>
-            </div>
-
-            {/* Inline Slider with clean indicator text */}
-            <div className="space-y-1.5 pt-1">
-              <div className="flex items-center gap-3">
-                <span className="text-2xs font-medium text-text-tertiary select-none shrink-0">
-                  {language === 'de' ? 'Glasig (0 %)' : 'Glass (0%)'}
-                </span>
-                <input
-                  id="glass-slider"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="5"
-                  value={glassOpacity}
-                  onChange={(e) => setGlassOpacity(Number(e.target.value))}
-                  className="flex-1 h-2 bg-surface-2 rounded-full appearance-none cursor-pointer accent-accent focus-visible:outline-hidden"
-                  aria-label={language === 'de' ? 'Milchglas Transparenz' : 'Glass opacity'}
-                />
-                <span className="text-2xs font-medium text-text-tertiary select-none shrink-0">
-                  {language === 'de' ? 'Solide (100 %)' : 'Solid (100%)'}
-                </span>
-              </div>
-            </div>
-
-            {/* Symmetrical Quick Presets */}
-            <div className="grid grid-cols-3 gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setGlassOpacity(80)}
-                className={`py-1.5 px-2 text-2xs font-semibold rounded-control border transition-all cursor-pointer ${
-                  glassOpacity === 80
-                    ? 'bg-accent text-accent-contrast border-accent shadow-xs'
-                    : 'bg-surface-2 border-border/80 text-text hover:bg-surface-raised'
-                }`}
-              >
-                {language === 'de' ? 'Sanft (80 %)' : 'Subtle (80%)'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setGlassOpacity(60)}
-                className={`py-1.5 px-2 text-2xs font-semibold rounded-control border transition-all cursor-pointer ${
-                  glassOpacity === 60
-                    ? 'bg-accent text-accent-contrast border-accent shadow-xs'
-                    : 'bg-surface-2 border-border/80 text-text hover:bg-surface-raised'
-                }`}
-              >
-                {language === 'de' ? 'Klassisch (60 %)' : 'Classic (60%)'}
-              </button>
-              <button
-                type="button"
-                onClick={() => setGlassOpacity(100)}
-                className={`py-1.5 px-2 text-2xs font-semibold rounded-control border transition-all cursor-pointer ${
-                  glassOpacity >= 100
-                    ? 'bg-accent text-accent-contrast border-accent shadow-xs'
-                    : 'bg-surface-2 border-border/80 text-text hover:bg-surface-raised'
-                }`}
-              >
-                {language === 'de' ? 'Solide (Aus)' : 'Solid (Off)'}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* ================================================================= */}
-        {/* SECTION 3: INHALTE & GRUPPE                                       */}
+        {/* SECTION 2: INHALTE & GRUPPE                                       */}
         {/* ================================================================= */}
         <section className="space-y-1.5 text-left">
           <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
             {language === 'de' ? 'Inhalte & Gruppe' : 'Content & Group'}
           </h3>
           <div className="bg-surface rounded-card border border-border/80 divide-y divide-border/60 overflow-hidden shadow-1">
-            {/* iOS toggle switch for 'Entwürfe anzeigen' */}
-            <div className="p-3.5 flex items-center justify-between gap-3">
-              <div className="min-w-0 pr-2">
-                <span className="block text-xs font-semibold text-text">
-                  {language === 'de' ? 'Entwürfe anzeigen' : 'Show Draft Content'}
-                </span>
-                <p className="text-2xs text-text-secondary mt-0.5 leading-snug">
-                  {language === 'de'
-                    ? 'Neue Spiel- & Projektentwürfe in den Übersichten einblenden'
-                    : 'Show newly drafted games and project templates in lists'}
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer shrink-0 min-h-[44px]">
-                <input
-                  type="checkbox"
-                  checked={showDrafts}
-                  onChange={(e) => handleToggleDrafts(e.target.checked)}
-                  className="sr-only peer"
-                  aria-label={language === 'de' ? 'Entwürfe anzeigen' : 'Show Draft Content'}
-                />
-                <div className="w-12 h-7 bg-surface-2 border border-border/80 rounded-full peer peer-checked:bg-accent peer-checked:border-accent transition-colors after:content-[''] after:absolute after:top-[11px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:shadow-sm after:transition-all peer-checked:after:translate-x-5"></div>
-              </label>
-            </div>
-
             {/* Group member status row with a chevron */}
             <div className="p-3.5 space-y-3">
               <div

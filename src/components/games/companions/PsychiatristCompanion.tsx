@@ -11,6 +11,7 @@ import { Language } from '../../../types';
 import { PSYCHIATRIST_RULES, RuleIdea } from '../../../data/empireContent';
 import { shuffle } from '../../../utils/random';
 import { tr, Panel, primaryBtn } from '../../tools/common';
+import { useAdminData } from '../../../context/AdminDataContext';
 
 interface PsychiatristCompanionProps {
   language: Language;
@@ -18,16 +19,18 @@ interface PsychiatristCompanionProps {
 
 export const PsychiatristCompanion: React.FC<PsychiatristCompanionProps> = ({ language }) => {
   const L = tr(language);
+  const adminData = useAdminData();
+  const allRules = adminData.psychiatristRules.length > 0 ? adminData.psychiatristRules : PSYCHIATRIST_RULES;
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [isConcealed, setIsConcealed] = useState(false);
 
   const filteredRules = useMemo(() => {
-    if (difficultyFilter === 'all') return PSYCHIATRIST_RULES;
+    if (difficultyFilter === 'all') return allRules;
     const num = Number(difficultyFilter);
-    return PSYCHIATRIST_RULES.filter((r) => r.difficulty === num);
-  }, [difficultyFilter]);
+    return allRules.filter((r) => r.difficulty === num);
+  }, [allRules, difficultyFilter]);
 
-  const [deck, setDeck] = useState<RuleIdea[]>(() => shuffle(PSYCHIATRIST_RULES));
+  const [deck, setDeck] = useState<RuleIdea[]>(() => shuffle(allRules));
   const [index, setIndex] = useState(0);
 
   useEffect(() => {

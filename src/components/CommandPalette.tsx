@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../types';
 import { GAMES_DATA } from '../data/games';
+import { useAdminData } from '../context/AdminDataContext';
 import { QUOTES_DATA } from '../data/quotes';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
@@ -56,6 +57,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const isDe = language === 'de';
+  const adminData = useAdminData();
+  const allGames = adminData.games.length > 0 ? adminData.games : GAMES_DATA;
 
   useEffect(() => {
     if (isOpen) {
@@ -113,11 +116,11 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           icon: Bookmark,
         },
         {
-          id: GAMES_DATA[0].id,
+          id: allGames[0]?.id || 'menschlicher-knoten',
           type: 'game',
           groupName: isDe ? 'Spiele' : 'Games',
-          title: GAMES_DATA[0].title[language],
-          subtitle: GAMES_DATA[0].summary[language],
+          title: (allGames[0] || GAMES_DATA[0]).title[language],
+          subtitle: (allGames[0] || GAMES_DATA[0]).summary[language],
           badge: isDe ? 'Spiel' : 'Game',
           icon: Compass,
         },
@@ -175,7 +178,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     });
 
     // 3. Games
-    GAMES_DATA.forEach((g) => {
+    allGames.forEach((g) => {
       const matchDe = g.title.de.toLowerCase().includes(q) || g.summary.de.toLowerCase().includes(q);
       const matchEn = g.title.en.toLowerCase().includes(q) || g.summary.en.toLowerCase().includes(q);
       if (matchDe || matchEn) {
@@ -277,7 +280,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     });
 
     return items.slice(0, 20);
-  }, [query, language, isDe]);
+  }, [allGames, query, language, isDe]);
 
   const handleSelect = useCallback((selected: SearchResult) => {
     if (selected.id === 'settings' && onOpenSettings) {

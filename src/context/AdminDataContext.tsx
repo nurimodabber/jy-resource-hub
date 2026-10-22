@@ -23,6 +23,12 @@ import {
   updateProposalStatus,
   softDeleteEntity,
 } from '../utils/adminRevisions';
+import {
+  fetchApprovedGitHubContent,
+  getCachedApprovedContent,
+  updateGitHubIssueStatus,
+  STORAGE_SYNCED_DELETED_KEY,
+} from '../utils/githubIssues';
 
 export type AdminSpyLocation = SpyLocation & { status?: 'draft' };
 export type EmpireCategory = EmpireCategoryV2;
@@ -58,10 +64,29 @@ const AdminDataContext = createContext<AdminDataContextType | null>(null);
 export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [revisions, setRevisions] = useState<DataRevision[]>(() => getRevisions());
   const [proposals, setProposals] = useState<ProposalItem[]>(() => getProposals());
+  const [syncedData, setSyncedData] = useState<{
+    approvedGames: Game[];
+    approvedCategories: EmpireCategory[];
+    deletedEntityIds: string[];
+  }>(() => getCachedApprovedContent());
 
   const refresh = useCallback(() => {
     setRevisions(getRevisions());
     setProposals(getProposals());
+    setSyncedData(getCachedApprovedContent());
+  }, []);
+
+  // Fetch live approved content from GitHub on mount
+  useEffect(() => {
+    let active = true;
+    fetchApprovedGitHubContent().then((data) => {
+      if (active) {
+        setSyncedData(data);
+      }
+    }).catch(() => {});
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Listen to live update events from window and storage
@@ -75,7 +100,7 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, [refresh]);
 
-  // Compute Active Overrides from Append-only Log
+  // Compute Active Overrides from Append-only Log + Synced Content
   const games = useMemo(() => {
     const gameRevisions = revisions.filter((r) => r.collection === 'games');
     const entityMap = new Map<string, { deleted: boolean; data?: Game }>();
@@ -92,11 +117,23 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     }
 
-    // Merge with static baseline
+    const deletedIdsSet = new Set(syncedData.deletedEntityIds);
+
+    // Merge static baseline + synced approved games
+    const baseAndSynced: Game[] = [...GAMES_DATA];
+    for (const sg of syncedData.approvedGames) {
+      if (!baseAndSynced.some((b) => b.id === sg.id)) {
+        baseAndSynced.push(sg);
+      }
+    }
+
     const result: Game[] = [];
     const processedIds = new Set<string>();
 
-    for (const baseGame of GAMES_DATA) {
+    for (const baseGame of baseAndSynced) {
+      if (deletedIdsSet.has(baseGame.id)) {
+        continue;
+      }
       const override = entityMap.get(baseGame.id);
       if (override) {
         if (!override.deleted && override.data) {
@@ -108,15 +145,15 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       processedIds.add(baseGame.id);
     }
 
-    // Add newly created games that were not in base data
+    // Add newly created games that were not in base or synced data
     for (const [id, override] of entityMap.entries()) {
-      if (!processedIds.has(id) && !override.deleted && override.data) {
+      if (!processedIds.has(id) && !override.deleted && override.data && !deletedIdsSet.has(id)) {
         result.push(override.data);
       }
     }
 
     return result;
-  }, [revisions]);
+  }, [revisions, syncedData]);
 
   const spyLocations = useMemo(() => {
     const catRevisions = revisions.filter((r) => r.collection === 'categories' && r.entityId.startsWith('spy_'));
@@ -202,10 +239,19 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     }
 
+    const deletedIdsSet = new Set(syncedData.deletedEntityIds);
+    const baseAndSynced: EmpireCategory[] = [...EMPIRE_CATEGORIES_V2];
+    for (const sc of syncedData.approvedCategories) {
+      if (!baseAndSynced.some((b) => b.id === sc.id)) {
+        baseAndSynced.push(sc);
+      }
+    }
+
     const res: EmpireCategory[] = [];
     const seen = new Set<string>();
 
-    for (const cat of EMPIRE_CATEGORIES_V2) {
+    for (const cat of baseAndSynced) {
+      if (deletedIdsSet.has(cat.id)) continue;
       const ov = map.get(cat.id);
       if (ov) {
         if (!ov.deleted && ov.data) res.push(ov.data);
@@ -216,12 +262,12 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     for (const [id, ov] of map.entries()) {
-      if (!seen.has(id) && !ov.deleted && ov.data) {
+      if (!seen.has(id) && !ov.deleted && ov.data && !deletedIdsSet.has(id)) {
         res.push(ov.data);
       }
     }
     return res;
-  }, [revisions]);
+  }, [revisions, syncedData]);
 
   const psychiatristRules = useMemo(() => {
     const catRevisions = revisions.filter((r) => r.collection === 'categories' && r.entityId.startsWith('psych_'));
@@ -275,10 +321,29 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return rev;
   }, [games, refresh]);
 
-  const deleteGame = useCallback((gameId: string, author: string, summary = 'Spiel deaktiviert (Soft-Delete)') => {
+  const deleteGame = useCallback((gameId: string, author: string, summary = 'Spiel gelöscht (Soft-Delete)') => {
     const existing = games.find((g) => g.id === gameId);
     if (!existing) return null;
     const rev = softDeleteEntity('games', gameId, existing, author, summary);
+
+    // Persist to deleted entity IDs for live website filtering
+    try {
+      const raw = localStorage.getItem(STORAGE_SYNCED_DELETED_KEY);
+      const list: string[] = raw ? JSON.parse(raw) : [];
+      if (!list.includes(gameId)) {
+        list.push(gameId);
+        localStorage.setItem(STORAGE_SYNCED_DELETED_KEY, JSON.stringify(list));
+      }
+    } catch {
+      /* ignore */
+    }
+
+    // Check if game was imported from a GitHub issue
+    const ghMatch = gameId.match(/^gh_game_(\d+)$/) || gameId.match(/^proposal_gh_issue_(\d+)$/);
+    if (ghMatch && ghMatch[1]) {
+      updateGitHubIssueStatus(Number(ghMatch[1]), 'delete', summary).catch(() => {});
+    }
+
     refresh();
     return rev;
   }, [games, refresh]);
@@ -350,7 +415,24 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const deleteEmpireCategory = useCallback((id: string, author: string) => {
     const existing = empireCategories.find((c) => c.id === id);
     if (!existing) return null;
-    const rev = softDeleteEntity('categories', `empire_${id}`, existing, author, `Empire-Kategorie "${existing.prompt.de}" deaktiviert`);
+    const rev = softDeleteEntity('categories', `empire_${id}`, existing, author, `Empire-Kategorie "${existing.prompt.de}" gelöscht`);
+
+    try {
+      const raw = localStorage.getItem(STORAGE_SYNCED_DELETED_KEY);
+      const list: string[] = raw ? JSON.parse(raw) : [];
+      if (!list.includes(id)) {
+        list.push(id);
+        localStorage.setItem(STORAGE_SYNCED_DELETED_KEY, JSON.stringify(list));
+      }
+    } catch {
+      /* ignore */
+    }
+
+    const ghMatch = id.match(/^gh_cat_(\d+)$/) || id.match(/^proposal_gh_issue_(\d+)$/);
+    if (ghMatch && ghMatch[1]) {
+      updateGitHubIssueStatus(Number(ghMatch[1]), 'delete', `Kategorie gelöscht`).catch(() => {});
+    }
+
     refresh();
     return rev;
   }, [empireCategories, refresh]);
@@ -379,9 +461,13 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return rev;
   }, [psychiatristRules, refresh]);
 
-  const acceptProposal = useCallback((proposalId: string, author: string) => {
+  const acceptProposal = useCallback(async (proposalId: string, author: string) => {
     const prop = proposals.find((p) => p.id === proposalId);
     if (!prop) return;
+
+    if (prop.githubIssueNumber) {
+      updateGitHubIssueStatus(prop.githubIssueNumber, 'accept').catch(() => {});
+    }
 
     const tips = typeof prop.payload?.animatorTips === 'string' && prop.payload.animatorTips.trim()
       ? [prop.payload.animatorTips.trim()]
@@ -391,9 +477,13 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       ? (prop.payload.steps as string[])
       : [prop.summary];
 
+    const entityId = prop.githubIssueNumber
+      ? `gh_game_${prop.githubIssueNumber}`
+      : `proposal_${prop.id.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+
     if (prop.type === 'spiel') {
       const newGame: Game = {
-        id: `proposal_${prop.id.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+        id: entityId,
         title: { de: prop.title, en: prop.title },
         subtitle: prop.subtitle ? { de: prop.subtitle, en: prop.subtitle } : undefined,
         category: 'cooperative',
@@ -411,12 +501,15 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         rules: { de: steps, en: steps },
         animatorTips: { de: tips, en: tips },
         status: 'draft',
-        submittedBy: prop.authorName || 'Animator',
+        submittedBy: prop.authorName || 'Community',
       };
-      saveGame(newGame, author, `Vorschlag "${prop.title}" als Entwurf übernommen`);
+      saveGame(newGame, author, `Vorschlag "${prop.title}" als Spiel übernommen`);
     } else if (prop.type === 'kategorie') {
+      const catId = prop.githubIssueNumber
+        ? `gh_cat_${prop.githubIssueNumber}`
+        : `proposal_${prop.id.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
       const newCat: EmpireCategory = {
-        id: `proposal_${prop.id.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+        id: catId,
         prompt: { de: prop.title, en: prop.title },
         hint: { de: prop.summary, en: prop.summary },
         examples: { de: ['Beispiel 1', 'Beispiel 2'], en: ['Example 1', 'Example 2'] },
@@ -435,6 +528,10 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [proposals, saveGame, saveEmpireCategory, refresh]);
 
   const rejectProposal = useCallback((proposalId: string, reason: string, author: string) => {
+    const prop = proposals.find((p) => p.id === proposalId);
+    if (prop?.githubIssueNumber) {
+      updateGitHubIssueStatus(prop.githubIssueNumber, 'reject', reason).catch(() => {});
+    }
     updateProposalStatus(proposalId, 'rejected', reason);
     appendRevision({
       collection: 'proposals',
@@ -444,7 +541,7 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       summary: `Vorschlag abgelehnt: ${reason || 'Keine Angabe'}`,
     });
     refresh();
-  }, [refresh]);
+  }, [proposals, refresh]);
 
   const rollback = useCallback((revisionId: string, author: string) => {
     const rev = rollbackRevision(revisionId, author);

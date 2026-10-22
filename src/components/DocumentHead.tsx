@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Language } from '../types';
 import { GAMES_DATA } from '../data/games';
+import { useAdminData } from '../context/AdminDataContext';
 import { QUOTES_DATA } from '../data/quotes';
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from '../data/artsPrompts';
@@ -36,6 +37,8 @@ const TOOL_META: Record<string, { de: [string, string]; en: [string, string] }> 
 export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
   const location = useLocation();
   const isDe = language === 'de';
+  const adminData = useAdminData();
+  const allGames = adminData.games.length > 0 ? adminData.games : GAMES_DATA;
 
   useEffect(() => {
     const pathname = location.pathname;
@@ -80,7 +83,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
       ogParams.set('subtitle', description);
     } else if (pathname.startsWith('/games/')) {
       const gameId = pathname.replace('/games/', '').split('/')[0];
-      const game = GAMES_DATA.find((g) => g.id === gameId);
+      const game = allGames.find((g) => g.id === gameId);
       if (game) {
         const gTitle = game.title[language];
         const sizeStr = `${game.groupSize.min}–${game.groupSize.max} ${isDe ? 'Pers.' : 'ppl'}`;
@@ -361,7 +364,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
     } else if (existingLd) {
       existingLd.remove();
     }
-  }, [location.pathname, isDe, language]);
+  }, [allGames, location.pathname, isDe, language]);
 
   return null;
 };

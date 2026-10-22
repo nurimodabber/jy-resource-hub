@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Shuffle, ArrowRight, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Language, EnergyLevel } from '../../types';
 import { GAMES_DATA } from '../../data/games';
+import { useAdminData } from '../../context/AdminDataContext';
 import { shuffle } from '../../utils/random';
 import { filterGames, serializeGameFilters } from '../../utils/gameFilter';
 import { gameMeta } from '../GameCard';
@@ -10,6 +11,8 @@ import { tr, Panel, Label, Stepper, ChoiceChips, primaryBtn } from './common';
 
 export const FinderTool: React.FC<{ language: Language }> = ({ language }) => {
   const L = tr(language);
+  const adminData = useAdminData();
+  const allGames = adminData.games.length > 0 ? adminData.games : GAMES_DATA;
   const [size, setSize] = useState(12);
   const [maxMin, setMaxMin] = useState<string | null>('20');
   const [energy, setEnergy] = useState<string | null>(null);
@@ -25,8 +28,8 @@ export const FinderTool: React.FC<{ language: Language }> = ({ language }) => {
   }), [size, maxMin, energy, noPrep]);
 
   const matches = useMemo(
-    () => filterGames(GAMES_DATA, filterState, language),
-    [filterState, language],
+    () => filterGames(allGames, filterState, language),
+    [allGames, filterState, language],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
