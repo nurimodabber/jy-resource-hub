@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Check, ExternalLink, Key, FolderGit2 } from 'lucide-react';
 import { Language } from '../../types';
-import { tr, Panel, primaryBtn, secondaryBtn } from '../tools/common';
+import { tr, primaryBtn, secondaryBtn } from '../tools/common';
 import {
   getGitHubRepo,
   setGitHubRepo,
@@ -38,9 +38,9 @@ export const GitHubSettingsModal: React.FC<GitHubSettingsModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs select-none"
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 select-none"
     >
-      <Panel className="max-w-md w-full p-5 sm:p-6 space-y-4 text-left shadow-2">
+      <div className="relative w-full max-w-md glass-surface-panel rounded-dialog shadow-2 border border-border p-5 sm:p-6 space-y-4 text-left outline-hidden">
         <div className="flex items-center justify-between pb-2 border-b border-border/60">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-control bg-accent/15 text-accent flex items-center justify-center shrink-0">
@@ -127,7 +127,7 @@ export const GitHubSettingsModal: React.FC<GitHubSettingsModalProps> = ({
             </button>
           </div>
         </form>
-      </Panel>
+      </div>
     </div>
   );
 };

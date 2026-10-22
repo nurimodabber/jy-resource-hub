@@ -72,16 +72,16 @@ export const SilentSortCompanion: React.FC<SilentSortCompanionProps> = ({ langua
   }, [handleNext, handlePrev]);
 
   return (
-    <div className="space-y-4 text-center max-w-xl mx-auto">
-      {/* Top Toolbar: Dropdown Category Selection · Index · Shuffle */}
-      <div className="flex items-center justify-between gap-2 px-1">
+    <div className="space-y-4 text-left w-full max-w-2xl">
+      {/* Top Toolbar: Symmetrical single-row controls with Shuffle on the far right */}
+      <div className="flex items-center justify-between gap-2.5 w-full flex-nowrap">
         <div className="flex items-center gap-2 min-w-0">
           <div className="relative">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value as SortCategory | 'all')}
               aria-label={L('Kategorie wählen', 'Choose category')}
-              className="appearance-none pl-3 pr-8 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text cursor-pointer focus:border-accent focus:outline-hidden transition-colors"
+              className="appearance-none pl-3.5 pr-8 h-10 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text cursor-pointer focus:border-accent focus:outline-hidden transition-colors"
             >
               <option value="all">{L('Alle Kriterien', 'All criteria')} ({SORT_CRITERIA.length})</option>
               {(Object.keys(CATEGORY_LABELS) as SortCategory[]).map((catKey) => {
@@ -96,7 +96,7 @@ export const SilentSortCompanion: React.FC<SilentSortCompanionProps> = ({ langua
             <ChevronDown className="w-3.5 h-3.5 text-text-tertiary absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
-          <span className="text-xs font-bold text-text-tertiary tabular-nums whitespace-nowrap">
+          <span className="text-xs font-bold text-text-tertiary tabular-nums whitespace-nowrap px-2.5 py-1 rounded-full bg-surface-2 border border-border/60">
             {index + 1} / {deck.length}
           </span>
         </div>
@@ -104,33 +104,33 @@ export const SilentSortCompanion: React.FC<SilentSortCompanionProps> = ({ langua
         <button
           type="button"
           onClick={handleShuffle}
-          className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-[0.98]"
+          className="w-10 h-10 rounded-control bg-surface-2 hover:bg-surface-raised border border-border flex items-center justify-center text-text-secondary hover:text-text transition-colors cursor-pointer shrink-0 active:scale-95 ml-auto"
           title={L('Zufällig mischen', 'Shuffle')}
+          aria-label={L('Zufällig mischen', 'Shuffle')}
         >
-          <Shuffle className="w-3.5 h-3.5" />
-          <span>{L('Mischen', 'Shuffle')}</span>
+          <Shuffle className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Main Sort Criteria Card */}
-      <Panel className="p-6 sm:p-10 min-h-[220px] flex flex-col justify-center items-center text-center space-y-3">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-2 border border-border text-2xs font-semibold text-text-secondary">
+      {/* Main Sort Criteria Card: Left-aligned, generous typography */}
+      <Panel className="p-6 sm:p-8 space-y-4 text-left">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-2xs font-semibold text-text-secondary">
           <VolumeX className="w-3.5 h-3.5 text-accent shrink-0" />
           <span>{L('Schweigend sortieren – nur Gesten & Blicke', 'Silent sorting – gestures and eye contact only')}</span>
         </div>
 
-        <h3 className="text-xl sm:text-2xl font-black text-text tracking-tight max-w-lg leading-snug">
+        <h3 className="text-2xl sm:text-3xl font-black text-text tracking-tight leading-tight break-words">
           {current?.text[language]}
         </h3>
       </Panel>
 
-      {/* Controls */}
-      <div className="flex items-center justify-between gap-3 max-w-md mx-auto pt-1">
+      {/* Controls: Full-width symmetrical controls */}
+      <div className="flex items-center justify-between gap-3 w-full">
         <button
           type="button"
           disabled={index === 0}
           onClick={handlePrev}
-          className="px-4 py-2 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text disabled:opacity-30 cursor-pointer flex items-center gap-1.5 active:scale-[0.98] transition-all"
+          className="px-4 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text disabled:opacity-30 cursor-pointer flex items-center gap-1.5 active:scale-95 transition-all"
         >
           <ChevronLeft className="w-4 h-4" />
           <span>{L('Zurück', 'Previous')}</span>
@@ -139,7 +139,7 @@ export const SilentSortCompanion: React.FC<SilentSortCompanionProps> = ({ langua
         <button
           type="button"
           onClick={handleNext}
-          className={`${primaryBtn} px-6 py-2.5 min-h-[44px] text-sm flex items-center gap-1.5`}
+          className={`${primaryBtn} px-6 py-2.5 min-h-[44px] text-sm flex items-center gap-2 shadow-sm`}
         >
           <span>{L('Nächste Aufgabe', 'Next task')}</span>
           <ChevronRight className="w-4 h-4" />

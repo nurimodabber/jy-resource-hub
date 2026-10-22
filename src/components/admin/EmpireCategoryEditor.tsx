@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Check, Crown } from 'lucide-react';
 import { EmpireCategory } from '../../context/AdminDataContext';
 import { Language } from '../../types';
-import { tr, Panel, primaryBtn, secondaryBtn } from '../tools/common';
+import { tr, primaryBtn, secondaryBtn } from '../tools/common';
 
 interface EmpireCategoryEditorProps {
   category: EmpireCategory | null;
@@ -62,9 +62,9 @@ export const EmpireCategoryEditor: React.FC<EmpireCategoryEditorProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-xs select-none"
+      className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 select-none"
     >
-      <Panel className="max-w-2xl w-full max-h-[92vh] flex flex-col p-5 sm:p-6 space-y-4 text-left shadow-2">
+      <div className="relative w-full max-w-2xl max-h-[92vh] glass-surface-panel rounded-dialog shadow-2 border border-border flex flex-col p-5 sm:p-6 space-y-4 text-left outline-hidden">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-border/60 shrink-0">
           <div className="flex items-center gap-2">
@@ -274,7 +274,7 @@ export const EmpireCategoryEditor: React.FC<EmpireCategoryEditorProps> = ({
             </button>
           </div>
         </div>
-      </Panel>
+      </div>
     </div>
   );
 };

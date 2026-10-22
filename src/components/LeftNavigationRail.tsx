@@ -27,10 +27,7 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
 
   return (
     <aside
-      style={{
-        backgroundColor: `rgb(var(--surface-rgb) / var(--glass-opacity, 0.96))`,
-      }}
-      className="short-nav-rail hidden short:flex fixed left-0 top-0 bottom-0 w-14 z-50 backdrop-blur-md border-r border-line flex-col items-center justify-between py-2 safe-left print:hidden"
+      className="short-nav-rail hidden short:flex fixed left-0 top-0 bottom-0 w-14 z-50 glass-surface border-r border-line flex-col items-center justify-between py-2 safe-left print:hidden"
       role="navigation"
       aria-label="Navigation"
     >

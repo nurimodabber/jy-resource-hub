@@ -52,10 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header
-      style={{
-        backgroundColor: `rgb(var(--surface-rgb) / var(--glass-opacity, 0.96))`,
-      }}
-      className={`sticky top-0 z-40 backdrop-blur-md border-b border-line print:hidden safe-top transition-transform duration-200 ${
+      className={`sticky top-0 z-40 glass-surface border-b border-line print:hidden safe-top transition-transform duration-200 ${
         isHidden ? 'short:-translate-y-full' : ''
       }`}
     >

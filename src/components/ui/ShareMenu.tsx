@@ -119,7 +119,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
           ref={menuRef}
           role="menu"
           aria-label={triggerLabel}
-          className={`absolute z-50 min-w-[170px] py-1 bg-surface rounded-card border border-border shadow-2 animate-in fade-in zoom-in-95 duration-120 select-none ${
+          className={`absolute z-50 min-w-[170px] py-1 glass-surface rounded-card border border-border shadow-2 animate-in fade-in zoom-in-95 duration-120 select-none ${
             direction === 'up' ? 'bottom-full mb-1.5' : 'top-full mt-1.5'
           } ${align === 'right' ? 'right-0' : 'left-0'}`}
         >

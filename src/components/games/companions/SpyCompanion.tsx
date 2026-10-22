@@ -188,7 +188,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
       {/* PHASE 1: EINHEITLICHES, KLARES SETUP OHNE KARTEN-VERSCHACHTELUNG    */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-5 text-left max-w-lg mx-auto">
+        <div className="space-y-5 text-left w-full max-w-2xl">
           <Panel className="p-5 sm:p-6 space-y-4">
             {/* 1. Spielende & Namen */}
             <PlayerSetupSection
@@ -411,7 +411,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
       {/* PHASE 3: SPIELPHASE (TIMER & ABSTIMMUNG)                            */}
       {/* =================================================================== */}
       {phase === 'play' && deal && (
-        <div className="space-y-6 text-left max-w-lg mx-auto">
+        <div className="space-y-6 text-left w-full max-w-2xl">
           {/* Active Round Timer Card (if enabled) */}
           {timerEnabled && (
             <Panel className="p-6 text-center space-y-4">

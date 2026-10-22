@@ -149,8 +149,8 @@ export const GamePage: React.FC<GamePageProps> = ({
           <span>{t.backToGamesOverview}</span>
         </Link>
 
-        {/* Subtile Share & Lesezeichen Buttons rechts im Header */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        {/* Subtile Share & Lesezeichen Buttons rechts im Header (nur mobil, auf Desktop in der Aktionen-Sidebar) */}
+        <div className="flex items-center gap-1.5 shrink-0 lg:hidden">
           <IconButton
             label={isFavorite ? t.savedItems : L('Merken', 'Save')}
             variant="outline"
@@ -405,32 +405,29 @@ export const GamePage: React.FC<GamePageProps> = ({
               <Button
                 variant={viewMode === 'play' ? 'secondary' : 'primary'}
                 size="md"
-                className="w-full justify-center"
+                className="w-full justify-start"
+                icon={
+                  viewMode === 'play' ? (
+                    <BookOpen className="w-4 h-4 shrink-0" />
+                  ) : (
+                    <Play className="w-4 h-4 shrink-0 fill-current" />
+                  )
+                }
                 onClick={() => switchMode(viewMode === 'play' ? 'rules' : 'play')}
               >
-                {viewMode === 'play' ? (
-                  <>
-                    <BookOpen className="w-4 h-4 mr-2" />
-                    <span>{L('Anleitung lesen', 'Read instructions')}</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 mr-2 fill-current" />
-                    <span>{L('Jetzt spielen', 'Play now')}</span>
-                  </>
-                )}
+                <span>{viewMode === 'play' ? L('Anleitung lesen', 'Read instructions') : L('Jetzt spielen', 'Play now')}</span>
               </Button>
             )}
 
             <Button
               variant={isFavorite ? 'secondary' : 'outline'}
               size="md"
-              className={`w-full justify-center ${isFavorite ? 'text-accent' : ''}`}
+              className={`w-full justify-start ${isFavorite ? 'text-accent' : ''}`}
+              icon={<Bookmark className={`w-4 h-4 shrink-0 ${isFavorite ? 'fill-current text-accent' : ''}`} />}
               onClick={(e) => onToggleFavorite(game.id, e)}
               aria-pressed={isFavorite}
             >
-              <Bookmark className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current text-accent' : ''}`} />
-              {isFavorite ? t.savedItems : L('Merken', 'Save')}
+              <span>{isFavorite ? t.savedItems : L('Merken', 'Save')}</span>
             </Button>
 
             <div className="pt-2 border-t border-border flex items-center justify-between">

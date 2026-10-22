@@ -872,7 +872,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
 
                           {/* Inline Destination Picker Popover */}
                           {isSelected && (
-                            <div className="absolute top-full left-0 mt-1.5 z-30 p-2.5 rounded-card bg-surface border border-border shadow-2 space-y-2 min-w-[190px]">
+                            <div className="absolute top-full left-0 mt-1.5 z-30 p-2.5 rounded-card glass-surface border border-border shadow-2 space-y-2 min-w-[190px]">
                               <div className="flex items-center justify-between px-1">
                                 <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
                                   {L('Verschieben nach:', 'Move to:')}

@@ -6,11 +6,12 @@ import {
   EyeOff,
   ChevronRight,
   ChevronLeft,
-  ChevronDown,
   Check,
   Plus,
-  FileText,
-  Smartphone,
+  Users,
+  Search,
+  X,
+  BookOpen,
   Crown,
 } from 'lucide-react';
 import { Language } from '../../../types';
@@ -21,8 +22,10 @@ import {
   Panel,
   primaryBtn,
 } from '../../tools/common';
+import { Sheet } from '../../ui/Sheet';
 import { useWakeLock } from '../../../hooks/useWakeLock';
 import { useAdminData } from '../../../context/AdminDataContext';
+import { saveProposal } from '../../../utils/adminRevisions';
 
 interface EmpireCompanionProps {
   language: Language;
@@ -35,11 +38,8 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
   const adminData = useAdminData();
   const [phase, setPhase] = useState<Phase>('setup');
 
-  // Simple player count only – names are intentionally omitted for Empire
+  // Simple player count only (3 to 30) – names are intentionally omitted for Empire
   const [playerCount, setPlayerCount] = useState<number>(8);
-
-  // Input mode: pass around phone or classic paper slips
-  const [entryMode, setEntryMode] = useState<'passAround' | 'paper'>('passAround');
 
   const pool = useMemo(() => {
     return adminData.empireCategories.length > 0 ? adminData.empireCategories : EMPIRE_CATEGORIES_V2;
@@ -52,6 +52,10 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
   const [customPrompt, setCustomPrompt] = useState('');
   const [isCustomCat, setIsCustomCat] = useState(false);
 
+  // Category browser modal / sheet state
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [pickerSearch, setPickerSearch] = useState('');
+
   // Secret terms entered per player index
   const [enteredTerms, setEnteredTerms] = useState<string[]>([]);
 
@@ -59,9 +63,6 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
   const [passIndex, setPassIndex] = useState(0);
   const [currentInput, setCurrentInput] = useState('');
   const [cardRevealed, setCardRevealed] = useState(false);
-
-  // Paper manual entry text
-  const [paperText, setPaperText] = useState('');
 
   // Reading phase state: shuffled terms, round 1 & 2
   const [readingList, setReadingList] = useState<string[]>([]);
@@ -88,6 +89,28 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
     ? L('Schreibe einen passenden Begriff auf.', 'Write a matching term.')
     : selectedCat.hint[language];
 
+  // Filtered categories for the full browser sheet
+  const filteredCategories = useMemo(() => {
+    const q = pickerSearch.trim().toLowerCase();
+    if (!q) return pool;
+    return pool.filter((c) => {
+      const promptDe = c.prompt.de.toLowerCase();
+      const promptEn = c.prompt.en.toLowerCase();
+      const hintDe = c.hint.de.toLowerCase();
+      const hintEn = c.hint.en.toLowerCase();
+      const exDe = c.examples?.de?.some((ex) => ex.toLowerCase().includes(q));
+      const exEn = c.examples?.en?.some((ex) => ex.toLowerCase().includes(q));
+      return (
+        promptDe.includes(q) ||
+        promptEn.includes(q) ||
+        hintDe.includes(q) ||
+        hintEn.includes(q) ||
+        exDe ||
+        exEn
+      );
+    });
+  }, [pool, pickerSearch]);
+
   // Start Secret Entry
   const startEntry = () => {
     if (playerCount < 3) {
@@ -99,6 +122,42 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
       );
       return;
     }
+
+    // Automatically submit custom topics as a community proposal
+    if (isCustomCat && customPrompt.trim()) {
+      const trimmed = customPrompt.trim();
+      try {
+        saveProposal({
+          type: 'kategorie',
+          title: trimmed,
+          subtitle: 'Empire-Kategorie',
+          summary: `Empire-Themenvorschlag aus Spielrunde: "${trimmed}"`,
+          payload: {
+            prompt: { de: trimmed, en: trimmed },
+            source: 'empire-game',
+          },
+        });
+      } catch {
+        /* ignore localStorage quota/errors */
+      }
+
+      // Fire background sync to API if available
+      try {
+        fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'kategorie',
+            title: trimmed,
+            summary: `Neues Empire-Thema vorgeschlagen aus der Gruppe: "${trimmed}"`,
+            clientTimestamp: Date.now(),
+          }),
+        }).catch(() => {});
+      } catch {
+        /* ignore */
+      }
+    }
+
     setEnteredTerms([]);
     setPassIndex(0);
     setCurrentInput('');
@@ -123,27 +182,6 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
       setReadRound(1);
       setPhase('read');
     }
-  };
-
-  // Start Reading from paper slips
-  const startReadingFromPaper = () => {
-    const lines = paperText
-      .split('\n')
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (lines.length < 3) {
-      alert(
-        L(
-          'Bitte mindestens 3 Begriffe (jeweils eine Zeile) eingeben.',
-          'Please enter at least 3 terms (one per line).'
-        )
-      );
-      return;
-    }
-    setReadingList(shuffle(lines));
-    setReadIndex(0);
-    setReadRound(1);
-    setPhase('read');
   };
 
   // Advance reading cards
@@ -186,183 +224,222 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
       {/* PHASE 1: STREAMLINED SETUP                                          */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-5 text-left max-w-lg mx-auto">
-          {/* 1. Compact Category Selection Card at Top */}
-          <Panel className="p-4 sm:p-5 space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <label className="text-xs font-bold text-text uppercase tracking-wider block">
-                {L('Kategorie für diese Runde', 'Category for this round')}
-              </label>
-
-              <div className="flex items-center gap-1.5 shrink-0">
+        <div className="space-y-4 text-left w-full max-w-2xl">
+          {/* 1. Spacious Left-Aligned Category Hero Card */}
+          <Panel className="p-6 sm:p-8 space-y-5 text-left">
+            {/* Top Toolbar: Symmetrical Buttons in One Line, Random on the Far Right */}
+            <div className="flex items-center justify-between gap-2.5 w-full flex-nowrap">
+              <div className="flex items-center gap-2 flex-nowrap">
                 {!isCustomCat && (
                   <button
                     type="button"
-                    onClick={drawRandomCategory}
-                    className="px-2.5 py-1 min-h-[32px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1 transition-colors cursor-pointer active:scale-[0.98]"
-                    title={L('Zufällige Kategorie ziehen', 'Draw random category')}
+                    onClick={() => setIsPickerOpen(true)}
+                    className="h-10 px-4 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-2 transition-colors cursor-pointer shrink-0 active:scale-95"
+                    title={L('Alle Themen durchsuchen', 'Browse all topics')}
                   >
-                    <Shuffle className="w-3.5 h-3.5" />
-                    <span>{L('Mischen', 'Shuffle')}</span>
+                    <BookOpen className="w-4 h-4 text-accent shrink-0" />
+                    <span>{L('Alle Themen', 'All topics')}</span>
                   </button>
                 )}
 
                 <button
                   type="button"
-                  onClick={() => setIsCustomCat(!isCustomCat)}
-                  className="text-2xs font-semibold text-accent hover:underline flex items-center gap-1 cursor-pointer px-1 py-1"
+                  onClick={() => {
+                    setIsCustomCat(!isCustomCat);
+                    if (!isCustomCat && !customPrompt) {
+                      setCustomPrompt('');
+                    }
+                  }}
+                  className="h-10 px-4 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-accent flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-95"
                 >
-                  <Plus className="w-3 h-3" />
-                  <span>{isCustomCat ? L('Vorschläge', 'Presets') : L('Eigene', 'Custom')}</span>
+                  <Plus className="w-4 h-4 shrink-0" />
+                  <span>{isCustomCat ? L('Vorschläge', 'Presets') : L('Eigenes', 'Custom')}</span>
                 </button>
               </div>
+
+              {!isCustomCat && (
+                <button
+                  type="button"
+                  onClick={drawRandomCategory}
+                  className="w-10 h-10 rounded-control bg-surface-2 hover:bg-surface-raised border border-border flex items-center justify-center text-text-secondary hover:text-text transition-colors cursor-pointer shrink-0 active:scale-95 ml-auto"
+                  title={L('Anderes Zufallsthema ziehen', 'Draw another random topic')}
+                  aria-label={L('Zufälliges Thema', 'Random topic')}
+                >
+                  <Shuffle className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             {isCustomCat ? (
-              <div className="space-y-1.5 pt-1">
+              <div className="space-y-2.5 pt-1">
+                <div>
+                  <label className="text-sm font-bold text-text block">
+                    {L('Eigenes Thema eingeben:', 'Enter custom topic:')}
+                  </label>
+                  <p className="text-2xs text-text-tertiary mt-0.5">
+                    {L('Wird automatisch auch als neuer Themenvorschlag gespeichert.', 'Will automatically also be submitted as a new topic idea.')}
+                  </p>
+                </div>
                 <input
                   type="text"
+                  autoFocus
                   placeholder={L('z. B. Dinge, die man im Jugendcamp um 2 Uhr nachts hört', 'e.g. Things heard at 2am in camp')}
                   value={customPrompt}
                   onChange={(e) => setCustomPrompt(e.target.value)}
-                  className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-xs font-semibold text-text focus:border-accent focus:outline-hidden"
+                  className="w-full px-4 py-3 rounded-control bg-surface-2 border border-border text-base font-semibold text-text focus:border-accent focus:outline-hidden"
                 />
               </div>
             ) : (
-              <div className="space-y-2">
-                {/* Dropdown Category Selector */}
-                <div className="relative">
-                  <select
-                    value={selectedCat.id}
-                    onChange={(e) => {
-                      const found = EMPIRE_CATEGORIES_V2.find((c) => c.id === e.target.value);
-                      if (found) setSelectedCat(found);
-                    }}
-                    className="w-full appearance-none pl-3 pr-8 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text cursor-pointer focus:border-accent focus:outline-hidden"
-                  >
-                    {pool.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.prompt[language]}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-text-tertiary absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
+              <div className="space-y-3 pt-1">
+                {/* Prominent Left-Aligned Topic Text - Slightly Larger */}
+                <h2 className="text-2xl sm:text-3xl font-black text-text leading-tight tracking-tight break-words">
+                  {selectedCat.prompt[language]}
+                </h2>
 
-                <div className="flex items-center justify-between text-2xs text-text-tertiary px-0.5">
-                  <span className="truncate pr-2">
-                    {selectedCat.hint[language]}
-                  </span>
-                  <span className="font-semibold text-accent shrink-0">
-                    {selectedCat.mood === 'fun'
-                      ? L('Lustig', 'Fun')
-                      : selectedCat.mood === 'calm'
-                      ? L('Ruhig', 'Calm')
-                      : L('Nachdenklich', 'Thoughtful')}
-                  </span>
-                </div>
+                {/* Guiding Hint */}
+                <p className="text-sm sm:text-base text-text-secondary leading-relaxed">
+                  {selectedCat.hint[language]}
+                </p>
+
+                {/* Exactly 2 Examples in a Single Clean Line */}
+                {selectedCat.examples?.[language]?.length > 0 && (
+                  <div className="pt-3.5 border-t border-border/40 flex items-center gap-2 flex-nowrap overflow-hidden text-2xs sm:text-xs text-text-tertiary">
+                    <span className="font-semibold uppercase tracking-wider shrink-0 text-text-tertiary">
+                      {L('Beispiele:', 'e.g.')}
+                    </span>
+                    {selectedCat.examples[language].slice(0, 2).map((ex, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-2 border border-border text-text-secondary font-medium truncate max-w-[140px] sm:max-w-[240px]"
+                        title={ex}
+                      >
+                        „{ex}“
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </Panel>
 
-          {/* 2. Directly Below: Player Count Selector */}
-          <Panel className="p-4 sm:p-5">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-sm font-bold text-text">
-                  {L('Anzahl Personen', 'Number of players')}
-                </h3>
-                <p className="text-2xs text-text-secondary mt-0.5">
-                  {L('Wie viele Personen spielen mit?', 'How many players in this round?')} ({playerCount} {L('Personen', 'players')})
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPlayerCount(Math.max(3, playerCount - 1))}
-                  disabled={playerCount <= 3}
-                  className="w-10 h-10 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-lg font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
-                  aria-label={L('Weniger Personen', 'Fewer players')}
-                >
-                  −
-                </button>
-                <span className="w-10 text-center font-bold text-base text-text tabular-nums">
-                  {playerCount}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setPlayerCount(Math.min(30, playerCount + 1))}
-                  disabled={playerCount >= 30}
-                  className="w-10 h-10 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-lg font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
-                  aria-label={L('Mehr Personen', 'More players')}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          </Panel>
-
-          {/* 3. Input Mode Toggle (Pass-around vs Paper slips) */}
-          <div className="flex items-center justify-center gap-2 text-2xs text-text-tertiary pt-1">
-            <button
-              type="button"
-              onClick={() => setEntryMode('passAround')}
-              className={`px-3 py-1 rounded-full border transition-all cursor-pointer flex items-center gap-1.5 ${
-                entryMode === 'passAround'
-                  ? 'bg-accent/15 border-accent/40 text-accent font-bold'
-                  : 'bg-surface-2 border-border text-text-tertiary hover:text-text'
-              }`}
-            >
-              <Smartphone className="w-3 h-3" />
-              <span>{L('Handy weitergeben', 'Pass phone')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setEntryMode('paper')}
-              className={`px-3 py-1 rounded-full border transition-all cursor-pointer flex items-center gap-1.5 ${
-                entryMode === 'paper'
-                  ? 'bg-accent/15 border-accent/40 text-accent font-bold'
-                  : 'bg-surface-2 border-border text-text-tertiary hover:text-text'
-              }`}
-            >
-              <FileText className="w-3 h-3" />
-              <span>{L('Papierzettel vorlesen', 'Read paper slips')}</span>
-            </button>
-          </div>
-
-          {/* 4. Directly Below: Large Start Button */}
-          {entryMode === 'passAround' ? (
-            <button
-              type="button"
-              onClick={startEntry}
-              className={`${primaryBtn} w-full text-base py-3.5 flex items-center justify-center gap-2`}
-            >
-              <Smartphone className="w-4 h-4" />
-              <span>
-                {L('Zettel geheim eingeben', 'Secret slip entry')} ({playerCount} {L('Personen', 'players')})
+          {/* 2. Compact Symmetrical Player Count Row */}
+          <div className="flex items-center justify-between px-4 py-3 rounded-card bg-surface border border-border">
+            <div className="flex items-center gap-2.5">
+              <Users className="w-4 h-4 text-accent" />
+              <span className="text-sm font-semibold text-text">
+                {L('Mitspielende:', 'Players:')}
               </span>
-            </button>
-          ) : (
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-text-secondary block">
-                {L('Begriffe von Papierzetteln abtippen (1 pro Zeile):', 'Type terms from paper slips (1 per line):')}
-              </label>
-              <textarea
-                rows={4}
-                value={paperText}
-                onChange={(e) => setPaperText(e.target.value)}
-                placeholder={L('Apfelkuchen\nFahrradkette\nSchlafsack...', 'Apple pie\nBicycle chain\nSleeping bag...')}
-                className="w-full p-3 rounded-card bg-surface-2 border border-border text-xs font-mono text-text focus:border-accent focus:outline-hidden"
-              />
+              <span className="text-sm font-bold text-accent tabular-nums">
+                {playerCount} {L('Personen', 'players')}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={startReadingFromPaper}
-                className={`${primaryBtn} w-full text-base py-3`}
+                onClick={() => setPlayerCount(Math.max(3, playerCount - 1))}
+                disabled={playerCount <= 3}
+                className="w-9 h-9 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
+                aria-label={L('Weniger Personen', 'Fewer players')}
               >
-                <span>{L('Begriffe mischen & vorlesen', 'Shuffle & read terms')}</span>
+                −
+              </button>
+              <span className="w-7 text-center font-bold text-base text-text tabular-nums">
+                {playerCount}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPlayerCount(Math.min(30, playerCount + 1))}
+                disabled={playerCount >= 30}
+                className="w-9 h-9 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
+                aria-label={L('Mehr Personen', 'More players')}
+              >
+                +
               </button>
             </div>
-          )}
+          </div>
+
+          {/* 3. Primary Start Button */}
+          <button
+            type="button"
+            onClick={startEntry}
+            className={`${primaryBtn} w-full text-base py-3.5 flex items-center justify-center gap-2 shadow-sm`}
+          >
+            <span>
+              {L('Zettel geheim eingeben', 'Secret slip entry')} ({playerCount} {L('Personen', 'players')})
+            </span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {/* 4. Full Category Picker Sheet - Ultra Compact & Space-Efficient */}
+          <Sheet
+            isOpen={isPickerOpen}
+            onClose={() => setIsPickerOpen(false)}
+            title={L('Empire-Thema auswählen', 'Choose Empire Topic')}
+            description={L(
+              'Wähle ein Thema aus der Sammlung für deine Gruppe.',
+              'Choose a topic from the collection for your group.'
+            )}
+          >
+            <div className="space-y-3 pt-1">
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  inputMode="search"
+                  placeholder={L('Thema oder Stichwort suchen...', 'Search topic or keyword...')}
+                  value={pickerSearch}
+                  onChange={(e) => setPickerSearch(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 rounded-control bg-surface-2 border border-border text-xs font-medium text-text placeholder:text-text-tertiary focus:border-accent focus:outline-hidden"
+                />
+                {pickerSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setPickerSearch('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text p-1 cursor-pointer"
+                    aria-label={L('Suche leeren', 'Clear search')}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Scrollable Compact Category List - 12 to 16 items fit per view */}
+              <div className="space-y-1.5 max-h-[62vh] overflow-y-auto pr-1">
+                {filteredCategories.length === 0 ? (
+                  <div className="py-8 text-center text-text-tertiary text-xs">
+                    {L('Kein passendes Thema gefunden.', 'No matching topic found.')}
+                  </div>
+                ) : (
+                  filteredCategories.map((cat) => {
+                    const isSelected = selectedCat.id === cat.id && !isCustomCat;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCat(cat);
+                          setIsCustomCat(false);
+                          setIsPickerOpen(false);
+                        }}
+                        className={`w-full px-3.5 py-2.5 rounded-control border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                          isSelected
+                            ? 'bg-accent/10 border-accent/50 text-text ring-1 ring-accent/30 font-bold'
+                            : 'bg-surface hover:bg-surface-2 border-border/80 text-text font-medium'
+                        }`}
+                      >
+                        <span className="text-xs sm:text-sm leading-snug break-words">
+                          {cat.prompt[language]}
+                        </span>
+                        {isSelected && <Check className="w-4 h-4 text-accent shrink-0" />}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </Sheet>
         </div>
       )}
 
@@ -420,10 +497,10 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                   <p className="text-2xs font-bold uppercase text-accent tracking-wider">
                     {L(`Person ${passIndex + 1} von ${playerCount}`, `Player ${passIndex + 1} of ${playerCount}`)}
                   </p>
-                  <p className="text-sm font-bold text-text mt-0.5">
+                  <p className="text-base sm:text-lg font-bold text-text mt-1 leading-snug break-words">
                     {activeCategoryTitle}
                   </p>
-                  <p className="text-2xs text-text-secondary mt-0.5">
+                  <p className="text-xs text-text-secondary mt-1 leading-relaxed">
                     {activeCategoryHint}
                   </p>
                 </div>
@@ -490,10 +567,10 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
 
           {/* Reading Card */}
           <Panel className="p-8 sm:p-12 space-y-4 min-h-[220px] flex flex-col justify-center items-center">
-            <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+            <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary break-words max-w-md">
               {activeCategoryTitle}
             </p>
-            <div className="text-3xl sm:text-4xl font-black text-text leading-tight tracking-tight">
+            <div className="text-3xl sm:text-4xl font-black text-text leading-tight tracking-tight break-words max-w-full">
               „{readingList[readIndex]}“
             </div>
             <p className="text-xs text-text-secondary pt-2">
@@ -583,7 +660,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                   {L('Tippe auf einen Begriff, wenn er erraten wurde.', 'Tap a term when it was guessed.')}
                 </p>
               </div>
-              <span className="text-2xs font-bold text-text-tertiary px-2 py-0.5 rounded-full bg-surface-2 border border-border">
+              <span className="text-2xs font-bold text-text-tertiary px-2 py-0.5 rounded-full bg-surface-2 border border-border tabular-nums">
                 {Object.values(crossedOut).filter(Boolean).length} / {readingList.length} {L('erraten', 'guessed')}
               </span>
             </div>
