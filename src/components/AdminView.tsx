@@ -56,8 +56,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language }) => {
 
   // Authentication State
   const [authed, setAuthed] = useState<boolean>(() => isAuthenticated());
+  const [usernameInput, setUsernameInput] = useState('');
   const [passphrase, setPassphrase] = useState('');
-  const [authorInput, setAuthorInput] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
 
   // Active Tab
@@ -128,11 +128,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language }) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
-    const res = await loginAdmin(passphrase, authorInput || 'Administrator');
+    const res = await loginAdmin(usernameInput, passphrase);
     if (res.ok) {
       setAuthed(true);
       setPassphrase('');
-      showToast({ text: L('Erfolgreich angemeldet', 'Successfully logged in') });
+      showToast({ text: L(`Willkommen zurück, ${res.session?.author || 'Admin'}!`, `Welcome back, ${res.session?.author || 'Admin'}!`) });
     } else {
       setAuthError(res.error || 'Fehler beim Anmelden');
     }
@@ -238,28 +238,31 @@ export const AdminView: React.FC<AdminViewProps> = ({ language }) => {
           <form onSubmit={handleLogin} className="space-y-4 text-left pt-2">
             <div>
               <label className="block text-2xs font-bold text-text uppercase tracking-wider mb-1">
-                {L('Passwort', 'Passphrase')}
+                {L('Benutzername', 'Username')}
               </label>
               <input
-                type="password"
+                type="text"
                 required
                 autoFocus
-                value={passphrase}
-                onChange={(e) => setPassphrase(e.target.value)}
-                placeholder="••••••••••••"
+                autoComplete="username"
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
+                placeholder="z. B. nuri oder lasse"
                 className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm font-semibold text-text focus:border-accent focus:outline-hidden"
               />
             </div>
 
             <div>
               <label className="block text-2xs font-bold text-text uppercase tracking-wider mb-1">
-                {L('Dein Name (für das Revisions-Log)', 'Your Name (for Revision Log)')}
+                {L('Passwort', 'Password')}
               </label>
               <input
-                type="text"
-                value={authorInput}
-                onChange={(e) => setAuthorInput(e.target.value)}
-                placeholder="z. B. Nuri Modabber"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={passphrase}
+                onChange={(e) => setPassphrase(e.target.value)}
+                placeholder="••••••••••••"
                 className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm font-semibold text-text focus:border-accent focus:outline-hidden"
               />
             </div>
@@ -273,7 +276,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language }) => {
 
             <button
               type="submit"
-              className={`${primaryBtn} w-full py-2.5 min-h-[44px] text-sm flex items-center justify-center gap-2`}
+              className={`${primaryBtn} w-full py-2.5 min-h-[44px] text-sm flex items-center justify-center gap-2 cursor-pointer`}
             >
               <ShieldCheck className="w-4 h-4" />
               <span>{L('Anmelden', 'Sign In')}</span>
@@ -282,8 +285,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language }) => {
 
           <p className="text-2xs text-text-tertiary pt-2 border-t border-border/50">
             {L(
-              'Lokales Standard-Passwort für Entwicklung: jy-admin oder animator2025',
-              'Local development standard passphrase: jy-admin or animator2025'
+              'Geschützter Redaktionszugang für autorisierte Accounts mit kryptografischer SHA-256-Prüfung.',
+              'Protected editorial access for authorized accounts with cryptographic SHA-256 validation.'
             )}
           </p>
         </Panel>

@@ -20,10 +20,9 @@ import {
   tr,
   Panel,
   primaryBtn,
-  PlayerSetupSection,
-  usePlayerList,
 } from '../../tools/common';
 import { useWakeLock } from '../../../hooks/useWakeLock';
+import { useAdminData } from '../../../context/AdminDataContext';
 
 interface EmpireCompanionProps {
   language: Language;
@@ -33,24 +32,22 @@ type Phase = 'setup' | 'entry' | 'read' | 'cheatSheet';
 
 export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) => {
   const L = tr(language);
+  const adminData = useAdminData();
   const [phase, setPhase] = useState<Phase>('setup');
 
-  const {
-    playerCount,
-    setPlayerCount,
-    playerNames,
-    handleRename,
-    handleResetToGroup,
-    hasGroupNames,
-  } = usePlayerList(8, language, 3);
+  // Simple player count only – names are intentionally omitted for Empire
+  const [playerCount, setPlayerCount] = useState<number>(8);
 
   // Input mode: pass around phone or classic paper slips
   const [entryMode, setEntryMode] = useState<'passAround' | 'paper'>('passAround');
 
+  const pool = useMemo(() => {
+    return adminData.empireCategories.length > 0 ? adminData.empireCategories : EMPIRE_CATEGORIES_V2;
+  }, [adminData.empireCategories]);
+
   // Category selection
   const [selectedCat, setSelectedCat] = useState<EmpireCategoryV2>(() => {
-    const list = EMPIRE_CATEGORIES_V2.filter((c) => !c.personal);
-    return shuffle(list)[0] || EMPIRE_CATEGORIES_V2[0];
+    return shuffle(EMPIRE_CATEGORIES_V2)[0] || EMPIRE_CATEGORIES_V2[0];
   });
   const [customPrompt, setCustomPrompt] = useState('');
   const [isCustomCat, setIsCustomCat] = useState(false);
@@ -76,10 +73,6 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
 
   useWakeLock(phase !== 'setup');
 
-  const pool = useMemo(() => {
-    return EMPIRE_CATEGORIES_V2.filter((c) => !c.personal);
-  }, []);
-
   const drawRandomCategory = () => {
     setIsCustomCat(false);
     const cand = pool.filter((c) => c.id !== selectedCat.id);
@@ -95,13 +88,9 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
     ? L('Schreibe einen passenden Begriff auf.', 'Write a matching term.')
     : selectedCat.hint[language];
 
-  const getPlayerLabel = (idx: number) => {
-    return playerNames[idx] || `${L('Person', 'Player')} ${idx + 1}`;
-  };
-
   // Start Secret Entry
   const startEntry = () => {
-    if (playerNames.length < 3) {
+    if (playerCount < 3) {
       alert(
         L(
           'Bitte mindestens 3 Personen in der Gruppe haben, um Empire zu spielen.',
@@ -125,7 +114,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
     setCurrentInput('');
     setCardRevealed(false);
 
-    if (passIndex + 1 < playerNames.length) {
+    if (passIndex + 1 < playerCount) {
       setPassIndex(passIndex + 1);
     } else {
       // All players done! Proceed to Reading phase
@@ -251,7 +240,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                     }}
                     className="w-full appearance-none pl-3 pr-8 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text cursor-pointer focus:border-accent focus:outline-hidden"
                   >
-                    {EMPIRE_CATEGORIES_V2.map((cat) => (
+                    {pool.map((cat) => (
                       <option key={cat.id} value={cat.id}>
                         {cat.prompt[language]}
                       </option>
@@ -276,21 +265,41 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
             )}
           </Panel>
 
-          {/* 2. Directly Below: Player Count & Names */}
-          <Panel className="p-5 sm:p-6 space-y-4">
-            <PlayerSetupSection
-              language={language}
-              playerCount={playerCount}
-              playerNames={playerNames}
-              minPlayers={3}
-              maxPlayers={30}
-              onCountChange={setPlayerCount}
-              onRename={handleRename}
-              onResetToGroup={handleResetToGroup}
-              hasGroupNames={hasGroupNames}
-              countLabel={L('Personen im Kreis', 'Players in circle')}
-              countSubtitle={L('Gesamtzahl der Personen in der Runde', 'Total number of players in this round')}
-            />
+          {/* 2. Directly Below: Player Count Selector */}
+          <Panel className="p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-sm font-bold text-text">
+                  {L('Anzahl Personen', 'Number of players')}
+                </h3>
+                <p className="text-2xs text-text-secondary mt-0.5">
+                  {L('Wie viele Personen spielen mit?', 'How many players in this round?')} ({playerCount} {L('Personen', 'players')})
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPlayerCount(Math.max(3, playerCount - 1))}
+                  disabled={playerCount <= 3}
+                  className="w-10 h-10 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-lg font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
+                  aria-label={L('Weniger Personen', 'Fewer players')}
+                >
+                  −
+                </button>
+                <span className="w-10 text-center font-bold text-base text-text tabular-nums">
+                  {playerCount}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPlayerCount(Math.min(30, playerCount + 1))}
+                  disabled={playerCount >= 30}
+                  className="w-10 h-10 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-lg font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
+                  aria-label={L('Mehr Personen', 'More players')}
+                >
+                  +
+                </button>
+              </div>
+            </div>
           </Panel>
 
           {/* 3. Input Mode Toggle (Pass-around vs Paper slips) */}
@@ -389,7 +398,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                   {L('Gib das Handy an:', 'Hand the phone to:')}
                 </p>
                 <h3 className="text-3xl sm:text-4xl font-black text-text tracking-tight">
-                  {getPlayerLabel(passIndex)}
+                  {L(`Person ${passIndex + 1}`, `Player ${passIndex + 1}`)}
                 </h3>
                 <p className="text-xs text-text-tertiary max-w-xs mx-auto">
                   {L('Nur diese Person schaut jetzt auf das Display.', 'Only this player should view the screen now.')}
@@ -409,7 +418,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
               <div className="space-y-4 text-left py-2">
                 <div className="text-center pb-2 border-b border-border/50">
                   <p className="text-2xs font-bold uppercase text-accent tracking-wider">
-                    {getPlayerLabel(passIndex)}
+                    {L(`Person ${passIndex + 1} von ${playerCount}`, `Player ${passIndex + 1} of ${playerCount}`)}
                   </p>
                   <p className="text-sm font-bold text-text mt-0.5">
                     {activeCategoryTitle}

@@ -4,6 +4,7 @@ import { Bookmark, ArrowRight } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { GAMES_DATA } from '../data/games';
+import { useAdminData } from '../context/AdminDataContext';
 import { QUOTES_DATA } from '../data/quotes';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
@@ -29,10 +30,12 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
   const t = UI_TRANSLATIONS[language];
   const isDe = language === 'de';
   const navigate = useNavigate();
+  const adminData = useAdminData();
+  const allGames = adminData.games.length > 0 ? adminData.games : GAMES_DATA;
 
   const groups = useMemo(() => {
     const has = (id: string) => favorites.includes(id);
-    const games: Row[] = GAMES_DATA.filter((g) => has(g.id)).map((g) => ({
+    const games: Row[] = allGames.filter((g) => has(g.id)).map((g) => ({
       id: g.id,
       title: g.title[language],
       meta: `${g.groupSize.min}–${g.groupSize.max} ${isDe ? 'Jugendliche' : 'youth'} · ${g.durationMinutes}`,
@@ -65,7 +68,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
       })),
     ];
     return { games, quotes, methods, projects } as Record<Group, Row[]>;
-  }, [favorites, language, isDe]);
+  }, [allGames, favorites, language, isDe]);
 
   const labels: Record<Group, string> = {
     games: t.savedGames,

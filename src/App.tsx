@@ -7,7 +7,7 @@ import { LeftNavigationRail } from './components/LeftNavigationRail';
 import { Logo } from './components/Logo';
 import { DocumentHead } from './components/DocumentHead';
 import { ToastProvider } from './context/ToastContext';
-import { AdminDataProvider } from './context/AdminDataContext';
+import { AdminDataProvider, useAdminData } from './context/AdminDataContext';
 import { Language, NavTab } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
 import { GAMES_DATA } from './data/games';
@@ -63,6 +63,7 @@ export const AppContent: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isFirstMountRef = useRef(true);
+  const adminData = useAdminData();
 
   // Legacy hash redirect: convert '#/games/...' or '#games' to clean URL
   useEffect(() => {
@@ -154,7 +155,7 @@ export const AppContent: React.FC = () => {
     const path = location.pathname;
     if (path.startsWith('/games/') && path !== '/games') {
       const id = path.slice('/games/'.length).split('/')[0];
-      const game = GAMES_DATA.find((g) => g.id === id);
+      const game = adminData.games.find((g) => g.id === id) || GAMES_DATA.find((g) => g.id === id);
       if (game) {
         recordRecentView({
           id: game.id,
@@ -219,7 +220,7 @@ export const AppContent: React.FC = () => {
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
       navigator.serviceWorker.controller.postMessage({ type: 'CACHE_URLS', urls: [path] });
     }
-  }, [location.pathname]);
+  }, [location.pathname, adminData.games]);
 
   const handleToggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();

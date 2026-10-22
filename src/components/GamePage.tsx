@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Game, Language } from '../types';
 import { GAMES_DATA } from '../data/games';
+import { useAdminData } from '../context/AdminDataContext';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { Button } from './ui/Button';
 import { IconButton } from './ui/IconButton';
@@ -55,6 +56,8 @@ export const GamePage: React.FC<GamePageProps> = ({
 }) => {
   const t = UI_TRANSLATIONS[language];
   const L = tr(language);
+  const adminData = useAdminData();
+  const allGames = adminData.games.length > 0 ? adminData.games : GAMES_DATA;
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
@@ -99,7 +102,7 @@ export const GamePage: React.FC<GamePageProps> = ({
       : t.filterCalmEnergy;
 
   // Similar games: 3 games with the exact same purpose
-  const similarGames = GAMES_DATA.filter(
+  const similarGames = allGames.filter(
     (g) => g.purpose === game.purpose && g.id !== game.id,
   ).slice(0, 3);
 

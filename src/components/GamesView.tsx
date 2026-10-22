@@ -10,6 +10,7 @@ import { Badge } from './ui/Badge';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
 import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { useAdminData } from '../context/AdminDataContext';
 import {
   parseGameFilters,
   serializeGameFilters,
@@ -35,6 +36,8 @@ export const GamesView: React.FC<GamesViewProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const t = UI_TRANSLATIONS[language];
   const L = tr(language);
+  const adminData = useAdminData();
+  const allGames = adminData.games.length > 0 ? adminData.games : GAMES_DATA;
 
   // User active group size from settings/presence
   const [userGroupSize, setUserGroupSize] = useState<number | null>(() => loadActiveGroupCount());
@@ -63,8 +66,8 @@ export const GamesView: React.FC<GamesViewProps> = ({
 
   // Filtered game list (hook called unconditionally)
   const filteredGames = useMemo(() => {
-    return filterGames(GAMES_DATA, filters, language);
-  }, [filters, language]);
+    return filterGames(allGames, filters, language);
+  }, [allGames, filters, language]);
 
   const handleRandomGame = () => {
     if (filteredGames.length === 0) return;
@@ -186,8 +189,8 @@ export const GamesView: React.FC<GamesViewProps> = ({
   // If a single game ID is passed in route: /games/:id
   const activeGame = useMemo(() => {
     if (!id) return undefined;
-    return GAMES_DATA.find((g) => g.id === id);
-  }, [id]);
+    return allGames.find((g) => g.id === id);
+  }, [id, allGames]);
 
   if (id) {
     if (!activeGame) {

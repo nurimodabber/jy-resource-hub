@@ -17,6 +17,11 @@ const ogApiPlugin = (): Plugin => ({
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ ok: true, storedLocally: true }));
     });
+    server.middlewares.use('/api/sync', (req, res) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ ok: true, approvedGames: [], approvedCategories: [], deletedIds: [] }));
+    });
   },
   configurePreviewServer(server) {
     server.middlewares.use('/api/og', (req, res) => {
@@ -30,6 +35,11 @@ const ogApiPlugin = (): Plugin => ({
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ ok: true, storedLocally: true }));
+    });
+    server.middlewares.use('/api/sync', (req, res) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ ok: true, approvedGames: [], approvedCategories: [], deletedIds: [] }));
     });
   },
 });

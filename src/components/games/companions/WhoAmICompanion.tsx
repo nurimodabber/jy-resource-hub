@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Language } from '../../../types';
 import { WHO_AM_I_PACKS } from '../../../data/roleContent';
+import { useAdminData } from '../../../context/AdminDataContext';
 import { shuffle } from '../../../utils/random';
 import {
   tr,
@@ -27,6 +28,8 @@ type Phase = 'setup' | 'deal' | 'play';
 
 export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) => {
   const L = tr(language);
+  const adminData = useAdminData();
+  const allPacks = adminData.whoAmIPacks.length > 0 ? adminData.whoAmIPacks : WHO_AM_I_PACKS;
   const [phase, setPhase] = useState<Phase>('setup');
 
   const {
@@ -38,7 +41,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
     hasGroupNames,
   } = usePlayerList(6, language, 2);
 
-  const [packId, setPackId] = useState<string>(WHO_AM_I_PACKS[0]?.id || 'popkultur');
+  const [packId, setPackId] = useState<string>(allPacks[0]?.id || 'popkultur');
 
   // Dealt words per player: map of player -> word
   const [assignments, setAssignments] = useState<Record<string, string>>({});
@@ -47,7 +50,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
 
   useWakeLock(phase !== 'setup');
 
-  const selectedPack = WHO_AM_I_PACKS.find((p) => p.id === packId) || WHO_AM_I_PACKS[0];
+  const selectedPack = allPacks.find((p) => p.id === packId) || allPacks[0];
 
   const startDealing = () => {
     if (playerNames.length < 2) {
@@ -121,7 +124,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
                 {L('Stufe 1: Leicht & Bekannt', 'Level 1: Easy & Familiar')}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {WHO_AM_I_PACKS.filter((p) => p.difficulty === 1).map((pack) => {
+                {allPacks.filter((p) => p.difficulty === 1).map((pack) => {
                   const isSelected = packId === pack.id;
                   return (
                     <button
@@ -150,7 +153,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
                 {L('Stufe 2: Knifflig & Inspirierend', 'Level 2: Challenging & Thoughtful')}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {WHO_AM_I_PACKS.filter((p) => p.difficulty >= 2).map((pack) => {
+                {allPacks.filter((p) => p.difficulty >= 2).map((pack) => {
                   const isSelected = packId === pack.id;
                   return (
                     <button

@@ -35,6 +35,7 @@ export interface ProposalItem {
   createdAt: number;
   status: 'pending' | 'accepted' | 'rejected';
   rejectionReason?: string;
+  githubIssueNumber?: number;
   payload?: Record<string, unknown>;
 }
 
