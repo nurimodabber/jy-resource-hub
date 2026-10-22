@@ -118,7 +118,7 @@ export const Sheet: React.FC<SheetProps> = ({
           {/* Header */}
           {(title || showCloseButton) && (
             <div
-              className="flex items-center justify-between px-5 py-3.5 border-b border-line glass-surface shrink-0 select-none"
+              className="flex items-center justify-between px-5 pt-4 pb-1 shrink-0 select-none"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -147,7 +147,7 @@ export const Sheet: React.FC<SheetProps> = ({
           )}
 
           {/* Body */}
-          <div className="p-5 overflow-y-auto flex-1 custom-scrollbar">
+          <div className="px-5 pb-5 pt-2 overflow-y-auto flex-1 custom-scrollbar">
             {children}
           </div>
         </div>
@@ -158,7 +158,7 @@ export const Sheet: React.FC<SheetProps> = ({
           className="relative z-10 w-full max-w-md h-full glass-surface-panel shadow-2 border-0 flex flex-col animate-in slide-in-from-right duration-150 ease-out outline-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-line glass-surface shrink-0">
+          <div className="flex items-center justify-between px-5 pt-4 pb-2 shrink-0">
             <div>
               {title && (
                 <h2 id="sheet-title" className="text-lg font-bold text-text">
@@ -177,7 +177,7 @@ export const Sheet: React.FC<SheetProps> = ({
           </div>
 
           {/* Body */}
-          <div className="p-5 overflow-y-auto flex-1 custom-scrollbar">
+          <div className="px-5 pb-5 pt-2 overflow-y-auto flex-1 custom-scrollbar">
             {children}
           </div>
         </div>

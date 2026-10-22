@@ -100,9 +100,9 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
           <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
             {language === 'de' ? 'Darstellung & Sprache' : 'Appearance & Language'}
           </h3>
-          <div className="bg-surface rounded-card border border-border/80 divide-y divide-border/60 overflow-hidden shadow-1">
+          <div className="bg-surface rounded-card border border-border/80 p-4 space-y-4 overflow-hidden shadow-1">
             {/* Theme 4-segment selector */}
-            <div className="p-3.5 space-y-2">
+            <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-text flex items-center gap-2">
                   <Palette className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
@@ -133,7 +133,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             </div>
 
             {/* Simple Transparenz Slider - unified, no extra subheaders or borders */}
-            <div className="p-3.5 space-y-2">
+            <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-text flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
@@ -157,7 +157,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             </div>
 
             {/* Language 2-segment switch */}
-            <div className="p-3.5 space-y-2">
+            <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-text flex items-center gap-2">
                   <Globe className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
