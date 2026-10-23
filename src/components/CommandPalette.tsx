@@ -358,8 +358,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
       {/* Modal / Search Panel (Top-anchored and VisualViewport-adaptive on mobile) */}
       <div
-        className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[80vh] glass-surface-panel rounded-none sm:rounded-dialog shadow-2 border-0 sm:border sm:border-border overflow-hidden z-10 flex flex-col animate-in fade-in sm:zoom-in-95 duration-150 ease-out outline-hidden"
-        style={viewportHeight ? { maxHeight: `${viewportHeight}px` } : undefined}
+        className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[80vh] glass-surface-panel search-palette-panel rounded-none sm:rounded-dialog shadow-2 border-0 sm:border sm:border-border overflow-hidden z-10 flex flex-col animate-in fade-in sm:zoom-in-95 duration-150 ease-out outline-none focus:outline-none"
+        style={viewportHeight ? { maxHeight: `${viewportHeight}px`, outline: 'none' } : { outline: 'none' }}
       >
         {/* Input Bar (includes safe-top for notched phones) */}
         <div className="flex items-center px-4 sm:px-6 py-3.5 sm:py-4 border-b border-line gap-2.5 sm:gap-3 bg-surface/60 backdrop-blur-xs sticky top-0 z-10 safe-top">
@@ -378,7 +378,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               setSelectedIndex(0);
             }}
             placeholder={isDe ? 'Spiele, Zitate, Methoden, Dienst suchen...' : 'Search games, quotes, methods, service...'}
-            className="flex-1 bg-transparent text-base text-text placeholder:text-text-tertiary outline-hidden min-h-[36px]"
+            className="flex-1 bg-transparent text-base text-text placeholder:text-text-tertiary search-palette-input outline-none focus:outline-none ring-0 focus:ring-0 min-h-[36px]"
+            style={{ outline: 'none' }}
           />
           {query ? (
             <button
