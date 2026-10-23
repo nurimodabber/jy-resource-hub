@@ -325,6 +325,14 @@ html.contrast, [data-theme="contrast"] {
   [tabindex="-1"]:focus {
     outline: none !important;
   }
+  .search-palette-input:focus,
+  .search-palette-input:focus-visible,
+  .search-palette-panel:focus,
+  .search-palette-panel:focus-visible {
+    outline: none !important;
+    outline-offset: 0 !important;
+    box-shadow: none !important;
+  }
 }
 
 .tabular { font-variant-numeric: tabular-nums; }
