@@ -693,12 +693,6 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                             <span className="text-2xs text-text-tertiary truncate">· {method.space[language]}</span>
                           )}
                         </div>
-                        {toolId && (
-                          <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text border border-accent/20">
-                            <Zap className="w-2.5 h-2.5 text-accent" />
-                            Web-App
-                          </span>
-                        )}
                       </div>
 
                       <h3 className="font-semibold text-sm sm:text-base text-text">

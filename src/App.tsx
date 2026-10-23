@@ -609,19 +609,22 @@ export const AppContent: React.FC = () => {
       )}
 
       <footer className="short-content-pad border-t border-line mt-6 sm:mt-10 pt-4 pb-4 sm:pt-5 sm:pb-5 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-3 sm:space-y-4">
-          {/* Main row: Brand + Pilot Scope Notice on left, Compact Actions on right */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
-            {/* Brand & Pilot notice */}
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2.5 gap-y-1 text-center sm:text-left">
-              <div className="flex items-center gap-2 shrink-0">
-                <Logo className="w-5 h-5 text-accent shrink-0" />
-                <span className="font-extrabold text-sm text-text tracking-tight">{t.siteTitle}</span>
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-4">
+          {/* Main row: Brand + Status Notice on left, Compact Actions on right */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 sm:gap-4">
+            {/* Brand & Status Notice */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                <div className="flex items-center gap-2 shrink-0">
+                  <Logo className="w-5 h-5 text-accent shrink-0" />
+                  <span className="font-extrabold text-sm text-text tracking-tight">{t.siteTitle}</span>
+                </div>
+                <span className="text-2xs font-semibold px-2.5 py-0.5 rounded-full bg-accent-subtle text-accent-text whitespace-nowrap shrink-0">
+                  {t.footerStatusBadge}
+                </span>
               </div>
-              <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text whitespace-nowrap shrink-0">
-                {t.footerStatusBadge}
-              </span>
-              <span className="text-2xs text-text-tertiary leading-normal">
+              <span className="hidden sm:inline text-border-strong select-none">·</span>
+              <span className="text-2xs text-text-tertiary">
                 {t.footerScopeNote}
               </span>
             </div>
@@ -631,7 +634,7 @@ export const AppContent: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsContactOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] focus-visible:ring-2 focus-visible:ring-accent cursor-pointer shadow-2xs"
               >
                 <Mail className="w-3.5 h-3.5 text-accent" />
                 <span>{t.footerContact}</span>
@@ -639,7 +642,7 @@ export const AppContent: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsSettingsOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] focus-visible:ring-2 focus-visible:ring-accent cursor-pointer shadow-2xs"
               >
                 <Settings className="w-3.5 h-3.5 text-text-tertiary" />
                 <span>{t.tabSettings}</span>
@@ -647,43 +650,38 @@ export const AppContent: React.FC = () => {
             </div>
           </div>
 
-          {/* Links & Legal Row (flat, compact horizontal wrap) */}
-          <div className="border-t border-line/60 pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-2xs text-text-tertiary text-center sm:text-left">
-            <nav aria-label="Footer" className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3.5 gap-y-1">
-              <Link to="/games" className="hover:text-text transition-colors py-1">
+          {/* Links & Legal Row (fluid responsive wrap, no orphan dots) */}
+          <div className="border-t border-line/60 pt-3 flex flex-col md:flex-row items-center justify-between gap-3 text-2xs text-text-tertiary text-center md:text-left">
+            <nav aria-label="Footer" className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1.5">
+              <Link to="/games" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
                 {t.tabGames}
               </Link>
-              <span className="text-border">·</span>
-              <Link to="/quotes" className="hover:text-text transition-colors py-1">
+              <Link to="/quotes" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
                 {t.tabQuotes}
               </Link>
-              <span className="text-border">·</span>
-              <Link to="/service-arts" className="hover:text-text transition-colors py-1">
+              <Link to="/service-arts" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
                 {t.tabServiceArts}
               </Link>
-              <span className="text-border">·</span>
-              <Link to="/tools" className="hover:text-text transition-colors py-1">
+              <Link to="/tools" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
                 {t.tabTools}
               </Link>
-              <span className="text-border">·</span>
-              <Link to="/vorschlagen" className="hover:text-text transition-colors py-1">
+              <Link to="/vorschlagen" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
                 {t.tabProposal}
               </Link>
-              <span className="text-border">·</span>
-              <Link to="/impressum" className="hover:text-text transition-colors py-1">
+              <Link to="/impressum" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
                 {t.impressumTitle}
               </Link>
-              <span className="text-border">·</span>
-              <Link to="/datenschutz" className="hover:text-text transition-colors py-1">
+              <Link to="/datenschutz" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
                 {t.datenschutzTitle}
               </Link>
             </nav>
 
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 shrink-0 pt-1 md:pt-0">
               <span className="inline-flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" aria-hidden="true" />
-                {t.settingsOfflineReady}
+                <span className="w-1.5 h-1.5 rounded-full bg-success inline-block shrink-0" aria-hidden="true" />
+                <span>{t.settingsOfflineReady}</span>
               </span>
+              <span className="text-border-strong select-none">·</span>
               <span>© 2026 {t.siteTitle}</span>
             </div>
           </div>

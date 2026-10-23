@@ -74,7 +74,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
       '',
       '---',
       userEmail.trim() ? `${language === 'de' ? 'Absender E-Mail' : 'Sender Email'}: ${userEmail.trim()}` : '',
-      `${language === 'de' ? 'Kontext' : 'Context'}: Junior Youth Hub (${language === 'de' ? 'Cluster Rhein-Neckar · Experimentell' : 'Cluster Rhein-Neckar · Pilot'})`,
+      `${language === 'de' ? 'Kontext' : 'Context'}: Junior Youth Hub (${language === 'de' ? 'Cluster Rhein-Neckar · Experimentell' : 'Cluster Rhein-Neckar · Experimental'})`,
     ].filter(Boolean);
 
     const body = encodeURIComponent(bodyLines.join('\n'));
@@ -120,7 +120,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
             <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">
               {L(
                 'Dieses Projekt ist eine private, ehrenamtliche Initiative und dient als experimentelles Praxisfeld für das Junior-Jugendprogramm im Cluster Rhein-Neckar (noch nicht bundes- oder weltweit freigegeben).',
-                'This project is a private volunteer initiative serving as an experimental pilot for the junior youth programme in Cluster Rhein-Neckar (not yet intended for nationwide or worldwide use).'
+                'This project is a private volunteer initiative serving as an experimental field for the junior youth programme in Cluster Rhein-Neckar (not yet intended for nationwide or worldwide use).'
               )}
             </p>
           </div>

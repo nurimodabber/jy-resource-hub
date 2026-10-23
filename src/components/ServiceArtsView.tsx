@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, BookOpen, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { Search, X, ArrowLeft, BookOpen, Tag, SlidersHorizontal } from 'lucide-react';
 import {
   Language,
   ActivityItem,
@@ -438,7 +438,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               label={L('Thema', 'Theme')}
               activeLabel={activeThemeLabel}
               isActive={selectedTheme !== 'all'}
-              icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
+              icon={<Tag className="w-3.5 h-3.5 shrink-0" />}
               options={themeOptions}
               selectedValue={selectedTheme}
               onSelect={(val) => {
