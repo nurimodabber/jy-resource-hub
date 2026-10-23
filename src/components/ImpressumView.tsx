@@ -56,13 +56,13 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
               <strong>{isDe ? 'Fokus Cluster Rhein-Neckar:' : 'Focus Cluster Rhein-Neckar:'}</strong>{' '}
               {isDe
                 ? 'Das Angebot dient primär der Erprobung und Unterstützung des Junior-Jugendprogramms im Cluster Rhein-Neckar (Heidelberg, Mannheim und Umgebung). Es ist ausdrücklich noch nicht für einen deutschlandweiten oder weltweiten Einsatz freigegeben oder vorgesehen.'
-                : 'This platform serves primarily to pilot and support the Junior Youth Spiritual Empowerment Programme in Cluster Rhein-Neckar (Heidelberg, Mannheim and surroundings). It is explicitly not yet approved or intended for nationwide or global adoption.'}
+                : 'This platform serves primarily to test and support the Junior Youth Spiritual Empowerment Programme in Cluster Rhein-Neckar (Heidelberg, Mannheim and surroundings). It is explicitly not yet approved or intended for nationwide or global adoption.'}
             </p>
             <p>
               <strong>{isDe ? 'Experimenteller Charakter:' : 'Experimental Status:'}</strong>{' '}
               {isDe
-                ? 'Es handelt sich um ein laufendes Entwicklungsprojekt (Pilotphase). Alle Funktionen, Methoden und Spielabläufe werden auf Basis der praktischen Gruppenerfahrungen vor Ort erprobt und kontinuierlich angepasst.'
-                : 'This is an evolving experimental pilot project. All tools, methods, and activities are continuously refined based on local group practice.'}
+                ? 'Es handelt sich um ein laufendes Entwicklungsprojekt (experimentelle Phase). Alle Funktionen, Methoden und Spielabläufe werden auf Basis der praktischen Gruppenerfahrungen vor Ort erprobt und kontinuierlich angepasst.'
+                : 'This is an evolving experimental project. All tools, methods, and activities are continuously refined based on local group practice.'}
             </p>
           </div>
         </section>

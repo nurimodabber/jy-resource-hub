@@ -8,7 +8,7 @@ import {
   Music,
   Users,
   ChevronRight,
-  Sparkles,
+  Blend,
   Palette,
   Globe,
   ShieldCheck,
@@ -135,7 +135,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-text flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
+                  <Blend className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
                   <span>{language === 'de' ? 'Transparenz' : 'Transparency'}</span>
                 </span>
                 <span className="text-2xs font-bold text-accent tabular-nums bg-accent-subtle px-2 py-0.5 rounded-chip">
@@ -329,50 +329,47 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         {/* ================================================================= */}
         {/* FOOTER: ÜBER DIE SEITE, OFFLINE STATUS & RECHTLICHES              */}
         {/* ================================================================= */}
-        <footer className="pt-3 border-t border-border/50 text-center space-y-2 select-none">
-          {/* Row 1: Legal & Nav Links + Subtle Admin Dashboard Link */}
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-2xs text-text-secondary">
+        <footer className="pt-4 border-t border-border/50 text-center space-y-3 select-none">
+          {/* Row 1: Legal & Nav Links + Dedicated Subtle Admin Badge */}
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-text-secondary">
             <Link
               to="/impressum"
               onClick={onClose}
-              className="hover:text-text transition-colors"
+              className="hover:text-text transition-colors py-1 min-h-[32px] inline-flex items-center"
             >
               {t.impressumTitle}
             </Link>
-            <span className="text-border-strong select-none">·</span>
             <Link
               to="/datenschutz"
               onClick={onClose}
-              className="hover:text-text transition-colors"
+              className="hover:text-text transition-colors py-1 min-h-[32px] inline-flex items-center"
             >
               {t.datenschutzTitle}
             </Link>
-            <span className="text-border-strong select-none">·</span>
             <Link
               to="/vorschlagen"
               onClick={onClose}
-              className="hover:text-accent font-medium transition-colors"
+              className="hover:text-accent font-medium transition-colors py-1 min-h-[32px] inline-flex items-center"
             >
               {t.settingsSubmitProposal}
             </Link>
-            <span className="text-border-strong select-none">·</span>
             <Link
               to="/admin"
               onClick={onClose}
-              className="text-text-tertiary hover:text-text transition-colors inline-flex items-center gap-1"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 hover:bg-surface-raised border border-border/70 text-text-tertiary hover:text-text transition-colors text-xs font-medium min-h-[32px]"
               title={language === 'de' ? 'Admin-Dashboard' : 'Admin Dashboard'}
             >
-              <ShieldCheck className="w-3 h-3 text-text-tertiary" strokeWidth={1.75} />
+              <ShieldCheck className="w-3.5 h-3.5 text-text-tertiary" strokeWidth={1.75} />
               <span>Admin</span>
             </Link>
           </div>
 
-          {/* Row 2: Version & Offline Readiness */}
-          <div className="flex items-center justify-center gap-2 text-2xs text-text-tertiary">
+          {/* Row 2: Version & Offline Readiness (stacks gracefully on mobile) */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2.5 text-2xs text-text-tertiary">
             <span>{t.siteTitle} · {t.settingsVersion}</span>
-            <span className="text-border-strong select-none">·</span>
-            <div className="inline-flex items-center gap-1">
-              <span className={`w-1.5 h-1.5 rounded-full ${isOfflineReady ? 'bg-emerald-500' : 'bg-emerald-500/80'} inline-block`} />
+            <span className="hidden sm:inline text-border-strong select-none">·</span>
+            <div className="inline-flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${isOfflineReady ? 'bg-emerald-500' : 'bg-emerald-500/80'} inline-block shrink-0`} />
               <span>{isOfflineReady ? t.settingsOfflineReady : t.settingsOfflineDesc}</span>
             </div>
           </div>

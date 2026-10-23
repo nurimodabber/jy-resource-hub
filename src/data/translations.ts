@@ -570,7 +570,7 @@ const de = {
     footerVolunteerNote: 'Individuelle Initiative · Erprobungsschwerpunkt im Cluster Rhein-Neckar (experimentell, noch nicht bundes- oder weltweit freigegeben)',
     footerContact: 'Kontakt & E-Mail',
     footerScopeNote: 'Individuelle Initiative für das Junior-Jugendprogramm',
-    footerStatusBadge: 'Cluster Rhein-Neckar · Pilot',
+    footerStatusBadge: 'Cluster Rhein-Neckar · Experimentell',
     exploreGames: 'Spiele entdecken',
     exploreQuotes: 'Zitate ansehen',
 };
@@ -1144,10 +1144,10 @@ const en: Record<TKey, string> = {
     recentViewsEmptyTitle: 'No recent views yet',
     recentViewsEmptyDesc: 'Items you open will appear here for fast access in your group.',
     footerDesc: 'Practical companion for junior youth group animators.',
-    footerVolunteerNote: 'Individual initiative · Pilot focus in Cluster Rhein-Neckar (experimental, not nationwide or worldwide)',
+    footerVolunteerNote: 'Individual initiative · Focus in Cluster Rhein-Neckar (experimental, not nationwide or worldwide)',
     footerContact: 'Contact & Email',
     footerScopeNote: 'Individual initiative for the junior youth programme',
-    footerStatusBadge: 'Cluster Rhein-Neckar · Pilot',
+    footerStatusBadge: 'Cluster Rhein-Neckar · Experimental',
     exploreGames: 'Explore games',
     exploreQuotes: 'Explore quotes',
 };

@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Search, X, ArrowLeft, Clock, Users, Zap, Compass, ArrowUpDown, MapPin, Shuffle, SlidersHorizontal } from 'lucide-react';
+import { Search, X, ArrowLeft, Clock, Users, Flame, Compass, ArrowUpDown, MapPin, Shuffle, SlidersHorizontal } from 'lucide-react';
 import { Language, GamePurpose, EnergyLevel } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { GameCard } from './GameCard';
@@ -396,7 +396,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
               label={t.filterEnergy}
               activeLabel={activeEnergyLabel}
               isActive={Boolean(filters.energie)}
-              icon={<Zap className="w-3.5 h-3.5 shrink-0" />}
+              icon={<Flame className="w-3.5 h-3.5 shrink-0" />}
               options={energyOptions}
               selectedValue={filters.energie || null}
               onSelect={(val) => updateFilters({ ...filters, energie: (val as EnergyLevel) || null })}
