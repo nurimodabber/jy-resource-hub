@@ -6,15 +6,37 @@
  */
 
 import { ProposalItem } from './adminRevisions';
-import { Game } from '../types';
+import { Game, ServiceProject, ArtsPrompt } from '../types';
 import { EmpireCategoryV2 as EmpireCategory } from '../data/empireContent';
 
 export const STORAGE_GH_REPO_KEY = 'jy_admin_github_repo';
 export const STORAGE_GH_TOKEN_KEY = 'jy_admin_github_token';
 export const STORAGE_SYNCED_GAMES_KEY = 'jy_synced_approved_games';
 export const STORAGE_SYNCED_CATS_KEY = 'jy_synced_approved_cats';
+export const STORAGE_SYNCED_SERVICE_KEY = 'jy_synced_approved_service';
+export const STORAGE_SYNCED_ARTS_KEY = 'jy_synced_approved_arts';
 export const STORAGE_SYNCED_DELETED_KEY = 'jy_synced_deleted_ids';
 export const DEFAULT_GH_REPO = 'nurimodabber/jy-resource-hub';
+
+export interface GitHubConnectionStatus {
+  ok: boolean;
+  repo: string;
+  canWrite: boolean;
+  hasToken: boolean;
+  user?: string;
+  rateLimitRemaining?: number;
+  rateLimitTotal?: number;
+  openIssuesCount?: number;
+  error?: string;
+}
+
+export interface SyncedApprovedContent {
+  approvedGames: Game[];
+  approvedCategories: EmpireCategory[];
+  approvedServiceProjects: ServiceProject[];
+  approvedArtsPrompts: ArtsPrompt[];
+  deletedEntityIds: string[];
+}
 
 export interface GitHubIssue {
   id: number;
@@ -156,6 +178,7 @@ export async function fetchGitHubProposals(): Promise<{ ok: boolean; issues: Pro
         authorName: issue.user?.login || 'GitHub User',
         createdAt: new Date(issue.created_at).getTime(),
         status: 'pending',
+        githubIssueNumber: issue.number,
         payload: {
           ...(parsedDraft || {}),
           githubIssueNumber: issue.number,
@@ -183,18 +206,19 @@ export async function fetchGitHubProposals(): Promise<{ ok: boolean; issues: Pro
   }
 }
 
-/** Updates a GitHub issue status when accepted, rejected, or deleted in the admin panel */
+/** Updates a GitHub issue status (and optionally its JSON payload) when accepted, edited, rejected, or deleted in the admin panel */
 export async function updateGitHubIssueStatus(
   issueNumber: number,
   action: 'accept' | 'reject' | 'delete',
-  reason?: string
+  reason?: string,
+  updatedPayload?: Record<string, unknown>
 ): Promise<{ ok: boolean; error?: string }> {
   // 1. Try serverless endpoint first (works on Vercel with process.env.GITHUB_TOKEN)
   try {
     const res = await fetch('/api/sync', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, issueNumber, reason }),
+      body: JSON.stringify({ action, issueNumber, reason, updatedPayload }),
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.ok) {
@@ -222,7 +246,7 @@ export async function updateGitHubIssueStatus(
       'Content-Type': 'application/json',
     };
 
-    // Fetch existing issue labels
+    // Fetch existing issue labels & body
     const issueRes = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, { headers });
     const issueData = await issueRes.json();
     const currentLabels: string[] = (issueData.labels || []).map((l: { name: string }) => l.name);
@@ -232,22 +256,34 @@ export async function updateGitHubIssueStatus(
 
     if (action === 'accept') {
       newLabels.push('übernommen');
-      commentBody = '✅ Dieser Vorschlag wurde redaktionell geprüft und auf der Website freigeschaltet.';
+      commentBody = '✅ Dieser Eintrag wurde redaktionell geprüft und live im Katalog veröffentlicht.';
     } else if (action === 'reject') {
       newLabels.push('abgelehnt');
       commentBody = `❌ Dieser Vorschlag wurde abgelehnt: ${reason || 'Keine Begründung angegeben'}`;
     } else if (action === 'delete') {
       newLabels.push('gelöscht');
-      commentBody = '🗑️ Dieser Eintrag wurde aus der aktiven Website-Datenbank entfernt.';
+      commentBody = '🗑️ Dieser Eintrag wurde aus dem aktiven Katalog entfernt.';
+    }
+
+    const patchBody: Record<string, unknown> = {
+      state: 'closed',
+      labels: newLabels,
+    };
+
+    if (updatedPayload) {
+      const existingBody = typeof issueData.body === 'string' ? issueData.body : '';
+      const jsonBlock = '```json\n' + JSON.stringify(updatedPayload, null, 2) + '\n```';
+      if (/```json[\s\S]*?```/.test(existingBody)) {
+        patchBody.body = existingBody.replace(/```json[\s\S]*?```/, jsonBlock);
+      } else {
+        patchBody.body = `${existingBody}\n\n### Redaktioneller Datensatz\n${jsonBlock}`.trim();
+      }
     }
 
     await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
       method: 'PATCH',
       headers,
-      body: JSON.stringify({
-        state: 'closed',
-        labels: newLabels,
-      }),
+      body: JSON.stringify(patchBody),
     });
 
     if (commentBody) {
@@ -265,12 +301,93 @@ export async function updateGitHubIssueStatus(
   }
 }
 
+/** Tests the GitHub connection, repository accessibility, token write permissions, and rate limits */
+export async function testGitHubConnection(customRepo?: string, customToken?: string): Promise<GitHubConnectionStatus> {
+  const repo = (customRepo !== undefined ? customRepo : getGitHubRepo()).trim() || DEFAULT_GH_REPO;
+  const token = (customToken !== undefined ? customToken : getGitHubToken()).trim();
+
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github.v3+json',
+    'User-Agent': 'JY-Hub-Admin',
+  };
+  if (token) {
+    headers.Authorization = `token ${token}`;
+  }
+
+  try {
+    const repoRes = await fetch(`https://api.github.com/repos/${repo}`, { headers });
+    const remaining = Number(repoRes.headers.get('x-ratelimit-remaining'));
+    const limit = Number(repoRes.headers.get('x-ratelimit-limit'));
+
+    if (!repoRes.ok) {
+      if (repoRes.status === 401) {
+        return {
+          ok: false,
+          repo,
+          canWrite: false,
+          hasToken: !!token,
+          error: 'Ungültiges Personal Access Token (HTTP 401).',
+        };
+      }
+      if (repoRes.status === 404) {
+        return {
+          ok: false,
+          repo,
+          canWrite: false,
+          hasToken: !!token,
+          error: `Repository "${repo}" nicht gefunden oder nicht öffentlich zugänglich.`,
+        };
+      }
+      return {
+        ok: false,
+        repo,
+        canWrite: false,
+        hasToken: !!token,
+        rateLimitRemaining: !Number.isNaN(remaining) ? remaining : undefined,
+        rateLimitTotal: !Number.isNaN(limit) ? limit : undefined,
+        error: `GitHub API Status: HTTP ${repoRes.status}`,
+      };
+    }
+
+    const repoData = await repoRes.json();
+    const canPush = Boolean(repoData.permissions?.push || repoData.permissions?.admin || repoData.permissions?.maintain);
+    let userLogin: string | undefined;
+
+    if (token) {
+      try {
+        const userRes = await fetch('https://api.github.com/user', { headers });
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          userLogin = userData.login;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    return {
+      ok: true,
+      repo,
+      canWrite: canPush || (!!token && !!userLogin),
+      hasToken: !!token,
+      user: userLogin,
+      rateLimitRemaining: !Number.isNaN(remaining) ? remaining : undefined,
+      rateLimitTotal: !Number.isNaN(limit) ? limit : undefined,
+      openIssuesCount: typeof repoData.open_issues_count === 'number' ? repoData.open_issues_count : undefined,
+    };
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      repo,
+      canWrite: false,
+      hasToken: !!token,
+      error: err instanceof Error ? err.message : 'Verbindung zu GitHub fehlgeschlagen',
+    };
+  }
+}
+
 /** Fetches approved community content & deleted IDs from GitHub to sync with live website */
-export async function fetchApprovedGitHubContent(): Promise<{
-  approvedGames: Game[];
-  approvedCategories: EmpireCategory[];
-  deletedEntityIds: string[];
-}> {
+export async function fetchApprovedGitHubContent(): Promise<SyncedApprovedContent> {
   // 1. Try serverless /api/sync endpoint
   try {
     const res = await fetch('/api/sync');
@@ -280,6 +397,8 @@ export async function fetchApprovedGitHubContent(): Promise<{
         try {
           localStorage.setItem(STORAGE_SYNCED_GAMES_KEY, JSON.stringify(data.approvedGames));
           localStorage.setItem(STORAGE_SYNCED_CATS_KEY, JSON.stringify(data.approvedCategories || []));
+          localStorage.setItem(STORAGE_SYNCED_SERVICE_KEY, JSON.stringify(data.approvedServiceProjects || []));
+          localStorage.setItem(STORAGE_SYNCED_ARTS_KEY, JSON.stringify(data.approvedArtsPrompts || []));
           localStorage.setItem(STORAGE_SYNCED_DELETED_KEY, JSON.stringify(data.deletedIds || []));
         } catch {
           /* ignore */
@@ -287,6 +406,8 @@ export async function fetchApprovedGitHubContent(): Promise<{
         return {
           approvedGames: data.approvedGames,
           approvedCategories: data.approvedCategories || [],
+          approvedServiceProjects: data.approvedServiceProjects || [],
+          approvedArtsPrompts: data.approvedArtsPrompts || [],
           deletedEntityIds: data.deletedIds || [],
         };
       }
@@ -297,13 +418,17 @@ export async function fetchApprovedGitHubContent(): Promise<{
 
   // 2. Direct public GitHub REST API call
   const repo = getGitHubRepo();
+  const token = getGitHubToken();
   try {
-    const res = await fetch(`https://api.github.com/repos/${repo}/issues?state=all&per_page=100`, {
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'JY-Hub-Client',
-      },
-    });
+    const headers: Record<string, string> = {
+      Accept: 'application/vnd.github.v3+json',
+      'User-Agent': 'JY-Hub-Client',
+    };
+    if (token) {
+      headers.Authorization = `token ${token}`;
+    }
+
+    const res = await fetch(`https://api.github.com/repos/${repo}/issues?state=all&per_page=100`, { headers });
 
     if (!res.ok) {
       return getCachedApprovedContent();
@@ -316,6 +441,8 @@ export async function fetchApprovedGitHubContent(): Promise<{
 
     const approvedGames: Game[] = [];
     const approvedCats: EmpireCategory[] = [];
+    const approvedServiceProjects: ServiceProject[] = [];
+    const approvedArtsPrompts: ArtsPrompt[] = [];
     const deletedEntityIds: string[] = [];
 
     for (const issue of issues) {
@@ -329,12 +456,35 @@ export async function fetchApprovedGitHubContent(): Promise<{
       if (isDeleted) {
         if (parsedDraft?.id) deletedEntityIds.push(parsedDraft.id as string);
         deletedEntityIds.push(`gh_issue_${issue.number}`);
+        deletedEntityIds.push(`gh_game_${issue.number}`);
+        deletedEntityIds.push(`gh_service_${issue.number}`);
+        deletedEntityIds.push(`gh_art_${issue.number}`);
       } else if (isApproved && parsedDraft) {
-        if (parsedDraft.prompt && parsedDraft.hint) {
+        const isService = labelNames.includes('dienst') || parsedDraft.kind === 'dienst';
+        const isArt = labelNames.includes('kunst') || parsedDraft.kind === 'kunst' || Boolean(parsedDraft.artForm);
+        const isEmpireCat = Boolean(parsedDraft.prompt && parsedDraft.hint);
+
+        if (isEmpireCat) {
           approvedCats.push({
             ...(parsedDraft as unknown as EmpireCategory),
             id: (parsedDraft.id as string) || `proposal_${issue.number}`,
             status: 'draft',
+          });
+        } else if (isService) {
+          approvedServiceProjects.push({
+            ...(parsedDraft as unknown as ServiceProject),
+            id: (parsedDraft.id as string) || `gh_service_${issue.number}`,
+            kind: 'dienst',
+            status: 'draft',
+            submittedBy: (parsedDraft.submittedBy as string) || issue.user?.login || 'Community',
+          });
+        } else if (isArt) {
+          approvedArtsPrompts.push({
+            ...(parsedDraft as unknown as ArtsPrompt),
+            id: (parsedDraft.id as string) || `gh_art_${issue.number}`,
+            kind: 'kunst',
+            status: 'draft',
+            submittedBy: (parsedDraft.submittedBy as string) || issue.user?.login || 'Community',
           });
         } else {
           approvedGames.push({
@@ -350,34 +500,48 @@ export async function fetchApprovedGitHubContent(): Promise<{
     try {
       localStorage.setItem(STORAGE_SYNCED_GAMES_KEY, JSON.stringify(approvedGames));
       localStorage.setItem(STORAGE_SYNCED_CATS_KEY, JSON.stringify(approvedCats));
+      localStorage.setItem(STORAGE_SYNCED_SERVICE_KEY, JSON.stringify(approvedServiceProjects));
+      localStorage.setItem(STORAGE_SYNCED_ARTS_KEY, JSON.stringify(approvedArtsPrompts));
       localStorage.setItem(STORAGE_SYNCED_DELETED_KEY, JSON.stringify(deletedEntityIds));
     } catch {
       /* ignore */
     }
 
-    return { approvedGames, approvedCategories: approvedCats, deletedEntityIds };
+    return {
+      approvedGames,
+      approvedCategories: approvedCats,
+      approvedServiceProjects,
+      approvedArtsPrompts,
+      deletedEntityIds,
+    };
   } catch {
     return getCachedApprovedContent();
   }
 }
 
 /** Loads cached approved community content from localStorage */
-export function getCachedApprovedContent(): {
-  approvedGames: Game[];
-  approvedCategories: EmpireCategory[];
-  deletedEntityIds: string[];
-} {
+export function getCachedApprovedContent(): SyncedApprovedContent {
   try {
     const rawGames = localStorage.getItem(STORAGE_SYNCED_GAMES_KEY);
     const rawCats = localStorage.getItem(STORAGE_SYNCED_CATS_KEY);
+    const rawService = localStorage.getItem(STORAGE_SYNCED_SERVICE_KEY);
+    const rawArts = localStorage.getItem(STORAGE_SYNCED_ARTS_KEY);
     const rawDeleted = localStorage.getItem(STORAGE_SYNCED_DELETED_KEY);
 
     return {
       approvedGames: rawGames ? JSON.parse(rawGames) : [],
       approvedCategories: rawCats ? JSON.parse(rawCats) : [],
+      approvedServiceProjects: rawService ? JSON.parse(rawService) : [],
+      approvedArtsPrompts: rawArts ? JSON.parse(rawArts) : [],
       deletedEntityIds: rawDeleted ? JSON.parse(rawDeleted) : [],
     };
   } catch {
-    return { approvedGames: [], approvedCategories: [], deletedEntityIds: [] };
+    return {
+      approvedGames: [],
+      approvedCategories: [],
+      approvedServiceProjects: [],
+      approvedArtsPrompts: [],
+      deletedEntityIds: [],
+    };
   }
 }

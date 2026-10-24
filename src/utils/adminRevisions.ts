@@ -9,7 +9,7 @@
  * 5. Changes dispatch window event 'jy_data_updated' for instant live sync across components.
  */
 
-export type AdminCollection = 'games' | 'categories' | 'quotes' | 'tags' | 'proposals';
+export type AdminCollection = 'games' | 'categories' | 'quotes' | 'tags' | 'proposals' | 'service' | 'arts';
 export type RevisionAction = 'create' | 'update' | 'soft_delete' | 'restore';
 
 export interface DataRevision<T = unknown> {
@@ -168,14 +168,18 @@ export function getProposals(): ProposalItem[] {
   }
 }
 
-export function saveProposal(proposal: Omit<ProposalItem, 'id' | 'createdAt' | 'status'>): ProposalItem {
+export function saveProposal(proposal: Omit<ProposalItem, 'id' | 'createdAt' | 'status'> & { id?: string; createdAt?: number; status?: 'pending' | 'accepted' | 'rejected' }): ProposalItem {
+  const list = getProposals();
+  if (proposal.id) {
+    const existing = list.find((p) => p.id === proposal.id);
+    if (existing) return existing;
+  }
   const item: ProposalItem = {
     ...proposal,
-    id: generateId('prop'),
-    createdAt: Date.now(),
-    status: 'pending',
+    id: proposal.id || generateId('prop'),
+    createdAt: proposal.createdAt || Date.now(),
+    status: proposal.status || 'pending',
   };
-  const list = getProposals();
   localStorage.setItem(STORAGE_PROPOSALS_KEY, JSON.stringify([item, ...list]));
   return item;
 }

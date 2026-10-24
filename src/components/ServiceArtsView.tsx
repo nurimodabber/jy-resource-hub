@@ -8,6 +8,7 @@ import {
 } from '../types';
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from '../data/artsPrompts';
+import { useAdminData } from '../context/AdminDataContext';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { ServiceArtsCard } from './ServiceArtsCard';
 import { ServiceArtsDetail } from './ServiceArtsDetail';
@@ -39,19 +40,23 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const t = UI_TRANSLATIONS[language];
   const L = tr(language);
 
+  const adminData = useAdminData();
+  const activeServiceProjects = adminData.serviceProjects.length > 0 ? adminData.serviceProjects : SERVICE_PROJECTS_DATA;
+  const activeArtsPrompts = adminData.artsPrompts.length > 0 ? adminData.artsPrompts : ARTS_PROMPTS_DATA;
+
   // Combine items according to fixedKind or unified list
   const allActivities = useMemo<ActivityItem[]>(() => {
-    if (fixedKind === 'dienst') return SERVICE_PROJECTS_DATA;
-    if (fixedKind === 'kunst') return ARTS_PROMPTS_DATA;
-    return [...SERVICE_PROJECTS_DATA, ...ARTS_PROMPTS_DATA];
-  }, [fixedKind]);
+    if (fixedKind === 'dienst') return activeServiceProjects;
+    if (fixedKind === 'kunst') return activeArtsPrompts;
+    return [...activeServiceProjects, ...activeArtsPrompts];
+  }, [fixedKind, activeServiceProjects, activeArtsPrompts]);
 
   // Active game or activity for detail view
   const activeActivity = useMemo(() => {
     if (!id) return undefined;
-    const pool = [...SERVICE_PROJECTS_DATA, ...ARTS_PROMPTS_DATA];
+    const pool = [...activeServiceProjects, ...activeArtsPrompts];
     return pool.find((a) => a.id === id);
-  }, [id]);
+  }, [id, activeServiceProjects, activeArtsPrompts]);
 
   // Filter states parsed from URL searchParams
   const [query, setQuery] = useState(

@@ -59,6 +59,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const isDe = language === 'de';
   const adminData = useAdminData();
   const allGames = adminData.games.length > 0 ? adminData.games : GAMES_DATA;
+  const allServiceProjects = adminData.serviceProjects.length > 0 ? adminData.serviceProjects : SERVICE_PROJECTS_DATA;
+  const allArtsPrompts = adminData.artsPrompts.length > 0 ? adminData.artsPrompts : ARTS_PROMPTS_DATA;
 
   useEffect(() => {
     if (isOpen) {
@@ -254,7 +256,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     });
 
     // 6. Service Projects
-    SERVICE_PROJECTS_DATA.forEach((sp) => {
+    allServiceProjects.forEach((sp) => {
       const matchDe = sp.title.de.toLowerCase().includes(q) || sp.objective.de.toLowerCase().includes(q);
       const matchEn = sp.title.en.toLowerCase().includes(q) || sp.objective.en.toLowerCase().includes(q);
       if (matchDe || matchEn) {
@@ -271,7 +273,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     });
 
     // 7. Arts Prompts
-    ARTS_PROMPTS_DATA.forEach((art) => {
+    allArtsPrompts.forEach((art) => {
       const matchDe = art.title.de.toLowerCase().includes(q) || art.description.de.toLowerCase().includes(q) || art.theme.de.toLowerCase().includes(q);
       const matchEn = art.title.en.toLowerCase().includes(q) || art.description.en.toLowerCase().includes(q) || art.theme.en.toLowerCase().includes(q);
       if (matchDe || matchEn) {
@@ -305,7 +307,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     });
 
     return items.slice(0, 20);
-  }, [allGames, query, language, isDe]);
+  }, [allGames, allServiceProjects, allArtsPrompts, query, language, isDe]);
 
   const handleSelect = useCallback((selected: SearchResult) => {
     if (selected.id === 'settings' && onOpenSettings) {

@@ -345,6 +345,7 @@ export const AppContent: React.FC = () => {
   };
 
   const t = UI_TRANSLATIONS[language];
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen flex flex-col bg-bg text-text selection:bg-accent/20">
@@ -371,27 +372,35 @@ export const AppContent: React.FC = () => {
         </div>
       )}
 
-      {/* Top Navbar */}
-      <Navbar
-        activeTab={activeTab}
-        language={language}
-        favoriteCount={favorites.length}
-        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-      />
+      {/* Top Navbar (hidden in dedicated Admin Portal workspace) */}
+      {!isAdminRoute && (
+        <Navbar
+          activeTab={activeTab}
+          language={language}
+          favoriteCount={favorites.length}
+          onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+        />
+      )}
 
       {/* Phone Landscape Slim Left Rail */}
-      <LeftNavigationRail
-        activeTab={activeTab}
-        onSelectTab={handleTabChange}
-        language={language}
-      />
+      {!isAdminRoute && (
+        <LeftNavigationRail
+          activeTab={activeTab}
+          onSelectTab={handleTabChange}
+          language={language}
+        />
+      )}
 
       {/* Main Content Area */}
       <main
         id="main-content"
         tabIndex={-1}
-        className="short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 md:pb-8 focus:outline-hidden"
+        className={
+          isAdminRoute
+            ? 'flex-1 w-full focus:outline-hidden'
+            : 'short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 md:pb-8 focus:outline-hidden'
+        }
       >
         <Suspense fallback={<RouteLoading />}>
           <Routes>
@@ -564,7 +573,7 @@ export const AppContent: React.FC = () => {
 
             <Route
               path="/admin"
-              element={<AdminView language={language} />}
+              element={<AdminView language={language} setLanguage={setLanguage} />}
             />
 
             <Route path="/_design" element={<GalleryView />} />
@@ -576,11 +585,13 @@ export const AppContent: React.FC = () => {
       </main>
 
       {/* Mobile Portrait Bottom Tab Bar */}
-      <BottomTabBar
-        activeTab={activeTab}
-        onSelectTab={handleTabChange}
-        language={language}
-      />
+      {!isAdminRoute && (
+        <BottomTabBar
+          activeTab={activeTab}
+          onSelectTab={handleTabChange}
+          language={language}
+        />
+      )}
 
       {/* Settings Sheet (Appearance, Language, Group, Backup, Offline) */}
       {isSettingsOpen && (
@@ -608,6 +619,7 @@ export const AppContent: React.FC = () => {
         </Suspense>
       )}
 
+      {!isAdminRoute && (
       <footer className="short-content-pad border-t border-line mt-6 sm:mt-10 pt-4 pb-4 sm:pt-5 sm:pb-5 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-4">
           {/* Main row: Brand + Status Notice on left, Compact Actions on right */}
@@ -687,6 +699,7 @@ export const AppContent: React.FC = () => {
           </div>
         </div>
       </footer>
+      )}
 
       {/* Contact Modal */}
       {isContactOpen && (
