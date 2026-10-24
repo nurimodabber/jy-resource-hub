@@ -3591,52 +3591,54 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                   </div>
 
                   {/* Owner Governance Banner */}
-                  <div className="bg-surface border border-border rounded-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-extrabold text-text">
+                  {activeSection === 'accounts' && (
+                    <div className="bg-surface border border-border rounded-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-extrabold text-text">
+                            {isOwner
+                              ? L('Inhaber-Konto (Owner-Schutz aktiv)', 'Owner Account (Owner Protection Active)')
+                              : L('Dein Zugriffsprofil & Schutzregeln', 'Your Access Profile & Protection Rules')}
+                          </span>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-2xs font-bold ${
+                              isOwner
+                                ? 'bg-accent text-accent-contrast'
+                                : 'bg-surface-2 text-text-secondary border border-border'
+                            }`}
+                          >
+                            {currentAccount
+                              ? roleLabel(currentAccount.role, currentAccount.isPrimaryOwner)
+                              : L('Kein Account', 'No account')}
+                          </span>
+                        </div>
+                        <p className="text-xs text-text-secondary leading-relaxed">
                           {isOwner
-                            ? L('Inhaber-Konto (Owner-Schutz aktiv)', 'Owner Account (Owner Protection Active)')
-                            : L('Dein Zugriffsprofil & Schutzregeln', 'Your Access Profile & Protection Rules')}
-                        </span>
-                        <span
-                          className={`px-2.5 py-0.5 rounded-full text-2xs font-bold ${
-                            isOwner
-                              ? 'bg-accent text-accent-contrast'
-                              : 'bg-surface-2 text-text-secondary border border-border'
-                          }`}
-                        >
-                          {currentAccount
-                            ? roleLabel(currentAccount.role, currentAccount.isPrimaryOwner)
-                            : L('Kein Account', 'No account')}
-                        </span>
+                            ? L(
+                                'Du bist der alleinige Inhaber (Owner). Alle Accounts von anderen Geräten werden hier automatisch angezeigt. Andere Accounts können keine fundamentalen Systemeinstellungen ändern, keine Zitate bearbeiten und keine Accounts verwalten. Jede Änderung anderer Nutzer kann von dir mit einem Klick rückgängig gemacht werden.',
+                                'You are the sole Owner. All accounts from other devices appear here automatically. Other accounts cannot make fundamental system changes, modify Sacred Quotes, or manage accounts. Every change made by another user can be undone by you with one click.'
+                              )
+                            : L(
+                                'Fundamentale Systemeinstellungen, Backups, Heilige Zitate sowie die Rechte- und Accountverwaltung sind dem Haupt-Inhaber (Nuri Modabber) vorbehalten. Alle Bearbeitungen werden versioniert und können vom Inhaber jederzeit überprüft oder zurückgesetzt werden.',
+                                'Fundamental system settings, backups, Sacred Quotes, and account/permission management are reserved for the Owner (Nuri Modabber). All edits are versioned and can be reviewed or rolled back by the Owner at any time.'
+                              )}
+                        </p>
                       </div>
-                      <p className="text-xs text-text-secondary leading-relaxed">
-                        {isOwner
-                          ? L(
-                              'Du bist der alleinige Inhaber (Owner). Alle Accounts von anderen Geräten werden hier automatisch angezeigt. Andere Accounts können keine fundamentalen Systemeinstellungen ändern, keine Zitate bearbeiten und keine Accounts verwalten. Jede Änderung anderer Nutzer kann von dir mit einem Klick rückgängig gemacht werden.',
-                              'You are the sole Owner. All accounts from other devices appear here automatically. Other accounts cannot make fundamental system changes, modify Sacred Quotes, or manage accounts. Every change made by another user can be undone by you with one click.'
-                            )
-                          : L(
-                              'Fundamentale Systemeinstellungen, Backups, Heilige Zitate sowie die Rechte- und Accountverwaltung sind dem Haupt-Inhaber (Nuri Modabber) vorbehalten. Alle Bearbeitungen werden versioniert und können vom Inhaber jederzeit überprüft oder zurückgesetzt werden.',
-                              'Fundamental system settings, backups, Sacred Quotes, and account/permission management are reserved for the Owner (Nuri Modabber). All edits are versioned and can be reviewed or rolled back by the Owner at any time.'
-                            )}
-                      </p>
-                    </div>
 
-                    {!isOwner &&
-                      currentAccount &&
-                      (isPrimaryOwnerIdentity(currentAccount.username, currentAccount.displayName) ||
-                        !accounts.some((a) => a.role === 'owner')) && (
-                        <button
-                          type="button"
-                          onClick={handleClaimPrimaryOwner}
-                          className="px-4 py-2.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-extrabold transition-colors cursor-pointer shrink-0 min-h-[40px]"
-                        >
-                          {L('Als Haupt-Inhaber (Owner) festlegen', 'Claim Primary Owner Account')}
-                        </button>
-                      )}
-                  </div>
+                      {!isOwner &&
+                        currentAccount &&
+                        (isPrimaryOwnerIdentity(currentAccount.username, currentAccount.displayName) ||
+                          !accounts.some((a) => a.role === 'owner')) && (
+                          <button
+                            type="button"
+                            onClick={handleClaimPrimaryOwner}
+                            className="px-4 py-2.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-extrabold transition-colors cursor-pointer shrink-0 min-h-[40px]"
+                          >
+                            {L('Als Haupt-Inhaber (Owner) festlegen', 'Claim Primary Owner Account')}
+                          </button>
+                        )}
+                    </div>
+                  )}
 
                   {/* ACCESS REQUESTS (Owner only) */}
                   {isOwner && activeSection === 'accounts' && (
@@ -3771,6 +3773,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                     </div>
                   )}
 
+                  {activeSection === 'accounts' && (
+                    <>
                   {/* TEAM & ACCOUNTS MANAGEMENT */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -3885,6 +3889,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                                       type="button"
                                       onClick={() => {
                                         setRevisionAuthorFilter(acc.id);
+                                        setActiveSection('operations');
                                       }}
                                       className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-text font-semibold transition-colors cursor-pointer"
                                     >
@@ -4224,7 +4229,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                       )}
                     </div>
                   </div>
+                    </>
+                  )}
 
+                  {activeSection === 'operations' && (
+                    <>
                   {/* Operations Cards (GitHub, Backup, Own Password) */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-surface border border-border rounded-card p-5 space-y-3">
@@ -4437,6 +4446,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                       )}
                     </div>
                   </div>
+                    </>
+                  )}
                 </div>
               )}
             </>
