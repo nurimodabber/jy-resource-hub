@@ -51,9 +51,12 @@ import {
   fetchGitHubProposals,
   getGitHubRepo,
   updateGitHubIssueStatus,
+  syncAdminStateWithCloud,
 } from '../utils/githubIssues';
 import {
   AdminAccount,
+  AdminRole,
+  AdminPermissions,
   getAdminAccounts,
   createAdminAccount,
   verifyAdminLogin,
@@ -61,6 +64,11 @@ import {
   deleteAdminAccount,
   getActiveSessionAccount,
   setActiveSessionAccount,
+  getEffectivePermissions,
+  updateAdminAccountPermissions,
+  claimOwnerAccount,
+  resetAdminAccountPasswordByOwner,
+  isPrimaryOwnerIdentity,
 } from '../utils/adminAuth';
 import { GitHubSettingsModal } from './admin/GitHubSettingsModal';
 import { Logo } from './Logo';
@@ -70,7 +78,7 @@ interface AdminViewProps {
   setLanguage?: (lang: Language) => void;
 }
 
-type WorkspaceSection = 'review' | 'drafts' | 'catalog' | 'quotes' | 'operations';
+type WorkspaceSection = 'review' | 'drafts' | 'catalog' | 'quotes' | 'accounts' | 'operations';
 type ReviewStatusTab = 'pending' | 'drafts' | 'accepted' | 'rejected';
 type CatalogKindTab = 'games' | 'service' | 'arts' | 'minigames';
 type MinigameSubTab = 'empire' | 'spy' | 'whoami' | 'psych';
@@ -148,13 +156,16 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const { isDark, setTheme } = useTheme();
   const adminData = useAdminData();
 
-  // Multi-Account Authentication State (Salted SHA-256)
+  // Multi-Account Authentication State (Salted SHA-256 + Cloud Sync)
   const [accounts, setAccounts] = useState<AdminAccount[]>(() => getAdminAccounts());
   const [currentAccount, setCurrentAccount] = useState<AdminAccount | null>(() => getActiveSessionAccount());
   const isAuthenticated = Boolean(currentAccount);
+  const isOwner = Boolean(currentAccount?.role === 'owner' || currentAccount?.isPrimaryOwner);
+  const effectivePermissions = useMemo(() => getEffectivePermissions(currentAccount), [currentAccount]);
   const adminAuthor = currentAccount?.displayName || 'Redaktion';
 
-  // Login / First-Account Setup Form State
+  // Login / Registration Form State
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [setupDisplayName, setSetupDisplayName] = useState('');
@@ -162,13 +173,16 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const [authError, setAuthError] = useState<string | null>(null);
   const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
 
-  // Account Management State (inside Operations)
+  // Account & Permission Management State
   const [newAccDisplayName, setNewAccDisplayName] = useState('');
   const [newAccUsername, setNewAccUsername] = useState('');
   const [newAccPassword, setNewAccPassword] = useState('');
-  const [newAccRole, setNewAccRole] = useState<'owner' | 'editor'>('editor');
+  const [newAccRole, setNewAccRole] = useState<AdminRole>('editor');
   const [currentPwdInput, setCurrentPwdInput] = useState('');
   const [newPwdInput, setNewPwdInput] = useState('');
+  const [resetPasswordAccountId, setResetPasswordAccountId] = useState<string | null>(null);
+  const [resetPasswordValue, setResetPasswordValue] = useState('');
+  const [revisionAuthorFilter, setRevisionAuthorFilter] = useState<string>('all');
 
   // Portal Navigation State
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -204,19 +218,69 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const [isSyncingGh, setIsSyncingGh] = useState(false);
   const [_ghSyncError, setGhSyncError] = useState<string | null>(null);
 
+  const refreshAccountsAndSession = useCallback(() => {
+    const latestAccounts = getAdminAccounts();
+    setAccounts(latestAccounts);
+    const active = getActiveSessionAccount();
+    setCurrentAccount(active);
+  }, []);
+
+  // Keep accounts state synced with storage & cloud
+  useEffect(() => {
+    window.addEventListener('jy_accounts_updated', refreshAccountsAndSession);
+    window.addEventListener('storage', refreshAccountsAndSession);
+    return () => {
+      window.removeEventListener('jy_accounts_updated', refreshAccountsAndSession);
+      window.removeEventListener('storage', refreshAccountsAndSession);
+    };
+  }, [refreshAccountsAndSession]);
+
+  // Sync admin accounts & revisions with cloud on mount, focus, and interval
+  useEffect(() => {
+    let active = true;
+    const runCloudSync = () => {
+      syncAdminStateWithCloud()
+        .then((res) => {
+          if (active && res.ok) {
+            refreshAccountsAndSession();
+            adminData.refresh();
+          }
+        })
+        .catch(() => {});
+    };
+
+    runCloudSync();
+    const onFocus = () => runCloudSync();
+    window.addEventListener('focus', onFocus);
+    const timer = window.setInterval(runCloudSync, 20000);
+
+    return () => {
+      active = false;
+      window.removeEventListener('focus', onFocus);
+      window.clearInterval(timer);
+    };
+  }, [refreshAccountsAndSession, adminData]);
+
   const syncWithGitHub = useCallback(
     async (silent = false) => {
       setIsSyncingGh(true);
       setGhSyncError(null);
-      const res = await fetchGitHubProposals();
+      const [res, cloudRes] = await Promise.all([
+        fetchGitHubProposals(),
+        syncAdminStateWithCloud().catch(() => null),
+      ]);
       setIsSyncingGh(false);
+      if (cloudRes?.ok) {
+        refreshAccountsAndSession();
+        adminData.refresh();
+      }
       if (res.ok) {
         setGhProposals(res.issues);
         if (!silent) {
           showToast(
             L(
-              `${res.issues.length} offene Einreichungen von GitHub geladen`,
-              `Loaded ${res.issues.length} open submissions from GitHub`
+              `Synchronisiert: ${res.issues.length} Einreichungen & ${getAdminAccounts().length} Team-Accounts`,
+              `Synced: ${res.issues.length} submissions & ${getAdminAccounts().length} team accounts`
             )
           );
         }
@@ -227,7 +291,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
         }
       }
     },
-    [L, showToast]
+    [L, showToast, refreshAccountsAndSession, adminData]
   );
 
   useEffect(() => {
@@ -628,8 +692,37 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
 
   // Save or Publish from the Unified Detail Editor
   const handleSaveFromEditor = useCallback(
-    (asDraft: boolean) => {
+    (requestedAsDraft: boolean) => {
       if (!draftForm || !editorMode) return;
+      if (!effectivePermissions.canCreateDrafts && !effectivePermissions.canPublishLive) {
+        showToast(
+          L(
+            'Dein Account hat aktuell nur Lese-Rechte.',
+            'Your account currently has read-only access.'
+          )
+        );
+        return;
+      }
+      if (!requestedAsDraft && !effectivePermissions.canPublishLive) {
+        showToast(
+          L(
+            'Deine Rolle erlaubt nur das Speichern als Entwurf im Backend. Der Inhaber kann ihn danach veröffentlichen.',
+            'Your role only allows saving backend drafts. The Owner can publish it live afterwards.'
+          )
+        );
+        return;
+      }
+      if (editorMode.source === 'proposal' && !requestedAsDraft && !effectivePermissions.canReviewProposals) {
+        showToast(
+          L(
+            'Dein Account hat keine Berechtigung zur direkten Freigabe von Vorschlägen.',
+            'Your account does not have permission to accept proposals directly.'
+          )
+        );
+        return;
+      }
+      const asDraft = !effectivePermissions.canPublishLive ? true : requestedAsDraft;
+
       if (!draftForm.titleDe.trim()) {
         showToast(L('Bitte gib mindestens einen deutschen Titel ein.', 'Please enter at least a German title.'));
         return;
@@ -814,7 +907,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       setEditorMode(null);
       setDraftForm(null);
     },
-    [draftForm, editorMode, reviewComment, adminAuthor, adminData, showToast, L]
+    [draftForm, editorMode, reviewComment, adminAuthor, adminData, showToast, L, effectivePermissions]
   );
 
   // Reject or Delete from the Unified Detail Editor
@@ -822,6 +915,15 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     if (!editorMode || !draftForm) return;
 
     if (editorMode.source === 'proposal') {
+      if (!effectivePermissions.canReviewProposals) {
+        showToast(
+          L(
+            'Dein Account hat keine Berechtigung, Vorschläge abzulehnen.',
+            'Your account does not have permission to reject proposals.'
+          )
+        );
+        return;
+      }
       const prop = editorMode.proposal;
       if (!adminData.proposals.some((p) => p.id === prop.id)) {
         saveProposal(prop);
@@ -830,6 +932,15 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       setGhProposals((prev) => prev.filter((p) => p.id !== prop.id));
       showToast(L('Vorschlag wurde abgelehnt.', 'Proposal was rejected.'));
     } else {
+      if (!effectivePermissions.canDeleteCatalogItems) {
+        showToast(
+          L(
+            'Einträge aus dem aktiven Katalog dürfen nur vom Inhaber entfernt werden.',
+            'Only the Owner can remove items from the active catalog.'
+          )
+        );
+        return;
+      }
       const reason = reviewComment.trim() || `Aus Katalog entfernt von ${adminAuthor}`;
       if (draftForm.kind === 'spiel') {
         adminData.deleteGame(draftForm.id, adminAuthor, reason);
@@ -845,7 +956,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
 
     setEditorMode(null);
     setDraftForm(null);
-  }, [editorMode, draftForm, reviewComment, adminAuthor, adminData, showToast, L]);
+  }, [editorMode, draftForm, reviewComment, adminAuthor, adminData, showToast, L, effectivePermissions]);
 
   // Filtered lists for Review View
   const filteredReviewProposals = useMemo(() => {
@@ -961,6 +1072,128 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     );
   }, [adminData.revisions, draftForm]);
 
+  const roleLabel = useCallback(
+    (role: AdminRole, isPrimaryOwnerFlag?: boolean) => {
+      if (role === 'owner' || isPrimaryOwnerFlag) return L('Inhaber (Owner)', 'Owner');
+      if (role === 'editor') return L('Redaktion (Editor)', 'Editor');
+      if (role === 'contributor') return L('Mitarbeit · Nur Entwürfe', 'Contributor · Drafts only');
+      return L('Nur Ansicht', 'Viewer (Read-only)');
+    },
+    [L]
+  );
+
+  const canUndoRevision = useCallback(
+    (rev: { authorId?: string; authorUsername?: string; author: string; undoneByRevisionId?: string }) => {
+      if (rev.undoneByRevisionId) return false;
+      if (effectivePermissions.canRollbackAllChanges) return true;
+      if (!effectivePermissions.canRollbackOwnChanges || !currentAccount) return false;
+      if (rev.authorId && rev.authorId === currentAccount.id) return true;
+      if (rev.authorUsername && rev.authorUsername.toLowerCase() === currentAccount.username.toLowerCase()) {
+        return true;
+      }
+      return rev.author.trim().toLowerCase() === currentAccount.displayName.trim().toLowerCase();
+    },
+    [effectivePermissions, currentAccount]
+  );
+
+  const countActiveRevisionsForAccount = useCallback(
+    (acc: AdminAccount) => {
+      const targetUser = acc.username.trim().toLowerCase();
+      const targetDisplay = acc.displayName.trim().toLowerCase();
+      return adminData.revisions.filter((r) => {
+        if (r.rollbackOfRevisionId || r.undoneByRevisionId) return false;
+        if (r.authorId && r.authorId === acc.id) return true;
+        if (r.authorUsername && r.authorUsername.trim().toLowerCase() === targetUser) return true;
+        const rAuthor = (r.author || '').trim().toLowerCase();
+        return rAuthor === targetUser || rAuthor === targetDisplay;
+      }).length;
+    },
+    [adminData.revisions]
+  );
+
+  const filteredRevisions = useMemo(() => {
+    if (revisionAuthorFilter === 'all') return adminData.revisions;
+    const acc = accounts.find((a) => a.id === revisionAuthorFilter);
+    if (!acc) return adminData.revisions;
+    const targetUser = acc.username.trim().toLowerCase();
+    const targetDisplay = acc.displayName.trim().toLowerCase();
+    return adminData.revisions.filter((r) => {
+      if (r.authorId && r.authorId === acc.id) return true;
+      if (r.authorUsername && r.authorUsername.trim().toLowerCase() === targetUser) return true;
+      const rAuthor = (r.author || '').trim().toLowerCase();
+      return rAuthor === targetUser || rAuthor === targetDisplay;
+    });
+  }, [adminData.revisions, revisionAuthorFilter, accounts]);
+
+  const handleUndoSingleRevision = (revisionId: string) => {
+    const rev = adminData.revisions.find((r) => r.revisionId === revisionId);
+    if (!rev || !canUndoRevision(rev)) {
+      showToast(L('Keine Berechtigung zum Zurücksetzen.', 'No permission to undo this change.'));
+      return;
+    }
+    const ok = adminData.rollback(revisionId, adminAuthor);
+    if (ok) {
+      showToast(L('Änderung wurde rückgängig gemacht.', 'Change was undone.'));
+    } else {
+      showToast(L('Änderung konnte nicht zurückgesetzt werden.', 'Could not undo change.'));
+    }
+  };
+
+  const handleUndoAllByAuthor = (acc: AdminAccount) => {
+    if (!effectivePermissions.canRollbackAllChanges) {
+      showToast(
+        L(
+          'Nur der Inhaber kann alle Änderungen eines Accounts gesammelt zurücksetzen.',
+          'Only the Owner can undo all changes by a user.'
+        )
+      );
+      return;
+    }
+    const rolledBackCount = adminData.rollbackByAuthor(
+      {
+        id: acc.id,
+        username: acc.username,
+        displayName: acc.displayName,
+      },
+      adminAuthor
+    );
+    if (rolledBackCount > 0) {
+      showToast(
+        L(
+          `${rolledBackCount} Änderung(en) von "${acc.displayName}" wurden rückgängig gemacht.`,
+          `Undid ${rolledBackCount} change(s) by "${acc.displayName}".`
+        )
+      );
+    } else {
+      showToast(
+        L(
+          `Keine aktiven Änderungen von "${acc.displayName}" zum Zurücksetzen gefunden.`,
+          `No active changes by "${acc.displayName}" found to undo.`
+        )
+      );
+    }
+  };
+
+  const handleUpdateAccountRole = (acc: AdminAccount, role: AdminRole) => {
+    handleUpdateAccountSettings(acc.id, { role });
+  };
+
+  const handleToggleAccountStatus = (acc: AdminAccount) => {
+    handleUpdateAccountSettings(acc.id, {
+      status: acc.status === 'suspended' ? 'active' : 'suspended',
+    });
+  };
+
+  const handleToggleAccountPermission = (acc: AdminAccount, permKey: keyof AdminPermissions) => {
+    const currentPerms = getEffectivePermissions(acc);
+    handleUpdateAccountSettings(acc.id, {
+      permissions: {
+        ...currentPerms,
+        [permKey]: !currentPerms[permKey],
+      },
+    });
+  };
+
   const handleInitialSetup = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
@@ -969,11 +1202,12 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       return;
     }
     setIsAuthSubmitting(true);
+    await syncAdminStateWithCloud().catch(() => {});
     const res = await createAdminAccount({
       username: loginUsername,
       displayName: setupDisplayName,
       password: loginPassword,
-      role: 'owner',
+      role: 'editor',
     });
     setIsAuthSubmitting(false);
 
@@ -982,11 +1216,12 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       return;
     }
 
-    setAccounts(getAdminAccounts());
     setActiveSessionAccount(res.account);
+    setAccounts(getAdminAccounts());
     setCurrentAccount(res.account);
     setLoginPassword('');
     setSetupPasswordConfirm('');
+    syncAdminStateWithCloud().catch(() => {});
     showToast(L(`Willkommen, ${res.account.displayName}`, `Welcome, ${res.account.displayName}`));
   };
 
@@ -994,6 +1229,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     e.preventDefault();
     setAuthError(null);
     setIsAuthSubmitting(true);
+    // Sync from cloud first so accounts registered on other devices are available
+    await syncAdminStateWithCloud().catch(() => {});
     const res = await verifyAdminLogin(loginUsername, loginPassword);
     setIsAuthSubmitting(false);
 
@@ -1005,6 +1242,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     setAccounts(getAdminAccounts());
     setCurrentAccount(res.account);
     setLoginPassword('');
+    syncAdminStateWithCloud().catch(() => {});
     showToast(L(`Angemeldet als ${res.account.displayName}`, `Signed in as ${res.account.displayName}`));
   };
 
@@ -1016,11 +1254,15 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
 
   const handleCreateTeamAccount = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isOwner) {
+      showToast(L('Nur der Inhaber-Account kann neue Accounts anlegen.', 'Only the Owner can create accounts.'));
+      return;
+    }
     const res = await createAdminAccount({
       username: newAccUsername,
       displayName: newAccDisplayName,
       password: newAccPassword,
-      role: newAccRole,
+      role: newAccRole === 'owner' ? 'editor' : newAccRole,
     });
     if (!res.ok) {
       showToast(L(res.errorDe || 'Fehler', res.errorEn || 'Error'));
@@ -1030,10 +1272,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     setNewAccDisplayName('');
     setNewAccUsername('');
     setNewAccPassword('');
+    syncAdminStateWithCloud().catch(() => {});
     showToast(
       L(
-        `Account für "${res.account?.displayName}" wurde angelegt.`,
-        `Account for "${res.account?.displayName}" created.`
+        `Account für "${res.account?.displayName}" wurde angelegt und synchronisiert.`,
+        `Account for "${res.account?.displayName}" created and synced.`
       )
     );
   };
@@ -1048,6 +1291,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     }
     setCurrentPwdInput('');
     setNewPwdInput('');
+    syncAdminStateWithCloud().catch(() => {});
     showToast(L('Dein Passwort wurde erfolgreich geändert.', 'Your password was updated.'));
   };
 
@@ -1059,7 +1303,69 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       return;
     }
     setAccounts(getAdminAccounts());
+    syncAdminStateWithCloud().catch(() => {});
     showToast(L('Account wurde entfernt.', 'Account was removed.'));
+  };
+
+  const handleUpdateAccountSettings = (
+    targetAccountId: string,
+    updates: {
+      role?: AdminRole;
+      status?: 'active' | 'suspended';
+      permissions?: Partial<AdminPermissions>;
+    }
+  ) => {
+    if (!currentAccount) return;
+    const res = updateAdminAccountPermissions({
+      targetAccountId,
+      actorAccount: currentAccount,
+      ...updates,
+    });
+    if (!res.ok) {
+      showToast(L(res.errorDe || 'Fehler', res.errorEn || 'Error'));
+      return;
+    }
+    refreshAccountsAndSession();
+    syncAdminStateWithCloud().catch(() => {});
+    showToast(
+      L(
+        `Berechtigungen für "${res.account?.displayName}" gespeichert.`,
+        `Permissions updated for "${res.account?.displayName}".`
+      )
+    );
+  };
+
+  const handleClaimPrimaryOwner = () => {
+    if (!currentAccount) return;
+    const res = claimOwnerAccount(currentAccount.id);
+    if (res.ok && res.account) {
+      refreshAccountsAndSession();
+      syncAdminStateWithCloud().catch(() => {});
+      showToast(
+        L(
+          'Dein Account ist jetzt als alleiniger Haupt-Inhaber (Owner) festgelegt.',
+          'Your account is now set as the sole Primary Owner.'
+        )
+      );
+    }
+  };
+
+  const handleOwnerResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentAccount || !resetPasswordAccountId) return;
+    const res = await resetAdminAccountPasswordByOwner(
+      resetPasswordAccountId,
+      resetPasswordValue,
+      currentAccount
+    );
+    if (!res.ok) {
+      showToast(L(res.errorDe || 'Fehler', res.errorEn || 'Error'));
+      return;
+    }
+    setResetPasswordAccountId(null);
+    setResetPasswordValue('');
+    syncAdminStateWithCloud().catch(() => {});
+    showToast(L('Passwort für diesen Account wurde zurückgesetzt.', 'Password reset for this account.'));
   };
 
   const formatShortDate = (ts: number) => {
@@ -1087,9 +1393,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     }
   };
 
-  // --- LOGIN OR INITIAL ACCOUNT SETUP SCREEN ---
+  // --- LOGIN OR TEAM REGISTRATION SCREEN ---
   if (!isAuthenticated) {
-    const isInitialSetup = accounts.length === 0;
+    const isInitialSetup = accounts.length === 0 || authMode === 'register';
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-bg">
         <div className="w-full max-w-md bg-surface border border-border rounded-card p-6 sm:p-8 shadow-1 space-y-6">
@@ -1102,7 +1408,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 <h1 className="text-lg font-extrabold text-text tracking-tight">Junior Youth Hub</h1>
                 <p className="text-xs text-text-secondary">
                   {isInitialSetup
-                    ? L('Erstmalige Administrator-Einrichtung', 'Initial Administrator Setup')
+                    ? L('Redaktions-Portal · Account anlegen', 'Editorial Portal · Create Account')
                     : L('Redaktions-Portal · Anmeldung', 'Editorial Portal · Sign In')}
                 </p>
               </div>
@@ -1116,13 +1422,47 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
             </Link>
           </div>
 
+          {accounts.length > 0 && (
+            <div className="grid grid-cols-2 gap-1 p-1 rounded-control bg-bg border border-border">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('login');
+                  setAuthError(null);
+                }}
+                className={`py-2 rounded-control text-xs font-bold transition-colors cursor-pointer ${
+                  authMode === 'login' ? 'bg-surface text-text shadow-1' : 'text-text-secondary hover:text-text'
+                }`}
+              >
+                {L('Anmelden', 'Sign In')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('register');
+                  setAuthError(null);
+                }}
+                className={`py-2 rounded-control text-xs font-bold transition-colors cursor-pointer ${
+                  authMode === 'register' ? 'bg-surface text-text shadow-1' : 'text-text-secondary hover:text-text'
+                }`}
+              >
+                {L('Team-Account anlegen', 'Register Team Account')}
+              </button>
+            </div>
+          )}
+
           {isInitialSetup ? (
             <form onSubmit={handleInitialSetup} className="space-y-4">
               <div className="p-3.5 rounded-control bg-surface-2 border border-border text-xs text-text-secondary leading-relaxed">
-                {L(
-                  'Es existiert noch kein Account. Lege jetzt deinen ersten persönlichen Administrator-Zugang mit eigenem Passwort an. Weitere Team-Accounts kannst du danach im Portal erstellen.',
-                  'No account exists yet. Create your first personal administrator account with a secure password. You can create additional team accounts inside the portal afterwards.'
-                )}
+                {accounts.length === 0
+                  ? L(
+                      'Lege deinen persönlichen Zugang an. Der Account des Projekt-Inhabers (Nuri Modabber) erhält automatisch Inhaber-Rechte (Owner); alle weiteren Accounts werden als Redaktions-Accounts synchronisiert.',
+                      'Create your personal account. The project owner account automatically receives Owner permissions; all other accounts are synced as Editorial team accounts.'
+                    )
+                  : L(
+                      'Erstelle deinen persönlichen Team-Account. Dein Account ist sofort für den Inhaber sichtbar, der deine Rolle und Berechtigungen verwalten kann.',
+                      'Create your personal team account. Your account is immediately visible to the Owner, who can manage your role and permissions.'
+                    )}
               </div>
 
               <div>
@@ -1191,7 +1531,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 disabled={isAuthSubmitting}
                 className="w-full py-3 rounded-control bg-accent text-accent-contrast font-bold text-sm hover:bg-accent-hover transition-colors cursor-pointer min-h-[44px]"
               >
-                {L('Administrator-Account anlegen', 'Create Administrator Account')}
+                {L('Account anlegen & anmelden', 'Create Account & Sign In')}
               </button>
             </form>
           ) : (
@@ -1368,6 +1708,28 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
           <button
             type="button"
             onClick={() => {
+              setActiveSection('accounts');
+              setEditorMode(null);
+              onNavigateItem?.();
+            }}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-control text-sm font-semibold transition-colors cursor-pointer min-h-[40px] ${
+              activeSection === 'accounts' && !editorMode
+                ? 'bg-surface-2 text-text'
+                : 'text-text-secondary hover:bg-surface-2/60 hover:text-text'
+            }`}
+          >
+            <span className="flex items-center gap-2.5">
+              <Users className="w-4 h-4 text-text-tertiary" />
+              <span>{L('Team & Accounts', 'Team & Accounts')}</span>
+            </span>
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-surface border border-border text-text-secondary">
+              {accounts.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
               setActiveSection('operations');
               setEditorMode(null);
               onNavigateItem?.();
@@ -1386,57 +1748,59 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
         </div>
 
         {/* Quick Create Box */}
-        <div className="pt-2 border-t border-border">
-          <div className="px-2.5 pb-2 text-xs font-semibold text-text-tertiary">
-            {L('Schnellerstellung', 'Quick Create')}
+        {(effectivePermissions.canCreateDrafts || effectivePermissions.canPublishLive) && (
+          <div className="pt-2 border-t border-border">
+            <div className="px-2.5 pb-2 text-xs font-semibold text-text-tertiary">
+              {L('Schnellerstellung', 'Quick Create')}
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  openNewItemInEditor('spiel');
+                  onNavigateItem?.();
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-accent shrink-0" />
+                <span className="truncate">{L('Spiel', 'Game')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  openNewItemInEditor('dienst');
+                  onNavigateItem?.();
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-accent shrink-0" />
+                <span className="truncate">{L('Dienst', 'Service')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  openNewItemInEditor('kunst');
+                  onNavigateItem?.();
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-accent shrink-0" />
+                <span className="truncate">{L('Kunst', 'Art')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  openNewItemInEditor('kategorie');
+                  onNavigateItem?.();
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-accent shrink-0" />
+                <span className="truncate">{L('Minispiel', 'Mini-game')}</span>
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-1.5">
-            <button
-              type="button"
-              onClick={() => {
-                openNewItemInEditor('spiel');
-                onNavigateItem?.();
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-2 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 text-accent shrink-0" />
-              <span className="truncate">{L('Spiel', 'Game')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                openNewItemInEditor('dienst');
-                onNavigateItem?.();
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-2 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 text-accent shrink-0" />
-              <span className="truncate">{L('Dienst', 'Service')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                openNewItemInEditor('kunst');
-                onNavigateItem?.();
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-2 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 text-accent shrink-0" />
-              <span className="truncate">{L('Kunst', 'Art')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                openNewItemInEditor('kategorie');
-                onNavigateItem?.();
-              }}
-              className="flex items-center gap-1.5 px-2.5 py-2 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 text-accent shrink-0" />
-              <span className="truncate">{L('Minispiel', 'Mini-game')}</span>
-            </button>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Bottom Profile & Session Controls (Screenshot 1 bottom-left style) */}
@@ -1480,7 +1844,18 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 .toUpperCase() || 'AD'}
             </div>
             <div className="min-w-0">
-              <div className="text-xs font-bold text-text truncate">{adminAuthor}</div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-text truncate">{adminAuthor}</span>
+                <span
+                  className={`px-1.5 py-0.5 rounded-full text-2xs font-bold shrink-0 ${
+                    isOwner
+                      ? 'bg-accent-subtle text-accent-text'
+                      : 'bg-surface-2 text-text-secondary border border-border'
+                  }`}
+                >
+                  {isOwner ? 'Owner' : currentAccount?.role === 'contributor' ? L('Entwurf', 'Drafts') : currentAccount?.role === 'viewer' ? L('Lesen', 'View') : 'Editor'}
+                </span>
+              </div>
               <div className="text-2xs text-text-tertiary truncate">
                 {currentAccount?.username || getGitHubRepo()}
               </div>
@@ -1572,6 +1947,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                   {activeSection === 'drafts' && L('Entwürfe (Nur im Backend)', 'Drafts (Backend only)')}
                   {activeSection === 'catalog' && L('Katalog', 'Catalog')}
                   {activeSection === 'quotes' && L('Heilige Worte', 'Sacred Quotes')}
+                  {activeSection === 'accounts' && L('Team, Rollen & Berechtigungen', 'Team, Roles & Permissions')}
                   {activeSection === 'operations' && L('Betrieb & Sync', 'Operations')}
                 </span>
               )}
@@ -1587,16 +1963,18 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGh ? 'animate-spin text-accent' : ''}`} />
-              <span className="hidden sm:inline">{L('GitHub Sync', 'GitHub Sync')}</span>
+              <span className="hidden sm:inline">{L('Cloud Sync', 'Cloud Sync')}</span>
             </button>
-            <button
-              type="button"
-              onClick={() => setIsGitHubModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
-            >
-              <Settings className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">GitHub</span>
-            </button>
+            {effectivePermissions.canManageSystemSettings && (
+              <button
+                type="button"
+                onClick={() => setIsGitHubModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[36px]"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">GitHub</span>
+              </button>
+            )}
           </div>
         </header>
 
@@ -2145,7 +2523,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                     <span className="font-semibold text-text">{L('Erstellt / Eingereicht', 'Submitted')}</span>{' '}
                     {L('von', 'by')} <span className="font-semibold text-text">{draftForm.submittedBy}</span>
                   </div>
-                  {currentEntityRevisions.slice(0, 3).map((rev) => (
+                  {currentEntityRevisions.slice(0, 4).map((rev) => (
                     <div
                       key={rev.revisionId}
                       className="flex items-center justify-between gap-2 pt-2 border-t border-border text-2xs text-text-secondary"
@@ -2156,17 +2534,25 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                           {rev.author} · {new Date(rev.timestamp).toLocaleString(language === 'de' ? 'de-DE' : 'en-US')}
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          adminData.rollback(rev.revisionId, adminAuthor);
-                          showToast(L('Version wiederhergestellt', 'Revision restored'));
-                          setEditorMode(null);
-                        }}
-                        className="px-2 py-1 rounded-control bg-surface-2 hover:bg-border text-text font-semibold shrink-0 cursor-pointer"
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                      </button>
+                      {canUndoRevision(rev) ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            adminData.rollback(rev.revisionId, adminAuthor);
+                            showToast(L('Änderung rückgängig gemacht', 'Change undone'));
+                            setEditorMode(null);
+                          }}
+                          className="px-2 py-1 rounded-control bg-surface-2 hover:bg-border text-text font-semibold shrink-0 cursor-pointer inline-flex items-center gap-1"
+                          title={L('Rückgängig machen', 'Undo')}
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          <span>{L('Undo', 'Undo')}</span>
+                        </button>
+                      ) : rev.undoneByRevisionId ? (
+                        <span className="text-2xs text-text-tertiary italic shrink-0">
+                          {L('Zurückgesetzt', 'Undone')}
+                        </span>
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -2211,22 +2597,38 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                     </div>
 
                     <div className="flex flex-wrap items-center justify-end gap-2.5 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => handleSaveFromEditor(true)}
-                        className="px-4 py-2.5 rounded-control bg-surface-2 hover:bg-border text-text font-bold text-xs transition-colors cursor-pointer min-h-[40px]"
-                      >
-                        {L('Als Entwurf speichern (Nur Backend)', 'Save as Draft (Backend only)')}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleRejectOrDeleteFromEditor}
-                        className="px-4 py-2.5 rounded-control bg-danger/15 hover:bg-danger text-danger hover:text-white font-bold text-xs transition-colors cursor-pointer min-h-[40px]"
-                      >
-                        {editorMode.source === 'proposal'
-                          ? L('Ablehnen', 'Reject')
-                          : L('Aus Katalog entfernen', 'Remove from Catalog')}
-                      </button>
+                      {(effectivePermissions.canCreateDrafts || effectivePermissions.canPublishLive) && (
+                        <button
+                          type="button"
+                          onClick={() => handleSaveFromEditor(true)}
+                          className="px-4 py-2.5 rounded-control bg-surface-2 hover:bg-border text-text font-bold text-xs transition-colors cursor-pointer min-h-[40px]"
+                        >
+                          {L('Als Entwurf speichern (Nur Backend)', 'Save as Draft (Backend only)')}
+                        </button>
+                      )}
+                      {editorMode.source === 'proposal' ? (
+                        effectivePermissions.canReviewProposals && (
+                          <button
+                            type="button"
+                            onClick={handleRejectOrDeleteFromEditor}
+                            className="px-4 py-2.5 rounded-control bg-danger/15 hover:bg-danger text-danger hover:text-white font-bold text-xs transition-colors cursor-pointer min-h-[40px]"
+                          >
+                            {L('Ablehnen', 'Reject')}
+                          </button>
+                        )
+                      ) : effectivePermissions.canDeleteCatalogItems ? (
+                        <button
+                          type="button"
+                          onClick={handleRejectOrDeleteFromEditor}
+                          className="px-4 py-2.5 rounded-control bg-danger/15 hover:bg-danger text-danger hover:text-white font-bold text-xs transition-colors cursor-pointer min-h-[40px]"
+                        >
+                          {L('Aus Katalog entfernen', 'Remove from Catalog')}
+                        </button>
+                      ) : (
+                        <span className="text-2xs text-text-tertiary px-2 py-1">
+                          {L('Entfernen nur für Inhaber freigegeben', 'Catalog removal restricted to Owner')}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -2239,10 +2641,15 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                           : L('Änderungen live im Katalog speichern', 'Save changes live in Catalog')}
                       </h3>
                       <p className="text-xs text-text-secondary">
-                        {L(
-                          'Sobald du den Eintrag freigibst, ist er sofort auf der Webseite online und bleibt im Katalog jederzeit bearbeitbar.',
-                          'As soon as you accept this entry, it goes live on the website immediately and remains editable in the Catalog anytime.'
-                        )}
+                        {effectivePermissions.canPublishLive
+                          ? L(
+                              'Sobald du den Eintrag freigibst, ist er sofort auf der Webseite online und bleibt im Katalog jederzeit bearbeitbar.',
+                              'As soon as you accept this entry, it goes live on the website immediately and remains editable in the Catalog anytime.'
+                            )
+                          : L(
+                              'Dein Account ist für Entwürfe freigeschaltet. Speichere deine Änderungen links als Entwurf — der Inhaber kann sie danach direkt veröffentlichen.',
+                              'Your account is configured for drafts. Save your changes as a draft on the left — the Owner can publish them live afterwards.'
+                            )}
                       </p>
                       <div>
                         <label className="block text-xs font-semibold text-text-secondary mb-1">
@@ -2251,7 +2658,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                         <input
                           type="text"
                           value={draftForm.id}
-                          readOnly={editorMode.source === 'catalog' && !editorMode.isNew}
+                          readOnly={!isOwner || (editorMode.source === 'catalog' && !editorMode.isNew)}
                           onChange={(e) => setDraftForm({ ...draftForm, id: e.target.value })}
                           className="w-full px-3 py-2 rounded-control bg-bg border border-border text-xs font-mono text-text-secondary"
                         />
@@ -2259,18 +2666,24 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                     </div>
 
                     <div className="flex items-center justify-end pt-2">
-                      <button
-                        type="button"
-                        onClick={() => handleSaveFromEditor(false)}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-extrabold text-xs transition-colors cursor-pointer min-h-[40px] shadow-1"
-                      >
-                        <Check className="w-4 h-4" />
-                        <span>
-                          {editorMode.source === 'proposal' || adminData.backendDraftIds.has(draftForm.id)
-                            ? L('In Katalog übernehmen (Sofort online)', 'Accept into Catalog (Live now)')
-                            : L('Änderungen live speichern', 'Save live changes')}
+                      {effectivePermissions.canPublishLive ? (
+                        <button
+                          type="button"
+                          onClick={() => handleSaveFromEditor(false)}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-extrabold text-xs transition-colors cursor-pointer min-h-[40px] shadow-1"
+                        >
+                          <Check className="w-4 h-4" />
+                          <span>
+                            {editorMode.source === 'proposal' || adminData.backendDraftIds.has(draftForm.id)
+                              ? L('In Katalog übernehmen (Sofort online)', 'Accept into Catalog (Live now)')
+                              : L('Änderungen live speichern', 'Save live changes')}
+                          </span>
+                        </button>
+                      ) : (
+                        <span className="text-xs font-semibold text-text-tertiary">
+                          {L('Live-Veröffentlichung erfordert Freigabe durch Inhaber', 'Live publishing requires Owner permission')}
                         </span>
-                      </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -2844,13 +3257,19 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                                 {loc.roles.map((r) => r[language] || r.de).join(', ')}
                               </div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => setEditingSpyLoc(loc)}
-                              className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-xs font-semibold text-text cursor-pointer"
-                            >
-                              {L('Bearbeiten', 'Edit')}
-                            </button>
+                            {effectivePermissions.canEditMinigames ? (
+                              <button
+                                type="button"
+                                onClick={() => setEditingSpyLoc(loc)}
+                                className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-xs font-semibold text-text cursor-pointer"
+                              >
+                                {L('Bearbeiten', 'Edit')}
+                              </button>
+                            ) : (
+                              <span className="text-2xs text-text-tertiary font-semibold">
+                                {L('Schreibgeschützt', 'Read-only')}
+                              </span>
+                            )}
                           </div>
                         ))}
 
@@ -2866,13 +3285,19 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                                 {pack.entries.map((c) => c[language] || c.de).join(', ')}
                               </div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => setEditingWhoPack(pack)}
-                              className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-xs font-semibold text-text cursor-pointer shrink-0"
-                            >
-                              {L('Bearbeiten', 'Edit')}
-                            </button>
+                            {effectivePermissions.canEditMinigames ? (
+                              <button
+                                type="button"
+                                onClick={() => setEditingWhoPack(pack)}
+                                className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-xs font-semibold text-text cursor-pointer shrink-0"
+                              >
+                                {L('Bearbeiten', 'Edit')}
+                              </button>
+                            ) : (
+                              <span className="text-2xs text-text-tertiary font-semibold shrink-0">
+                                {L('Schreibgeschützt', 'Read-only')}
+                              </span>
+                            )}
                           </div>
                         ))}
 
@@ -2886,13 +3311,19 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                               <div className="font-bold text-sm text-text">{rule.text[language] || rule.text.de}</div>
                               <div className="text-xs text-text-tertiary">{rule.difficulty}</div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => setEditingPsychRule(rule)}
-                              className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-xs font-semibold text-text cursor-pointer shrink-0"
-                            >
-                              {L('Bearbeiten', 'Edit')}
-                            </button>
+                            {effectivePermissions.canEditMinigames ? (
+                              <button
+                                type="button"
+                                onClick={() => setEditingPsychRule(rule)}
+                                className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-xs font-semibold text-text cursor-pointer shrink-0"
+                              >
+                                {L('Bearbeiten', 'Edit')}
+                              </button>
+                            ) : (
+                              <span className="text-2xs text-text-tertiary font-semibold shrink-0">
+                                {L('Schreibgeschützt', 'Read-only')}
+                              </span>
+                            )}
                           </div>
                         ))}
                     </div>
@@ -2954,40 +3385,580 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 </div>
               )}
 
-              {/* 4. OPERATIONS, SYNC & REVISION LOG SECTION */}
-              {activeSection === 'operations' && (
+              {/* 4. TEAM & ACCOUNTS + OPERATIONS & REVISION LOG SECTION */}
+              {(activeSection === 'accounts' || activeSection === 'operations') && (
                 <div className="space-y-8">
-                  <div>
-                    <h1 className="text-2xl sm:text-3xl font-extrabold text-text tracking-tight">
-                      {L('Betrieb & Synchronisation', 'Operations & Sync')}
-                    </h1>
-                    <p className="text-xs text-text-secondary mt-1">
-                      {L(
-                        'GitHub-Verbindung, Team-Accounts, Änderungsprotokoll (Rollback) und Datensicherung.',
-                        'GitHub connection, team accounts, full revision history (rollback), and backup.'
-                      )}
-                    </p>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h1 className="text-2xl sm:text-3xl font-extrabold text-text tracking-tight">
+                        {activeSection === 'accounts'
+                          ? L('Team, Accounts & Rechteverwaltung', 'Team, Accounts & Permissions')
+                          : L('Betrieb, Backup & Revisions-Verlauf', 'Operations, Backup & Revision History')}
+                      </h1>
+                      <p className="text-xs text-text-secondary mt-1">
+                        {activeSection === 'accounts'
+                          ? L(
+                              'Alle registrierten Geräte-übergreifenden Accounts einsehen, Rollen & Einzelrechte steuern und Änderungen jederzeit rückgängig machen.',
+                              'View all cross-device accounts, manage roles & granular abilities, and undo any user changes at any time.'
+                            )
+                          : L(
+                              'GitHub-Synchronisation, Passwortverwaltung, Datensicherung und vollständiges Änderungsprotokoll (Rollback).',
+                              'GitHub synchronization, password management, backup, and complete revision log (rollback).'
+                            )}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => syncWithGitHub(false)}
+                      disabled={isSyncingGh}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-control bg-surface border border-border hover:bg-surface-2 text-xs font-bold text-text transition-colors cursor-pointer self-start shrink-0 min-h-[38px]"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGh ? 'animate-spin text-accent' : ''}`} />
+                      <span>{L('Cloud-Accounts jetzt abgleichen', 'Sync Cloud Accounts Now')}</span>
+                    </button>
                   </div>
 
+                  {/* Owner Governance Banner */}
+                  <div className="bg-surface border border-border rounded-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-extrabold text-text">
+                          {isOwner
+                            ? L('Inhaber-Konto (Owner-Schutz aktiv)', 'Owner Account (Owner Protection Active)')
+                            : L('Dein Zugriffsprofil & Schutzregeln', 'Your Access Profile & Protection Rules')}
+                        </span>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-2xs font-bold ${
+                            isOwner
+                              ? 'bg-accent text-accent-contrast'
+                              : 'bg-surface-2 text-text-secondary border border-border'
+                          }`}
+                        >
+                          {currentAccount
+                            ? roleLabel(currentAccount.role, currentAccount.isPrimaryOwner)
+                            : L('Kein Account', 'No account')}
+                        </span>
+                      </div>
+                      <p className="text-xs text-text-secondary leading-relaxed">
+                        {isOwner
+                          ? L(
+                              'Du bist der alleinige Inhaber (Owner). Alle Accounts von anderen Geräten werden hier automatisch angezeigt. Andere Accounts können keine fundamentalen Systemeinstellungen ändern, keine Zitate bearbeiten und keine Accounts verwalten. Jede Änderung anderer Nutzer kann von dir mit einem Klick rückgängig gemacht werden.',
+                              'You are the sole Owner. All accounts from other devices appear here automatically. Other accounts cannot make fundamental system changes, modify Sacred Quotes, or manage accounts. Every change made by another user can be undone by you with one click.'
+                            )
+                          : L(
+                              'Fundamentale Systemeinstellungen, Backups, Heilige Zitate sowie die Rechte- und Accountverwaltung sind dem Haupt-Inhaber (Nuri Modabber) vorbehalten. Alle Bearbeitungen werden versioniert und können vom Inhaber jederzeit überprüft oder zurückgesetzt werden.',
+                              'Fundamental system settings, backups, Sacred Quotes, and account/permission management are reserved for the Owner (Nuri Modabber). All edits are versioned and can be reviewed or rolled back by the Owner at any time.'
+                            )}
+                      </p>
+                    </div>
+
+                    {!isOwner &&
+                      currentAccount &&
+                      (isPrimaryOwnerIdentity(currentAccount.username, currentAccount.displayName) ||
+                        !accounts.some((a) => a.role === 'owner')) && (
+                        <button
+                          type="button"
+                          onClick={handleClaimPrimaryOwner}
+                          className="px-4 py-2.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-extrabold transition-colors cursor-pointer shrink-0 min-h-[40px]"
+                        >
+                          {L('Als Haupt-Inhaber (Owner) festlegen', 'Claim Primary Owner Account')}
+                        </button>
+                      )}
+                  </div>
+
+                  {/* TEAM & ACCOUNTS MANAGEMENT */}
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                      {/* Registered Accounts List + Granular Permissions */}
+                      <div
+                        className={`${
+                          isOwner ? 'lg:col-span-8' : 'lg:col-span-12'
+                        } bg-surface border border-border rounded-card overflow-hidden self-start`}
+                      >
+                        <div className="px-5 py-4 border-b border-border flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <h3 className="text-sm font-extrabold text-text">
+                              {L('Alle registrierten Accounts', 'All Registered Accounts')} ({accounts.length})
+                            </h3>
+                            <p className="text-2xs text-text-tertiary mt-0.5">
+                              {L(
+                                'Geräte-übergreifend synchronisiert · Inhaber kann Rollen, Fähigkeiten und Änderungen jedes Nutzers steuern',
+                                'Synced across devices · Owner can control roles, abilities, and revisions of every user'
+                              )}
+                            </p>
+                          </div>
+                          <span className="text-2xs font-mono text-text-tertiary">
+                            {L('Verschlüsselter Cloud-Sync aktiv', 'Encrypted Cloud Sync Active')}
+                          </span>
+                        </div>
+
+                        <div className="divide-y divide-border">
+                          {accounts.map((acc) => {
+                            const isSelf = acc.id === currentAccount?.id;
+                            const isAccOwner = acc.role === 'owner';
+                            const accPerms = getEffectivePermissions(acc);
+                            const activeChangesCount = countActiveRevisionsForAccount(acc);
+
+                            return (
+                              <div key={acc.id} className="p-5 space-y-4 text-xs">
+                                {/* Account Top Row */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                  <div className="flex items-start sm:items-center gap-3 min-w-0">
+                                    <div
+                                      className={`w-10 h-10 rounded-full border flex items-center justify-center font-extrabold text-sm shrink-0 ${
+                                        acc.status === 'suspended'
+                                          ? 'bg-danger/10 border-danger/30 text-danger'
+                                          : isAccOwner
+                                          ? 'bg-accent text-accent-contrast border-accent'
+                                          : 'bg-surface-2 border-border text-text'
+                                      }`}
+                                    >
+                                      {acc.displayName
+                                        .split(' ')
+                                        .map((p) => p[0])
+                                        .join('')
+                                        .slice(0, 2)
+                                        .toUpperCase()}
+                                    </div>
+                                    <div className="min-w-0 space-y-1">
+                                      <div className="flex flex-wrap items-center gap-2">
+                                        <span className="font-extrabold text-sm text-text truncate">
+                                          {acc.displayName}
+                                        </span>
+                                        <span
+                                          className={`px-2.5 py-0.5 rounded-full text-2xs font-bold ${
+                                            isAccOwner
+                                              ? 'bg-accent text-accent-contrast'
+                                              : 'bg-surface-2 border border-border text-text-secondary'
+                                          }`}
+                                        >
+                                          {roleLabel(acc.role, acc.isPrimaryOwner)}
+                                        </span>
+                                        <span
+                                          className={`px-2 py-0.5 rounded-full text-2xs font-bold ${
+                                            acc.status === 'suspended'
+                                              ? 'bg-danger/15 text-danger'
+                                              : 'bg-success/15 text-success'
+                                          }`}
+                                        >
+                                          {acc.status === 'suspended'
+                                            ? L('Pausiert / Gesperrt', 'Suspended')
+                                            : L('Aktiv', 'Active')}
+                                        </span>
+                                        {isSelf && (
+                                          <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-accent-subtle text-accent-text">
+                                            {L('Dein Account', 'You')}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div className="text-text-tertiary flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                        <span className="font-mono text-text-secondary">{acc.username}</span>
+                                        <span>·</span>
+                                        <span>
+                                          {L('Angelegt:', 'Created:')} {formatShortDate(acc.createdAt)}
+                                        </span>
+                                        {acc.lastLoginAt && (
+                                          <>
+                                            <span>·</span>
+                                            <span>
+                                              {L('Letzter Login:', 'Last login:')} {formatShortDate(acc.lastLoginAt)}
+                                            </span>
+                                          </>
+                                        )}
+                                        <span>·</span>
+                                        <span className="font-semibold text-text-secondary">
+                                          {activeChangesCount}{' '}
+                                          {L('aktive Änderungen', 'active changes')}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Quick Audit & Undo Actions for this Account */}
+                                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setRevisionAuthorFilter(acc.id);
+                                      }}
+                                      className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-text font-semibold transition-colors cursor-pointer"
+                                    >
+                                      {L('Änderungen zeigen', 'View Changes')} ({activeChangesCount})
+                                    </button>
+
+                                    {isOwner && !isAccOwner && activeChangesCount > 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleUndoAllByAuthor(acc)}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control bg-warning/15 hover:bg-warning text-warning hover:text-white font-bold transition-colors cursor-pointer"
+                                      >
+                                        <RotateCcw className="w-3.5 h-3.5" />
+                                        <span>
+                                          {L('Alle Änderungen rückgängig', 'Undo All Changes')} ({activeChangesCount})
+                                        </span>
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Owner Controls for Non-Owner Accounts: Role, Status, Granular Abilities, Password Reset, Delete */}
+                                {isOwner && !isAccOwner && (
+                                  <div className="bg-bg border border-border rounded-control p-4 space-y-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                      <div>
+                                        <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary mb-1">
+                                          {L('Rolle (Preset)', 'Role (Preset)')}
+                                        </label>
+                                        <select
+                                          value={acc.role}
+                                          onChange={(e) =>
+                                            handleUpdateAccountRole(acc, e.target.value as AdminRole)
+                                          }
+                                          className="w-full px-3 py-2 rounded-control bg-surface border border-border text-xs font-bold text-text"
+                                        >
+                                          <option value="editor">
+                                            {L('Redaktion (Vollzugriff auf Inhalte)', 'Editor (Content access)')}
+                                          </option>
+                                          <option value="contributor">
+                                            {L('Mitarbeit (Nur Entwürfe)', 'Contributor (Drafts only)')}
+                                          </option>
+                                          <option value="viewer">
+                                            {L('Leserecht (Nur Ansicht)', 'Viewer (Read-only)')}
+                                          </option>
+                                        </select>
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary mb-1">
+                                          {L('Account-Status', 'Account Status')}
+                                        </label>
+                                        <div className="flex items-center gap-2">
+                                          <button
+                                            type="button"
+                                            onClick={() => handleToggleAccountStatus(acc)}
+                                            className={`flex-1 px-3 py-2 rounded-control text-xs font-bold border transition-colors cursor-pointer ${
+                                              acc.status === 'suspended'
+                                                ? 'bg-success/15 border-success/30 text-success hover:bg-success hover:text-white'
+                                                : 'bg-warning/15 border-warning/30 text-warning hover:bg-warning hover:text-white'
+                                            }`}
+                                          >
+                                            {acc.status === 'suspended'
+                                              ? L('Account wieder freigeben', 'Reactivate Account')
+                                              : L('Account pausieren / sperren', 'Suspend Account')}
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              setResetPasswordAccountId(
+                                                resetPasswordAccountId === acc.id ? null : acc.id
+                                              )
+                                            }
+                                            className="px-3 py-2 rounded-control bg-surface border border-border hover:bg-surface-2 text-xs font-semibold text-text cursor-pointer"
+                                          >
+                                            {L('Passwort', 'Password')}
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => handleRemoveAccount(acc.id)}
+                                            className="px-3 py-2 rounded-control bg-danger/10 hover:bg-danger text-danger hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                                          >
+                                            {L('Löschen', 'Remove')}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Optional inline Password Reset by Owner */}
+                                    {resetPasswordAccountId === acc.id && (
+                                      <form
+                                        onSubmit={handleOwnerResetPassword}
+                                        className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2 border-t border-border"
+                                      >
+                                        <input
+                                          type="password"
+                                          value={resetPasswordValue}
+                                          onChange={(e) => setResetPasswordValue(e.target.value)}
+                                          placeholder={L(
+                                            `Neues Passwort für ${acc.displayName} (mind. 8 Zeichen)...`,
+                                            `New password for ${acc.displayName} (min. 8 chars)...`
+                                          )}
+                                          className="flex-1 px-3 py-1.5 rounded-control bg-surface border border-border text-xs text-text"
+                                          required
+                                          minLength={8}
+                                        />
+                                        <div className="flex gap-2">
+                                          <button
+                                            type="submit"
+                                            className="px-3 py-1.5 rounded-control bg-accent text-accent-contrast text-xs font-bold cursor-pointer"
+                                          >
+                                            {L('Passwort speichern', 'Save Password')}
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setResetPasswordAccountId(null);
+                                              setResetPasswordValue('');
+                                            }}
+                                            className="px-3 py-1.5 rounded-control bg-surface-2 text-text-secondary text-xs font-semibold cursor-pointer"
+                                          >
+                                            {L('Abbrechen', 'Cancel')}
+                                          </button>
+                                        </div>
+                                      </form>
+                                    )}
+
+                                    {/* Granular Abilities Checkboxes */}
+                                    <div className="pt-2 border-t border-border">
+                                      <div className="flex items-center justify-between mb-2">
+                                        <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+                                          {L(
+                                            'Einzelne Fähigkeiten & Berechtigungen (vom Inhaber steuerbar)',
+                                            'Granular Abilities & Permissions (Controlled by Owner)'
+                                          )}
+                                        </span>
+                                        <span className="text-2xs text-text-tertiary">
+                                          {L(
+                                            'System- & Account-Änderungen für Nicht-Inhaber immer gesperrt',
+                                            'System & account settings always locked for non-owners'
+                                          )}
+                                        </span>
+                                      </div>
+
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                        {(
+                                          [
+                                            {
+                                              key: 'canCreateDrafts',
+                                              label: L('Entwürfe erstellen & speichern', 'Create & edit drafts'),
+                                            },
+                                            {
+                                              key: 'canPublishLive',
+                                              label: L('Direkt live veröffentlichen', 'Publish live directly'),
+                                            },
+                                            {
+                                              key: 'canReviewProposals',
+                                              label: L('Einreichungen freigeben/ablehnen', 'Approve/reject submissions'),
+                                            },
+                                            {
+                                              key: 'canEditMinigames',
+                                              label: L('Minispiel-Inhalte bearbeiten', 'Edit minigame content'),
+                                            },
+                                            {
+                                              key: 'canDeleteCatalogItems',
+                                              label: L('Live-Katalogeinträge löschen', 'Delete live catalog items'),
+                                            },
+                                            {
+                                              key: 'canRollbackOwnChanges',
+                                              label: L('Eigene Änderungen zurücksetzen', 'Undo own changes'),
+                                            },
+                                          ] as const
+                                        ).map((permItem) => {
+                                          const checked = Boolean(accPerms[permItem.key]);
+                                          return (
+                                            <label
+                                              key={permItem.key}
+                                              className={`flex items-center gap-2 px-3 py-2 rounded-control border text-xs cursor-pointer transition-colors ${
+                                                checked
+                                                  ? 'bg-accent-subtle/50 border-accent/40 text-text font-semibold'
+                                                  : 'bg-surface border-border text-text-tertiary'
+                                              }`}
+                                            >
+                                              <input
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={() =>
+                                                  handleToggleAccountPermission(acc, permItem.key)
+                                                }
+                                                className="rounded border-border text-accent focus:ring-accent"
+                                              />
+                                              <span className="truncate">{permItem.label}</span>
+                                            </label>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Read-only Permission Pills for Owner or Non-Owner View */}
+                                {(!isOwner || isAccOwner) && (
+                                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                                    {isAccOwner ? (
+                                      <span className="px-2.5 py-1 rounded-full bg-accent-subtle text-accent-text text-2xs font-semibold">
+                                        {L(
+                                          'Uneingeschränkter Inhaber-Zugriff (Alle Rechte & Rollback-Kontrolle)',
+                                          'Unrestricted Owner Access (All permissions & rollback control)'
+                                        )}
+                                      </span>
+                                    ) : (
+                                      <>
+                                        {accPerms.canCreateDrafts && (
+                                          <span className="px-2 py-0.5 rounded-full bg-surface-2 border border-border text-2xs text-text-secondary">
+                                            {L('Entwürfe', 'Drafts')}
+                                          </span>
+                                        )}
+                                        {accPerms.canPublishLive && (
+                                          <span className="px-2 py-0.5 rounded-full bg-surface-2 border border-border text-2xs text-text-secondary">
+                                            {L('Live-Veröffentlichung', 'Publish Live')}
+                                          </span>
+                                        )}
+                                        {accPerms.canReviewProposals && (
+                                          <span className="px-2 py-0.5 rounded-full bg-surface-2 border border-border text-2xs text-text-secondary">
+                                            {L('Einreichungen prüfen', 'Review Proposals')}
+                                          </span>
+                                        )}
+                                        {accPerms.canEditMinigames && (
+                                          <span className="px-2 py-0.5 rounded-full bg-surface-2 border border-border text-2xs text-text-secondary">
+                                            {L('Minispiele', 'Minigames')}
+                                          </span>
+                                        )}
+                                        {accPerms.canDeleteCatalogItems && (
+                                          <span className="px-2 py-0.5 rounded-full bg-surface-2 border border-border text-2xs text-text-secondary">
+                                            {L('Löschrecht', 'Delete Items')}
+                                          </span>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Create New Account Form (Owner Only) */}
+                      {isOwner && (
+                        <form
+                          onSubmit={handleCreateTeamAccount}
+                          className="lg:col-span-4 bg-surface border border-border rounded-card p-5 space-y-3.5 self-start"
+                        >
+                          <div>
+                            <h3 className="text-sm font-extrabold text-text">
+                              {L('Neuen Team-Account anlegen', 'Create New Team Account')}
+                            </h3>
+                            <p className="text-xs text-text-secondary mt-0.5">
+                              {L(
+                                'Erstelle einen Zugang für ein Team-Mitglied und lege die Start-Rolle fest.',
+                                'Create an account for a team member and choose their initial role.'
+                              )}
+                            </p>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-text-secondary mb-1">
+                              {L('Vollständiger Name', 'Full Name')}
+                            </label>
+                            <input
+                              type="text"
+                              value={newAccDisplayName}
+                              onChange={(e) => setNewAccDisplayName(e.target.value)}
+                              placeholder="z. B. Victor Bertis"
+                              className="w-full px-3 py-2 rounded-control bg-bg border border-border text-xs text-text"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-text-secondary mb-1">
+                              {L('Benutzername oder E-Mail', 'Username or Email')}
+                            </label>
+                            <input
+                              type="text"
+                              value={newAccUsername}
+                              onChange={(e) => setNewAccUsername(e.target.value)}
+                              placeholder="z. B. victor@example.org"
+                              className="w-full px-3 py-2 rounded-control bg-bg border border-border text-xs text-text"
+                              required
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-text-secondary mb-1">
+                              {L('Rolle & Berechtigungsstufe', 'Role & Permission Level')}
+                            </label>
+                            <select
+                              value={newAccRole}
+                              onChange={(e) => setNewAccRole(e.target.value as AdminRole)}
+                              className="w-full px-2.5 py-2 rounded-control bg-bg border border-border text-xs text-text"
+                            >
+                              <option value="editor">
+                                {L('Redaktion (Kann Inhalte & Einreichungen bearbeiten)', 'Editor (Can edit content & proposals)')}
+                              </option>
+                              <option value="contributor">
+                                {L('Mitarbeit (Kann nur Entwürfe anlegen)', 'Contributor (Can only create drafts)')}
+                              </option>
+                              <option value="viewer">
+                                {L('Leserecht (Kann nur ansehen, nichts ändern)', 'Viewer (Read-only, cannot edit)')}
+                              </option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-text-secondary mb-1">
+                              {L('Start-Passwort (mind. 8 Zeichen)', 'Initial Password (min. 8 chars)')}
+                            </label>
+                            <input
+                              type="password"
+                              value={newAccPassword}
+                              onChange={(e) => setNewAccPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="w-full px-3 py-2 rounded-control bg-bg border border-border text-xs text-text"
+                              required
+                              minLength={8}
+                            />
+                          </div>
+
+                          <button
+                            type="submit"
+                            className="w-full py-2.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-extrabold transition-colors cursor-pointer min-h-[38px]"
+                          >
+                            + {L('Team-Account anlegen', 'Create Team Account')}
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Operations Cards (GitHub, Backup, Own Password) */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-surface border border-border rounded-card p-5 space-y-3">
-                      <h3 className="text-sm font-extrabold text-text">GitHub Issues Sync</h3>
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-extrabold text-text">GitHub & Cloud Sync</h3>
+                        {!effectivePermissions.canManageSystemSettings && (
+                          <span className="text-2xs font-bold px-2 py-0.5 rounded-full bg-surface-2 text-text-tertiary">
+                            {L('Nur Inhaber', 'Owner only')}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-text-secondary">
                         Repository: <span className="font-mono text-text">{getGitHubRepo()}</span>
                       </p>
-                      <button
-                        type="button"
-                        onClick={() => setIsGitHubModalOpen(true)}
-                        className="w-full py-2 rounded-control bg-surface-2 hover:bg-border text-xs font-bold text-text transition-colors cursor-pointer min-h-[38px]"
-                      >
-                        {L('Verbindung & Token verwalten', 'Manage Connection & Token')}
-                      </button>
+                      {effectivePermissions.canManageSystemSettings ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsGitHubModalOpen(true)}
+                          className="w-full py-2 rounded-control bg-surface-2 hover:bg-border text-xs font-bold text-text transition-colors cursor-pointer min-h-[38px]"
+                        >
+                          {L('Verbindung & Token verwalten', 'Manage Connection & Token')}
+                        </button>
+                      ) : (
+                        <div className="py-2 px-3 rounded-control bg-bg border border-border text-2xs text-text-tertiary">
+                          {L(
+                            'Systemweite GitHub-Verbindung wird zentral vom Inhaber verwaltet.',
+                            'System-wide GitHub connection is centrally managed by the Owner.'
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <div className="bg-surface border border-border rounded-card p-5 space-y-3">
                       <h3 className="text-sm font-extrabold text-text">{L('Datensicherung', 'Backup & Restore')}</h3>
                       <p className="text-xs text-text-secondary">
-                        {L('Alle lokalen Daten und Revisionen als JSON sichern.', 'Export or import all local data.')}
+                        {L(
+                          'Alle Daten als JSON exportieren. Import ist zum Schutz vor Überschreiben nur für den Inhaber freigegeben.',
+                          'Export all data as JSON. Restoring backups is restricted to the Owner to prevent overwrites.'
+                        )}
                       </p>
                       <div className="flex gap-2">
                         <button
@@ -3002,27 +3973,30 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                           <Download className="w-3.5 h-3.5" />
                           <span>Export</span>
                         </button>
-                        <label className="flex-1 py-2 rounded-control bg-surface-2 hover:bg-border text-xs font-bold text-text transition-colors cursor-pointer min-h-[38px] inline-flex items-center justify-center gap-1.5">
-                          <Upload className="w-3.5 h-3.5" />
-                          <span>Import</span>
-                          <input
-                            type="file"
-                            accept=".json"
-                            className="hidden"
-                            onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              try {
-                                const text = await file.text();
-                                importLocalData(text);
-                                adminData.refresh();
-                                showToast(L('Backup erfolgreich importiert', 'Backup imported'));
-                              } catch {
-                                showToast(L('Ungültige Backup-Datei', 'Invalid backup file'));
-                              }
-                            }}
-                          />
-                        </label>
+                        {effectivePermissions.canManageSystemSettings && (
+                          <label className="flex-1 py-2 rounded-control bg-surface-2 hover:bg-border text-xs font-bold text-text transition-colors cursor-pointer min-h-[38px] inline-flex items-center justify-center gap-1.5">
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>Import</span>
+                            <input
+                              type="file"
+                              accept=".json"
+                              className="hidden"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                try {
+                                  const text = await file.text();
+                                  importLocalData(text);
+                                  adminData.refresh();
+                                  refreshAccountsAndSession();
+                                  showToast(L('Backup erfolgreich importiert', 'Backup imported'));
+                                } catch {
+                                  showToast(L('Ungültige Backup-Datei', 'Invalid backup file'));
+                                }
+                              }}
+                            />
+                          </label>
+                        )}
                       </div>
                     </div>
 
@@ -3060,191 +4034,101 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                     </div>
                   </div>
 
-                  {/* Team & Accounts Management Card */}
-                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    {/* Create New Account Form */}
-                    <form
-                      onSubmit={handleCreateTeamAccount}
-                      className="lg:col-span-2 bg-surface border border-border rounded-card p-5 space-y-3.5 self-start"
-                    >
+                  {/* Full Revision Log with Author Filter & 1-Click Undo */}
+                  <div className="bg-surface border border-border rounded-card overflow-hidden">
+                    <div className="px-5 py-3.5 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
                         <h3 className="text-sm font-extrabold text-text">
-                          {L('Neuen Account anlegen', 'Create New Account')}
+                          {L('Revisions-Verlauf & Rückgängig-Funktion', 'Revision History & Rollback')} (
+                          {filteredRevisions.length})
                         </h3>
-                        <p className="text-xs text-text-secondary mt-0.5">
+                        <p className="text-2xs text-text-tertiary mt-0.5">
                           {L(
-                            'Erstelle für jedes Team-Mitglied einen eigenen Zugang mit eigenem Passwort.',
-                            'Create a dedicated account with its own password for each team member.'
+                            'Jede Änderung wird mit Account-Zuordnung und Vorher/Nachher-Zustand gespeichert und kann einzeln oder pro Nutzer zurückgesetzt werden.',
+                            'Every change is recorded with account attribution and before/after state and can be undone individually or per user.'
                           )}
                         </p>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-text-secondary mb-1">
-                          {L('Vollständiger Name', 'Full Name')}
-                        </label>
-                        <input
-                          type="text"
-                          value={newAccDisplayName}
-                          onChange={(e) => setNewAccDisplayName(e.target.value)}
-                          placeholder="z. B. Victor Bertis"
-                          className="w-full px-3 py-2 rounded-control bg-bg border border-border text-xs text-text"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-text-secondary mb-1">
-                          {L('Benutzername oder E-Mail', 'Username or Email')}
-                        </label>
-                        <input
-                          type="text"
-                          value={newAccUsername}
-                          onChange={(e) => setNewAccUsername(e.target.value)}
-                          placeholder="z. B. victor@example.org"
-                          className="w-full px-3 py-2 rounded-control bg-bg border border-border text-xs text-text"
-                          required
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2.5">
-                        <div>
-                          <label className="block text-xs font-semibold text-text-secondary mb-1">
-                            {L('Rolle', 'Role')}
-                          </label>
-                          <select
-                            value={newAccRole}
-                            onChange={(e) => setNewAccRole(e.target.value as 'owner' | 'editor')}
-                            className="w-full px-2.5 py-2 rounded-control bg-bg border border-border text-xs text-text"
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={revisionAuthorFilter}
+                          onChange={(e) => setRevisionAuthorFilter(e.target.value)}
+                          className="px-3 py-1.5 rounded-control bg-bg border border-border text-xs font-semibold text-text-secondary"
+                        >
+                          <option value="all">{L('Alle Accounts anzeigen', 'Show all accounts')}</option>
+                          {accounts.map((acc) => (
+                            <option key={acc.id} value={acc.id}>
+                              {acc.displayName} ({acc.username})
+                            </option>
+                          ))}
+                        </select>
+                        {revisionAuthorFilter !== 'all' && (
+                          <button
+                            type="button"
+                            onClick={() => setRevisionAuthorFilter('all')}
+                            className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-border text-xs font-semibold text-text cursor-pointer"
                           >
-                            <option value="editor">{L('Redaktion', 'Editor')}</option>
-                            <option value="owner">{L('Administrator', 'Administrator')}</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-text-secondary mb-1">
-                            {L('Passwort (mind. 8 Z.)', 'Password (min. 8 ch.)')}
-                          </label>
-                          <input
-                            type="password"
-                            value={newAccPassword}
-                            onChange={(e) => setNewAccPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="w-full px-3 py-2 rounded-control bg-bg border border-border text-xs text-text"
-                            required
-                            minLength={8}
-                          />
-                        </div>
+                            {L('Filter zurücksetzen', 'Clear filter')}
+                          </button>
+                        )}
                       </div>
+                    </div>
 
-                      <button
-                        type="submit"
-                        className="w-full py-2.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-extrabold transition-colors cursor-pointer min-h-[38px]"
-                      >
-                        + {L('Account anlegen', 'Create Account')}
-                      </button>
-                    </form>
-
-                    {/* Active Accounts List */}
-                    <div className="lg:col-span-3 bg-surface border border-border rounded-card overflow-hidden self-start">
-                      <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
-                        <h3 className="text-sm font-extrabold text-text">
-                          {L('Registrierte Accounts', 'Registered Accounts')} ({accounts.length})
-                        </h3>
-                        <span className="text-2xs text-text-tertiary">SHA-256 + Salt</span>
-                      </div>
-                      <div className="divide-y divide-border">
-                        {accounts.map((acc) => {
-                          const isSelf = acc.id === currentAccount?.id;
+                    <div className="divide-y divide-border">
+                      {filteredRevisions.length === 0 ? (
+                        <div className="p-8 text-center text-xs text-text-tertiary">
+                          {L('Keine Änderungen für diesen Filter protokolliert.', 'No revisions logged for this filter.')}
+                        </div>
+                      ) : (
+                        filteredRevisions.map((rev) => {
+                          const isUndone = Boolean(rev.undoneByRevisionId);
+                          const isRollbackAction = Boolean(rev.rollbackOfRevisionId);
                           return (
                             <div
-                              key={acc.id}
-                              className="px-5 py-3.5 flex items-center justify-between gap-4 text-xs"
+                              key={rev.revisionId}
+                              className={`px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs ${
+                                isUndone ? 'opacity-60 bg-bg/40' : ''
+                              }`}
                             >
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-8 h-8 rounded-full bg-surface-2 border border-border flex items-center justify-center font-extrabold text-text shrink-0">
-                                  {acc.displayName
-                                    .split(' ')
-                                    .map((p) => p[0])
-                                    .join('')
-                                    .slice(0, 2)
-                                    .toUpperCase()}
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-bold text-text truncate">{acc.displayName}</span>
-                                    <span className="px-2 py-0.5 rounded-full text-2xs font-semibold border border-border text-text-secondary">
-                                      {acc.role === 'owner'
-                                        ? L('Administrator', 'Admin')
-                                        : L('Redaktion', 'Editor')}
+                              <div className="space-y-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className={`font-bold text-text truncate ${isUndone ? 'line-through' : ''}`}>
+                                    {rev.summary}
+                                  </span>
+                                  <span className="px-2 py-0.5 rounded-full text-2xs font-semibold bg-surface-2 border border-border text-text-secondary">
+                                    {rev.author}
+                                  </span>
+                                  {isRollbackAction && (
+                                    <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-accent-subtle text-accent-text">
+                                      Rollback
                                     </span>
-                                    {isSelf && (
-                                      <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-accent-subtle text-accent-text">
-                                        {L('Du', 'You')}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="text-text-tertiary truncate">
-                                    {acc.username} · {L('Angelegt:', 'Created:')} {formatShortDate(acc.createdAt)}
-                                  </div>
+                                  )}
+                                  {isUndone && (
+                                    <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-warning/15 text-warning">
+                                      {L('Bereits rückgängig gemacht', 'Already undone')}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-text-tertiary">
+                                  {rev.collection} · {rev.entityId} ·{' '}
+                                  {new Date(rev.timestamp).toLocaleString(language === 'de' ? 'de-DE' : 'en-US')}
                                 </div>
                               </div>
 
-                              {!isSelf && accounts.length > 1 && (
+                              {canUndoRevision(rev) && (
                                 <button
                                   type="button"
-                                  onClick={() => handleRemoveAccount(acc.id)}
-                                  className="px-2.5 py-1.5 rounded-control bg-danger/10 hover:bg-danger text-danger hover:text-white font-semibold transition-colors cursor-pointer shrink-0"
+                                  onClick={() => handleUndoSingleRevision(rev.revisionId)}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-text font-semibold shrink-0 cursor-pointer self-start sm:self-center"
                                 >
-                                  {L('Entfernen', 'Remove')}
+                                  <RotateCcw className="w-3.5 h-3.5" />
+                                  <span>{L('Rückgängig machen', 'Undo Change')}</span>
                                 </button>
                               )}
                             </div>
                           );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Full Revision Log */}
-                  <div className="bg-surface border border-border rounded-card overflow-hidden">
-                    <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
-                      <h3 className="text-sm font-extrabold text-text">
-                        {L('Revisions-Verlauf', 'Revision History')} ({adminData.revisions.length})
-                      </h3>
-                    </div>
-                    <div className="divide-y divide-border">
-                      {adminData.revisions.length === 0 ? (
-                        <div className="p-8 text-center text-xs text-text-tertiary">
-                          {L('Noch keine Änderungen protokolliert.', 'No revisions logged yet.')}
-                        </div>
-                      ) : (
-                        adminData.revisions.map((rev) => (
-                          <div
-                            key={rev.revisionId}
-                            className="px-5 py-3.5 flex items-center justify-between gap-4 text-xs"
-                          >
-                            <div className="space-y-0.5 min-w-0">
-                              <div className="font-bold text-text truncate">{rev.summary}</div>
-                              <div className="text-text-tertiary">
-                                {rev.author} · {rev.collection} · {rev.entityId} ·{' '}
-                                {new Date(rev.timestamp).toLocaleString(language === 'de' ? 'de-DE' : 'en-US')}
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                adminData.rollback(rev.revisionId, adminAuthor);
-                                showToast(L('Änderung zurückgesetzt', 'Revision rolled back'));
-                              }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-text font-semibold shrink-0 cursor-pointer"
-                            >
-                              <RotateCcw className="w-3.5 h-3.5" />
-                              <span>{L('Zurücksetzen', 'Rollback')}</span>
-                            </button>
-                          </div>
-                        ))
+                        })
                       )}
                     </div>
                   </div>
@@ -3256,7 +4140,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       </div>
 
       {/* Quick Edit Modal for Spy Location */}
-      {editingSpyLoc && (
+      {editingSpyLoc && effectivePermissions.canEditMinigames && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
           <div className="bg-surface border border-border rounded-card max-w-md w-full p-6 space-y-4">
             <h3 className="text-base font-extrabold text-text">{L('Spion-Ort bearbeiten', 'Edit Spy Location')}</h3>
@@ -3313,7 +4197,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       )}
 
       {/* Quick Edit Modal for WhoAmI Pack */}
-      {editingWhoPack && (
+      {editingWhoPack && effectivePermissions.canEditMinigames && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
           <div className="bg-surface border border-border rounded-card max-w-md w-full p-6 space-y-4">
             <h3 className="text-base font-extrabold text-text">{L('Wer-bin-ich Paket bearbeiten', 'Edit Who Am I Pack')}</h3>
@@ -3370,7 +4254,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       )}
 
       {/* Quick Edit Modal for Psychiatrist Rule */}
-      {editingPsychRule && (
+      {editingPsychRule && effectivePermissions.canEditMinigames && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
           <div className="bg-surface border border-border rounded-card max-w-md w-full p-6 space-y-4">
             <h3 className="text-base font-extrabold text-text">{L('Psychiater-Tick bearbeiten', 'Edit Psychiatrist Rule')}</h3>
@@ -3410,7 +4294,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       )}
 
       {/* GitHub Settings Modal */}
-      {isGitHubModalOpen && (
+      {isGitHubModalOpen && effectivePermissions.canManageSystemSettings && (
         <GitHubSettingsModal
           onClose={() => setIsGitHubModalOpen(false)}
           onSaved={() => syncWithGitHub(false)}

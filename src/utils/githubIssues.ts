@@ -5,7 +5,24 @@
  * members via the submission form (api/submit.ts) or directly on GitHub.
  */
 
-import { ProposalItem } from './adminRevisions';
+import {
+  ProposalItem,
+  DataRevision,
+  getRevisions,
+  saveRevisions,
+  mergeRevisions,
+  getProposals,
+  saveProposalsList,
+  mergeProposals,
+} from './adminRevisions';
+import {
+  AdminAccount,
+  getAdminAccounts,
+  saveAdminAccounts,
+  mergeAdminAccounts,
+  getDeletedAccountIds,
+  saveDeletedAccountIds,
+} from './adminAuth';
 import { Game, ServiceProject, ArtsPrompt } from '../types';
 import { EmpireCategoryV2 as EmpireCategory } from '../data/empireContent';
 
@@ -542,6 +559,100 @@ export function getCachedApprovedContent(): SyncedApprovedContent {
       approvedServiceProjects: [],
       approvedArtsPrompts: [],
       deletedEntityIds: [],
+    };
+  }
+}
+
+/**
+ * Two-way cloud sync for Admin Accounts, Deleted Account IDs, Revisions, and Proposals via `/api/sync`.
+ * Ensures accounts signed into on any device (e.g. a friend's browser) become viewable from the Owner's
+ * account, and permission/role updates or rollbacks propagate across devices.
+ */
+export async function syncAdminStateWithCloud(): Promise<{
+  ok: boolean;
+  accounts: AdminAccount[];
+  revisions: DataRevision[];
+  proposals: ProposalItem[];
+}> {
+  const localAccounts = getAdminAccounts();
+  const localDeletedAccountIds = getDeletedAccountIds();
+  const localRevisions = getRevisions();
+  const localProposals = getProposals();
+
+  try {
+    const res = await fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'sync_admin_state',
+        accounts: localAccounts,
+        deletedAccountIds: localDeletedAccountIds,
+        revisions: localRevisions,
+        proposals: localProposals,
+      }),
+    });
+
+    if (!res.ok) {
+      return {
+        ok: false,
+        accounts: localAccounts,
+        revisions: localRevisions,
+        proposals: localProposals,
+      };
+    }
+
+    const data = await res.json();
+    if (!data?.ok || !data?.state) {
+      return {
+        ok: false,
+        accounts: localAccounts,
+        revisions: localRevisions,
+        proposals: localProposals,
+      };
+    }
+
+    const remoteState = data.state;
+    const mergedDeletedIds = Array.from(
+      new Set([...localDeletedAccountIds, ...(remoteState.deletedAccountIds || [])])
+    );
+    saveDeletedAccountIds(mergedDeletedIds);
+
+    const mergedAccounts = mergeAdminAccounts(
+      localAccounts,
+      Array.isArray(remoteState.accounts) ? remoteState.accounts : [],
+      mergedDeletedIds
+    );
+    saveAdminAccounts(mergedAccounts);
+
+    const mergedRevs = mergeRevisions(
+      localRevisions,
+      Array.isArray(remoteState.revisions) ? remoteState.revisions : []
+    );
+    saveRevisions(mergedRevs);
+
+    const mergedProps = mergeProposals(
+      localProposals,
+      Array.isArray(remoteState.proposals) ? remoteState.proposals : []
+    );
+    saveProposalsList(mergedProps);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('jy_data_updated'));
+      window.dispatchEvent(new CustomEvent('jy_accounts_updated'));
+    }
+
+    return {
+      ok: true,
+      accounts: mergedAccounts,
+      revisions: mergedRevs,
+      proposals: mergedProps,
+    };
+  } catch {
+    return {
+      ok: false,
+      accounts: localAccounts,
+      revisions: localRevisions,
+      proposals: localProposals,
     };
   }
 }

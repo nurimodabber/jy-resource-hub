@@ -30,6 +30,7 @@ import {
   getRevisions,
   appendRevision,
   rollbackRevision,
+  rollbackAllRevisionsByAuthor,
   getProposals,
   updateProposalStatus,
   softDeleteEntity,
@@ -38,9 +39,11 @@ import {
   fetchApprovedGitHubContent,
   getCachedApprovedContent,
   updateGitHubIssueStatus,
+  syncAdminStateWithCloud,
   STORAGE_SYNCED_DELETED_KEY,
   SyncedApprovedContent,
 } from '../utils/githubIssues';
+import { hasAnyAdminAccount } from '../utils/adminAuth';
 
 export type AdminSpyLocation = SpyLocation & { status?: 'draft' };
 export type EmpireCategory = EmpireCategoryV2;
@@ -80,6 +83,11 @@ export interface AdminDataContextType {
   acceptProposal: (proposalId: string, author: string) => void;
   rejectProposal: (proposalId: string, reason: string, author: string) => void;
   rollback: (revisionId: string, author: string) => DataRevision | null;
+  rollbackByAuthor: (
+    targetAccount: { id?: string; username?: string; displayName: string },
+    author: string
+  ) => number;
+  syncCloudState: () => Promise<boolean>;
   refresh: () => void;
 }
 
@@ -98,7 +106,15 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setSyncedData(getCachedApprovedContent());
   }, []);
 
-  // Fetch live approved content from GitHub on mount
+  const syncCloudState = useCallback(async () => {
+    const res = await syncAdminStateWithCloud();
+    if (res.ok) {
+      refresh();
+    }
+    return res.ok;
+  }, [refresh]);
+
+  // Fetch live approved content from GitHub on mount, and sync admin accounts/revisions if present
   useEffect(() => {
     let active = true;
     fetchApprovedGitHubContent().then((data) => {
@@ -106,14 +122,35 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setSyncedData(data);
       }
     }).catch(() => {});
+
+    if (
+      hasAnyAdminAccount() ||
+      getRevisions().length > 0 ||
+      (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'))
+    ) {
+      syncAdminStateWithCloud()
+        .then((res) => {
+          if (active && res.ok) {
+            refresh();
+          }
+        })
+        .catch(() => {});
+    }
+
     return () => {
       active = false;
     };
-  }, []);
+  }, [refresh]);
 
   // Listen to live update events from window and storage
   useEffect(() => {
-    const handleUpdate = () => refresh();
+    const handleUpdate = (e?: Event) => {
+      refresh();
+      const detail = (e as CustomEvent | undefined)?.detail;
+      if (detail && detail.revisionId) {
+        syncAdminStateWithCloud().catch(() => {});
+      }
+    };
     window.addEventListener('jy_data_updated', handleUpdate);
     window.addEventListener('storage', handleUpdate);
     return () => {
@@ -179,15 +216,12 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const processedIds = new Set<string>();
 
     for (const baseGame of baseAndSynced) {
-      if (deletedIdsSet.has(baseGame.id)) {
-        continue;
-      }
       const override = entityMap.get(baseGame.id);
       if (override) {
         if (!override.deleted && override.data) {
           result.push(override.data);
         }
-      } else {
+      } else if (!deletedIdsSet.has(baseGame.id)) {
         result.push(baseGame);
       }
       processedIds.add(baseGame.id);
@@ -195,7 +229,7 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     // Add newly created games that were not in base or synced data
     for (const [id, override] of entityMap.entries()) {
-      if (!processedIds.has(id) && !override.deleted && override.data && !deletedIdsSet.has(id)) {
+      if (!processedIds.has(id) && !override.deleted && override.data) {
         result.push(override.data);
       }
     }
@@ -238,18 +272,17 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const processedIds = new Set<string>();
 
     for (const baseSp of baseAndSynced) {
-      if (deletedIdsSet.has(baseSp.id)) continue;
       const override = entityMap.get(baseSp.id);
       if (override) {
         if (!override.deleted && override.data) result.push(override.data);
-      } else {
+      } else if (!deletedIdsSet.has(baseSp.id)) {
         result.push(baseSp);
       }
       processedIds.add(baseSp.id);
     }
 
     for (const [id, override] of entityMap.entries()) {
-      if (!processedIds.has(id) && !override.deleted && override.data && !deletedIdsSet.has(id)) {
+      if (!processedIds.has(id) && !override.deleted && override.data) {
         result.push(override.data);
       }
     }
@@ -292,18 +325,17 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const processedIds = new Set<string>();
 
     for (const baseAp of baseAndSynced) {
-      if (deletedIdsSet.has(baseAp.id)) continue;
       const override = entityMap.get(baseAp.id);
       if (override) {
         if (!override.deleted && override.data) result.push(override.data);
-      } else {
+      } else if (!deletedIdsSet.has(baseAp.id)) {
         result.push(baseAp);
       }
       processedIds.add(baseAp.id);
     }
 
     for (const [id, override] of entityMap.entries()) {
-      if (!processedIds.has(id) && !override.deleted && override.data && !deletedIdsSet.has(id)) {
+      if (!processedIds.has(id) && !override.deleted && override.data) {
         result.push(override.data);
       }
     }
@@ -425,18 +457,17 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const seen = new Set<string>();
 
     for (const cat of baseAndSynced) {
-      if (deletedIdsSet.has(cat.id)) continue;
       const ov = map.get(cat.id);
       if (ov) {
         if (!ov.deleted && ov.data) res.push(ov.data);
-      } else {
+      } else if (!deletedIdsSet.has(cat.id)) {
         res.push(cat);
       }
       seen.add(cat.id);
     }
 
     for (const [id, ov] of map.entries()) {
-      if (!seen.has(id) && !ov.deleted && ov.data && !deletedIdsSet.has(id)) {
+      if (!seen.has(id) && !ov.deleted && ov.data) {
         res.push(ov.data);
       }
     }
@@ -902,7 +933,7 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       saveEmpireCategory(newCat, author, `Vorschlag "${prop.title}" als Empire-Kategorie übernommen`);
     }
 
-    updateProposalStatus(proposalId, 'accepted');
+    updateProposalStatus(proposalId, 'accepted', undefined, author);
     refresh();
   }, [proposals, saveGame, saveServiceProject, saveArtsPrompt, saveEmpireCategory, refresh]);
 
@@ -912,22 +943,44 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (ghIssueNum) {
       updateGitHubIssueStatus(ghIssueNum, 'reject', reason).catch(() => {});
     }
-    updateProposalStatus(proposalId, 'rejected', reason);
-    appendRevision({
-      collection: 'proposals',
-      entityId: proposalId,
-      action: 'soft_delete',
-      author,
-      summary: `Vorschlag abgelehnt: ${reason || 'Keine Angabe'}`,
-    });
+    updateProposalStatus(proposalId, 'rejected', reason, author);
     refresh();
   }, [proposals, refresh]);
 
+  const removeEntityFromDeletedCache = useCallback((entityId: string) => {
+    try {
+      const raw = localStorage.getItem(STORAGE_SYNCED_DELETED_KEY);
+      if (!raw) return;
+      const list: string[] = JSON.parse(raw);
+      const cleanId = entityId.replace(/^(spy_|whoami_|empire_|psych_)/, '');
+      const filtered = list.filter((id) => id !== entityId && id !== cleanId);
+      localStorage.setItem(STORAGE_SYNCED_DELETED_KEY, JSON.stringify(filtered));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const rollback = useCallback((revisionId: string, author: string) => {
     const rev = rollbackRevision(revisionId, author);
+    if (rev && rev.action === 'restore') {
+      removeEntityFromDeletedCache(rev.entityId);
+    }
     refresh();
+    syncAdminStateWithCloud().catch(() => {});
     return rev;
-  }, [refresh]);
+  }, [refresh, removeEntityFromDeletedCache]);
+
+  const rollbackByAuthor = useCallback(
+    (targetAccount: { id?: string; username?: string; displayName: string }, author: string) => {
+      const count = rollbackAllRevisionsByAuthor(targetAccount, author);
+      if (count > 0) {
+        refresh();
+        syncAdminStateWithCloud().catch(() => {});
+      }
+      return count;
+    },
+    [refresh]
+  );
 
   return (
     <AdminDataContext.Provider
@@ -966,6 +1019,8 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         acceptProposal,
         rejectProposal,
         rollback,
+        rollbackByAuthor,
+        syncCloudState,
         refresh,
       }}
     >

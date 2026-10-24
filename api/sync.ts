@@ -1,11 +1,269 @@
 import type { IncomingMessage, ServerResponse } from 'http';
+import crypto from 'crypto';
 
 interface SyncPayload {
-  action: 'accept' | 'reject' | 'delete';
-  issueNumber: number;
+  action: 'accept' | 'reject' | 'delete' | 'sync_admin_state';
+  issueNumber?: number;
   reason?: string;
   gameId?: string;
   updatedPayload?: Record<string, unknown>;
+  // For action === 'sync_admin_state'
+  accounts?: any[];
+  deletedAccountIds?: string[];
+  revisions?: any[];
+  proposals?: any[];
+}
+
+interface AdminCloudState {
+  version: number;
+  updatedAt: number;
+  accounts: any[];
+  deletedAccountIds: string[];
+  revisions: any[];
+  proposals: any[];
+}
+
+const DEFAULT_GIST_ID = 'c762dbc8bc8a824ecdf01d6000deef96';
+const GIST_FILENAME = 'jy_admin_state.json';
+
+function isOwnerIdentityServer(username = '', displayName = ''): boolean {
+  const u = username.trim().toLowerCase();
+  const d = displayName.trim().toLowerCase();
+  if (!u && !d) return false;
+  return (
+    u === 'nuri@modabber.net' ||
+    u === 'milan.modabber@gmail.com' ||
+    u === 'nurimodabber' ||
+    u === 'nuri' ||
+    u.includes('modabber') ||
+    u.startsWith('nuri@') ||
+    u.startsWith('nuri.') ||
+    d.includes('nuri') ||
+    d.includes('modabber')
+  );
+}
+
+function normalizeServerAccount(raw: any): any {
+  const isOwner = Boolean(raw.isPrimaryOwner) || isOwnerIdentityServer(raw.username, raw.displayName);
+  const role = isOwner ? 'owner' : raw.role === 'owner' ? 'editor' : raw.role || 'editor';
+  const status = isOwner ? 'active' : raw.status === 'suspended' ? 'suspended' : 'active';
+
+  const defaultPerms =
+    role === 'owner'
+      ? {
+          canCreateDrafts: true,
+          canPublishLive: true,
+          canReviewProposals: true,
+          canEditMinigames: true,
+          canDeleteCatalogItems: true,
+          canRollbackOwnChanges: true,
+          canManageAccounts: true,
+          canRollbackAllChanges: true,
+          canManageSystemSettings: true,
+        }
+      : role === 'contributor'
+        ? {
+            canCreateDrafts: true,
+            canPublishLive: false,
+            canReviewProposals: false,
+            canEditMinigames: false,
+            canDeleteCatalogItems: false,
+            canRollbackOwnChanges: true,
+            canManageAccounts: false,
+            canRollbackAllChanges: false,
+            canManageSystemSettings: false,
+          }
+        : role === 'viewer'
+          ? {
+              canCreateDrafts: false,
+              canPublishLive: false,
+              canReviewProposals: false,
+              canEditMinigames: false,
+              canDeleteCatalogItems: false,
+              canRollbackOwnChanges: false,
+              canManageAccounts: false,
+              canRollbackAllChanges: false,
+              canManageSystemSettings: false,
+            }
+          : {
+              canCreateDrafts: true,
+              canPublishLive: true,
+              canReviewProposals: true,
+              canEditMinigames: true,
+              canDeleteCatalogItems: false,
+              canRollbackOwnChanges: true,
+              canManageAccounts: false,
+              canRollbackAllChanges: false,
+              canManageSystemSettings: false,
+            };
+
+  const custom = raw.permissions || defaultPerms;
+  const permissions = isOwner
+    ? defaultPerms
+    : {
+        canCreateDrafts: Boolean(custom.canCreateDrafts),
+        canPublishLive: Boolean(custom.canPublishLive),
+        canReviewProposals: Boolean(custom.canReviewProposals),
+        canEditMinigames: Boolean(custom.canEditMinigames),
+        canDeleteCatalogItems: Boolean(custom.canDeleteCatalogItems),
+        canRollbackOwnChanges: Boolean(custom.canRollbackOwnChanges),
+        canManageAccounts: false,
+        canRollbackAllChanges: false,
+        canManageSystemSettings: false,
+      };
+
+  return {
+    ...raw,
+    username: (raw.username || '').trim().toLowerCase(),
+    displayName: (raw.displayName || raw.username || 'Team').trim(),
+    role,
+    status,
+    isPrimaryOwner: isOwner,
+    permissions,
+    createdAt: raw.createdAt || Date.now(),
+    updatedAt: raw.updatedAt || raw.createdAt || Date.now(),
+  };
+}
+
+function encryptState(state: AdminCloudState, secret: string): string {
+  const key = crypto.createHash('sha256').update(secret).digest();
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const plaintext = JSON.stringify(state);
+  const encrypted = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return JSON.stringify({
+    encrypted: true,
+    v: 1,
+    iv: iv.toString('hex'),
+    tag: tag.toString('hex'),
+    data: encrypted.toString('base64'),
+  });
+}
+
+function decryptState(rawContent: string, secret: string): AdminCloudState {
+  const empty: AdminCloudState = {
+    version: 1,
+    updatedAt: 0,
+    accounts: [],
+    deletedAccountIds: [],
+    revisions: [],
+    proposals: [],
+  };
+  if (!rawContent) return empty;
+  try {
+    const parsed = JSON.parse(rawContent);
+    if (parsed && parsed.encrypted === true && parsed.iv && parsed.tag && parsed.data) {
+      const key = crypto.createHash('sha256').update(secret).digest();
+      const iv = Buffer.from(parsed.iv, 'hex');
+      const tag = Buffer.from(parsed.tag, 'hex');
+      const data = Buffer.from(parsed.data, 'base64');
+      const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+      decipher.setAuthTag(tag);
+      const decrypted = Buffer.concat([decipher.update(data), decipher.final()]).toString('utf8');
+      const state = JSON.parse(decrypted);
+      return {
+        version: 1,
+        updatedAt: state.updatedAt || 0,
+        accounts: Array.isArray(state.accounts) ? state.accounts : [],
+        deletedAccountIds: Array.isArray(state.deletedAccountIds) ? state.deletedAccountIds : [],
+        revisions: Array.isArray(state.revisions) ? state.revisions : [],
+        proposals: Array.isArray(state.proposals) ? state.proposals : [],
+      };
+    }
+    return {
+      version: 1,
+      updatedAt: parsed.updatedAt || 0,
+      accounts: Array.isArray(parsed.accounts) ? parsed.accounts : [],
+      deletedAccountIds: Array.isArray(parsed.deletedAccountIds) ? parsed.deletedAccountIds : [],
+      revisions: Array.isArray(parsed.revisions) ? parsed.revisions : [],
+      proposals: Array.isArray(parsed.proposals) ? parsed.proposals : [],
+    };
+  } catch {
+    return empty;
+  }
+}
+
+function mergeServerAdminState(remote: AdminCloudState, incoming: Partial<AdminCloudState>): AdminCloudState {
+  const deletedAccountIds = Array.from(
+    new Set([...(remote.deletedAccountIds || []), ...(incoming.deletedAccountIds || [])])
+  );
+  const deletedSet = new Set(deletedAccountIds);
+
+  // 1. Merge accounts by username
+  const accMap = new Map<string, any>();
+  for (const raw of [...(remote.accounts || []), ...(incoming.accounts || [])]) {
+    if (!raw || !raw.username) continue;
+    if (raw.id && deletedSet.has(raw.id)) continue;
+    const norm = normalizeServerAccount(raw);
+    const key = norm.username.toLowerCase();
+    const existing = accMap.get(key);
+    if (!existing) {
+      accMap.set(key, norm);
+    } else {
+      const existingTime = existing.updatedAt || existing.createdAt || 0;
+      const incomingTime = norm.updatedAt || norm.createdAt || 0;
+      const winner = incomingTime >= existingTime ? norm : existing;
+      const loser = incomingTime >= existingTime ? existing : norm;
+      accMap.set(
+        key,
+        normalizeServerAccount({
+          ...loser,
+          ...winner,
+          isPrimaryOwner: Boolean(winner.isPrimaryOwner || loser.isPrimaryOwner),
+          lastLoginAt: Math.max(winner.lastLoginAt || 0, loser.lastLoginAt || 0) || undefined,
+        })
+      );
+    }
+  }
+
+  // 2. Merge revisions by revisionId
+  const revMap = new Map<string, any>();
+  for (const rev of [...(remote.revisions || []), ...(incoming.revisions || [])]) {
+    if (!rev || !rev.revisionId) continue;
+    const existing = revMap.get(rev.revisionId);
+    if (!existing) {
+      revMap.set(rev.revisionId, rev);
+    } else {
+      revMap.set(rev.revisionId, {
+        ...existing,
+        ...rev,
+        undoneByRevisionId: rev.undoneByRevisionId || existing.undoneByRevisionId,
+        rollbackOfRevisionId: rev.rollbackOfRevisionId || existing.rollbackOfRevisionId,
+      });
+    }
+  }
+
+  // 3. Merge proposals by id
+  const propMap = new Map<string, any>();
+  for (const prop of [...(remote.proposals || []), ...(incoming.proposals || [])]) {
+    if (!prop || !prop.id) continue;
+    const existing = propMap.get(prop.id);
+    if (!existing) {
+      propMap.set(prop.id, prop);
+    } else {
+      const existingTime = existing.updatedAt || existing.createdAt || 0;
+      const incomingTime = prop.updatedAt || prop.createdAt || 0;
+      propMap.set(prop.id, incomingTime >= existingTime ? { ...existing, ...prop } : { ...prop, ...existing });
+    }
+  }
+
+  return {
+    version: 1,
+    updatedAt: Date.now(),
+    accounts: Array.from(accMap.values()).sort((a, b) => {
+      if (a.role === 'owner' && b.role !== 'owner') return -1;
+      if (b.role === 'owner' && a.role !== 'owner') return 1;
+      return (a.createdAt || 0) - (b.createdAt || 0);
+    }),
+    deletedAccountIds,
+    revisions: Array.from(revMap.values())
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+      .slice(0, 500),
+    proposals: Array.from(propMap.values())
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+      .slice(0, 300),
+  };
 }
 
 export default async function handler(req: IncomingMessage & { body?: any }, res: ServerResponse): Promise<void> {
@@ -20,8 +278,9 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     return;
   }
 
-  const { GITHUB_TOKEN, GITHUB_REPO } = process.env;
+  const { GITHUB_TOKEN, GITHUB_REPO, ADMIN_STATE_GIST_ID } = process.env;
   const repo = GITHUB_REPO || 'nurimodabber/jy-resource-hub';
+  const gistId = ADMIN_STATE_GIST_ID || DEFAULT_GIST_ID;
 
   // GET: Fetch approved community content and deleted IDs from GitHub
   if (req.method === 'GET') {
@@ -122,14 +381,16 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
 
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({
-        ok: true,
-        approvedGames,
-        approvedCategories: approvedCats,
-        approvedServiceProjects,
-        approvedArtsPrompts,
-        deletedIds,
-      }));
+      res.end(
+        JSON.stringify({
+          ok: true,
+          approvedGames,
+          approvedCategories: approvedCats,
+          approvedServiceProjects,
+          approvedArtsPrompts,
+          deletedIds,
+        })
+      );
       return;
     } catch (err: any) {
       res.statusCode = 200;
@@ -139,16 +400,18 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     }
   }
 
-  // POST: Admin updating issue status (Accept, Reject, Delete)
+  // POST: Admin updating issue status OR syncing multi-account admin state
   if (req.method === 'POST') {
     if (!GITHUB_TOKEN) {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({
-        ok: false,
-        fallbackToClient: true,
-        message: 'Kein Server GITHUB_TOKEN konfiguriert. Bitte Personal Access Token in den Admin-Einstellungen verwenden.',
-      }));
+      res.end(
+        JSON.stringify({
+          ok: false,
+          fallbackToClient: true,
+          message: 'Kein Server GITHUB_TOKEN konfiguriert. Bitte Personal Access Token in den Admin-Einstellungen verwenden.',
+        })
+      );
       return;
     }
 
@@ -159,18 +422,12 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       } else {
         const rawBody = await new Promise<string>((resolve) => {
           let chunks = '';
-          req.on('data', (chunk) => { chunks += chunk; });
+          req.on('data', (chunk) => {
+            chunks += chunk;
+          });
           req.on('end', () => resolve(chunks));
         });
         body = JSON.parse(rawBody || '{}');
-      }
-
-      const { action, issueNumber, reason, updatedPayload } = body;
-      if (!issueNumber) {
-        res.statusCode = 400;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({ ok: false, message: 'Missing issueNumber' }));
-        return;
       }
 
       const headers = {
@@ -180,12 +437,82 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         'Content-Type': 'application/json',
       };
 
+      // --- ACTION: SYNC MULTI-ACCOUNT ADMIN STATE & REVISIONS ---
+      if (body.action === 'sync_admin_state') {
+        const gistRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
+        if (!gistRes.ok) {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: false, error: `Gist read HTTP ${gistRes.status}` }));
+          return;
+        }
+
+        const gistData: any = await gistRes.json();
+        const fileObj = gistData?.files?.[GIST_FILENAME];
+        const rawContent = fileObj?.content || '';
+        const remoteState = decryptState(rawContent, GITHUB_TOKEN);
+
+        const hasIncomingChanges =
+          (Array.isArray(body.accounts) && body.accounts.length > 0) ||
+          (Array.isArray(body.deletedAccountIds) && body.deletedAccountIds.length > 0) ||
+          (Array.isArray(body.revisions) && body.revisions.length > 0) ||
+          (Array.isArray(body.proposals) && body.proposals.length > 0);
+
+        const mergedState = mergeServerAdminState(remoteState, {
+          accounts: body.accounts || [],
+          deletedAccountIds: body.deletedAccountIds || [],
+          revisions: body.revisions || [],
+          proposals: body.proposals || [],
+        });
+
+        if (hasIncomingChanges || !rawContent.includes('"encrypted":true')) {
+          const encryptedContent = encryptState(mergedState, GITHUB_TOKEN);
+          await fetch(`https://api.github.com/gists/${gistId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({
+              files: {
+                [GIST_FILENAME]: {
+                  content: encryptedContent,
+                },
+              },
+            }),
+          });
+        }
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(
+          JSON.stringify({
+            ok: true,
+            state: mergedState,
+          })
+        );
+        return;
+      }
+
+      // --- ACTION: UPDATE GITHUB ISSUE STATUS (accept / reject / delete) ---
+      const { action, issueNumber, reason, updatedPayload } = body;
+      if (!issueNumber) {
+        res.statusCode = 400;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ ok: false, message: 'Missing issueNumber' }));
+        return;
+      }
+
       // 1. Fetch current issue to preserve tags
       const issueRes = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, { headers });
       const currentIssue = await issueRes.json();
       const currentLabels: string[] = (currentIssue.labels || []).map((l: any) => l.name);
 
-      let newLabels = currentLabels.filter((l) => l !== 'vorschlag' && l !== 'status:accepted' && l !== 'übernommen' && l !== 'abgelehnt' && l !== 'gelöscht');
+      const newLabels = currentLabels.filter(
+        (l) =>
+          l !== 'vorschlag' &&
+          l !== 'status:accepted' &&
+          l !== 'übernommen' &&
+          l !== 'abgelehnt' &&
+          l !== 'gelöscht'
+      );
       let commentText = '';
 
       if (action === 'accept') {
