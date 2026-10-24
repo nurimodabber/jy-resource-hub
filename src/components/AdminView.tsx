@@ -1501,9 +1501,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
 
   return (
     <div className="min-h-screen flex bg-bg text-text">
-      {/* Desktop Left Sidebar */}
+      {/* Desktop Left Sidebar (fixed to viewport so it always stays visible when scrolling) */}
       {sidebarOpen && (
-        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-surface/40 sticky top-0 h-screen">
+        <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-surface fixed inset-y-0 left-0 z-40 h-screen overflow-y-auto">
           {renderSidebarContent()}
         </aside>
       )}
@@ -1516,14 +1516,14 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
             onClick={() => setMobileDrawerOpen(false)}
             aria-hidden="true"
           />
-          <aside className="relative w-72 max-w-[85vw] bg-surface border-r border-border h-full z-10 flex flex-col">
+          <aside className="relative w-72 max-w-[85vw] bg-surface border-r border-border h-full z-10 flex flex-col overflow-y-auto">
             {renderSidebarContent(() => setMobileDrawerOpen(false))}
           </aside>
         </div>
       )}
 
       {/* Right Main Workspace Column */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={`flex-1 flex flex-col min-w-0 ${sidebarOpen ? 'lg:pl-64' : ''}`}>
         {/* Top Breadcrumb Bar (Screenshot 1 top bar style) */}
         <header className="h-14 border-b border-border px-4 sm:px-6 flex items-center justify-between gap-4 bg-bg/90 backdrop-blur-xs sticky top-0 z-30">
           <div className="flex items-center gap-3 min-w-0">
