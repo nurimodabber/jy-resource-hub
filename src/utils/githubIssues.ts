@@ -22,6 +22,8 @@ import {
   mergeAdminAccounts,
   getDeletedAccountIds,
   saveDeletedAccountIds,
+  generateRandomSalt,
+  hashPasswordWithSalt,
 } from './adminAuth';
 import { Game, ServiceProject, ArtsPrompt } from '../types';
 import { EmpireCategoryV2 as EmpireCategory } from '../data/empireContent';
@@ -573,6 +575,7 @@ export async function syncAdminStateWithCloud(): Promise<{
   accounts: AdminAccount[];
   revisions: DataRevision[];
   proposals: ProposalItem[];
+  pendingRequestCount?: number;
 }> {
   const localAccounts = getAdminAccounts();
   const localDeletedAccountIds = getDeletedAccountIds();
@@ -646,6 +649,7 @@ export async function syncAdminStateWithCloud(): Promise<{
       accounts: mergedAccounts,
       revisions: mergedRevs,
       proposals: mergedProps,
+      pendingRequestCount: typeof data.pendingRequestCount === 'number' ? data.pendingRequestCount : 0,
     };
   } catch {
     return {
@@ -655,4 +659,76 @@ export async function syncAdminStateWithCloud(): Promise<{
       proposals: localProposals,
     };
   }
+}
+
+
+export interface AccountRequest {
+  id: string;
+  displayName: string;
+  email: string;
+  message: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: number;
+  decidedAt?: number;
+  decidedRole?: string;
+}
+
+interface AccountRequestApiResult {
+  ok: boolean;
+  code?: string;
+  message?: string;
+}
+
+async function postAdminAction<T extends AccountRequestApiResult>(payload: Record<string, unknown>): Promise<T> {
+  try {
+    const res = await fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = (await res.json()) as T;
+    if (data && typeof data.ok === 'boolean') return data;
+    return { ok: false, code: 'network' } as T;
+  } catch {
+    return { ok: false, code: 'network' } as T;
+  }
+}
+
+/**
+ * Sends an access request. The password is hashed here with a fresh salt, so the
+ * plain password never leaves the device. No account exists until the Owner approves.
+ */
+export async function submitAccountRequest(params: {
+  displayName: string;
+  email: string;
+  message: string;
+  password: string;
+}): Promise<AccountRequestApiResult> {
+  const salt = generateRandomSalt();
+  const passwordHash = await hashPasswordWithSalt(params.password, salt);
+  return postAdminAction({
+    action: 'request_account',
+    displayName: params.displayName,
+    email: params.email,
+    message: params.message,
+    salt,
+    passwordHash,
+  });
+}
+
+export async function fetchAccountRequests(
+  ownerUsername: string,
+  ownerPassword: string
+): Promise<AccountRequestApiResult & { requests?: AccountRequest[] }> {
+  return postAdminAction({ action: 'list_account_requests', ownerUsername, ownerPassword });
+}
+
+export async function decideAccountRequest(params: {
+  ownerUsername: string;
+  ownerPassword: string;
+  requestId: string;
+  decision: 'approve' | 'reject';
+  role?: 'editor' | 'contributor' | 'viewer';
+}): Promise<AccountRequestApiResult & { emailSent?: boolean; emailError?: string }> {
+  return postAdminAction({ action: 'decide_account_request', ...params });
 }

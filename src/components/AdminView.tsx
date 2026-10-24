@@ -52,6 +52,10 @@ import {
   getGitHubRepo,
   updateGitHubIssueStatus,
   syncAdminStateWithCloud,
+  submitAccountRequest,
+  fetchAccountRequests,
+  decideAccountRequest,
+  AccountRequest,
 } from '../utils/githubIssues';
 import {
   AdminAccount,
@@ -69,6 +73,7 @@ import {
   claimOwnerAccount,
   resetAdminAccountPasswordByOwner,
   isPrimaryOwnerIdentity,
+  getSessionPasswordInMemory,
 } from '../utils/adminAuth';
 import { GitHubSettingsModal } from './admin/GitHubSettingsModal';
 import { Logo } from './Logo';
@@ -172,6 +177,16 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const [setupPasswordConfirm, setSetupPasswordConfirm] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
   const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
+  const [requestMessage, setRequestMessage] = useState('');
+  const [requestSent, setRequestSent] = useState(false);
+
+  // Access requests (Owner only)
+  const [pendingRequestCount, setPendingRequestCount] = useState(0);
+  const [accountRequests, setAccountRequests] = useState<AccountRequest[]>([]);
+  const [requestRoles, setRequestRoles] = useState<Record<string, 'editor' | 'contributor' | 'viewer'>>({});
+  const [requestsPassword, setRequestsPassword] = useState(() => getSessionPasswordInMemory());
+  const [requestsLoading, setRequestsLoading] = useState(false);
+  const [requestsError, setRequestsError] = useState<string | null>(null);
 
   // Account & Permission Management State
   const [newAccDisplayName, setNewAccDisplayName] = useState('');
@@ -242,6 +257,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       syncAdminStateWithCloud()
         .then((res) => {
           if (active && res.ok) {
+            setPendingRequestCount(res.pendingRequestCount || 0);
             refreshAccountsAndSession();
             adminData.refresh();
           }
@@ -271,6 +287,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       ]);
       setIsSyncingGh(false);
       if (cloudRes?.ok) {
+        setPendingRequestCount(cloudRes.pendingRequestCount || 0);
         refreshAccountsAndSession();
         adminData.refresh();
       }
@@ -1202,6 +1219,48 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       return;
     }
     setIsAuthSubmitting(true);
+
+    // Only the project owner can create an account directly. Everyone else sends a request.
+    if (!isPrimaryOwnerIdentity(loginUsername, setupDisplayName)) {
+      const res = await submitAccountRequest({
+        displayName: setupDisplayName,
+        email: loginUsername,
+        message: requestMessage,
+        password: loginPassword,
+      });
+      setIsAuthSubmitting(false);
+      if (!res.ok) {
+        setAuthError(
+          res.code === 'network'
+            ? L(
+                'Die Anfrage konnte nicht gesendet werden. Prüfe deine Verbindung und versuche es erneut.',
+                'The request could not be sent. Check your connection and try again.'
+              )
+            : res.code === 'exists'
+              ? L(
+                  'Für diese E-Mail-Adresse gibt es schon einen Account. Melde dich an.',
+                  'An account already exists for this email address. Sign in instead.'
+                )
+              : res.code === 'pending'
+                ? L(
+                    'Für diese E-Mail-Adresse liegt schon eine Anfrage vor. Bitte warte auf die E-Mail.',
+                    'A request for this email address is already open. Please wait for the email.'
+                  )
+                : res.code === 'reserved'
+                  ? L(
+                      'Dieser Name oder diese E-Mail-Adresse ist reserviert. Wähle andere Angaben.',
+                      'This name or email address is reserved. Please use different details.'
+                    )
+                  : res.message || L('Die Anfrage ist fehlgeschlagen.', 'The request failed.')
+        );
+        return;
+      }
+      setLoginPassword('');
+      setSetupPasswordConfirm('');
+      setRequestSent(true);
+      return;
+    }
+
     await syncAdminStateWithCloud().catch(() => {});
     const res = await createAdminAccount({
       username: loginUsername,
@@ -1224,6 +1283,74 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     syncAdminStateWithCloud().catch(() => {});
     showToast(L(`Willkommen, ${res.account.displayName}`, `Welcome, ${res.account.displayName}`));
   };
+
+  const loadAccountRequests = useCallback(
+    async (password: string) => {
+      if (!currentAccount || !password) return;
+      setRequestsLoading(true);
+      setRequestsError(null);
+      const res = await fetchAccountRequests(currentAccount.username, password);
+      setRequestsLoading(false);
+      if (!res.ok) {
+        setRequestsError(
+          res.code === 'unauthorized'
+            ? L('Passwort nicht korrekt.', 'Password is not correct.')
+            : res.code === 'network'
+              ? L('Keine Verbindung zum Server.', 'No connection to the server.')
+              : res.message || L('Anfragen konnten nicht geladen werden.', 'Requests could not be loaded.')
+        );
+        return;
+      }
+      const list = res.requests || [];
+      setAccountRequests(list);
+      setPendingRequestCount(list.filter((r) => r.status === 'pending').length);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentAccount?.username, L]
+  );
+
+  const handleDecideRequest = async (request: AccountRequest, decision: 'approve' | 'reject') => {
+    if (!currentAccount || !requestsPassword) return;
+    const role = requestRoles[request.id] || 'contributor';
+    const res = await decideAccountRequest({
+      ownerUsername: currentAccount.username,
+      ownerPassword: requestsPassword,
+      requestId: request.id,
+      decision,
+      role,
+    });
+    if (!res.ok) {
+      showToast(res.message || L('Entscheidung fehlgeschlagen.', 'Decision failed.'));
+      return;
+    }
+    if (decision === 'reject') {
+      showToast(L('Anfrage abgelehnt.', 'Request rejected.'));
+    } else if (res.emailSent) {
+      showToast(
+        L(
+          `${request.displayName} ist freigegeben. Die E-Mail wurde gesendet.`,
+          `${request.displayName} is approved. The email was sent.`
+        )
+      );
+    } else {
+      showToast(
+        L(
+          `${request.displayName} ist freigegeben, aber die E-Mail konnte nicht gesendet werden. Sage der Person selbst Bescheid.`,
+          `${request.displayName} is approved, but the email could not be sent. Please tell the person yourself.`
+        )
+      );
+    }
+    await syncAdminStateWithCloud().catch(() => null);
+    refreshAccountsAndSession();
+    await loadAccountRequests(requestsPassword);
+  };
+
+  // Load access requests when the Owner opens the team section
+  useEffect(() => {
+    if (isOwner && activeSection === 'accounts' && requestsPassword) {
+      loadAccountRequests(requestsPassword);
+    }
+  }, [isOwner, activeSection, requestsPassword, loadAccountRequests]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1408,7 +1535,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 <h1 className="text-lg font-extrabold text-text tracking-tight">Junior Youth Hub</h1>
                 <p className="text-xs text-text-secondary">
                   {isInitialSetup
-                    ? L('Redaktions-Portal · Account anlegen', 'Editorial Portal · Create Account')
+                    ? L('Redaktions-Portal · Zugang anfragen', 'Editorial Portal · Request Access')
                     : L('Redaktions-Portal · Anmeldung', 'Editorial Portal · Sign In')}
                 </p>
               </div>
@@ -1446,23 +1573,45 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                   authMode === 'register' ? 'bg-surface text-text shadow-1' : 'text-text-secondary hover:text-text'
                 }`}
               >
-                {L('Team-Account anlegen', 'Register Team Account')}
+                {L('Zugang anfragen', 'Request Access')}
               </button>
             </div>
           )}
 
-          {isInitialSetup ? (
+          {requestSent ? (
+            <div className="space-y-4">
+              <div className="p-4 rounded-control bg-surface-2 border border-border space-y-1.5">
+                <h2 className="text-sm font-extrabold text-text">
+                  {L('Deine Anfrage ist angekommen', 'Your request has arrived')}
+                </h2>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  {L(
+                    'Der Inhaber prüft sie. Sobald er sie freigibt, bekommst du eine E-Mail. Danach meldest du dich mit deiner E-Mail-Adresse und dem Passwort an, das du eben gewählt hast.',
+                    'The owner will review it. You get an email as soon as it is approved. Then sign in with your email address and the password you just chose.'
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setRequestSent(false);
+                  setAuthMode('login');
+                  setRequestMessage('');
+                }}
+                className="w-full py-3 rounded-control bg-surface-2 hover:bg-border text-text font-bold text-sm transition-colors cursor-pointer min-h-[44px]"
+              >
+                {L('Zur Anmeldung', 'Go to sign in')}
+              </button>
+            </div>
+          ) : null}
+
+          {requestSent ? null : isInitialSetup ? (
             <form onSubmit={handleInitialSetup} className="space-y-4">
               <div className="p-3.5 rounded-control bg-surface-2 border border-border text-xs text-text-secondary leading-relaxed">
-                {accounts.length === 0
-                  ? L(
-                      'Lege deinen persönlichen Zugang an. Der Account des Projekt-Inhabers (Nuri Modabber) erhält automatisch Inhaber-Rechte (Owner); alle weiteren Accounts werden als Redaktions-Accounts synchronisiert.',
-                      'Create your personal account. The project owner account automatically receives Owner permissions; all other accounts are synced as Editorial team accounts.'
-                    )
-                  : L(
-                      'Erstelle deinen persönlichen Team-Account. Dein Account ist sofort für den Inhaber sichtbar, der deine Rolle und Berechtigungen verwalten kann.',
-                      'Create your personal team account. Your account is immediately visible to the Owner, who can manage your role and permissions.'
-                    )}
+                {L(
+                  'Frage deinen Zugang an. Der Inhaber prüft die Anfrage und gibt sie frei. Danach bekommst du eine E-Mail. Dein Passwort legst du jetzt schon fest.',
+                  'Request your access. The owner reviews the request and approves it. You then get an email. You choose your password now.'
+                )}
               </div>
 
               <div>
@@ -1524,6 +1673,20 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 />
               </div>
 
+              <div>
+                <label className="block text-xs font-bold text-text-secondary mb-1.5">
+                  {L('Nachricht an den Inhaber (optional)', 'Message to the owner (optional)')}
+                </label>
+                <textarea
+                  rows={2}
+                  maxLength={400}
+                  value={requestMessage}
+                  onChange={(e) => setRequestMessage(e.target.value)}
+                  placeholder={L('Wer bist du, wofür brauchst du Zugang?', 'Who are you, and why do you need access?')}
+                  className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
+                />
+              </div>
+
               {authError && <p className="text-xs font-semibold text-danger">{authError}</p>}
 
               <button
@@ -1531,7 +1694,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 disabled={isAuthSubmitting}
                 className="w-full py-3 rounded-control bg-accent text-accent-contrast font-bold text-sm hover:bg-accent-hover transition-colors cursor-pointer min-h-[44px]"
               >
-                {L('Account anlegen & anmelden', 'Create Account & Sign In')}
+                {isPrimaryOwnerIdentity(loginUsername, setupDisplayName)
+                  ? L('Account anlegen & anmelden', 'Create account & sign in')
+                  : L('Zugang anfragen', 'Request access')}
               </button>
             </form>
           ) : (
@@ -1722,8 +1887,15 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
               <Users className="w-4 h-4 text-text-tertiary" />
               <span>{L('Team & Accounts', 'Team & Accounts')}</span>
             </span>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-surface border border-border text-text-secondary">
-              {accounts.length}
+            <span className="flex items-center gap-1.5">
+              {isOwner && pendingRequestCount > 0 && (
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-accent text-accent-contrast">
+                  {pendingRequestCount} {L('neu', 'new')}
+                </span>
+              )}
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-surface border border-border text-text-secondary">
+                {accounts.length}
+              </span>
             </span>
           </button>
 
@@ -3465,6 +3637,139 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                         </button>
                       )}
                   </div>
+
+                  {/* ACCESS REQUESTS (Owner only) */}
+                  {isOwner && activeSection === 'accounts' && (
+                    <div className="bg-surface border border-border rounded-card overflow-hidden">
+                      <div className="px-5 py-4 border-b border-border">
+                        <h3 className="text-sm font-extrabold text-text">
+                          {L('Zugangsanfragen', 'Access Requests')} (
+                          {accountRequests.filter((r) => r.status === 'pending').length})
+                        </h3>
+                        <p className="text-2xs text-text-tertiary mt-0.5">
+                          {L(
+                            'Wer sich auf der Anmeldeseite anfragt, erscheint hier. Mit „Freigeben“ entsteht der Account und die Person bekommt eine E-Mail.',
+                            'People who request access on the sign-in page appear here. "Approve" creates the account and emails the person.'
+                          )}
+                        </p>
+                      </div>
+
+                      {!requestsPassword ? (
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            const value = new FormData(e.currentTarget).get('ownerPassword');
+                            if (typeof value === 'string' && value) setRequestsPassword(value);
+                          }}
+                          className="p-5 flex flex-col sm:flex-row sm:items-center gap-3"
+                        >
+                          <p className="text-xs text-text-secondary sm:flex-1">
+                            {L(
+                              'Bestätige mit deinem Passwort, um Anfragen zu sehen und zu entscheiden.',
+                              'Confirm with your password to view and decide requests.'
+                            )}
+                          </p>
+                          <input
+                            type="password"
+                            name="ownerPassword"
+                            autoComplete="current-password"
+                            placeholder={L('Dein Passwort', 'Your password')}
+                            className="px-3 py-2 rounded-control bg-bg border border-border text-xs text-text min-h-[44px]"
+                            required
+                          />
+                          <button
+                            type="submit"
+                            className="px-4 py-2 rounded-control bg-accent text-accent-contrast text-xs font-bold cursor-pointer min-h-[44px]"
+                          >
+                            {L('Anfragen laden', 'Load requests')}
+                          </button>
+                        </form>
+                      ) : (
+                        <div className="divide-y divide-border">
+                          {requestsError && (
+                            <div className="p-5 flex flex-wrap items-center gap-3 text-xs">
+                              <span className="font-semibold text-danger">{requestsError}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRequestsPassword('');
+                                  setRequestsError(null);
+                                }}
+                                className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-text font-semibold cursor-pointer"
+                              >
+                                {L('Passwort neu eingeben', 'Enter password again')}
+                              </button>
+                            </div>
+                          )}
+                          {!requestsError && accountRequests.filter((r) => r.status === 'pending').length === 0 && (
+                            <div className="p-6 text-center text-xs text-text-tertiary">
+                              {requestsLoading
+                                ? L('Lade Anfragen …', 'Loading requests …')
+                                : L('Keine offenen Anfragen.', 'No open requests.')}
+                            </div>
+                          )}
+                          {accountRequests
+                            .filter((r) => r.status === 'pending')
+                            .map((r) => (
+                              <div key={r.id} className="p-5 space-y-3 text-xs">
+                                <div className="space-y-0.5">
+                                  <div className="font-extrabold text-sm text-text">{r.displayName}</div>
+                                  <div className="text-text-secondary">
+                                    <span className="font-mono">{r.email}</span> · {formatShortDate(r.createdAt)}
+                                  </div>
+                                  {r.message && (
+                                    <p className="mt-1.5 p-3 rounded-control bg-bg border border-border text-text-secondary leading-relaxed">
+                                      {r.message}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+                                  <div className="sm:w-64">
+                                    <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary mb-1">
+                                      {L('Rolle bei Freigabe', 'Role on approval')}
+                                    </label>
+                                    <select
+                                      value={requestRoles[r.id] || 'contributor'}
+                                      onChange={(e) =>
+                                        setRequestRoles((prev) => ({
+                                          ...prev,
+                                          [r.id]: e.target.value as 'editor' | 'contributor' | 'viewer',
+                                        }))
+                                      }
+                                      className="w-full px-3 py-2 rounded-control bg-bg border border-border text-xs font-bold text-text min-h-[44px]"
+                                    >
+                                      <option value="contributor">
+                                        {L('Mitarbeit (Nur Entwürfe)', 'Contributor (Drafts only)')}
+                                      </option>
+                                      <option value="editor">
+                                        {L('Redaktion (Vollzugriff auf Inhalte)', 'Editor (Content access)')}
+                                      </option>
+                                      <option value="viewer">{L('Leserecht (Nur Ansicht)', 'Viewer (Read-only)')}</option>
+                                    </select>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDecideRequest(r, 'approve')}
+                                      className="px-4 py-2 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-bold cursor-pointer min-h-[44px]"
+                                    >
+                                      {L('Freigeben & E-Mail senden', 'Approve & send email')}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDecideRequest(r, 'reject')}
+                                      className="px-4 py-2 rounded-control bg-danger/10 hover:bg-danger text-danger hover:text-white font-semibold transition-colors cursor-pointer min-h-[44px]"
+                                    >
+                                      {L('Ablehnen', 'Reject')}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* TEAM & ACCOUNTS MANAGEMENT */}
                   <div className="space-y-6">

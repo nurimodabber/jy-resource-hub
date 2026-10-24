@@ -2,7 +2,14 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import crypto from 'crypto';
 
 interface SyncPayload {
-  action: 'accept' | 'reject' | 'delete' | 'sync_admin_state';
+  action:
+    | 'accept'
+    | 'reject'
+    | 'delete'
+    | 'sync_admin_state'
+    | 'request_account'
+    | 'list_account_requests'
+    | 'decide_account_request';
   issueNumber?: number;
   reason?: string;
   gameId?: string;
@@ -12,6 +19,18 @@ interface SyncPayload {
   deletedAccountIds?: string[];
   revisions?: any[];
   proposals?: any[];
+  // For action === 'request_account'
+  displayName?: string;
+  email?: string;
+  message?: string;
+  salt?: string;
+  passwordHash?: string;
+  // For action === 'list_account_requests' | 'decide_account_request' (Owner re-authenticates)
+  ownerUsername?: string;
+  ownerPassword?: string;
+  requestId?: string;
+  decision?: 'approve' | 'reject';
+  role?: string;
 }
 
 interface AdminCloudState {
@@ -21,6 +40,8 @@ interface AdminCloudState {
   deletedAccountIds: string[];
   revisions: any[];
   proposals: any[];
+  /** Pending/decided access requests. Never sent to clients except via the Owner-authenticated action. */
+  accountRequests: any[];
 }
 
 const DEFAULT_GIST_ID = 'c762dbc8bc8a824ecdf01d6000deef96';
@@ -149,6 +170,7 @@ function decryptState(rawContent: string, secret: string): AdminCloudState {
     deletedAccountIds: [],
     revisions: [],
     proposals: [],
+    accountRequests: [],
   };
   if (!rawContent) return empty;
   try {
@@ -169,6 +191,7 @@ function decryptState(rawContent: string, secret: string): AdminCloudState {
         deletedAccountIds: Array.isArray(state.deletedAccountIds) ? state.deletedAccountIds : [],
         revisions: Array.isArray(state.revisions) ? state.revisions : [],
         proposals: Array.isArray(state.proposals) ? state.proposals : [],
+        accountRequests: Array.isArray(state.accountRequests) ? state.accountRequests : [],
       };
     }
     return {
@@ -178,6 +201,7 @@ function decryptState(rawContent: string, secret: string): AdminCloudState {
       deletedAccountIds: Array.isArray(parsed.deletedAccountIds) ? parsed.deletedAccountIds : [],
       revisions: Array.isArray(parsed.revisions) ? parsed.revisions : [],
       proposals: Array.isArray(parsed.proposals) ? parsed.proposals : [],
+      accountRequests: Array.isArray(parsed.accountRequests) ? parsed.accountRequests : [],
     };
   } catch {
     return empty;
@@ -263,7 +287,116 @@ function mergeServerAdminState(remote: AdminCloudState, incoming: Partial<AdminC
     proposals: Array.from(propMap.values())
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
       .slice(0, 300),
+    accountRequests: remote.accountRequests || [],
   };
+}
+
+const SITE_URL = (process.env.SITE_URL || 'https://jy-resource-hub.vercel.app').replace(/\/$/, '');
+const REQUESTABLE_ROLES = ['editor', 'contributor', 'viewer'] as const;
+const ROLE_LABELS_MAIL: Record<string, { de: string; en: string }> = {
+  editor: { de: 'Redaktion', en: 'Editor' },
+  contributor: { de: 'Mitarbeit (Entwürfe)', en: 'Contributor (drafts)' },
+  viewer: { de: 'Nur Ansicht', en: 'View only' },
+};
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** Sends a transactional email through Resend. Never throws. */
+async function sendEmail(params: {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+}): Promise<{ sent: boolean; error?: string }> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { sent: false, error: 'RESEND_API_KEY ist nicht konfiguriert.' };
+  const from = process.env.EMAIL_FROM || 'Junior Youth Hub <onboarding@resend.dev>';
+  try {
+    const mailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to: [params.to], subject: params.subject, text: params.text, html: params.html }),
+    });
+    if (!mailRes.ok) {
+      const detail = await mailRes.text().catch(() => '');
+      return { sent: false, error: `E-Mail-Dienst HTTP ${mailRes.status} ${detail.slice(0, 200)}` };
+    }
+    return { sent: true };
+  } catch (err: any) {
+    return { sent: false, error: err?.message || 'E-Mail konnte nicht gesendet werden.' };
+  }
+}
+
+function buildApprovalEmail(displayName: string, email: string, role: string) {
+  const roleLabel = ROLE_LABELS_MAIL[role] || ROLE_LABELS_MAIL.contributor;
+  const loginUrl = `${SITE_URL}/admin`;
+  const text = [
+    `Hallo ${displayName},`,
+    '',
+    'dein Zugang zum Redaktionsportal des Junior Youth Hub ist freigegeben. Du kannst dich jetzt anmelden.',
+    `Benutzername: ${email}`,
+    'Passwort: das Passwort, das du bei deiner Anfrage gewählt hast.',
+    `Rolle: ${roleLabel.de}`,
+    `Anmelden: ${loginUrl}`,
+    '',
+    'Du hast keinen Zugang angefragt? Dann ignoriere diese E-Mail.',
+    '',
+    '---',
+    '',
+    `Hello ${displayName},`,
+    '',
+    'your access to the Junior Youth Hub editorial portal is approved. You can sign in now.',
+    `Username: ${email}`,
+    'Password: the password you chose when you requested access.',
+    `Role: ${roleLabel.en}`,
+    `Sign in: ${loginUrl}`,
+    '',
+    'You did not request access? Then please ignore this email.',
+  ].join('\n');
+  const name = escapeHtml(displayName);
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#1b2430;max-width:520px">
+<p>Hallo ${name},</p>
+<p>dein Zugang zum Redaktionsportal des Junior Youth Hub ist freigegeben. Du kannst dich jetzt anmelden.</p>
+<p>Benutzername: <strong>${escapeHtml(email)}</strong><br>Passwort: das Passwort, das du bei deiner Anfrage gewählt hast.<br>Rolle: ${escapeHtml(roleLabel.de)}</p>
+<p><a href="${loginUrl}" style="display:inline-block;padding:12px 20px;border-radius:12px;background:#1d4ed8;color:#ffffff;text-decoration:none;font-weight:bold">Zum Redaktionsportal</a></p>
+<p style="color:#5b6573">Du hast keinen Zugang angefragt? Dann ignoriere diese E-Mail.</p>
+<hr style="border:none;border-top:1px solid #d9dee5;margin:24px 0">
+<p>Hello ${name},</p>
+<p>your access to the Junior Youth Hub editorial portal is approved. You can sign in now.</p>
+<p>Username: <strong>${escapeHtml(email)}</strong><br>Password: the password you chose when you requested access.<br>Role: ${escapeHtml(roleLabel.en)}</p>
+<p><a href="${loginUrl}">Open the editorial portal</a></p>
+<p style="color:#5b6573">You did not request access? Then please ignore this email.</p>
+</div>`;
+  return {
+    subject: 'Dein Zugang ist freigegeben / Your access is approved – Junior Youth Hub',
+    text,
+    html,
+  };
+}
+
+/** Re-authenticates the Owner against the stored salted hash (the password itself is never stored). */
+function verifyOwnerCredentials(state: AdminCloudState, username = '', password = ''): boolean {
+  const u = username.trim().toLowerCase();
+  if (!u || !password) return false;
+  const raw = (state.accounts || []).find((a) => (a?.username || '').toLowerCase() === u);
+  if (!raw || !raw.salt || !raw.passwordHash) return false;
+  const acc = normalizeServerAccount(raw);
+  if (acc.role !== 'owner' || acc.status !== 'active') return false;
+  const computed = Buffer.from(crypto.createHash('sha256').update(`${raw.salt}:${password}`).digest('hex'));
+  const stored = Buffer.from(String(raw.passwordHash));
+  return computed.length === stored.length && crypto.timingSafeEqual(computed, stored);
+}
+
+function sendJson(res: ServerResponse, status: number, payload: Record<string, unknown>): void {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(payload));
 }
 
 export default async function handler(req: IncomingMessage & { body?: any }, res: ServerResponse): Promise<void> {
@@ -437,6 +570,183 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         'Content-Type': 'application/json',
       };
 
+      const loadCloudState = async (): Promise<AdminCloudState> => {
+        const gistRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
+        if (!gistRes.ok) throw new Error(`Gist read HTTP ${gistRes.status}`);
+        const gistData: any = await gistRes.json();
+        const rawContent = gistData?.files?.[GIST_FILENAME]?.content || '';
+        return decryptState(rawContent, GITHUB_TOKEN);
+      };
+      const saveCloudState = async (state: AdminCloudState): Promise<void> => {
+        const patchRes = await fetch(`https://api.github.com/gists/${gistId}`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ files: { [GIST_FILENAME]: { content: encryptState(state, GITHUB_TOKEN) } } }),
+        });
+        if (!patchRes.ok) throw new Error(`Gist write HTTP ${patchRes.status}`);
+      };
+
+      // --- ACTION: PUBLIC ACCESS REQUEST (no account is created, Owner must approve) ---
+      if (body.action === 'request_account') {
+        const displayName = String(body.displayName || '').trim().slice(0, 80);
+        const email = String(body.email || '').trim().toLowerCase().slice(0, 120);
+        const message = String(body.message || '').trim().slice(0, 400);
+        const salt = String(body.salt || '');
+        const passwordHash = String(body.passwordHash || '');
+
+        if (displayName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+          sendJson(res, 400, { ok: false, code: 'invalid', message: 'Name oder E-Mail-Adresse ungültig.' });
+          return;
+        }
+        if (!/^[0-9a-f]{32}$/.test(salt) || !/^[0-9a-f]{64}$/.test(passwordHash)) {
+          sendJson(res, 400, { ok: false, code: 'invalid', message: 'Ungültige Passwortdaten.' });
+          return;
+        }
+        if (isOwnerIdentityServer(email, displayName)) {
+          sendJson(res, 400, {
+            ok: false,
+            code: 'reserved',
+            message: 'Dieser Name oder diese E-Mail-Adresse ist für den Inhaber reserviert.',
+          });
+          return;
+        }
+
+        const state = await loadCloudState();
+        if ((state.accounts || []).some((a) => (a?.username || '').toLowerCase() === email)) {
+          sendJson(res, 200, { ok: false, code: 'exists', message: 'Für diese E-Mail-Adresse gibt es schon einen Account.' });
+          return;
+        }
+        const pending = (state.accountRequests || []).filter((r) => r?.status === 'pending');
+        if (pending.some((r) => r.email === email)) {
+          sendJson(res, 200, { ok: false, code: 'pending', message: 'Für diese E-Mail-Adresse liegt schon eine Anfrage vor.' });
+          return;
+        }
+        if (pending.length >= 50) {
+          sendJson(res, 429, { ok: false, code: 'limit', message: 'Es liegen gerade zu viele Anfragen vor. Versuche es später erneut.' });
+          return;
+        }
+
+        state.accountRequests = [
+          ...(state.accountRequests || []),
+          {
+            id: `req_${Date.now().toString(36)}_${crypto.randomBytes(3).toString('hex')}`,
+            displayName,
+            email,
+            message,
+            salt,
+            passwordHash,
+            status: 'pending',
+            createdAt: Date.now(),
+          },
+        ].slice(-200);
+        state.updatedAt = Date.now();
+        await saveCloudState(state);
+
+        const notifyTo = process.env.OWNER_NOTIFY_EMAIL;
+        if (notifyTo) {
+          await sendEmail({
+            to: notifyTo,
+            subject: `Neue Zugangsanfrage: ${displayName}`,
+            text: `${displayName} (${email}) bittet um Zugang zum Redaktionsportal.\n\n${message ? `Nachricht: ${message}\n\n` : ''}Prüfen: ${SITE_URL}/admin`,
+            html: `<p>${escapeHtml(displayName)} (${escapeHtml(email)}) bittet um Zugang zum Redaktionsportal.</p>${
+              message ? `<p>Nachricht: ${escapeHtml(message)}</p>` : ''
+            }<p><a href="${SITE_URL}/admin">Anfrage prüfen</a></p>`,
+          });
+        }
+
+        sendJson(res, 200, { ok: true });
+        return;
+      }
+
+      // --- ACTIONS REQUIRING OWNER RE-AUTHENTICATION ---
+      if (body.action === 'list_account_requests' || body.action === 'decide_account_request') {
+        const state = await loadCloudState();
+        if (!verifyOwnerCredentials(state, body.ownerUsername, body.ownerPassword)) {
+          await new Promise((resolve) => setTimeout(resolve, 600));
+          sendJson(res, 200, {
+            ok: false,
+            code: 'unauthorized',
+            message: 'Inhaber-Passwort nicht korrekt oder Inhaber-Account noch nicht in der Cloud.',
+          });
+          return;
+        }
+
+        const publicRequests = (state.accountRequests || [])
+          .map((r) => ({
+            id: r.id,
+            displayName: r.displayName,
+            email: r.email,
+            message: r.message || '',
+            status: r.status,
+            createdAt: r.createdAt,
+            decidedAt: r.decidedAt,
+            decidedRole: r.decidedRole,
+          }))
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        if (body.action === 'list_account_requests') {
+          sendJson(res, 200, { ok: true, requests: publicRequests });
+          return;
+        }
+
+        const target = (state.accountRequests || []).find((r) => r.id === body.requestId);
+        if (!target || target.status !== 'pending') {
+          sendJson(res, 200, { ok: false, code: 'not_found', message: 'Anfrage nicht gefunden oder schon entschieden.' });
+          return;
+        }
+
+        if (body.decision === 'reject') {
+          target.status = 'rejected';
+          target.decidedAt = Date.now();
+          state.updatedAt = Date.now();
+          await saveCloudState(state);
+          sendJson(res, 200, { ok: true, decision: 'reject' });
+          return;
+        }
+
+        if (isOwnerIdentityServer(target.email, target.displayName)) {
+          sendJson(res, 200, { ok: false, code: 'reserved', message: 'Name oder E-Mail ist für den Inhaber reserviert.' });
+          return;
+        }
+        if ((state.accounts || []).some((a) => (a?.username || '').toLowerCase() === target.email)) {
+          sendJson(res, 200, { ok: false, code: 'exists', message: 'Es gibt schon einen Account mit dieser E-Mail-Adresse.' });
+          return;
+        }
+
+        const role = (REQUESTABLE_ROLES as readonly string[]).includes(String(body.role)) ? String(body.role) : 'contributor';
+        const now = Date.now();
+        const newAccount = normalizeServerAccount({
+          id: `acc_${now.toString(36)}_${crypto.randomBytes(2).toString('hex')}`,
+          username: target.email,
+          displayName: target.displayName,
+          role,
+          status: 'active',
+          salt: target.salt,
+          passwordHash: target.passwordHash,
+          createdAt: now,
+          updatedAt: now,
+        });
+        state.accounts = [...(state.accounts || []), newAccount];
+        target.status = 'approved';
+        target.decidedAt = now;
+        target.decidedRole = role;
+        // Credentials now live on the account; drop them from the request record.
+        delete target.salt;
+        delete target.passwordHash;
+        state.updatedAt = now;
+        await saveCloudState(state);
+
+        const mail = buildApprovalEmail(target.displayName, target.email, role);
+        const mailResult = await sendEmail({ to: target.email, ...mail });
+        sendJson(res, 200, {
+          ok: true,
+          decision: 'approve',
+          emailSent: mailResult.sent,
+          emailError: mailResult.error,
+        });
+        return;
+      }
+
       // --- ACTION: SYNC MULTI-ACCOUNT ADMIN STATE & REVISIONS ---
       if (body.action === 'sync_admin_state') {
         const gistRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
@@ -485,7 +795,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         res.end(
           JSON.stringify({
             ok: true,
-            state: mergedState,
+            state: { ...mergedState, accountRequests: undefined },
+            pendingRequestCount: (mergedState.accountRequests || []).filter((r) => r?.status === 'pending').length,
           })
         );
         return;

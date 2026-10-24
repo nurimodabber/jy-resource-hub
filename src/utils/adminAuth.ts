@@ -167,7 +167,7 @@ export function normalizeAdminAccount(raw: AdminAccount): AdminAccount {
   };
 }
 
-function generateRandomSalt(): string {
+export function generateRandomSalt(): string {
   const bytes = new Uint8Array(16);
   if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
     crypto.getRandomValues(bytes);
@@ -393,6 +393,13 @@ export async function createAdminAccount(params: {
   return { ok: true, account: newAccount };
 }
 
+let sessionPasswordInMemory = '';
+
+/** Password of the current sign-in, held in memory only. Empty after a page reload. */
+export function getSessionPasswordInMemory(): string {
+  return sessionPasswordInMemory;
+}
+
 export async function verifyAdminLogin(
   username: string,
   password: string
@@ -430,6 +437,8 @@ export async function verifyAdminLogin(
   account.updatedAt = Date.now();
   saveAdminAccounts(accounts);
   setActiveSessionAccount(account);
+  // Kept in memory only (never persisted) so the Owner can confirm access-request decisions.
+  sessionPasswordInMemory = password;
 
   return { ok: true, account };
 }
@@ -704,6 +713,7 @@ export function getActiveSessionAccount(): AdminAccount | null {
 export function setActiveSessionAccount(account: AdminAccount | null): void {
   try {
     if (!account) {
+      sessionPasswordInMemory = '';
       sessionStorage.removeItem(SESSION_ACTIVE_ACCOUNT_KEY);
       sessionStorage.removeItem('jy_admin_authenticated');
     } else {
