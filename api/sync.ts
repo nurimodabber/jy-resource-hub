@@ -5,6 +5,7 @@ interface SyncPayload {
   issueNumber: number;
   reason?: string;
   gameId?: string;
+  updatedPayload?: Record<string, unknown>;
 }
 
 export default async function handler(req: IncomingMessage & { body?: any }, res: ServerResponse): Promise<void> {
@@ -51,6 +52,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
 
       const approvedGames: any[] = [];
       const approvedCats: any[] = [];
+      const approvedServiceProjects: any[] = [];
+      const approvedArtsPrompts: any[] = [];
       const deletedIds: string[] = [];
 
       for (const issue of issues) {
@@ -76,12 +79,35 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         if (isDeleted) {
           if (parsedDraft?.id) deletedIds.push(parsedDraft.id);
           deletedIds.push(`gh_issue_${issue.number}`);
+          deletedIds.push(`gh_game_${issue.number}`);
+          deletedIds.push(`gh_service_${issue.number}`);
+          deletedIds.push(`gh_art_${issue.number}`);
         } else if (isApproved && parsedDraft) {
-          if (parsedDraft.prompt && parsedDraft.hint) {
+          const isService = labelNames.includes('dienst') || parsedDraft.kind === 'dienst';
+          const isArt = labelNames.includes('kunst') || parsedDraft.kind === 'kunst' || Boolean(parsedDraft.artForm);
+          const isEmpireCat = Boolean(parsedDraft.prompt && parsedDraft.hint);
+
+          if (isEmpireCat) {
             approvedCats.push({
               ...parsedDraft,
               id: parsedDraft.id || `proposal_${issue.number}`,
               status: 'draft',
+            });
+          } else if (isService) {
+            approvedServiceProjects.push({
+              ...parsedDraft,
+              id: parsedDraft.id || `gh_service_${issue.number}`,
+              kind: 'dienst',
+              status: 'draft',
+              submittedBy: parsedDraft.submittedBy || issue.user?.login || 'Community',
+            });
+          } else if (isArt) {
+            approvedArtsPrompts.push({
+              ...parsedDraft,
+              id: parsedDraft.id || `gh_art_${issue.number}`,
+              kind: 'kunst',
+              status: 'draft',
+              submittedBy: parsedDraft.submittedBy || issue.user?.login || 'Community',
             });
           } else {
             approvedGames.push({
@@ -100,6 +126,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         ok: true,
         approvedGames,
         approvedCategories: approvedCats,
+        approvedServiceProjects,
+        approvedArtsPrompts,
         deletedIds,
       }));
       return;
@@ -137,7 +165,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         body = JSON.parse(rawBody || '{}');
       }
 
-      const { action, issueNumber, reason } = body;
+      const { action, issueNumber, reason, updatedPayload } = body;
       if (!issueNumber) {
         res.statusCode = 400;
         res.setHeader('Content-Type', 'application/json');
@@ -162,23 +190,35 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
 
       if (action === 'accept') {
         newLabels.push('übernommen');
-        commentText = '✅ Dieser Vorschlag wurde redaktionell geprüft und auf der Website freigeschaltet.';
+        commentText = '✅ Dieser Eintrag wurde redaktionell geprüft und live im Katalog veröffentlicht.';
       } else if (action === 'reject') {
         newLabels.push('abgelehnt');
         commentText = `❌ Dieser Vorschlag wurde abgelehnt: ${reason || 'Keine Begründung angegeben'}`;
       } else if (action === 'delete') {
         newLabels.push('gelöscht');
-        commentText = '🗑️ Dieser Eintrag wurde aus der aktiven Website-Datenbank entfernt.';
+        commentText = '🗑️ Dieser Eintrag wurde aus dem aktiven Katalog entfernt.';
       }
 
-      // Update issue labels and close it
+      const patchPayload: Record<string, unknown> = {
+        state: 'closed',
+        labels: newLabels,
+      };
+
+      if (updatedPayload) {
+        const existingBody = typeof currentIssue.body === 'string' ? currentIssue.body : '';
+        const jsonBlock = '```json\n' + JSON.stringify(updatedPayload, null, 2) + '\n```';
+        if (/```json[\s\S]*?```/.test(existingBody)) {
+          patchPayload.body = existingBody.replace(/```json[\s\S]*?```/, jsonBlock);
+        } else {
+          patchPayload.body = `${existingBody}\n\n### Redaktioneller Datensatz\n${jsonBlock}`.trim();
+        }
+      }
+
+      // Update issue labels, optional body, and close it
       await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
         method: 'PATCH',
         headers,
-        body: JSON.stringify({
-          state: 'closed',
-          labels: newLabels,
-        }),
+        body: JSON.stringify(patchPayload),
       });
 
       // Post status comment
