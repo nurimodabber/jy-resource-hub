@@ -47,6 +47,29 @@ interface AdminCloudState {
 const DEFAULT_GIST_ID = 'c762dbc8bc8a824ecdf01d6000deef96';
 const GIST_FILENAME = 'jy_admin_state.json';
 
+let cachedCloudState: { state: AdminCloudState; fingerprint: string; fetchedAt: number } | null = null;
+
+function stateFingerprint(s: AdminCloudState): string {
+  return JSON.stringify({
+    accounts: (s.accounts || []).map((a) => ({
+      id: a.id,
+      username: a.username,
+      displayName: a.displayName,
+      role: a.role,
+      status: a.status,
+      permissions: a.permissions,
+      passwordHash: a.passwordHash,
+      updatedAt: a.updatedAt,
+    })),
+    deletedAccountIds: s.deletedAccountIds || [],
+    revisionsCount: (s.revisions || []).length,
+    latestRevisionId: s.revisions?.[0]?.revisionId || '',
+    undoneCount: (s.revisions || []).filter((r) => r?.undoneByRevisionId).length,
+    proposalsCount: (s.proposals || []).length,
+    accountRequests: (s.accountRequests || []).map((r) => ({ id: r.id, status: r.status })),
+  });
+}
+
 function isOwnerIdentityServer(username = '', displayName = ''): boolean {
   const u = username.trim().toLowerCase();
   const d = displayName.trim().toLowerCase();
@@ -607,19 +630,66 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       };
 
       const loadCloudState = async (): Promise<AdminCloudState> => {
+        if (cachedCloudState && Date.now() - cachedCloudState.fetchedAt < 15000) {
+          return cachedCloudState.state;
+        }
+        // 1. Zero-rate-limit read via raw Gist URL (Fastly CDN, does not count against GitHub REST API limit)
+        try {
+          const rawRes = await fetch(
+            `https://gist.githubusercontent.com/nurimodabber/${gistId}/raw/${GIST_FILENAME}?t=${Date.now()}`,
+            { headers: { 'Cache-Control': 'no-cache' } }
+          );
+          if (rawRes.ok) {
+            const rawText = await rawRes.text();
+            if (rawText) {
+              const decrypted = decryptState(rawText, GITHUB_TOKEN);
+              const normalized = mergeServerAdminState(decrypted, {});
+              cachedCloudState = {
+                state: normalized,
+                fingerprint: stateFingerprint(normalized),
+                fetchedAt: Date.now(),
+              };
+              return normalized;
+            }
+          }
+        } catch {
+          /* fall through to REST API */
+        }
+
+        // 2. Fallback to GitHub REST API
         const gistRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
-        if (!gistRes.ok) throw new Error(`Gist read HTTP ${gistRes.status}`);
+        if (!gistRes.ok) {
+          if (cachedCloudState) return cachedCloudState.state;
+          throw new Error(`Gist read HTTP ${gistRes.status}`);
+        }
         const gistData: any = await gistRes.json();
         const rawContent = gistData?.files?.[GIST_FILENAME]?.content || '';
-        return decryptState(rawContent, GITHUB_TOKEN);
+        const decrypted = decryptState(rawContent, GITHUB_TOKEN);
+        const normalized = mergeServerAdminState(decrypted, {});
+        cachedCloudState = {
+          state: normalized,
+          fingerprint: stateFingerprint(normalized),
+          fetchedAt: Date.now(),
+        };
+        return normalized;
       };
+
       const saveCloudState = async (state: AdminCloudState): Promise<void> => {
-        const patchRes = await fetch(`https://api.github.com/gists/${gistId}`, {
-          method: 'PATCH',
-          headers,
-          body: JSON.stringify({ files: { [GIST_FILENAME]: { content: encryptState(state, GITHUB_TOKEN) } } }),
-        });
-        if (!patchRes.ok) throw new Error(`Gist write HTTP ${patchRes.status}`);
+        const nextFp = stateFingerprint(state);
+        const prevFp = cachedCloudState?.fingerprint;
+        cachedCloudState = { state, fingerprint: nextFp, fetchedAt: Date.now() };
+        if (prevFp && prevFp === nextFp) {
+          return;
+        }
+        try {
+          await fetch(`https://api.github.com/gists/${gistId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({ files: { [GIST_FILENAME]: { content: encryptState(state, GITHUB_TOKEN) } } }),
+          });
+        } catch {
+          /* keep in-memory state if rate-limited */
+        }
       };
 
       // --- ACTION: PUBLIC ACCESS REQUEST (no account is created, Owner must approve) ---
@@ -800,24 +870,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
 
       // --- ACTION: SYNC MULTI-ACCOUNT ADMIN STATE & REVISIONS ---
       if (body.action === 'sync_admin_state') {
-        const gistRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers });
-        if (!gistRes.ok) {
-          res.statusCode = 200;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: false, error: `Gist read HTTP ${gistRes.status}` }));
-          return;
-        }
-
-        const gistData: any = await gistRes.json();
-        const fileObj = gistData?.files?.[GIST_FILENAME];
-        const rawContent = fileObj?.content || '';
-        const remoteState = decryptState(rawContent, GITHUB_TOKEN);
-
-        const hasIncomingChanges =
-          (Array.isArray(body.accounts) && body.accounts.length > 0) ||
-          (Array.isArray(body.deletedAccountIds) && body.deletedAccountIds.length > 0) ||
-          (Array.isArray(body.revisions) && body.revisions.length > 0) ||
-          (Array.isArray(body.proposals) && body.proposals.length > 0);
+        const remoteState = await loadCloudState();
+        const remoteFp = stateFingerprint(remoteState);
 
         const mergedState = mergeServerAdminState(remoteState, {
           accounts: body.accounts || [],
@@ -826,23 +880,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
           proposals: body.proposals || [],
         });
 
-        const deduplicatedRemote =
-          mergedState.accounts.length !== (remoteState.accounts || []).length ||
-          mergedState.deletedAccountIds.length !== (remoteState.deletedAccountIds || []).length;
-
-        if (hasIncomingChanges || deduplicatedRemote || !rawContent.includes('"encrypted":true')) {
-          const encryptedContent = encryptState(mergedState, GITHUB_TOKEN);
-          await fetch(`https://api.github.com/gists/${gistId}`, {
-            method: 'PATCH',
-            headers,
-            body: JSON.stringify({
-              files: {
-                [GIST_FILENAME]: {
-                  content: encryptedContent,
-                },
-              },
-            }),
-          });
+        if (stateFingerprint(mergedState) !== remoteFp) {
+          await saveCloudState(mergedState);
         }
 
         res.statusCode = 200;
