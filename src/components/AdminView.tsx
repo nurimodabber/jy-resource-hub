@@ -1117,12 +1117,15 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     (acc: AdminAccount) => {
       const targetUser = acc.username.trim().toLowerCase();
       const targetDisplay = acc.displayName.trim().toLowerCase();
+      const isOwnerAcc = acc.role === 'owner' || Boolean(acc.isPrimaryOwner);
       return adminData.revisions.filter((r) => {
         if (r.rollbackOfRevisionId || r.undoneByRevisionId) return false;
         if (r.authorId && r.authorId === acc.id) return true;
         if (r.authorUsername && r.authorUsername.trim().toLowerCase() === targetUser) return true;
         const rAuthor = (r.author || '').trim().toLowerCase();
-        return rAuthor === targetUser || rAuthor === targetDisplay;
+        if (rAuthor === targetUser || rAuthor === targetDisplay) return true;
+        if (isOwnerAcc && isPrimaryOwnerIdentity(r.authorUsername || '', r.author || '')) return true;
+        return false;
       }).length;
     },
     [adminData.revisions]
@@ -1134,11 +1137,14 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     if (!acc) return adminData.revisions;
     const targetUser = acc.username.trim().toLowerCase();
     const targetDisplay = acc.displayName.trim().toLowerCase();
+    const isOwnerAcc = acc.role === 'owner' || Boolean(acc.isPrimaryOwner);
     return adminData.revisions.filter((r) => {
       if (r.authorId && r.authorId === acc.id) return true;
       if (r.authorUsername && r.authorUsername.trim().toLowerCase() === targetUser) return true;
       const rAuthor = (r.author || '').trim().toLowerCase();
-      return rAuthor === targetUser || rAuthor === targetDisplay;
+      if (rAuthor === targetUser || rAuthor === targetDisplay) return true;
+      if (isOwnerAcc && isPrimaryOwnerIdentity(r.authorUsername || '', r.author || '')) return true;
+      return false;
     });
   }, [adminData.revisions, revisionAuthorFilter, accounts]);
 

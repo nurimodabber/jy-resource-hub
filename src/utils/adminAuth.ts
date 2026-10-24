@@ -224,16 +224,99 @@ export function saveDeletedAccountIds(ids: string[]): void {
   }
 }
 
+function isBetterOwnerCandidate(candidate: AdminAccount, current: AdminAccount): boolean {
+  const candPreferred = candidate.username === 'nuri@modabber.net' ? 2 : candidate.displayName.length > 6 ? 1 : 0;
+  const currPreferred = current.username === 'nuri@modabber.net' ? 2 : current.displayName.length > 6 ? 1 : 0;
+  if (candPreferred !== currPreferred) return candPreferred > currPreferred;
+  return (candidate.updatedAt || candidate.createdAt || 0) >= (current.updatedAt || current.createdAt || 0);
+}
+
+/**
+ * Deduplicates accounts so that:
+ * 1. Only a single Owner account can ever exist (consolidating any duplicate Nuri accounts into the canonical one).
+ * 2. No two accounts can share the same username or displayName.
+ * 3. Any superseded duplicate IDs are automatically added to deletedAccountIds.
+ */
+function deduplicateAdminAccountsList(
+  accounts: AdminAccount[],
+  extraDeletedIds: string[] = []
+): { accounts: AdminAccount[]; deletedIds: string[] } {
+  const deletedSet = new Set([...getDeletedAccountIds(), ...extraDeletedIds]);
+  const byKey = new Map<string, AdminAccount>();
+  const nameToKey = new Map<string, string>();
+  let addedDeleted = false;
+
+  for (const raw of accounts) {
+    if (!raw || !raw.username) continue;
+    if (raw.id && deletedSet.has(raw.id)) continue;
+    const acc = normalizeAdminAccount(raw);
+    const isOwnerAcc = acc.role === 'owner' || Boolean(acc.isPrimaryOwner);
+    const nameKey = acc.displayName.trim().toLowerCase();
+    const userKey = acc.username.toLowerCase();
+
+    let key = isOwnerAcc ? '__primary_owner__' : userKey;
+    if (!isOwnerAcc && !byKey.has(key) && nameKey && nameToKey.has(nameKey)) {
+      key = nameToKey.get(nameKey)!;
+    }
+
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, acc);
+      if (!isOwnerAcc && nameKey) nameToKey.set(nameKey, key);
+    } else {
+      const incomingWins = isOwnerAcc
+        ? isBetterOwnerCandidate(acc, existing)
+        : (acc.updatedAt || acc.createdAt || 0) >= (existing.updatedAt || existing.createdAt || 0);
+      const winner = incomingWins ? acc : existing;
+      const loser = incomingWins ? existing : acc;
+
+      if (loser.id && winner.id && loser.id !== winner.id) {
+        deletedSet.add(loser.id);
+        addedDeleted = true;
+      }
+
+      byKey.set(
+        key,
+        normalizeAdminAccount({
+          ...loser,
+          ...winner,
+          id: winner.id,
+          username: winner.username,
+          displayName: winner.displayName,
+          salt: winner.salt,
+          passwordHash: winner.passwordHash,
+          isPrimaryOwner: Boolean(winner.isPrimaryOwner || loser.isPrimaryOwner),
+          role: winner.isPrimaryOwner || loser.isPrimaryOwner ? 'owner' : winner.role,
+          createdAt: Math.min(winner.createdAt || Date.now(), loser.createdAt || Date.now()),
+          lastLoginAt: Math.max(winner.lastLoginAt || 0, loser.lastLoginAt || 0) || undefined,
+        })
+      );
+    }
+  }
+
+  const finalDeletedIds = Array.from(deletedSet);
+  if (addedDeleted) {
+    saveDeletedAccountIds(finalDeletedIds);
+  }
+
+  const finalAccounts = Array.from(byKey.values())
+    .map((a) => normalizeAdminAccount(a))
+    .sort((a, b) => {
+      if (a.role === 'owner' && b.role !== 'owner') return -1;
+      if (b.role === 'owner' && a.role !== 'owner') return 1;
+      return a.createdAt - b.createdAt;
+    });
+
+  return { accounts: finalAccounts, deletedIds: finalDeletedIds };
+}
+
 export function getAdminAccounts(): AdminAccount[] {
   try {
     const raw = localStorage.getItem(STORAGE_ACCOUNTS_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    const deletedSet = new Set(getDeletedAccountIds());
-    return parsed
-      .filter((a: AdminAccount) => a && a.id && !deletedSet.has(a.id))
-      .map((a: AdminAccount) => normalizeAdminAccount(a));
+    return deduplicateAdminAccountsList(parsed).accounts;
   } catch {
     return [];
   }
@@ -241,8 +324,8 @@ export function getAdminAccounts(): AdminAccount[] {
 
 export function saveAdminAccounts(accounts: AdminAccount[]): void {
   try {
-    const normalized = accounts.map((a) => normalizeAdminAccount(a));
-    localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(normalized));
+    const { accounts: deduplicated } = deduplicateAdminAccountsList(accounts);
+    localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(deduplicated));
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('jy_accounts_updated'));
     }
@@ -252,49 +335,15 @@ export function saveAdminAccounts(accounts: AdminAccount[]): void {
 }
 
 /**
- * Merges local and remote admin accounts by ID or username, respecting deletedAccountIds
- * and keeping the record with the newer `updatedAt` timestamp.
+ * Merges local and remote admin accounts by Owner identity, ID, username, or displayName,
+ * respecting deletedAccountIds and keeping the canonical/newer record.
  */
 export function mergeAdminAccounts(
   localAccounts: AdminAccount[],
   remoteAccounts: AdminAccount[],
   deletedIds: string[] = []
 ): AdminAccount[] {
-  const deletedSet = new Set([...getDeletedAccountIds(), ...deletedIds]);
-  const byUsername = new Map<string, AdminAccount>();
-
-  const all = [...remoteAccounts, ...localAccounts];
-  for (const raw of all) {
-    if (!raw || !raw.username) continue;
-    if (deletedSet.has(raw.id)) continue;
-    const acc = normalizeAdminAccount(raw);
-    const key = acc.username.toLowerCase();
-    const existing = byUsername.get(key);
-    if (!existing) {
-      byUsername.set(key, acc);
-    } else {
-      const existingTime = existing.updatedAt || existing.createdAt || 0;
-      const incomingTime = acc.updatedAt || acc.createdAt || 0;
-      const winner = incomingTime >= existingTime ? acc : existing;
-      const loser = incomingTime >= existingTime ? existing : acc;
-      byUsername.set(key, {
-        ...loser,
-        ...winner,
-        // Preserve owner status if either had primary owner
-        isPrimaryOwner: Boolean(winner.isPrimaryOwner || loser.isPrimaryOwner),
-        role: winner.isPrimaryOwner || loser.isPrimaryOwner ? 'owner' : winner.role,
-        lastLoginAt: Math.max(winner.lastLoginAt || 0, loser.lastLoginAt || 0) || undefined,
-      });
-    }
-  }
-
-  return Array.from(byUsername.values())
-    .map((a) => normalizeAdminAccount(a))
-    .sort((a, b) => {
-      if (a.role === 'owner' && b.role !== 'owner') return -1;
-      if (b.role === 'owner' && a.role !== 'owner') return 1;
-      return a.createdAt - b.createdAt;
-    });
+  return deduplicateAdminAccountsList([...remoteAccounts, ...localAccounts], deletedIds).accounts;
 }
 
 export function hasAnyAdminAccount(): boolean {
@@ -336,17 +385,32 @@ export async function createAdminAccount(params: {
   }
 
   const accounts = getAdminAccounts();
-  if (accounts.some((a) => a.username.toLowerCase() === cleanUsername)) {
+  const isOwner = Boolean(params.forceOwner) || isPrimaryOwnerIdentity(cleanUsername, cleanDisplayName);
+
+  if (isOwner && accounts.some((a) => a.role === 'owner' || a.isPrimaryOwner)) {
     return {
       ok: false,
-      errorDe: 'Ein Account mit diesem Benutzernamen oder dieser E-Mail existiert bereits.',
-      errorEn: 'An account with this username or email already exists.',
+      errorDe: 'Das Inhaber-Konto (Owner) existiert bereits. Bitte melde dich direkt mit deinem bestehenden Inhaber-Account an.',
+      errorEn: 'The Owner account already exists. Please sign in with your existing Owner account.',
+    };
+  }
+
+  if (
+    accounts.some(
+      (a) =>
+        a.username.toLowerCase() === cleanUsername ||
+        a.displayName.trim().toLowerCase() === cleanDisplayName.toLowerCase()
+    )
+  ) {
+    return {
+      ok: false,
+      errorDe: 'Ein Account mit diesem Namen oder dieser E-Mail-Adresse existiert bereits.',
+      errorEn: 'An account with this name or email already exists.',
     };
   }
 
   const salt = generateRandomSalt();
   const passwordHash = await hashPasswordWithSalt(password, salt);
-  const isOwner = Boolean(params.forceOwner) || isPrimaryOwnerIdentity(cleanUsername, cleanDisplayName);
   const assignedRole: AdminRole = isOwner
     ? 'owner'
     : params.role && params.role !== 'owner'
@@ -406,7 +470,11 @@ export async function verifyAdminLogin(
 ): Promise<{ ok: boolean; account?: AdminAccount; errorDe?: string; errorEn?: string }> {
   const cleanUsername = username.trim().toLowerCase();
   const accounts = getAdminAccounts();
-  const account = accounts.find((a) => a.username.toLowerCase() === cleanUsername);
+  const account =
+    accounts.find((a) => a.username.toLowerCase() === cleanUsername) ||
+    (isPrimaryOwnerIdentity(cleanUsername)
+      ? accounts.find((a) => a.role === 'owner' || a.isPrimaryOwner)
+      : undefined);
 
   if (!account) {
     return {

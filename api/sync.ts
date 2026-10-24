@@ -209,37 +209,69 @@ function decryptState(rawContent: string, secret: string): AdminCloudState {
 }
 
 function mergeServerAdminState(remote: AdminCloudState, incoming: Partial<AdminCloudState>): AdminCloudState {
-  const deletedAccountIds = Array.from(
-    new Set([...(remote.deletedAccountIds || []), ...(incoming.deletedAccountIds || [])])
-  );
-  const deletedSet = new Set(deletedAccountIds);
+  const deletedSet = new Set([...(remote.deletedAccountIds || []), ...(incoming.deletedAccountIds || [])]);
 
-  // 1. Merge accounts by username
+  // 1. Merge accounts:
+  //    - Enforce a SINGLE Owner account across the entire system (key = '__primary_owner__')
+  //    - Deduplicate other accounts by username AND by normalized displayName
+  //    - Automatically add superseded duplicate account IDs to deletedAccountIds so no browser can resurrect them
   const accMap = new Map<string, any>();
+  const nameToKey = new Map<string, string>();
+
+  const isBetterOwnerCandidate = (candidate: any, current: any): boolean => {
+    const candPreferred = candidate.username === 'nuri@modabber.net' ? 2 : candidate.displayName.length > 6 ? 1 : 0;
+    const currPreferred = current.username === 'nuri@modabber.net' ? 2 : current.displayName.length > 6 ? 1 : 0;
+    if (candPreferred !== currPreferred) return candPreferred > currPreferred;
+    return (candidate.updatedAt || candidate.createdAt || 0) >= (current.updatedAt || current.createdAt || 0);
+  };
+
   for (const raw of [...(remote.accounts || []), ...(incoming.accounts || [])]) {
     if (!raw || !raw.username) continue;
     if (raw.id && deletedSet.has(raw.id)) continue;
     const norm = normalizeServerAccount(raw);
-    const key = norm.username.toLowerCase();
+    const isOwnerAcc = norm.role === 'owner' || Boolean(norm.isPrimaryOwner);
+    const nameKey = (norm.displayName || '').trim().toLowerCase();
+    const userKey = norm.username.toLowerCase();
+
+    let key = isOwnerAcc ? '__primary_owner__' : userKey;
+    if (!isOwnerAcc && !accMap.has(key) && nameKey && nameToKey.has(nameKey)) {
+      key = nameToKey.get(nameKey)!;
+    }
+
     const existing = accMap.get(key);
     if (!existing) {
       accMap.set(key, norm);
+      if (!isOwnerAcc && nameKey) nameToKey.set(nameKey, key);
     } else {
-      const existingTime = existing.updatedAt || existing.createdAt || 0;
-      const incomingTime = norm.updatedAt || norm.createdAt || 0;
-      const winner = incomingTime >= existingTime ? norm : existing;
-      const loser = incomingTime >= existingTime ? existing : norm;
+      const incomingWins = isOwnerAcc
+        ? isBetterOwnerCandidate(norm, existing)
+        : (norm.updatedAt || norm.createdAt || 0) >= (existing.updatedAt || existing.createdAt || 0);
+      const winner = incomingWins ? norm : existing;
+      const loser = incomingWins ? existing : norm;
+
+      if (loser.id && winner.id && loser.id !== winner.id) {
+        deletedSet.add(loser.id);
+      }
+
       accMap.set(
         key,
         normalizeServerAccount({
           ...loser,
           ...winner,
+          id: winner.id,
+          username: winner.username,
+          displayName: winner.displayName,
+          salt: winner.salt,
+          passwordHash: winner.passwordHash,
           isPrimaryOwner: Boolean(winner.isPrimaryOwner || loser.isPrimaryOwner),
+          createdAt: Math.min(winner.createdAt || Date.now(), loser.createdAt || Date.now()),
           lastLoginAt: Math.max(winner.lastLoginAt || 0, loser.lastLoginAt || 0) || undefined,
         })
       );
     }
   }
+
+  const deletedAccountIds = Array.from(deletedSet);
 
   // 2. Merge revisions by revisionId
   const revMap = new Map<string, any>();
@@ -384,7 +416,11 @@ function buildApprovalEmail(displayName: string, email: string, role: string) {
 function verifyOwnerCredentials(state: AdminCloudState, username = '', password = ''): boolean {
   const u = username.trim().toLowerCase();
   if (!u || !password) return false;
-  const raw = (state.accounts || []).find((a) => (a?.username || '').toLowerCase() === u);
+  const raw =
+    (state.accounts || []).find((a) => (a?.username || '').toLowerCase() === u) ||
+    (isOwnerIdentityServer(u)
+      ? (state.accounts || []).find((a) => a?.role === 'owner' || a?.isPrimaryOwner)
+      : undefined);
   if (!raw || !raw.salt || !raw.passwordHash) return false;
   const acc = normalizeServerAccount(raw);
   if (acc.role !== 'owner' || acc.status !== 'active') return false;
@@ -612,13 +648,28 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         }
 
         const state = await loadCloudState();
-        if ((state.accounts || []).some((a) => (a?.username || '').toLowerCase() === email)) {
-          sendJson(res, 200, { ok: false, code: 'exists', message: 'Für diese E-Mail-Adresse gibt es schon einen Account.' });
+        const lowerDisplay = displayName.trim().toLowerCase();
+        if (
+          (state.accounts || []).some(
+            (a) =>
+              (a?.username || '').toLowerCase() === email ||
+              (a?.displayName || '').trim().toLowerCase() === lowerDisplay
+          )
+        ) {
+          sendJson(res, 200, {
+            ok: false,
+            code: 'exists',
+            message: 'Für diesen Namen oder diese E-Mail-Adresse gibt es schon einen Account.',
+          });
           return;
         }
         const pending = (state.accountRequests || []).filter((r) => r?.status === 'pending');
-        if (pending.some((r) => r.email === email)) {
-          sendJson(res, 200, { ok: false, code: 'pending', message: 'Für diese E-Mail-Adresse liegt schon eine Anfrage vor.' });
+        if (pending.some((r) => r.email === email || (r.displayName || '').trim().toLowerCase() === lowerDisplay)) {
+          sendJson(res, 200, {
+            ok: false,
+            code: 'pending',
+            message: 'Für diesen Namen oder diese E-Mail-Adresse liegt schon eine Anfrage vor.',
+          });
           return;
         }
         if (pending.length >= 50) {
@@ -775,7 +826,11 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
           proposals: body.proposals || [],
         });
 
-        if (hasIncomingChanges || !rawContent.includes('"encrypted":true')) {
+        const deduplicatedRemote =
+          mergedState.accounts.length !== (remoteState.accounts || []).length ||
+          mergedState.deletedAccountIds.length !== (remoteState.deletedAccountIds || []).length;
+
+        if (hasIncomingChanges || deduplicatedRemote || !rawContent.includes('"encrypted":true')) {
           const encryptedContent = encryptState(mergedState, GITHUB_TOKEN);
           await fetch(`https://api.github.com/gists/${gistId}`, {
             method: 'PATCH',
