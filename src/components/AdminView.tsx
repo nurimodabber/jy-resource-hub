@@ -70,10 +70,9 @@ import {
   setActiveSessionAccount,
   getEffectivePermissions,
   updateAdminAccountPermissions,
-  claimOwnerAccount,
   resetAdminAccountPasswordByOwner,
-  isPrimaryOwnerIdentity,
-  getSessionPasswordInMemory,
+  setupOwnerAccount,
+  purgeLegacyAdminStorage,
 } from '../utils/adminAuth';
 import { GitHubSettingsModal } from './admin/GitHubSettingsModal';
 import { Logo } from './Logo';
@@ -160,6 +159,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const showToast = useCallback((text: string) => rawShowToast({ text }), [rawShowToast]);
   const { isDark, setTheme } = useTheme();
   const adminData = useAdminData();
+  // The context value is a new object after every refresh, and every sync refreshes it. Depending on
+  // `adminData` made the sync effects re-run endlessly (thousands of /api/sync calls); `refresh`
+  // itself is stable.
+  const refreshAdminData = adminData.refresh;
 
   // Multi-Account Authentication State (Salted SHA-256 + Cloud Sync)
   const [accounts, setAccounts] = useState<AdminAccount[]>(() => getAdminAccounts());
@@ -170,7 +173,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const adminAuthor = currentAccount?.displayName || 'Redaktion';
 
   // Login / Registration Form State
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'setup'>('login');
+  const [setupToken, setSetupToken] = useState('');
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [setupDisplayName, setSetupDisplayName] = useState('');
@@ -184,7 +188,6 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [accountRequests, setAccountRequests] = useState<AccountRequest[]>([]);
   const [requestRoles, setRequestRoles] = useState<Record<string, 'editor' | 'contributor' | 'viewer'>>({});
-  const [requestsPassword, setRequestsPassword] = useState(() => getSessionPasswordInMemory());
   const [requestsLoading, setRequestsLoading] = useState(false);
   const [requestsError, setRequestsError] = useState<string | null>(null);
 
@@ -233,6 +236,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const [isSyncingGh, setIsSyncingGh] = useState(false);
   const [_ghSyncError, setGhSyncError] = useState<string | null>(null);
 
+  // Old builds kept password hashes and a GitHub token in localStorage; remove them for good.
+  useEffect(() => {
+    purgeLegacyAdminStorage();
+  }, []);
+
   const refreshAccountsAndSession = useCallback(() => {
     const latestAccounts = getAdminAccounts();
     setAccounts(latestAccounts);
@@ -259,7 +267,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
           if (active && res.ok) {
             setPendingRequestCount(res.pendingRequestCount || 0);
             refreshAccountsAndSession();
-            adminData.refresh();
+            refreshAdminData();
           }
         })
         .catch(() => {});
@@ -275,7 +283,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       window.removeEventListener('focus', onFocus);
       window.clearInterval(timer);
     };
-  }, [refreshAccountsAndSession, adminData]);
+  }, [refreshAccountsAndSession, refreshAdminData]);
 
   const syncWithGitHub = useCallback(
     async (silent = false) => {
@@ -289,7 +297,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       if (cloudRes?.ok) {
         setPendingRequestCount(cloudRes.pendingRequestCount || 0);
         refreshAccountsAndSession();
-        adminData.refresh();
+        refreshAdminData();
       }
       if (res.ok) {
         setGhProposals(res.issues);
@@ -308,7 +316,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
         }
       }
     },
-    [L, showToast, refreshAccountsAndSession, adminData]
+    [L, showToast, refreshAccountsAndSession, refreshAdminData]
   );
 
   useEffect(() => {
@@ -1117,14 +1125,12 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     (acc: AdminAccount) => {
       const targetUser = acc.username.trim().toLowerCase();
       const targetDisplay = acc.displayName.trim().toLowerCase();
-      const isOwnerAcc = acc.role === 'owner' || Boolean(acc.isPrimaryOwner);
       return adminData.revisions.filter((r) => {
         if (r.rollbackOfRevisionId || r.undoneByRevisionId) return false;
         if (r.authorId && r.authorId === acc.id) return true;
         if (r.authorUsername && r.authorUsername.trim().toLowerCase() === targetUser) return true;
         const rAuthor = (r.author || '').trim().toLowerCase();
         if (rAuthor === targetUser || rAuthor === targetDisplay) return true;
-        if (isOwnerAcc && isPrimaryOwnerIdentity(r.authorUsername || '', r.author || '')) return true;
         return false;
       }).length;
     },
@@ -1137,13 +1143,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     if (!acc) return adminData.revisions;
     const targetUser = acc.username.trim().toLowerCase();
     const targetDisplay = acc.displayName.trim().toLowerCase();
-    const isOwnerAcc = acc.role === 'owner' || Boolean(acc.isPrimaryOwner);
     return adminData.revisions.filter((r) => {
       if (r.authorId && r.authorId === acc.id) return true;
       if (r.authorUsername && r.authorUsername.trim().toLowerCase() === targetUser) return true;
       const rAuthor = (r.author || '').trim().toLowerCase();
       if (rAuthor === targetUser || rAuthor === targetDisplay) return true;
-      if (isOwnerAcc && isPrimaryOwnerIdentity(r.authorUsername || '', r.author || '')) return true;
       return false;
     });
   }, [adminData.revisions, revisionAuthorFilter, accounts]);
@@ -1226,81 +1230,94 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     }
     setIsAuthSubmitting(true);
 
-    // Only the project owner can create an account directly. Everyone else sends a request.
-    if (!isPrimaryOwnerIdentity(loginUsername, setupDisplayName)) {
-      const res = await submitAccountRequest({
-        displayName: setupDisplayName,
-        email: loginUsername,
-        message: requestMessage,
-        password: loginPassword,
-      });
-      setIsAuthSubmitting(false);
-      if (!res.ok) {
-        setAuthError(
-          res.code === 'network'
+    // Everyone requests access; the Owner approves. The Owner account itself is set up with the
+    // one-time ADMIN_SETUP_TOKEN (see handleOwnerSetup).
+    const res = await submitAccountRequest({
+      displayName: setupDisplayName,
+      email: loginUsername,
+      message: requestMessage,
+      password: loginPassword,
+    });
+    setIsAuthSubmitting(false);
+    if (!res.ok) {
+      setAuthError(
+        res.code === 'network'
+          ? L(
+              'Die Anfrage konnte nicht gesendet werden. Prüfe deine Verbindung und versuche es erneut.',
+              'The request could not be sent. Check your connection and try again.'
+            )
+          : res.code === 'exists'
             ? L(
-                'Die Anfrage konnte nicht gesendet werden. Prüfe deine Verbindung und versuche es erneut.',
-                'The request could not be sent. Check your connection and try again.'
+                'Für diese E-Mail-Adresse gibt es schon einen Account. Melde dich an.',
+                'An account already exists for this email address. Sign in instead.'
               )
-            : res.code === 'exists'
+            : res.code === 'pending'
               ? L(
-                  'Für diese E-Mail-Adresse gibt es schon einen Account. Melde dich an.',
-                  'An account already exists for this email address. Sign in instead.'
+                  'Für diese E-Mail-Adresse liegt schon eine Anfrage vor. Bitte warte auf die E-Mail.',
+                  'A request for this email address is already open. Please wait for the email.'
                 )
-              : res.code === 'pending'
+              : res.code === 'reserved'
                 ? L(
-                    'Für diese E-Mail-Adresse liegt schon eine Anfrage vor. Bitte warte auf die E-Mail.',
-                    'A request for this email address is already open. Please wait for the email.'
+                    'Dieser Name oder diese E-Mail-Adresse ist reserviert. Wähle andere Angaben.',
+                    'This name or email address is reserved. Please use different details.'
                   )
-                : res.code === 'reserved'
-                  ? L(
-                      'Dieser Name oder diese E-Mail-Adresse ist reserviert. Wähle andere Angaben.',
-                      'This name or email address is reserved. Please use different details.'
-                    )
-                  : res.message || L('Die Anfrage ist fehlgeschlagen.', 'The request failed.')
-        );
-        return;
-      }
-      setLoginPassword('');
-      setSetupPasswordConfirm('');
-      setRequestSent(true);
+                : res.message || L('Die Anfrage ist fehlgeschlagen.', 'The request failed.')
+      );
       return;
     }
+    setLoginPassword('');
+    setSetupPasswordConfirm('');
+    setRequestSent(true);
+    return;
+  };
 
-    await syncAdminStateWithCloud().catch(() => {});
-    const res = await createAdminAccount({
+  const handleOwnerSetup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    if (loginPassword !== setupPasswordConfirm) {
+      setAuthError(L('Die beiden Passwörter stimmen nicht überein.', 'Passwords do not match.'));
+      return;
+    }
+    setIsAuthSubmitting(true);
+    const res = await setupOwnerAccount({
+      setupToken,
       username: loginUsername,
       displayName: setupDisplayName,
       password: loginPassword,
-      role: 'editor',
     });
     setIsAuthSubmitting(false);
-
     if (!res.ok || !res.account) {
-      setAuthError(L(res.errorDe || 'Fehler beim Anlegen.', res.errorEn || 'Error creating account.'));
+      setAuthError(
+        res.code === 'invalid'
+          ? L('Einrichtungs-Code oder Inhaber-E-Mail stimmt nicht.', 'Setup code or owner email is not correct.')
+          : L(res.errorDe || 'Einrichtung fehlgeschlagen.', res.errorEn || 'Setup failed.')
+      );
       return;
     }
-
-    setActiveSessionAccount(res.account);
-    setAccounts(getAdminAccounts());
     setCurrentAccount(res.account);
     setLoginPassword('');
     setSetupPasswordConfirm('');
+    setSetupToken('');
     syncAdminStateWithCloud().catch(() => {});
-    showToast(L(`Willkommen, ${res.account.displayName}`, `Welcome, ${res.account.displayName}`));
+    showToast(
+      L(
+        'Inhaber-Passwort gesetzt. Lösche jetzt ADMIN_SETUP_TOKEN in Vercel.',
+        'Owner password set. Now delete ADMIN_SETUP_TOKEN in Vercel.'
+      )
+    );
   };
 
   const loadAccountRequests = useCallback(
-    async (password: string) => {
-      if (!currentAccount || !password) return;
+    async () => {
+      if (!currentAccount) return;
       setRequestsLoading(true);
       setRequestsError(null);
-      const res = await fetchAccountRequests(currentAccount.username, password);
+      const res = await fetchAccountRequests();
       setRequestsLoading(false);
       if (!res.ok) {
         setRequestsError(
           res.code === 'unauthorized'
-            ? L('Passwort nicht korrekt.', 'Password is not correct.')
+            ? L('Sitzung abgelaufen. Bitte neu anmelden.', 'Session expired. Please sign in again.')
             : res.code === 'network'
               ? L('Keine Verbindung zum Server.', 'No connection to the server.')
               : res.message || L('Anfragen konnten nicht geladen werden.', 'Requests could not be loaded.')
@@ -1316,11 +1333,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   );
 
   const handleDecideRequest = async (request: AccountRequest, decision: 'approve' | 'reject') => {
-    if (!currentAccount || !requestsPassword) return;
+    if (!currentAccount) return;
     const role = requestRoles[request.id] || 'contributor';
     const res = await decideAccountRequest({
-      ownerUsername: currentAccount.username,
-      ownerPassword: requestsPassword,
       requestId: request.id,
       decision,
       role,
@@ -1348,22 +1363,20 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     }
     await syncAdminStateWithCloud().catch(() => null);
     refreshAccountsAndSession();
-    await loadAccountRequests(requestsPassword);
+    await loadAccountRequests();
   };
 
   // Load access requests when the Owner opens the team section
   useEffect(() => {
-    if (isOwner && activeSection === 'accounts' && requestsPassword) {
-      loadAccountRequests(requestsPassword);
+    if (isOwner && activeSection === 'accounts') {
+      loadAccountRequests();
     }
-  }, [isOwner, activeSection, requestsPassword, loadAccountRequests]);
+  }, [isOwner, activeSection, loadAccountRequests]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
     setIsAuthSubmitting(true);
-    // Sync from cloud first so accounts registered on other devices are available
-    await syncAdminStateWithCloud().catch(() => {});
     const res = await verifyAdminLogin(loginUsername, loginPassword);
     setIsAuthSubmitting(false);
 
@@ -1372,10 +1385,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       return;
     }
 
-    setAccounts(getAdminAccounts());
     setCurrentAccount(res.account);
     setLoginPassword('');
-    syncAdminStateWithCloud().catch(() => {});
+    syncAdminStateWithCloud()
+      .then(() => setAccounts(getAdminAccounts()))
+      .catch(() => {});
     showToast(L(`Angemeldet als ${res.account.displayName}`, `Signed in as ${res.account.displayName}`));
   };
 
@@ -1417,7 +1431,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const handleChangeOwnPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentAccount) return;
-    const res = await changeAdminPassword(currentAccount.id, currentPwdInput, newPwdInput);
+    const res = await changeAdminPassword(currentPwdInput, newPwdInput);
     if (!res.ok) {
       showToast(L(res.errorDe || 'Fehler', res.errorEn || 'Error'));
       return;
@@ -1428,9 +1442,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     showToast(L('Dein Passwort wurde erfolgreich geändert.', 'Your password was updated.'));
   };
 
-  const handleRemoveAccount = (targetId: string) => {
+  const handleRemoveAccount = async (targetId: string) => {
     if (!currentAccount) return;
-    const res = deleteAdminAccount(targetId, currentAccount.id);
+    const res = await deleteAdminAccount(targetId);
     if (!res.ok) {
       showToast(L(res.errorDe || 'Fehler', res.errorEn || 'Error'));
       return;
@@ -1440,7 +1454,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     showToast(L('Account wurde entfernt.', 'Account was removed.'));
   };
 
-  const handleUpdateAccountSettings = (
+  const handleUpdateAccountSettings = async (
     targetAccountId: string,
     updates: {
       role?: AdminRole;
@@ -1449,9 +1463,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     }
   ) => {
     if (!currentAccount) return;
-    const res = updateAdminAccountPermissions({
+    const res = await updateAdminAccountPermissions({
       targetAccountId,
-      actorAccount: currentAccount,
       ...updates,
     });
     if (!res.ok) {
@@ -1468,29 +1481,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     );
   };
 
-  const handleClaimPrimaryOwner = () => {
-    if (!currentAccount) return;
-    const res = claimOwnerAccount(currentAccount.id);
-    if (res.ok && res.account) {
-      refreshAccountsAndSession();
-      syncAdminStateWithCloud().catch(() => {});
-      showToast(
-        L(
-          'Dein Account ist jetzt als alleiniger Haupt-Inhaber (Owner) festgelegt.',
-          'Your account is now set as the sole Primary Owner.'
-        )
-      );
-    }
-  };
-
   const handleOwnerResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentAccount || !resetPasswordAccountId) return;
-    const res = await resetAdminAccountPasswordByOwner(
-      resetPasswordAccountId,
-      resetPasswordValue,
-      currentAccount
-    );
+    const res = await resetAdminAccountPasswordByOwner(resetPasswordAccountId, resetPasswordValue);
     if (!res.ok) {
       showToast(L(res.errorDe || 'Fehler', res.errorEn || 'Error'));
       return;
@@ -1528,7 +1522,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
 
   // --- LOGIN OR TEAM REGISTRATION SCREEN ---
   if (!isAuthenticated) {
-    const isInitialSetup = accounts.length === 0 || authMode === 'register';
+    const isInitialSetup = authMode === 'register';
+    const isOwnerSetup = authMode === 'setup';
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-bg">
         <div className="w-full max-w-md bg-surface border border-border rounded-card p-6 sm:p-8 shadow-1 space-y-6">
@@ -1555,7 +1550,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
             </Link>
           </div>
 
-          {accounts.length > 0 && (
+          {!isOwnerSetup && (
             <div className="grid grid-cols-2 gap-1 p-1 rounded-control bg-bg border border-border">
               <button
                 type="button"
@@ -1700,9 +1695,106 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 disabled={isAuthSubmitting}
                 className="w-full py-3 rounded-control bg-accent text-accent-contrast font-bold text-sm hover:bg-accent-hover transition-colors cursor-pointer min-h-[44px]"
               >
-                {isPrimaryOwnerIdentity(loginUsername, setupDisplayName)
-                  ? L('Account anlegen & anmelden', 'Create account & sign in')
-                  : L('Zugang anfragen', 'Request access')}
+                {L('Zugang anfragen', 'Request access')}
+              </button>
+            </form>
+          ) : isOwnerSetup ? (
+            <form onSubmit={handleOwnerSetup} className="space-y-4">
+              <div className="p-3.5 rounded-control bg-surface-2 border border-border text-xs text-text-secondary leading-relaxed">
+                {L(
+                  'Nur für den Inhaber: Setze in Vercel OWNER_USERNAME und einen einmaligen ADMIN_SETUP_TOKEN. Hier gibst du diesen Code ein und legst dein Passwort fest. Danach löschst du ADMIN_SETUP_TOKEN wieder.',
+                  'Owner only: set OWNER_USERNAME and a one-time ADMIN_SETUP_TOKEN in Vercel. Enter that code here and choose your password. Afterwards, delete ADMIN_SETUP_TOKEN again.'
+                )}
+              </div>
+              <div>
+                <label htmlFor="setup-token" className="block text-xs font-bold text-text-secondary mb-1.5">
+                  {L('Einrichtungs-Code (ADMIN_SETUP_TOKEN)', 'Setup code (ADMIN_SETUP_TOKEN)')}
+                </label>
+                <input
+                  id="setup-token"
+                  type="password"
+                  autoComplete="off"
+                  value={setupToken}
+                  onChange={(e) => setSetupToken(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
+                  required
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label htmlFor="setup-name" className="block text-xs font-bold text-text-secondary mb-1.5">
+                  {L('Anzeigename', 'Display name')}
+                </label>
+                <input
+                  id="setup-name"
+                  type="text"
+                  value={setupDisplayName}
+                  onChange={(e) => setSetupDisplayName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="setup-user" className="block text-xs font-bold text-text-secondary mb-1.5">
+                  {L('Inhaber-E-Mail (wie OWNER_USERNAME)', 'Owner email (same as OWNER_USERNAME)')}
+                </label>
+                <input
+                  id="setup-user"
+                  type="email"
+                  autoComplete="username"
+                  value={loginUsername}
+                  onChange={(e) => setLoginUsername(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="setup-pw" className="block text-xs font-bold text-text-secondary mb-1.5">
+                  {L('Neues Passwort (mind. 8 Zeichen)', 'New password (min. 8 characters)')}
+                </label>
+                <input
+                  id="setup-pw"
+                  type="password"
+                  autoComplete="new-password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
+                  required
+                  minLength={8}
+                />
+              </div>
+              <div>
+                <label htmlFor="setup-pw2" className="block text-xs font-bold text-text-secondary mb-1.5">
+                  {L('Passwort bestätigen', 'Confirm Password')}
+                </label>
+                <input
+                  id="setup-pw2"
+                  type="password"
+                  autoComplete="new-password"
+                  value={setupPasswordConfirm}
+                  onChange={(e) => setSetupPasswordConfirm(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
+                  required
+                  minLength={8}
+                />
+              </div>
+              {authError && <p className="text-xs font-semibold text-danger">{authError}</p>}
+              <button
+                type="submit"
+                disabled={isAuthSubmitting}
+                className="w-full py-3 rounded-control bg-accent text-accent-contrast font-bold text-sm hover:bg-accent-hover transition-colors cursor-pointer min-h-[44px]"
+              >
+                {L('Inhaber-Passwort festlegen', 'Set owner password')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('login');
+                  setAuthError(null);
+                }}
+                className="w-full text-xs font-semibold text-text-secondary hover:text-text min-h-[36px] cursor-pointer"
+              >
+                {L('Zurück zur Anmeldung', 'Back to sign in')}
               </button>
             </form>
           ) : (
@@ -1753,6 +1845,16 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 className="w-full py-3 rounded-control bg-accent text-accent-contrast font-bold text-sm hover:bg-accent-hover transition-colors cursor-pointer min-h-[44px]"
               >
                 {L('Anmelden', 'Sign In')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('setup');
+                  setAuthError(null);
+                }}
+                className="w-full text-2xs font-semibold text-text-tertiary hover:text-text-secondary min-h-[32px] cursor-pointer"
+              >
+                {L('Inhaber-Einrichtung', 'Owner setup')}
               </button>
             </form>
           )}
@@ -3631,18 +3733,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                         </p>
                       </div>
 
-                      {!isOwner &&
-                        currentAccount &&
-                        (isPrimaryOwnerIdentity(currentAccount.username, currentAccount.displayName) ||
-                          !accounts.some((a) => a.role === 'owner')) && (
-                          <button
-                            type="button"
-                            onClick={handleClaimPrimaryOwner}
-                            className="px-4 py-2.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-extrabold transition-colors cursor-pointer shrink-0 min-h-[40px]"
-                          >
-                            {L('Als Haupt-Inhaber (Owner) festlegen', 'Claim Primary Owner Account')}
-                          </button>
-                        )}
+
                     </div>
                   )}
 
@@ -3662,50 +3753,17 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                         </p>
                       </div>
 
-                      {!requestsPassword ? (
-                        <form
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            const value = new FormData(e.currentTarget).get('ownerPassword');
-                            if (typeof value === 'string' && value) setRequestsPassword(value);
-                          }}
-                          className="p-5 flex flex-col sm:flex-row sm:items-center gap-3"
-                        >
-                          <p className="text-xs text-text-secondary sm:flex-1">
-                            {L(
-                              'Bestätige mit deinem Passwort, um Anfragen zu sehen und zu entscheiden.',
-                              'Confirm with your password to view and decide requests.'
-                            )}
-                          </p>
-                          <input
-                            type="password"
-                            name="ownerPassword"
-                            autoComplete="current-password"
-                            placeholder={L('Dein Passwort', 'Your password')}
-                            className="px-3 py-2 rounded-control bg-bg border border-border text-xs text-text min-h-[44px]"
-                            required
-                          />
-                          <button
-                            type="submit"
-                            className="px-4 py-2 rounded-control bg-accent text-accent-contrast text-xs font-bold cursor-pointer min-h-[44px]"
-                          >
-                            {L('Anfragen laden', 'Load requests')}
-                          </button>
-                        </form>
-                      ) : (
+                      {(
                         <div className="divide-y divide-border">
                           {requestsError && (
                             <div className="p-5 flex flex-wrap items-center gap-3 text-xs">
                               <span className="font-semibold text-danger">{requestsError}</span>
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setRequestsPassword('');
-                                  setRequestsError(null);
-                                }}
+                                onClick={() => loadAccountRequests()}
                                 className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-border text-text font-semibold cursor-pointer"
                               >
-                                {L('Passwort neu eingeben', 'Enter password again')}
+                                {L('Erneut laden', 'Try again')}
                               </button>
                             </div>
                           )}
@@ -3849,6 +3907,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                                         >
                                           {roleLabel(acc.role, acc.isPrimaryOwner)}
                                         </span>
+                                        {acc.passwordResetRequired && (
+                                          <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-danger/15 text-danger">
+                                            {L('Neues Passwort nötig', 'Needs new password')}
+                                          </span>
+                                        )}
                                         <span
                                           className={`px-2 py-0.5 rounded-full text-2xs font-bold ${
                                             acc.status === 'suspended'
