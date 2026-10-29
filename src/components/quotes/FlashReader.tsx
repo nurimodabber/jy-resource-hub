@@ -26,7 +26,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
     return list;
   }, [rawWords, chunkSize]);
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (!isPlaying) {
