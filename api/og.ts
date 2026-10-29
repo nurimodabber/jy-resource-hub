@@ -96,12 +96,12 @@ export function renderOgSvg(params: URLSearchParams): string {
 
   <!-- Footer Branding -->
   <circle cx="106" cy="542" r="8" fill="#6FA3FF"/>
-  <text x="124" y="548" fill="#A3B1CA" font-family="'Figtree', -apple-system, sans-serif" font-size="18" font-weight="600">Junior Youth Hub · jy-resource-hub.vercel.app</text>
+  <text x="124" y="548" fill="#A3B1CA" font-family="'Figtree', -apple-system, sans-serif" font-size="18" font-weight="600">Junior Youth Hub · juju-hub.vercel.app</text>
 </svg>`;
 }
 
 export default function handler(req: IncomingMessage, res: ServerResponse) {
-  const url = new URL(req.url || '/api/og', 'https://jy-resource-hub.vercel.app');
+  const url = new URL(req.url || '/api/og', 'https://juju-hub.vercel.app');
   const svg = renderOgSvg(url.searchParams);
 
   res.statusCode = 200;
