@@ -1,4 +1,22 @@
 import type { IncomingMessage, ServerResponse } from 'http';
+import crypto from 'crypto';
+
+/**
+ * Contact details must not appear in the public GitHub issue (the repo is public). They are
+ * encrypted with the same key as the admin state and embedded as an HTML comment; /api/sync
+ * decrypts them for reviewers only.
+ */
+function encryptContact(contact: { name?: string; email?: string }): string {
+  const secret = process.env.ADMIN_STATE_KEY || process.env.GITHUB_TOKEN || '';
+  const key = crypto.createHash('sha256').update(secret).digest();
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const data = Buffer.concat([cipher.update(JSON.stringify(contact), 'utf8'), cipher.final()]);
+  return `<!-- jy-contact:${iv.toString('base64url')}.${cipher.getAuthTag().toString('base64url')}.${data.toString('base64url')} -->`;
+}
+
+/** Stops "@user" in submitted text from pinging GitHub users via the owner's token. */
+const noMentions = (str: string): string => str.replace(/@/g, '@\u200b');
 
 interface ProposalPayload {
   type: 'spiel' | 'dienst' | 'kunst';
@@ -51,15 +69,21 @@ const containsUrl = (str: string = ''): boolean => {
 };
 
 export default async function handler(req: IncomingMessage & { body?: any }, res: ServerResponse) {
-  // CORS & Methods
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    res.statusCode = 200;
-    res.end();
-    return;
+  // Same-origin only (no CORS): the form lives on this site.
+  const origin = req.headers.origin;
+  if (origin) {
+    let sameHost = false;
+    try {
+      sameHost = new URL(origin).host === req.headers.host;
+    } catch {
+      sameHost = false;
+    }
+    if (!sameHost) {
+      res.statusCode = 403;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'Forbidden' }));
+      return;
+    }
   }
 
   if (req.method !== 'POST') {
@@ -180,8 +204,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     const authorEmail = sanitize(payload.authorEmail);
     const objective = sanitize(payload.objective);
     const reflectionQuestions = (Array.isArray(payload.reflectionQuestions) ? payload.reflectionQuestions : []).map(sanitize).filter(Boolean);
-    const setting = payload.setting || 'beides';
-    const occasion = payload.occasion || 'beides';
+    const setting = ['drinnen', 'draussen', 'beides'].includes(String(payload.setting)) ? payload.setting! : 'beides';
+    const occasion = ['treffen', 'camp', 'beides'].includes(String(payload.occasion)) ? payload.occasion! : 'beides';
 
     const groupSizeMin = Math.max(1, Number(payload.groupSizeMin) || 4);
     const groupSizeMax = Math.max(groupSizeMin, Number(payload.groupSizeMax) || 20);
@@ -243,7 +267,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
 ### Neuer Vorschlag: ${title}
 
 **Art:** ${kindLabel}  
-**Eingereicht von:** ${authorName || 'Anonym'} ${authorEmail ? `(${authorEmail})` : ''}  
+**Eingereicht von:** ${authorName || 'Anonym'}${authorEmail ? ' (Kontakt liegt der Redaktion vor)' : ''}  
 **Datum:** ${new Date().toLocaleDateString('de-DE')}  
 **Quelle / Herkunft:** ${source || 'Keine Angabe'}
 
@@ -270,6 +294,7 @@ ${reflectionQuestions.length > 0 ? `#### Reflexionsfragen\n${reflectionQuestions
 ${JSON.stringify(jsonDraft, null, 2)}
 \`\`\`
 `.trim();
+    const publicBody = noMentions(markdownBody) + (authorEmail ? `\n\n${encryptContact({ name: authorName, email: authorEmail })}` : '');
 
     // 6. Post to GitHub Issues API
     const ghResponse = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues`, {
@@ -281,8 +306,8 @@ ${JSON.stringify(jsonDraft, null, 2)}
         'User-Agent': 'JuniorYouthHub-ProposalBot',
       },
       body: JSON.stringify({
-        title: issueTitle,
-        body: markdownBody,
+        title: noMentions(issueTitle),
+        body: publicBody,
         labels: ['vorschlag', type],
       }),
     });
@@ -314,7 +339,7 @@ ${JSON.stringify(jsonDraft, null, 2)}
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({
       ok: false,
-      error: err.message || 'Serverfehler beim Verarbeiten des Vorschlags',
+      error: 'Serverfehler beim Verarbeiten des Vorschlags',
       fallback: 'mailto',
     }));
   }
