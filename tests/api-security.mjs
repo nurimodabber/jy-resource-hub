@@ -374,6 +374,19 @@ check(/<!--\s*jy-contact:/.test(created.body), 'contact stored encrypted in the 
 r = await call(sync, { body: { action: 'list_proposals' }, token: ownerToken });
 const listed = r.data.issues.find((i) => i.number === created.number);
 check(listed?.contactEmail === 'ana@example.org' && !listed.body.includes('jy-contact'), 'reviewers see the decrypted contact');
+const base = { type: 'spiel', summary: 'Eine Zusammenfassung mit genug Text', steps: ['Eins', 'Zwei', 'Drei'], clientTimestamp: Date.now() - 10000 };
+r = await call(submit, { body: { ...base, title: 'Spiel mit Link www.example.com' }, ip: '9.9.9.10' });
+check(r.status === 400, 'links in the title are rejected');
+r = await call(submit, { body: { ...base, title: 'Kreis bilden', summary: 'Alle stehen im Kreis und warten.Dann beginnt das Spiel.' }, ip: '9.9.9.11' });
+check(r.data?.ok, 'a sentence like "warten.Dann" is not mistaken for a link');
+r = await call(submit, {
+  body: { ...base, title: 'Langes Spiel', steps: Array.from({ length: 12 }, (_, i) => `Schritt ${i + 1}: ` + 'x'.repeat(1200)), imageUrl: 'https://images.example.org/bild.jpg', relatedBook: 'Brise der Bestätigung', lesson: 4 },
+  ip: '9.9.9.12',
+});
+const longIssue = fake.createdIssues.at(-1);
+check(r.data?.ok && longIssue.body.includes('https://images.example.org/bild.jpg') && longIssue.body.includes('Lektion 4'), 'detailed (~15 KB) submission accepted; image and lesson reach the issue');
+r = await call(submit, { body: { ...base, title: 'Bild', imageUrl: 'javascript:alert(1)' }, ip: '9.9.9.13' });
+check(r.data?.ok && !fake.createdIssues.at(-1).body.includes('javascript:'), 'non-https image URLs are dropped');
 r = await call(submit, { body: { type: 'spiel' }, origin: 'https://evil.example' });
 check(r.status === 403, 'cross-origin submission → 403');
 
