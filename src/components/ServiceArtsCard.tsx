@@ -129,11 +129,13 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         onClick={(e) => onToggleFavorite(activity.id, e)}
         aria-pressed={isFavorite}
         aria-label={`${t.savedItems}: ${activity.title[language]}`}
-        className={`absolute top-2.5 right-2.5 z-10 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-full hover:bg-surface-2 transition-all duration-100 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
-          isFavorite ? 'text-accent' : 'text-text-tertiary hover:text-text'
+        className={`absolute top-2.5 right-2.5 z-10 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+          isFavorite
+            ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
+            : 'text-text-tertiary hover:text-text hover:bg-surface-2'
         }`}
       >
-        <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+        <Bookmark className={`w-4 h-4 transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
       </button>
 
       {/* Bottom meta row: clean editorial footer (only when book or theme present) */}

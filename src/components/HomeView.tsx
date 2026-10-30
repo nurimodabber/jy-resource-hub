@@ -413,16 +413,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               <button
                 type="button"
                 onClick={(e) => onToggleFavorite?.(quote.id, e)}
-                className={`w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all duration-150 active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:ring-2 focus-visible:ring-accent ${
                   favorites.includes(quote.id)
-                    ? 'text-accent bg-accent/10 hover:bg-accent/15'
+                    ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
                     : 'text-text-secondary hover:text-text hover:bg-surface-2'
                 }`}
                 title={favorites.includes(quote.id) ? t.savedItems : L('Merken', 'Save')}
                 aria-label={favorites.includes(quote.id) ? t.savedItems : L('Merken', 'Save')}
                 aria-pressed={favorites.includes(quote.id)}
               >
-                <Bookmark className={`w-4 h-4 ${favorites.includes(quote.id) ? 'fill-accent' : ''}`} />
+                <Bookmark className={`w-4 h-4 transition-transform duration-150 ${favorites.includes(quote.id) ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
               </button>
 
               {/* Teilen */}

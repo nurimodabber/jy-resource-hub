@@ -103,12 +103,12 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
         <div className="flex items-center gap-1 shrink-0">
           <IconButton
             label={isFavorite ? t.savedItems : L('Merken', 'Bookmark')}
-            variant="outline"
+            variant={isFavorite ? 'secondary' : 'outline'}
             size="md"
-            className={`min-w-[44px] min-h-[44px] ${isFavorite ? 'text-accent' : 'text-text-secondary'}`}
+            className={`min-w-[44px] min-h-[44px] ${isFavorite ? 'text-accent bg-accent-subtle/80 border-accent/30' : 'text-text-secondary'}`}
             onClick={(e) => onToggleFavorite(activity.id, e)}
           >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent' : ''}`} />
+            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
           </IconButton>
 
           <ShareMenu

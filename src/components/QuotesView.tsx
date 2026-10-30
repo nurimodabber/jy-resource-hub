@@ -400,13 +400,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         <div className="space-y-3">
           {/* 1. Search Input with Filter Toggle Button */}
           <div className="flex items-center gap-2">
-            <div className="relative flex-1">
+            <div className="relative flex-1 group">
               <Search
-                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent pointer-events-none transition-colors duration-150"
                 aria-hidden="true"
               />
               <input
-                type="search"
+                type="text"
+                inputMode="search"
                 value={localSearch}
                 onChange={(e) => {
                   setLocalSearch(e.target.value);
@@ -418,7 +419,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     : 'Search quotes by text, theme, or source...'
                 }
                 aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-                className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border/80 text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all shadow-2xs"
+                className="w-full h-11 pl-10 pr-11 rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
               />
               {localSearch && (
                 <button
@@ -428,7 +429,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     updateParams({ q: null });
                   }}
                   aria-label={isDe ? 'Suche löschen' : 'Clear search'}
-                  className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -589,34 +590,35 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <Button
                 variant="secondary"
                 onClick={() => setIsQuotePickerOpen(true)}
-                className="min-h-[44px]"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] p-0 flex items-center justify-center rounded-control"
+                title={t.chooseAnotherQuote}
+                aria-label={t.chooseAnotherQuote}
               >
-                <Search className="w-4 h-4 mr-1.5" />
-                <span>{t.chooseAnotherQuote}</span>
+                <Search className="w-4 h-4" />
               </Button>
 
               <Button
                 variant="outline"
                 onClick={handleNextQuoteInBook}
-                className="min-h-[44px]"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] p-0 flex items-center justify-center rounded-control"
                 title={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
+                aria-label={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
               >
-                <span>{isDe ? 'Nächstes' : 'Next'}</span>
-                <ArrowRight className="w-4 h-4 ml-1" />
+                <ArrowRight className="w-4 h-4" />
               </Button>
 
               <Button
                 variant="outline"
                 onClick={() => navigate(`/quotes/${practiceQuote.id}`)}
-                className="min-h-[44px]"
-                title={isDe ? 'Im Lesemodus ansehen' : 'View in reading mode'}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] p-0 flex items-center justify-center rounded-control"
+                title={isDe ? 'Im Lesemodus lesen' : 'Read in reading mode'}
+                aria-label={isDe ? 'Im Lesemodus lesen' : 'Read in reading mode'}
               >
-                <BookOpen className="w-4 h-4 mr-1.5" />
-                <span>{isDe ? 'Lesen' : 'Read'}</span>
+                <BookOpen className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -651,22 +653,23 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 </p>
               </div>
 
-              <div className="relative w-full sm:w-80">
-                <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="relative w-full sm:w-80 group">
+                <Search className="w-4 h-4 text-text-tertiary group-focus-within:text-accent absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-150" />
                 <input
-                  type="search"
+                  type="text"
+                  inputMode="search"
                   value={methodSearch}
                   onChange={(e) => setMethodSearch(e.target.value)}
                   placeholder={isDe ? 'Methoden durchsuchen...' : 'Search methods...'}
                   aria-label={isDe ? 'Methoden durchsuchen' : 'Search methods'}
-                  className="w-full pl-9 pr-10 py-2 text-xs rounded-xl bg-surface border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
+                  className="w-full h-11 pl-10 pr-10 text-sm rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
                 />
                 {methodSearch && (
                   <button
                     type="button"
                     onClick={() => setMethodSearch('')}
                     aria-label={isDe ? 'Suche löschen' : 'Clear search'}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control cursor-pointer"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -854,15 +857,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         title={t.chooseAnotherQuote}
       >
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+          <div className="relative group">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent pointer-events-none transition-colors duration-150" />
             <input
-              type="search"
+              type="text"
+              inputMode="search"
               value={pickerSearch}
               onChange={(e) => setPickerSearch(e.target.value)}
               placeholder={isDe ? 'Zitate durchsuchen...' : 'Search quotes...'}
               aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
+              className="w-full h-11 pl-10 pr-3 text-sm rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
             />
           </div>
 

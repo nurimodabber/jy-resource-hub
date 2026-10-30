@@ -153,11 +153,11 @@ export const GamePage: React.FC<GamePageProps> = ({
         <div className="flex items-center gap-1.5 shrink-0 lg:hidden">
           <IconButton
             label={isFavorite ? t.savedItems : L('Merken', 'Save')}
-            variant="outline"
-            className={`min-h-[44px] min-w-[44px] ${isFavorite ? 'text-accent' : 'text-text-secondary'}`}
+            variant={isFavorite ? 'secondary' : 'outline'}
+            className={`min-h-[44px] min-w-[44px] ${isFavorite ? 'text-accent bg-accent-subtle/80 border-accent/30' : 'text-text-secondary'}`}
             onClick={(e) => onToggleFavorite(game.id, e)}
           >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent' : ''}`} />
+            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
           </IconButton>
 
           <ShareMenu

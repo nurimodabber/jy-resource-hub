@@ -368,7 +368,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           <Search className="w-5 h-5 text-text-tertiary shrink-0" strokeWidth={1.75} />
           <input
             ref={inputRef}
-            type="search"
+            type="text"
+            inputMode="search"
             enterKeyHint="search"
             autoComplete="off"
             autoCorrect="off"

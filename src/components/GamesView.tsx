@@ -267,13 +267,14 @@ export const GamesView: React.FC<GamesViewProps> = ({
 
       {/* 2. Search Input with Filter Button on the right */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="relative flex-1 min-w-0">
+        <div className="relative flex-1 min-w-0 group">
           <Search
-            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent pointer-events-none transition-colors duration-150"
             aria-hidden="true"
           />
           <input
-            type="search"
+            type="text"
+            inputMode="search"
             value={filters.q || ''}
             onChange={(e) =>
               updateFilters(
@@ -286,14 +287,14 @@ export const GamesView: React.FC<GamesViewProps> = ({
             }
             placeholder={L('Spiel suchen...', 'Search games...')}
             aria-label={L('Spiel suchen', 'Search games')}
-            className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border/80 text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all shadow-2xs"
+            className="w-full h-11 pl-10 pr-11 rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
           />
           {filters.q && (
             <button
               type="button"
               onClick={() => updateFilters({ ...filters, q: undefined })}
               aria-label={L('Suche löschen', 'Clear search')}
-              className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
