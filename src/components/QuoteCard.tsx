@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bookmark, Music, ExternalLink, ArrowRight, Zap } from 'lucide-react';
+import { Bookmark, Music, ExternalLink, Zap } from 'lucide-react';
 import { QuoteItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getQuoteSong } from '../data/quoteSongs';
@@ -168,13 +168,9 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           onClick={() => onPracticeQuote(quote)}
           aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
           title={isDe ? 'Auswendiglernen' : 'Memorise'}
-          className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-accent hover:text-accent-hover hover:bg-accent/8 px-2 sm:px-2.5 py-1 rounded-control transition-all min-h-[44px] min-w-[44px] cursor-pointer group/btn"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
         >
-          <Zap className="w-4 h-4 text-accent fill-accent/20 group-hover/btn:scale-110 transition-transform" />
-          <span className="hidden sm:inline-block text-2xs font-bold uppercase tracking-wider">
-            {isDe ? 'Auswendiglernen' : 'Memorise'}
-          </span>
-          <ArrowRight className="w-3.5 h-3.5 opacity-60 group-hover/btn:opacity-100 group-hover/btn:translate-x-0.5 transition-all hidden sm:inline-block" />
+          <Zap className="w-4.5 h-4.5 text-accent fill-accent/30" />
         </button>
       </div>
     </article>

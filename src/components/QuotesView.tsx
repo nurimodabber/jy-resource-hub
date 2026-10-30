@@ -12,6 +12,7 @@ import { SegmentedControl } from './ui/SegmentedControl';
 import { Sheet } from './ui/Sheet';
 import { Dialog } from './ui/Dialog';
 import { Button } from './ui/Button';
+import { IconButton } from './ui/IconButton';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
 import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { EmptyState } from './ui/EmptyState';
@@ -300,9 +301,12 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     const bookQuotes = QUOTES_DATA.filter(
       (q) => (q.mainBook?.de || q.book.de.split(',')[0].trim()) === bookTitleDe
     );
+    if (bookQuotes.length === 0) return;
     const currIdx = bookQuotes.findIndex((q) => q.id === practiceQuote.id);
     const nextIdx = (currIdx + 1) % bookQuotes.length;
-    setPracticeQuote(bookQuotes[nextIdx]);
+    const nextQuote = bookQuotes[nextIdx];
+    setPracticeQuote(nextQuote);
+    updateParams({ quote: nextQuote.id });
   };
 
   // Filtered 50 Methods catalog with phase and app filters
@@ -551,7 +555,10 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     isFavorite={favorites.includes(quote.id)}
                     onToggleFavorite={onToggleFavorite}
                     onSelectQuote={(q) => navigate(`/quotes/${q.id}`)}
-                    onPracticeQuote={(q) => navigate(`/quotes?tab=practice&quote=${q.id}`)}
+                    onPracticeQuote={(q) => {
+                      navigate(`/quotes?tab=practice&quote=${q.id}`);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                   />
                 ))}
               </div>
@@ -590,36 +597,36 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <Button
+            <div className="flex items-center gap-1.5 shrink-0">
+              <IconButton
                 variant="secondary"
+                size="md"
                 onClick={() => setIsQuotePickerOpen(true)}
-                className="w-11 h-11 min-w-[44px] min-h-[44px] p-0 flex items-center justify-center rounded-control"
-                title={t.chooseAnotherQuote}
-                aria-label={t.chooseAnotherQuote}
+                label={t.chooseAnotherQuote}
+                className="bg-surface-2 hover:bg-surface-2/80 border border-border/70"
               >
-                <Search className="w-4 h-4" />
-              </Button>
+                <Search className="w-4.5 h-4.5 text-text" strokeWidth={1.75} />
+              </IconButton>
 
-              <Button
+              <IconButton
                 variant="outline"
+                size="md"
                 onClick={handleNextQuoteInBook}
-                className="w-11 h-11 min-w-[44px] min-h-[44px] p-0 flex items-center justify-center rounded-control"
-                title={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
-                aria-label={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
+                label={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
+                className="bg-surface hover:bg-surface-2 border border-border/70"
               >
-                <ArrowRight className="w-4 h-4" />
-              </Button>
+                <ArrowRight className="w-4.5 h-4.5 text-text" strokeWidth={1.75} />
+              </IconButton>
 
-              <Button
+              <IconButton
                 variant="outline"
+                size="md"
                 onClick={() => navigate(`/quotes/${practiceQuote.id}`)}
-                className="w-11 h-11 min-w-[44px] min-h-[44px] p-0 flex items-center justify-center rounded-control"
-                title={isDe ? 'Im Lesemodus lesen' : 'Read in reading mode'}
-                aria-label={isDe ? 'Im Lesemodus lesen' : 'Read in reading mode'}
+                label={isDe ? 'Im Lesemodus lesen' : 'Read in reading mode'}
+                className="bg-surface hover:bg-surface-2 border border-border/70"
               >
-                <BookOpen className="w-4 h-4" />
-              </Button>
+                <BookOpen className="w-4.5 h-4.5 text-text" strokeWidth={1.75} />
+              </IconButton>
             </div>
           </div>
 
@@ -878,6 +885,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   key={q.id}
                   onClick={() => {
                     setPracticeQuote(q);
+                    updateParams({ quote: q.id });
                     setIsQuotePickerOpen(false);
                   }}
                   className={`p-3 rounded-xl border text-left cursor-pointer transition-colors ${

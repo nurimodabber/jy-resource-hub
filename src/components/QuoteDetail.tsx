@@ -98,12 +98,11 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
           <button
             type="button"
             onClick={() => navigate(`/quotes?tab=practice&quote=${activeQuote.id}`)}
-            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] h-11 px-0 sm:px-3 gap-1.5 rounded-control border border-border bg-surface hover:bg-surface-2 text-text text-xs font-semibold transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-            title={isDe ? 'Auswendiglernen öffnen' : 'Open memorisation'}
-            aria-label={isDe ? 'Auswendiglernen öffnen' : 'Open memorisation'}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control border border-border bg-surface hover:bg-surface-2 text-accent transition-all active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+            title={isDe ? 'Auswendiglernen' : 'Memorise'}
+            aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
           >
-            <Zap className="w-4 h-4 text-accent fill-accent/20 shrink-0" />
-            <span className="hidden sm:inline">{isDe ? 'Auswendiglernen' : 'Memorise'}</span>
+            <Zap className="w-4.5 h-4.5 text-accent fill-accent/30" />
           </button>
 
           {/* Song (if available) */}

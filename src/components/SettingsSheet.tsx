@@ -101,10 +101,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         {/* ================================================================= */}
         {/* SECTION 1: DARSTELLUNG & SPRACHE                                  */}
         {/* ================================================================= */}
-        <section className="space-y-1.5 text-left">
-          <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary px-1">
-            {language === 'de' ? 'Darstellung & Sprache' : 'Appearance & Language'}
-          </h3>
+        <section className="text-left">
           <div className="bg-surface/90 border border-border/80 rounded-card p-4 space-y-4 overflow-hidden shadow-xs">
             {/* Theme 4-segment selector */}
             <div className="space-y-2">
@@ -168,10 +165,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         {/* ================================================================= */}
         {/* SECTION 2: GRUPPE                                                 */}
         {/* ================================================================= */}
-        <section className="space-y-1.5 text-left">
-          <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary px-1">
-            {language === 'de' ? 'Gruppe' : 'Group'}
-          </h3>
+        <section className="text-left">
           <div className="bg-surface/90 border border-border/80 rounded-card overflow-hidden shadow-xs">
             <div className="p-3.5 space-y-3">
               <div
@@ -237,10 +231,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         {/* ================================================================= */}
         {/* SECTION 3: DATEN & SICHERUNG                                      */}
         {/* ================================================================= */}
-        <section className="space-y-1.5 text-left">
-          <h3 className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary px-1">
-            {language === 'de' ? 'Daten & Sicherung' : 'Data & Backup'}
-          </h3>
+        <section className="text-left">
           <div className="bg-surface/90 border border-border/80 rounded-card divide-y divide-border/60 overflow-hidden shadow-xs">
             {/* Symmetrical Flat Action Buttons (2-column grid) */}
             <div className="p-3.5">
