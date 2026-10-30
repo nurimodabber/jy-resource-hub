@@ -2,12 +2,13 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
   Search, X, BookOpen, Layers, Sparkles, Heart,
-  ArrowRight, Play, Check, SlidersHorizontal, Zap
+  ArrowLeft, ArrowRight, Play, Check, SlidersHorizontal, Zap, Music
 } from 'lucide-react';
 import { QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { QUOTES_DATA, JUNIOR_YOUTH_BOOKS } from '../data/quotes';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { getQuoteSong } from '../data/quoteSongs';
 import { SegmentedControl } from './ui/SegmentedControl';
 import { Sheet } from './ui/Sheet';
 import { Dialog } from './ui/Dialog';
@@ -296,17 +297,32 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     });
   };
 
-  const handleNextQuoteInBook = () => {
+  const currentBookQuotes = useMemo(() => {
     const bookTitleDe = practiceQuote.mainBook?.de || practiceQuote.book.de.split(',')[0].trim();
-    const bookQuotes = QUOTES_DATA.filter(
+    return QUOTES_DATA.filter(
       (q) => (q.mainBook?.de || q.book.de.split(',')[0].trim()) === bookTitleDe
     );
-    if (bookQuotes.length === 0) return;
-    const currIdx = bookQuotes.findIndex((q) => q.id === practiceQuote.id);
-    const nextIdx = (currIdx + 1) % bookQuotes.length;
-    const nextQuote = bookQuotes[nextIdx];
+  }, [practiceQuote]);
+
+  const currentQuoteIndexInBook = useMemo(() => {
+    const idx = currentBookQuotes.findIndex((q) => q.id === practiceQuote.id);
+    return idx >= 0 ? idx : 0;
+  }, [currentBookQuotes, practiceQuote.id]);
+
+  const handleNextQuoteInBook = () => {
+    if (currentBookQuotes.length === 0) return;
+    const nextIdx = (currentQuoteIndexInBook + 1) % currentBookQuotes.length;
+    const nextQuote = currentBookQuotes[nextIdx];
     setPracticeQuote(nextQuote);
     updateParams({ quote: nextQuote.id });
+  };
+
+  const handlePrevQuoteInBook = () => {
+    if (currentBookQuotes.length === 0) return;
+    const prevIdx = (currentQuoteIndexInBook - 1 + currentBookQuotes.length) % currentBookQuotes.length;
+    const prevQuote = currentBookQuotes[prevIdx];
+    setPracticeQuote(prevQuote);
+    updateParams({ quote: prevQuote.id });
   };
 
   // Filtered 50 Methods catalog with phase and app filters
@@ -579,56 +595,109 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       {/* ========================================================================= */}
       {viewTab === 'practice' && (
         <div className="space-y-6">
-          {/* Active Practice Quote Banner (always visible at top of practice view) */}
-          <div className="bg-surface rounded-card border border-border/80 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-2xs">
-            <div className="space-y-2 max-w-2xl">
-              <div className="flex items-center gap-2 text-xs text-text-tertiary">
-                <span className="px-2.5 py-0.5 rounded-chip text-2xs font-semibold bg-accent/8 text-accent border border-accent/20">
-                  {t.activePracticeQuote}
-                </span>
-                <span className="text-border" aria-hidden="true">·</span>
-                <span className="text-xs text-text-secondary font-medium">{practiceQuote.book[language]}</span>
+          {/* Active Practice Quote Banner (Hero) */}
+          {(() => {
+            const practiceSong = getQuoteSong(practiceQuote.id, language);
+            return (
+              <div className="bg-surface rounded-card border border-border/80 shadow-xs overflow-hidden transition-all duration-200">
+                {/* 1. Header Bar: Badge, Book/Lesson info & Quote counter */}
+                <div className="px-4 sm:px-6 py-3 bg-surface-2/40 border-b border-border/60 flex items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle text-accent-text shrink-0">
+                      <Zap className="w-3.5 h-3.5 fill-accent/30" />
+                      <span>{isDe ? 'Ausgewählt zum Üben' : 'Selected for practice'}</span>
+                    </span>
+                    <span className="text-border-strong text-xs hidden sm:inline" aria-hidden="true">·</span>
+                    <span className="text-xs text-text-secondary font-medium truncate max-w-xs sm:max-w-md">
+                      {practiceQuote.book[language]}
+                    </span>
+                  </div>
+
+                  <span className="text-2xs font-bold text-text-tertiary tabular-nums shrink-0">
+                    {isDe 
+                      ? `Zitat ${currentQuoteIndexInBook + 1} von ${currentBookQuotes.length}` 
+                      : `Quote ${currentQuoteIndexInBook + 1} of ${currentBookQuotes.length}`}
+                  </span>
+                </div>
+
+                {/* 2. Main Content: Holy text and attribution */}
+                <div className="p-5 sm:p-6 space-y-3">
+                  <p className="font-serif text-lg sm:text-xl md:text-2xl text-text leading-relaxed font-normal">
+                    {isDe ? `»${practiceQuote.textDe}«` : `“${practiceQuote.textEn}”`}
+                  </p>
+                  <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium">
+                    — {practiceQuote.source[language]}
+                  </p>
+                </div>
+
+                {/* 3. Action Toolbar: Navigation on left, Quick Actions on right */}
+                <div className="px-4 sm:px-6 py-3 bg-surface-2/20 border-t border-border/60 flex items-center justify-between gap-3 flex-wrap">
+                  {/* Left: Previous & Next Quote in Book Navigation */}
+                  <div className="flex items-center gap-1.5">
+                    <IconButton
+                      variant="outline"
+                      size="md"
+                      onClick={handlePrevQuoteInBook}
+                      label={isDe ? 'Vorheriges Zitat aus diesem Buch' : 'Previous quote in book'}
+                      className="bg-surface hover:bg-surface-2 border border-border/80 text-text"
+                    >
+                      <ArrowLeft className="w-4 h-4" strokeWidth={1.75} />
+                    </IconButton>
+
+                    <span className="text-xs font-semibold text-text-secondary px-2 tabular-nums select-none">
+                      {currentQuoteIndexInBook + 1} / {currentBookQuotes.length}
+                    </span>
+
+                    <IconButton
+                      variant="outline"
+                      size="md"
+                      onClick={handleNextQuoteInBook}
+                      label={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
+                      className="bg-surface hover:bg-surface-2 border border-border/80 text-text"
+                    >
+                      <ArrowRight className="w-4 h-4" strokeWidth={1.75} />
+                    </IconButton>
+                  </div>
+
+                  {/* Right: Change Quote, Reading Mode, Song */}
+                  <div className="flex items-center gap-1.5">
+                    {practiceSong && (
+                      <a
+                        href={practiceSong.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-control border border-border/80 bg-surface hover:bg-surface-2 text-accent inline-flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                        title={isDe ? `Lied „${practiceSong.title}“ auf bahaisongs.com anhören` : `Listen to song "${practiceSong.title}" on bahaisongs.com`}
+                        aria-label={t.quoteSongAriaLabel}
+                      >
+                        <Music className="w-4 h-4" />
+                      </a>
+                    )}
+
+                    <IconButton
+                      variant="secondary"
+                      size="md"
+                      onClick={() => setIsQuotePickerOpen(true)}
+                      label={t.chooseAnotherQuote}
+                      className="bg-surface-2 hover:bg-surface-2/80 border border-border/80 text-text"
+                    >
+                      <Search className="w-4 h-4" strokeWidth={1.75} />
+                    </IconButton>
+
+                    <IconButton
+                      variant="outline"
+                      size="md"
+                      onClick={() => navigate(`/quotes/${practiceQuote.id}`)}
+                      label={isDe ? 'Im Lesemodus lesen' : 'Read in reading mode'}
+                      className="bg-surface hover:bg-surface-2 border border-border/80 text-text"
+                    >
+                      <BookOpen className="w-4 h-4" strokeWidth={1.75} />
+                    </IconButton>
+                  </div>
+                </div>
               </div>
-              <p className="font-serif text-lg sm:text-xl text-text leading-relaxed italic">
-                {isDe ? `»${practiceQuote.textDe}«` : `“${practiceQuote.textEn}”`}
-              </p>
-              <p className="text-xs text-text-secondary font-sans font-medium">
-                — {practiceQuote.source[language]}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              <IconButton
-                variant="secondary"
-                size="md"
-                onClick={() => setIsQuotePickerOpen(true)}
-                label={t.chooseAnotherQuote}
-                className="bg-surface-2 hover:bg-surface-2/80 border border-border/70"
-              >
-                <Search className="w-4.5 h-4.5 text-text" strokeWidth={1.75} />
-              </IconButton>
-
-              <IconButton
-                variant="outline"
-                size="md"
-                onClick={handleNextQuoteInBook}
-                label={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
-                className="bg-surface hover:bg-surface-2 border border-border/70"
-              >
-                <ArrowRight className="w-4.5 h-4.5 text-text" strokeWidth={1.75} />
-              </IconButton>
-
-              <IconButton
-                variant="outline"
-                size="md"
-                onClick={() => navigate(`/quotes/${practiceQuote.id}`)}
-                label={isDe ? 'Im Lesemodus lesen' : 'Read in reading mode'}
-                className="bg-surface hover:bg-surface-2 border border-border/70"
-              >
-                <BookOpen className="w-4.5 h-4.5 text-text" strokeWidth={1.75} />
-              </IconButton>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Active Interactive Simulator (when a Web-App tool is launched) */}
           {activeTool && (
