@@ -89,7 +89,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
               </span>
               <span className="flex items-center gap-2">
                 <Globe className="w-3.5 h-3.5 text-accent shrink-0" />
-                <span>https://jy-resource-hub.vercel.app</span>
+                <span>https://juju-hub.vercel.app</span>
               </span>
             </div>
 

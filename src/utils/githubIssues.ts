@@ -15,21 +15,11 @@ import {
   saveProposalsList,
   mergeProposals,
 } from './adminRevisions';
-import {
-  AdminAccount,
-  getAdminAccounts,
-  saveAdminAccounts,
-  mergeAdminAccounts,
-  getDeletedAccountIds,
-  saveDeletedAccountIds,
-  generateRandomSalt,
-  hashPasswordWithSalt,
-} from './adminAuth';
+import { AdminAccount, adminApi, hasAdminSession, setAdminAccountsFromServer } from './adminAuth';
 import { Game, ServiceProject, ArtsPrompt } from '../types';
 import { EmpireCategoryV2 as EmpireCategory } from '../data/empireContent';
 
 export const STORAGE_GH_REPO_KEY = 'jy_admin_github_repo';
-export const STORAGE_GH_TOKEN_KEY = 'jy_admin_github_token';
 export const STORAGE_SYNCED_GAMES_KEY = 'jy_synced_approved_games';
 export const STORAGE_SYNCED_CATS_KEY = 'jy_synced_approved_cats';
 export const STORAGE_SYNCED_SERVICE_KEY = 'jy_synced_approved_service';
@@ -37,16 +27,17 @@ export const STORAGE_SYNCED_ARTS_KEY = 'jy_synced_approved_arts';
 export const STORAGE_SYNCED_DELETED_KEY = 'jy_synced_deleted_ids';
 export const DEFAULT_GH_REPO = 'nurimodabber/jy-resource-hub';
 
-export interface GitHubConnectionStatus {
-  ok: boolean;
+/** Server configuration as reported to the Owner by /api/sync (no secret values). */
+export interface SystemStatus {
   repo: string;
+  repoOk: boolean;
   canWrite: boolean;
-  hasToken: boolean;
-  user?: string;
-  rateLimitRemaining?: number;
-  rateLimitTotal?: number;
-  openIssuesCount?: number;
-  error?: string;
+  rateRemaining: number | null;
+  ownerConfigured: boolean;
+  sessionSecretConfigured: boolean;
+  separateStateKey: boolean;
+  setupTokenActive: boolean;
+  emailConfigured: boolean;
 }
 
 export interface SyncedApprovedContent {
@@ -85,34 +76,6 @@ export function getGitHubRepo(): string {
   }
 }
 
-export function setGitHubRepo(repo: string): void {
-  try {
-    localStorage.setItem(STORAGE_GH_REPO_KEY, repo.trim() || DEFAULT_GH_REPO);
-  } catch {
-    /* ignore */
-  }
-}
-
-export function getGitHubToken(): string {
-  try {
-    return localStorage.getItem(STORAGE_GH_TOKEN_KEY) || '';
-  } catch {
-    return '';
-  }
-}
-
-export function setGitHubToken(token: string): void {
-  try {
-    if (token.trim()) {
-      localStorage.setItem(STORAGE_GH_TOKEN_KEY, token.trim());
-    } else {
-      localStorage.removeItem(STORAGE_GH_TOKEN_KEY);
-    }
-  } catch {
-    /* ignore */
-  }
-}
-
 /** Parses embedded JSON draft from GitHub Issue markdown body */
 function extractJsonDraft(body: string | null): Record<string, unknown> | null {
   if (!body) return null;
@@ -125,284 +88,93 @@ function extractJsonDraft(body: string | null): Record<string, unknown> | null {
   }
 }
 
-/** Fetches open issues from the configured GitHub repository */
+type ServerIssue = Pick<GitHubIssue, 'number' | 'title' | 'body' | 'html_url' | 'created_at'> & {
+  labels: Array<{ name: string }>;
+  user?: { login: string; avatar_url: string; html_url: string };
+  contactName?: string;
+  contactEmail?: string;
+};
+
+/** Open community proposals, loaded through the server (needs a session with review rights). */
 export async function fetchGitHubProposals(): Promise<{ ok: boolean; issues: ProposalItem[]; rawCount: number; error?: string }> {
-  const repo = getGitHubRepo();
-  const token = getGitHubToken();
-
-  try {
-    const headers: Record<string, string> = {
-      Accept: 'application/vnd.github.v3+json',
-      'User-Agent': 'JY-Hub-Admin',
-    };
-    if (token) {
-      headers.Authorization = `token ${token}`;
-    }
-
-    const url = `https://api.github.com/repos/${repo}/issues?state=open&per_page=50`;
-    const res = await fetch(url, { headers });
-
-    if (!res.ok) {
-      if (res.status === 403 || res.status === 429) {
-        return {
-          ok: false,
-          issues: [],
-          rawCount: 0,
-          error: 'GitHub API Ratenlimit erreicht. Du kannst in den Admin-Einstellungen ein GitHub Personal Access Token (PAT) hinterlegen.',
-        };
-      }
-      if (res.status === 404) {
-        return {
-          ok: false,
-          issues: [],
-          rawCount: 0,
-          error: `GitHub Repository "${repo}" wurde nicht gefunden oder ist privat.`,
-        };
-      }
-      return {
-        ok: false,
-        issues: [],
-        rawCount: 0,
-        error: `GitHub API Fehler: HTTP ${res.status}`,
-      };
-    }
-
-    const ghIssues: GitHubIssue[] = await res.json();
-    if (!Array.isArray(ghIssues)) {
-      return { ok: true, issues: [], rawCount: 0 };
-    }
-
-    // Filter out PRs, keep only issues
-    const realIssues = ghIssues.filter((i) => !i.pull_request);
-
-    const proposals: ProposalItem[] = realIssues.map((issue) => {
-      const parsedDraft = extractJsonDraft(issue.body);
-      const isService = issue.labels.some((l) => l.name === 'dienst') || parsedDraft?.kind === 'dienst';
-      const isArt = issue.labels.some((l) => l.name === 'kunst') || parsedDraft?.kind === 'kunst';
-      const isCategory = issue.labels.some((l) => l.name === 'kategorie') || parsedDraft?.kind === 'kategorie';
-
-      let type: 'spiel' | 'dienst' | 'kunst' | 'kategorie' = 'spiel';
-      if (isService) type = 'dienst';
-      else if (isArt) type = 'kunst';
-      else if (isCategory) type = 'kategorie';
-
-      const summary = (parsedDraft?.summary as { de?: string })?.de ||
-        (issue.body ? issue.body.replace(/###[\s\S]*?\n\n/g, '').slice(0, 200).trim() : issue.title);
-
-      return {
-        id: `gh_issue_${issue.number}`,
-        type,
-        title: issue.title.replace(/^\[.*?\]\s*/, ''),
-        summary,
-        authorName: issue.user?.login || 'GitHub User',
-        createdAt: new Date(issue.created_at).getTime(),
-        status: 'pending',
-        githubIssueNumber: issue.number,
-        payload: {
-          ...(parsedDraft || {}),
-          githubIssueNumber: issue.number,
-          githubUrl: issue.html_url,
-          githubUserAvatar: issue.user?.avatar_url,
-          githubUserUrl: issue.user?.html_url,
-          labels: issue.labels.map((l) => l.name),
-        },
-      };
-    });
-
-    return {
-      ok: true,
-      issues: proposals,
-      rawCount: realIssues.length,
-    };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Netzwerkfehler beim Abrufen der GitHub Issues';
+  if (!hasAdminSession()) return { ok: false, issues: [], rawCount: 0, error: 'Nicht angemeldet.' };
+  const res = await adminApi<{ ok: boolean; code?: string; issues?: ServerIssue[] }>({ action: 'list_proposals' });
+  if (!res.ok || !Array.isArray(res.issues)) {
     return {
       ok: false,
       issues: [],
       rawCount: 0,
-      error: message,
+      error:
+        res.code === 'forbidden'
+          ? 'Für Einreichungen fehlt dir die Prüf-Berechtigung.'
+          : 'Einreichungen konnten nicht geladen werden.',
     };
   }
+
+  const proposals: ProposalItem[] = res.issues.map((issue) => {
+    const parsedDraft = extractJsonDraft(issue.body);
+    const labelNames = issue.labels.map((l) => l.name);
+    const isService = labelNames.includes('dienst') || parsedDraft?.kind === 'dienst';
+    const isArt = labelNames.includes('kunst') || parsedDraft?.kind === 'kunst';
+    const isCategory = labelNames.includes('kategorie') || parsedDraft?.kind === 'kategorie';
+
+    let type: 'spiel' | 'dienst' | 'kunst' | 'kategorie' = 'spiel';
+    if (isService) type = 'dienst';
+    else if (isArt) type = 'kunst';
+    else if (isCategory) type = 'kategorie';
+
+    const summary =
+      (parsedDraft?.summary as { de?: string })?.de ||
+      (issue.body ? issue.body.replace(/###[\s\S]*?\n\n/g, '').slice(0, 200).trim() : issue.title);
+
+    return {
+      id: `gh_issue_${issue.number}`,
+      type,
+      title: issue.title.replace(/^\[.*?\]\s*/, ''),
+      summary,
+      authorName: issue.contactName || issue.user?.login || 'GitHub User',
+      authorEmail: issue.contactEmail,
+      createdAt: new Date(issue.created_at).getTime(),
+      status: 'pending',
+      githubIssueNumber: issue.number,
+      payload: {
+        ...(parsedDraft || {}),
+        githubIssueNumber: issue.number,
+        githubUrl: issue.html_url,
+        githubUserAvatar: issue.user?.avatar_url,
+        githubUserUrl: issue.user?.html_url,
+        labels: labelNames,
+      },
+    };
+  });
+
+  return { ok: true, issues: proposals, rawCount: proposals.length };
 }
 
-/** Updates a GitHub issue status (and optionally its JSON payload) when accepted, edited, rejected, or deleted in the admin panel */
+/** Accept / reject / delete a community proposal issue. Only the server holds the GitHub token. */
 export async function updateGitHubIssueStatus(
   issueNumber: number,
   action: 'accept' | 'reject' | 'delete',
   reason?: string,
   updatedPayload?: Record<string, unknown>
 ): Promise<{ ok: boolean; error?: string }> {
-  // 1. Try serverless endpoint first (works on Vercel with process.env.GITHUB_TOKEN)
-  try {
-    const res = await fetch('/api/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, issueNumber, reason, updatedPayload }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (res.ok && data.ok) {
-      return { ok: true };
-    }
-  } catch {
-    /* Fallback to direct client call if server endpoint unavailable */
-  }
-
-  // 2. Direct client call using user configured GitHub PAT
-  const token = getGitHubToken();
-  const repo = getGitHubRepo();
-  if (!token) {
-    return {
-      ok: false,
-      error: 'Kein GitHub Token auf dem Server oder im Browser hinterlegt. Status wurde lokal gespeichert.',
-    };
-  }
-
-  try {
-    const headers = {
-      Accept: 'application/vnd.github.v3+json',
-      Authorization: `token ${token}`,
-      'User-Agent': 'JY-Hub-Admin',
-      'Content-Type': 'application/json',
-    };
-
-    // Fetch existing issue labels & body
-    const issueRes = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, { headers });
-    const issueData = await issueRes.json();
-    const currentLabels: string[] = (issueData.labels || []).map((l: { name: string }) => l.name);
-
-    const newLabels = currentLabels.filter((l) => l !== 'vorschlag' && l !== 'status:accepted' && l !== 'übernommen' && l !== 'abgelehnt' && l !== 'gelöscht');
-    let commentBody = '';
-
-    if (action === 'accept') {
-      newLabels.push('übernommen');
-      commentBody = '✅ Dieser Eintrag wurde redaktionell geprüft und live im Katalog veröffentlicht.';
-    } else if (action === 'reject') {
-      newLabels.push('abgelehnt');
-      commentBody = `❌ Dieser Vorschlag wurde abgelehnt: ${reason || 'Keine Begründung angegeben'}`;
-    } else if (action === 'delete') {
-      newLabels.push('gelöscht');
-      commentBody = '🗑️ Dieser Eintrag wurde aus dem aktiven Katalog entfernt.';
-    }
-
-    const patchBody: Record<string, unknown> = {
-      state: 'closed',
-      labels: newLabels,
-    };
-
-    if (updatedPayload) {
-      const existingBody = typeof issueData.body === 'string' ? issueData.body : '';
-      const jsonBlock = '```json\n' + JSON.stringify(updatedPayload, null, 2) + '\n```';
-      if (/```json[\s\S]*?```/.test(existingBody)) {
-        patchBody.body = existingBody.replace(/```json[\s\S]*?```/, jsonBlock);
-      } else {
-        patchBody.body = `${existingBody}\n\n### Redaktioneller Datensatz\n${jsonBlock}`.trim();
-      }
-    }
-
-    await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify(patchBody),
-    });
-
-    if (commentBody) {
-      await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}/comments`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ body: commentBody }),
-      });
-    }
-
-    return { ok: true };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Fehler beim Aktualisieren des GitHub Issues';
-    return { ok: false, error: message };
-  }
+  const res = await adminApi({ action, issueNumber, reason, updatedPayload });
+  if (res.ok) return { ok: true };
+  return {
+    ok: false,
+    error:
+      res.code === 'forbidden' || res.code === 'not_a_proposal'
+        ? 'Dafür fehlt die Berechtigung.'
+        : res.code === 'unauthorized'
+          ? 'Sitzung abgelaufen. Bitte neu anmelden.'
+          : 'GitHub-Status konnte nicht aktualisiert werden. Änderung ist lokal gespeichert.',
+  };
 }
 
-/** Tests the GitHub connection, repository accessibility, token write permissions, and rate limits */
-export async function testGitHubConnection(customRepo?: string, customToken?: string): Promise<GitHubConnectionStatus> {
-  const repo = (customRepo !== undefined ? customRepo : getGitHubRepo()).trim() || DEFAULT_GH_REPO;
-  const token = (customToken !== undefined ? customToken : getGitHubToken()).trim();
-
-  const headers: Record<string, string> = {
-    Accept: 'application/vnd.github.v3+json',
-    'User-Agent': 'JY-Hub-Admin',
-  };
-  if (token) {
-    headers.Authorization = `token ${token}`;
-  }
-
-  try {
-    const repoRes = await fetch(`https://api.github.com/repos/${repo}`, { headers });
-    const remaining = Number(repoRes.headers.get('x-ratelimit-remaining'));
-    const limit = Number(repoRes.headers.get('x-ratelimit-limit'));
-
-    if (!repoRes.ok) {
-      if (repoRes.status === 401) {
-        return {
-          ok: false,
-          repo,
-          canWrite: false,
-          hasToken: !!token,
-          error: 'Ungültiges Personal Access Token (HTTP 401).',
-        };
-      }
-      if (repoRes.status === 404) {
-        return {
-          ok: false,
-          repo,
-          canWrite: false,
-          hasToken: !!token,
-          error: `Repository "${repo}" nicht gefunden oder nicht öffentlich zugänglich.`,
-        };
-      }
-      return {
-        ok: false,
-        repo,
-        canWrite: false,
-        hasToken: !!token,
-        rateLimitRemaining: !Number.isNaN(remaining) ? remaining : undefined,
-        rateLimitTotal: !Number.isNaN(limit) ? limit : undefined,
-        error: `GitHub API Status: HTTP ${repoRes.status}`,
-      };
-    }
-
-    const repoData = await repoRes.json();
-    const canPush = Boolean(repoData.permissions?.push || repoData.permissions?.admin || repoData.permissions?.maintain);
-    let userLogin: string | undefined;
-
-    if (token) {
-      try {
-        const userRes = await fetch('https://api.github.com/user', { headers });
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          userLogin = userData.login;
-        }
-      } catch {
-        /* ignore */
-      }
-    }
-
-    return {
-      ok: true,
-      repo,
-      canWrite: canPush || (!!token && !!userLogin),
-      hasToken: !!token,
-      user: userLogin,
-      rateLimitRemaining: !Number.isNaN(remaining) ? remaining : undefined,
-      rateLimitTotal: !Number.isNaN(limit) ? limit : undefined,
-      openIssuesCount: typeof repoData.open_issues_count === 'number' ? repoData.open_issues_count : undefined,
-    };
-  } catch (err: unknown) {
-    return {
-      ok: false,
-      repo,
-      canWrite: false,
-      hasToken: !!token,
-      error: err instanceof Error ? err.message : 'Verbindung zu GitHub fehlgeschlagen',
-    };
-  }
+/** Owner-only: which server settings are configured (never the values themselves). */
+export async function fetchSystemStatus(): Promise<{ ok: boolean; status?: SystemStatus; code?: string }> {
+  const res = await adminApi<{ ok: boolean; code?: string; status?: SystemStatus }>({ action: 'system_status' });
+  return res.ok ? { ok: true, status: res.status } : { ok: false, code: res.code };
 }
 
 /** Fetches approved community content & deleted IDs from GitHub to sync with live website */
@@ -435,17 +207,12 @@ export async function fetchApprovedGitHubContent(): Promise<SyncedApprovedConten
     /* Fallback to public GitHub API */
   }
 
-  // 2. Direct public GitHub REST API call
+  // 2. Direct public GitHub REST API call (unauthenticated; public repository)
   const repo = getGitHubRepo();
-  const token = getGitHubToken();
   try {
     const headers: Record<string, string> = {
       Accept: 'application/vnd.github.v3+json',
-      'User-Agent': 'JY-Hub-Client',
     };
-    if (token) {
-      headers.Authorization = `token ${token}`;
-    }
 
     const res = await fetch(`https://api.github.com/repos/${repo}/issues?state=all&per_page=100`, { headers });
 
@@ -566,9 +333,8 @@ export function getCachedApprovedContent(): SyncedApprovedContent {
 }
 
 /**
- * Two-way cloud sync for Admin Accounts, Deleted Account IDs, Revisions, and Proposals via `/api/sync`.
- * Ensures accounts signed into on any device (e.g. a friend's browser) become viewable from the Owner's
- * account, and permission/role updates or rollbacks propagate across devices.
+ * Two-way sync of the revision log and proposals via `/api/sync` (session required). The server
+ * stamps authorship, enforces permissions and returns the team list without any password data.
  */
 export async function syncAdminStateWithCloud(): Promise<{
   ok: boolean;
@@ -577,90 +343,36 @@ export async function syncAdminStateWithCloud(): Promise<{
   proposals: ProposalItem[];
   pendingRequestCount?: number;
 }> {
-  const localAccounts = getAdminAccounts();
-  const localDeletedAccountIds = getDeletedAccountIds();
   const localRevisions = getRevisions();
   const localProposals = getProposals();
+  const offline = { ok: false, accounts: [] as AdminAccount[], revisions: localRevisions, proposals: localProposals };
+  if (!hasAdminSession()) return offline;
 
-  try {
-    const res = await fetch('/api/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'sync_admin_state',
-        accounts: localAccounts,
-        deletedAccountIds: localDeletedAccountIds,
-        revisions: localRevisions,
-        proposals: localProposals,
-      }),
-    });
+  const data = await adminApi<{
+    ok: boolean;
+    account?: AdminAccount;
+    state?: { accounts?: AdminAccount[]; revisions?: DataRevision[]; proposals?: ProposalItem[] };
+    pendingRequestCount?: number;
+  }>({ action: 'sync_admin_state', revisions: localRevisions, proposals: localProposals });
+  if (!data.ok || !data.state) return offline;
 
-    if (!res.ok) {
-      return {
-        ok: false,
-        accounts: localAccounts,
-        revisions: localRevisions,
-        proposals: localProposals,
-      };
-    }
+  const accounts = Array.isArray(data.state.accounts) ? data.state.accounts : [];
+  setAdminAccountsFromServer(accounts, data.account);
 
-    const data = await res.json();
-    if (!data?.ok || !data?.state) {
-      return {
-        ok: false,
-        accounts: localAccounts,
-        revisions: localRevisions,
-        proposals: localProposals,
-      };
-    }
+  const mergedRevs = mergeRevisions(localRevisions, Array.isArray(data.state.revisions) ? data.state.revisions : []);
+  saveRevisions(mergedRevs);
+  const mergedProps = mergeProposals(localProposals, Array.isArray(data.state.proposals) ? data.state.proposals : []);
+  saveProposalsList(mergedProps);
 
-    const remoteState = data.state;
-    const mergedDeletedIds = Array.from(
-      new Set([...localDeletedAccountIds, ...(remoteState.deletedAccountIds || [])])
-    );
-    saveDeletedAccountIds(mergedDeletedIds);
-
-    const mergedAccounts = mergeAdminAccounts(
-      localAccounts,
-      Array.isArray(remoteState.accounts) ? remoteState.accounts : [],
-      mergedDeletedIds
-    );
-    saveAdminAccounts(mergedAccounts);
-
-    const mergedRevs = mergeRevisions(
-      localRevisions,
-      Array.isArray(remoteState.revisions) ? remoteState.revisions : []
-    );
-    saveRevisions(mergedRevs);
-
-    const mergedProps = mergeProposals(
-      localProposals,
-      Array.isArray(remoteState.proposals) ? remoteState.proposals : []
-    );
-    saveProposalsList(mergedProps);
-
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('jy_data_updated'));
-      window.dispatchEvent(new CustomEvent('jy_accounts_updated'));
-    }
-
-    return {
-      ok: true,
-      accounts: mergedAccounts,
-      revisions: mergedRevs,
-      proposals: mergedProps,
-      pendingRequestCount: typeof data.pendingRequestCount === 'number' ? data.pendingRequestCount : 0,
-    };
-  } catch {
-    return {
-      ok: false,
-      accounts: localAccounts,
-      revisions: localRevisions,
-      proposals: localProposals,
-    };
-  }
+  window.dispatchEvent(new CustomEvent('jy_data_updated'));
+  return {
+    ok: true,
+    accounts,
+    revisions: mergedRevs,
+    proposals: mergedProps,
+    pendingRequestCount: typeof data.pendingRequestCount === 'number' ? data.pendingRequestCount : 0,
+  };
 }
-
 
 export interface AccountRequest {
   id: string;
@@ -679,24 +391,9 @@ interface AccountRequestApiResult {
   message?: string;
 }
 
-async function postAdminAction<T extends AccountRequestApiResult>(payload: Record<string, unknown>): Promise<T> {
-  try {
-    const res = await fetch('/api/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const data = (await res.json()) as T;
-    if (data && typeof data.ok === 'boolean') return data;
-    return { ok: false, code: 'network' } as T;
-  } catch {
-    return { ok: false, code: 'network' } as T;
-  }
-}
-
 /**
- * Sends an access request. The password is hashed here with a fresh salt, so the
- * plain password never leaves the device. No account exists until the Owner approves.
+ * Sends an access request. The password travels over HTTPS and is hashed on the server (PBKDF2);
+ * no account exists until the Owner approves.
  */
 export async function submitAccountRequest(params: {
   displayName: string;
@@ -704,31 +401,17 @@ export async function submitAccountRequest(params: {
   message: string;
   password: string;
 }): Promise<AccountRequestApiResult> {
-  const salt = generateRandomSalt();
-  const passwordHash = await hashPasswordWithSalt(params.password, salt);
-  return postAdminAction({
-    action: 'request_account',
-    displayName: params.displayName,
-    email: params.email,
-    message: params.message,
-    salt,
-    passwordHash,
-  });
+  return adminApi({ action: 'request_account', ...params });
 }
 
-export async function fetchAccountRequests(
-  ownerUsername: string,
-  ownerPassword: string
-): Promise<AccountRequestApiResult & { requests?: AccountRequest[] }> {
-  return postAdminAction({ action: 'list_account_requests', ownerUsername, ownerPassword });
+export async function fetchAccountRequests(): Promise<AccountRequestApiResult & { requests?: AccountRequest[] }> {
+  return adminApi({ action: 'list_account_requests' });
 }
 
 export async function decideAccountRequest(params: {
-  ownerUsername: string;
-  ownerPassword: string;
   requestId: string;
   decision: 'approve' | 'reject';
   role?: 'editor' | 'contributor' | 'viewer';
-}): Promise<AccountRequestApiResult & { emailSent?: boolean; emailError?: string }> {
-  return postAdminAction({ action: 'decide_account_request', ...params });
+}): Promise<AccountRequestApiResult & { emailSent?: boolean }> {
+  return adminApi({ action: 'decide_account_request', ...params });
 }
