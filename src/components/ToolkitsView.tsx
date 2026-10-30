@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, Navigate } from 'react-router-dom';
 import {
   Users,
@@ -12,10 +12,11 @@ import {
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { tr, ToolHeader } from './tools/common';
-import { ScoreboardTool } from './tools/ScoreboardTool';
-import { TeamsTool } from './tools/TeamsTool';
-import { TimerTool } from './tools/TimerTool';
-import { CardsTool } from './tools/CardsTool';
+// Each tool loads only when opened; the overview page needs none of them.
+const ScoreboardTool = lazy(() => import('./tools/ScoreboardTool').then((m) => ({ default: m.ScoreboardTool })));
+const TeamsTool = lazy(() => import('./tools/TeamsTool').then((m) => ({ default: m.TeamsTool })));
+const TimerTool = lazy(() => import('./tools/TimerTool').then((m) => ({ default: m.TimerTool })));
+const CardsTool = lazy(() => import('./tools/CardsTool').then((m) => ({ default: m.CardsTool })));
 import { GroupManager } from './tools/GroupManager';
 import { loadPresentNames, loadGroupNames } from '../utils/groupNames';
 import { DISCUSSION_CARDS } from '../data/toolkits';
@@ -32,7 +33,7 @@ type ToolDef = {
   desc: [string, string];
   group: 'group' | 'run' | 'ideas';
   customHref?: string;
-  Component?: React.FC<{ language: Language }>;
+  Component?: React.ComponentType<{ language: Language }>;
 };
 
 const GroupManagerToolWrapper: React.FC<{ language: Language }> = ({ language }) => (
@@ -153,7 +154,9 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
           onBack={() => navigate('/tools')}
           backLabel={t.tabTools}
         />
-        <Tool language={language} />
+        <Suspense fallback={<div role="status" className="py-16 text-center text-sm text-text-secondary">{isDe ? 'Wird geladen …' : 'Loading …'}</div>}>
+          <Tool language={language} />
+        </Suspense>
       </div>
     );
   }

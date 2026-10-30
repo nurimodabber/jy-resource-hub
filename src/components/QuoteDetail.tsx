@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   ArrowLeft, ArrowRight, Bookmark, Music, ExternalLink, Zap
 } from 'lucide-react';
@@ -178,24 +178,24 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
       {bookQuotes.length > 1 && (
         <div className="flex items-center justify-between gap-4 text-xs text-text-secondary px-1">
           {prevQuote ? (
-            <button
-              type="button"
-              onClick={() => navigate(`/quotes/${prevQuote.id}`)}
+            <Link
+              to={`/quotes/${prevQuote.id}`}
+              rel="prev"
               className="inline-flex items-center gap-1.5 hover:text-text transition-colors min-h-[44px] py-2 px-3 rounded-control hover:bg-surface-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
             >
               <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate max-w-[140px] sm:max-w-xs">{isDe ? 'Vorheriges Zitat' : 'Previous quote'}</span>
-            </button>
+            </Link>
           ) : <div />}
           {nextQuote ? (
-            <button
-              type="button"
-              onClick={() => navigate(`/quotes/${nextQuote.id}`)}
+            <Link
+              to={`/quotes/${nextQuote.id}`}
+              rel="next"
               className="inline-flex items-center gap-1.5 hover:text-text transition-colors min-h-[44px] py-2 px-3 rounded-control hover:bg-surface-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
             >
               <span className="truncate max-w-[140px] sm:max-w-xs">{isDe ? 'Nächstes Zitat' : 'Next quote'}</span>
               <ArrowRight className="w-3.5 h-3.5 shrink-0" />
-            </button>
+            </Link>
           ) : <div />}
         </div>
       )}

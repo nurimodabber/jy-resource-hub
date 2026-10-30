@@ -36,8 +36,8 @@ const CommandPalette = lazy(() => import('./components/CommandPalette').then(m =
 const BahaiSongsModal = lazy(() => import('./components/BahaiSongsModal').then(m => ({ default: m.BahaiSongsModal })));
 const ContactModal = lazy(() => import('./components/ContactModal').then(m => ({ default: m.ContactModal })));
 
-const RouteLoading: React.FC = () => (
-  <div className="max-w-4xl mx-auto py-8 space-y-6 animate-pulse" role="status" aria-label="Laden">
+const RouteLoading: React.FC<{ language: Language }> = ({ language }) => (
+  <div className="max-w-4xl mx-auto py-8 space-y-6 animate-pulse" role="status" aria-label={language === 'de' ? 'Wird geladen' : 'Loading'}>
     <div className="h-8 bg-surface-2 rounded-control w-1/3" />
     <div className="h-4 bg-surface-2 rounded-control w-2/3" />
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
@@ -116,16 +116,21 @@ export const AppContent: React.FC = () => {
   }, []);
 
   // Persistent language
+  // Storage access can throw (blocked site data, some private modes); the app must still start.
   const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('jy_lang');
-    return (saved === 'de' || saved === 'en') ? saved : 'de';
+    try {
+      const saved = localStorage.getItem('jy_lang');
+      return saved === 'de' || saved === 'en' ? saved : 'de';
+    } catch {
+      return 'de';
+    }
   });
 
   // Persistent favorites (initialized empty for new visitors)
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem('jy_favorites');
-      return saved ? JSON.parse(saved) : [];
+      const parsed: unknown = JSON.parse(localStorage.getItem('jy_favorites') || '[]');
+      return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === 'string') : [];
     } catch {
       return [];
     }
@@ -136,12 +141,20 @@ export const AppContent: React.FC = () => {
   // Sync html lang attribute
   useEffect(() => {
     document.documentElement.lang = language;
-    localStorage.setItem('jy_lang', language);
+    try {
+      localStorage.setItem('jy_lang', language);
+    } catch {
+      /* keep in memory only */
+    }
   }, [language]);
 
   // Save favorites & notify Service Worker to cache bookmarked detail pages for offline use
   useEffect(() => {
-    localStorage.setItem('jy_favorites', JSON.stringify(favorites));
+    try {
+      localStorage.setItem('jy_favorites', JSON.stringify(favorites));
+    } catch {
+      /* keep in memory only */
+    }
     if ('serviceWorker' in navigator && navigator.serviceWorker.controller && favorites.length > 0) {
       const urls = resolveFavoriteUrls(favorites);
       if (urls.length > 0) {
@@ -319,7 +332,7 @@ export const AppContent: React.FC = () => {
         navigate(`/quotes/${id}`);
         break;
       case 'method':
-        navigate('/quotes?tab=practice');
+        navigate(`/quotes?tab=practice&method=${encodeURIComponent(id)}`);
         break;
       case 'service':
         navigate(`/service/${id}`);
@@ -402,7 +415,7 @@ export const AppContent: React.FC = () => {
             : 'short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 md:pb-8 focus:outline-hidden'
         }
       >
-        <Suspense fallback={<RouteLoading />}>
+        <Suspense fallback={<RouteLoading language={language} />}>
           <Routes>
             <Route
               path="/"

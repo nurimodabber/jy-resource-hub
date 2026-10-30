@@ -31,7 +31,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-40 glass-surface border-t border-line shadow-2 md:hidden short:hidden safe-bottom print:hidden"
-      aria-label="Mobile Navigation"
+      aria-label={language === 'de' ? 'Navigation' : 'Navigation'}
     >
       <div className="grid grid-cols-6 h-16 max-w-lg mx-auto px-1 items-center">
         {tabs.map((tab) => {

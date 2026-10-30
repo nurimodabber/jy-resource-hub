@@ -86,7 +86,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     return QUOTES_DATA[0];
   });
   const [activeTool, setActiveTool] = useState<InteractiveTool | null>(() => {
-    const toolParam = searchParams.get('tool') as InteractiveTool;
+    // ?method=<methodId> (command palette) maps to its interactive tool, like ?tool=<tool>.
+    const methodParam = searchParams.get('method');
+    const toolParam = (searchParams.get('tool') || (methodParam ? METHOD_TO_TOOL_MAP[methodParam] : '')) as InteractiveTool;
     if (toolParam && Object.values(METHOD_TO_TOOL_MAP).includes(toolParam)) {
       return toolParam;
     }
@@ -111,7 +113,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         setPracticeQuote(match);
       }
     }
-    const toolParam = searchParams.get('tool') as InteractiveTool;
+    const methodParam = searchParams.get('method');
+    const toolParam = (searchParams.get('tool') || (methodParam ? METHOD_TO_TOOL_MAP[methodParam] : '')) as InteractiveTool;
     if (toolParam && Object.values(METHOD_TO_TOOL_MAP).includes(toolParam)) {
       setActiveTool(toolParam);
     } else if (searchParams.get('practice') === '1') {
@@ -331,6 +334,20 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       );
     });
   }, [pickerSearch, language, isDe]);
+
+  // Unknown id (other sites link here): say so instead of silently showing the list.
+  if (effectiveQuoteId && !activeDetailQuote) {
+    return (
+      <div className="max-w-3xl mx-auto py-12 px-4">
+        <EmptyState
+          title={t.quoteNotFoundTitle}
+          description={t.quoteNotFoundDesc}
+          actionLabel={t.backToQuotesOverview}
+          onAction={() => navigate('/quotes')}
+        />
+      </div>
+    );
+  }
 
   // If viewing a detail page, render QuoteDetail directly!
   if (activeDetailQuote) {

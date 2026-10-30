@@ -1,4 +1,5 @@
 import React from 'react';
+import { uiText } from './closeLabel';
 import { Sun, Moon, Monitor } from 'lucide-react';
 import { useTheme, Theme } from '../../context/ThemeContext';
 
@@ -14,7 +15,7 @@ export const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }
   return (
     <div
       role="group"
-      aria-label="Darstellungsmodus / Theme mode"
+      aria-label={uiText('Darstellungsmodus', 'Theme mode')}
       className={`inline-flex items-center p-1 bg-surface-2 rounded-control border-0 ${className}`}
     >
       {options.map((opt) => {
