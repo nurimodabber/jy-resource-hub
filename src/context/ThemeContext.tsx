@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-export type Theme = 'system' | 'light' | 'dark' | 'contrast';
+export type Theme = 'system' | 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
@@ -17,8 +17,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [theme, setTheme] = useState<Theme>(() => {
     try {
       const saved = localStorage.getItem('jy_theme');
-      if (saved === 'light' || saved === 'dark' || saved === 'contrast' || saved === 'system') {
+      if (saved === 'light' || saved === 'dark' || saved === 'system') {
         return saved as Theme;
+      }
+      if (saved === 'contrast') {
+        return 'dark'; // Cleanly migrate old contrast preference to dark
       }
     } catch {
       // LocalStorage unavailable
@@ -26,17 +29,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return 'system';
   });
 
-  // Fixed standard glass opacity: 25% (0.25 opacity, 20px blur, 0.165 specular), not adjustable
-  const glassOpacity = 25;
+  const glassOpacity = 78;
   const setGlassOpacity = () => {};
 
   useEffect(() => {
     const root = document.documentElement;
-    // Enforce fixed 25% standard glass opacity across the app
-    root.style.setProperty('--glass-opacity', '0.25');
-    root.style.setProperty('--glass-blur', '20px');
-    root.style.setProperty('--glass-specular', '0.165');
-    // Clear any obsolete custom glass opacity stored previously in localStorage
+    // Clean up any stale inline styles or legacy keys
+    root.style.removeProperty('--glass-opacity');
+    root.style.removeProperty('--glass-blur');
+    root.style.removeProperty('--glass-specular');
+    root.classList.remove('contrast');
     try {
       localStorage.removeItem('jy_glass_opacity');
     } catch {
@@ -55,9 +57,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
     const applyTheme = () => {
-      const isHighContrast = theme === 'contrast';
       const resolvedDark =
-        theme === 'dark' || isHighContrast ? true : theme === 'light' ? false : mediaQuery.matches;
+        theme === 'dark' ? true : theme === 'light' ? false : mediaQuery.matches;
 
       setIsDark(resolvedDark);
       if (resolvedDark) {
@@ -65,15 +66,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       } else {
         root.classList.remove('dark');
       }
-
-      if (isHighContrast) {
-        root.classList.add('contrast');
-      } else {
-        root.classList.remove('contrast');
-      }
+      root.classList.remove('contrast');
 
       // Keep meta theme-color strictly in sync with theme background
-      const activeThemeColor = isHighContrast ? '#000000' : resolvedDark ? '#0D131F' : '#F7F9FC';
+      const activeThemeColor = resolvedDark ? '#0E1522' : '#F7F9FC';
       const metas = document.querySelectorAll('meta[name="theme-color"]');
       metas.forEach((meta) => {
         meta.setAttribute('content', activeThemeColor);
@@ -93,7 +89,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => mediaQuery.removeEventListener('change', listener);
   }, [theme]);
 
-  const isContrast = theme === 'contrast';
+  const isContrast = false;
 
   return (
     <ThemeContext.Provider value={{ theme, isDark, isContrast, setTheme, glassOpacity, setGlassOpacity }}>

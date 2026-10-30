@@ -4,7 +4,7 @@ export const JUNIOR_YOUTH_BOOKS: JuniorYouthBookMeta[] = [
   {
     id: 'breezes',
     order: 1,
-    title: { de: 'Brise der Bestätigung', en: 'Breezes of Confirmation' },
+    title: { de: 'Brisen der Bestätigung', en: 'Breezes of Confirmation' },
     targetAge: '11–12',
     isOfficialJYBook: true,
     category: 'junior_youth',
@@ -12,7 +12,7 @@ export const JUNIOR_YOUTH_BOOKS: JuniorYouthBookMeta[] = [
   {
     id: 'straightpath',
     order: 2,
-    title: { de: 'Den geraden Pfad beschreiten', en: 'Walking the Straight Path' },
+    title: { de: 'Den geraden Pfad gehen', en: 'Walking the Straight Path' },
     targetAge: '11–12',
     isOfficialJYBook: true,
     category: 'junior_youth',
@@ -28,7 +28,7 @@ export const JUNIOR_YOUTH_BOOKS: JuniorYouthBookMeta[] = [
   {
     id: 'excellence',
     order: 4,
-    title: { de: 'Nach Vortrefflichkeit streben', en: 'Learning About Excellence' },
+    title: { de: 'Etwas über Vortrefflichkeit lernen', en: 'Learning About Excellence' },
     targetAge: '12–13',
     isOfficialJYBook: true,
     category: 'junior_youth',
@@ -111,7 +111,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "breezes-love-mankind",
     "mainBook": {
-      "de": "Brise der Bestätigung",
+      "de": "Brisen der Bestätigung",
       "en": "Breezes of Confirmation"
     },
     "section": {
@@ -124,7 +124,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "Bahá’u’lláh (Tablets of Bahá’u’lláh, Lawḥ-i-Ḥikmat, 9:5)"
     },
     "book": {
-      "de": "Brise der Bestätigung",
+      "de": "Brisen der Bestätigung",
       "en": "Breezes of Confirmation"
     },
     "theme": {
@@ -134,7 +134,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Ihr seid erschaffen, einander Liebe zu bezeigen, nicht Eigensinn und Groll. Seid nicht stolz auf eure Eigenliebe, sondern auf die Liebe zu euren Mitgeschöpfen. Rühmt euch nicht der Liebe zu eurem Vaterland, sondern der Liebe zur ganzen Menschheit.",
     "textEn": "Ye were created to show love one to another and not perversity and rancour. Take pride not in love for yourselves but in love for your fellow-creatures. Glory not in love for your country, but in love for all mankind.",
     "keywords": [
-      "Brise der Bestätigung",
+      "Brisen der Bestätigung",
       "Breezes of Confirmation",
       "Liebe",
       "Menschheit",
@@ -154,7 +154,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "breezes-brother-selflessness",
     "mainBook": {
-      "de": "Brise der Bestätigung",
+      "de": "Brisen der Bestätigung",
       "en": "Breezes of Confirmation"
     },
     "section": {
@@ -167,7 +167,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "Bahá’u’lláh (Tablets of Bahá’u’lláh, Words of Paradise, 6:37)"
     },
     "book": {
-      "de": "Brise der Bestätigung, Lektion 5",
+      "de": "Brisen der Bestätigung, Lektion 5",
       "en": "Breezes of Confirmation, Lesson 5"
     },
     "theme": {
@@ -177,7 +177,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Selig ist, wer seinen Bruder sich selbst vorzieht. Wahrlich, ein solcher Mensch wird kraft des Willens Gottes, des Allwissenden, des Allweisen, zum Volke Bahás gezählt, das in der Roten Arche wohnt.",
     "textEn": "Blessed is he who preferreth his brother before himself. Verily, such a man is reckoned, by virtue of the Will of God, the All-Knowing, the All-Wise, of the people of Bahá who dwell in the Crimson Ark.",
     "keywords": [
-      "Brise der Bestätigung",
+      "Brisen der Bestätigung",
       "Breezes of Confirmation",
       "Bruder",
       "vorziehen",
@@ -196,7 +196,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "breezes-divine-helper",
     "mainBook": {
-      "de": "Brise der Bestätigung",
+      "de": "Brisen der Bestätigung",
       "en": "Breezes of Confirmation"
     },
     "section": {
@@ -209,7 +209,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "‘Abdu’l-Bahá (The Promulgation of Universal Peace, 6:6)"
     },
     "book": {
-      "de": "Brise der Bestätigung",
+      "de": "Brisen der Bestätigung",
       "en": "Breezes of Confirmation"
     },
     "theme": {
@@ -219,7 +219,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Gott ist der Helfer jener Seelen, deren Ziel es ist, der Menschheit zu dienen, und deren Anstrengungen und Bemühungen dem Wohl und der Besserung aller Menschen gewidmet sind.",
     "textEn": "God is the helper of those souls whose aim is to serve humanity and whose efforts and endeavors are devoted to the good and betterment of all mankind.",
     "keywords": [
-      "Brise der Bestätigung",
+      "Brisen der Bestätigung",
       "Breezes of Confirmation",
       "Helfer",
       "Dienst",
@@ -239,7 +239,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "breezes-place-under-sun",
     "mainBook": {
-      "de": "Brise der Bestätigung",
+      "de": "Brisen der Bestätigung",
       "en": "Breezes of Confirmation"
     },
     "section": {
@@ -252,7 +252,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "‘Abdu’l-Bahá (Selections from the Writings of ‘Abdu’l-Bahá, 27:1)"
     },
     "book": {
-      "de": "Brise der Bestätigung",
+      "de": "Brisen der Bestätigung",
       "en": "Breezes of Confirmation"
     },
     "theme": {
@@ -262,7 +262,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Bemühe dich, dass du deinen Platz unter der Sonne einnimmst und einen reichen Anteil an der ewigen Gabe empfängst.",
     "textEn": "Make thou an effort that thou mayest take thy place under the sun and receive an abundant share of the eternal bounty.",
     "keywords": [
-      "Brise der Bestätigung",
+      "Brisen der Bestätigung",
       "Breezes of Confirmation",
       "Mühe",
       "Sonne",
@@ -281,7 +281,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "breezes-trees-fruits",
     "mainBook": {
-      "de": "Brise der Bestätigung",
+      "de": "Brisen der Bestätigung",
       "en": "Breezes of Confirmation"
     },
     "section": {
@@ -294,7 +294,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "Bahá’u’lláh (The Hidden Words, Persian No. 80)"
     },
     "book": {
-      "de": "Brise der Bestätigung",
+      "de": "Brisen der Bestätigung",
       "en": "Breezes of Confirmation"
     },
     "theme": {
@@ -304,7 +304,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Ihr seid die Bäume Meines Gartens. Ihr müsst edle, köstliche Früchte tragen, euch und anderen zum Nutzen. Darum soll sich jeder einem Gewerbe oder einem Beruf widmen, denn darin liegt das Geheimnis des Wohlstandes, o ihr Einsichtigen! Der Erfolg hängt von den Mitteln ab, und Gottes Gnade soll euch allgenügend sein. Bäume, die keine Frucht tragen, waren seit je fürs Feuer bestimmt und werden es allezeit sein.",
     "textEn": "Ye are the trees of My garden; ye must give forth goodly and wondrous fruits, that ye yourselves and others may profit thereof. Thus it is incumbent on everyone to engage in crafts and professions, for therein lieth the secret of wealth, O men of understanding! For results depend upon means, and the grace of God shall be all-sufficient unto you. Trees that yield no fruit have been and will ever be for the fire.",
     "keywords": [
-      "Brise der Bestätigung",
+      "Brisen der Bestätigung",
       "Breezes of Confirmation",
       "Bäume",
       "Garten",
@@ -323,7 +323,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "straightpath-vigilance",
     "mainBook": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "section": {
@@ -332,11 +332,11 @@ export const QUOTES_DATA: QuoteItem[] = [
     },
     "generalTopic": "wahrhaftigkeit",
     "source": {
-      "de": "Bahá’u’lláh (Den geraden Pfad beschreiten, Lektion 1)",
+      "de": "Bahá’u’lláh (Den geraden Pfad gehen, Lektion 1)",
       "en": "Bahá’u’lláh (Walking the Straight Path, Lesson 1)"
     },
     "book": {
-      "de": "Den geraden Pfad beschreiten, Lektion 1",
+      "de": "Den geraden Pfad gehen, Lektion 1",
       "en": "Walking the Straight Path, Lesson 1"
     },
     "theme": {
@@ -346,7 +346,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Schützt euch mit äußerster Wachsamkeit, damit ihr nicht in der Schlinge von Täuschung und Betrug gefangen werdet.",
     "textEn": "Protect yourselves with utmost vigilance, lest you be entrapped in the snare of deception and fraud.",
     "keywords": [
-      "Den geraden Pfad beschreiten",
+      "Den geraden Pfad gehen",
       "Walking the Straight Path",
       "Wachsamkeit",
       "Täuschung",
@@ -365,7 +365,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "straightpath-faultfinding",
     "mainBook": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "section": {
@@ -378,7 +378,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "Bahá’u’lláh (The Hidden Words, Arabic No. 27)"
     },
     "book": {
-      "de": "Den geraden Pfad beschreiten, Lektion 2",
+      "de": "Den geraden Pfad gehen, Lektion 2",
       "en": "Walking the Straight Path, Lesson 2"
     },
     "theme": {
@@ -388,7 +388,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "O Sohn des Menschen! Sprich nicht über die Sünden anderer, solange du selbst ein Sünder bist. So du dieses Gebot übertrittst, bist du verworfen – dies bezeuge Ich dir.",
     "textEn": "O Son of Man! Breathe not the sins of others so long as thou art thyself a sinner. Shouldst thou transgress this command, accursed wouldst thou be, and to this I bear witness.",
     "keywords": [
-      "Den geraden Pfad beschreiten",
+      "Den geraden Pfad gehen",
       "Walking the Straight Path",
       "Sünden",
       "Fehler",
@@ -406,7 +406,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "straightpath-own-faults",
     "mainBook": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "section": {
@@ -419,7 +419,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "Bahá’u’lláh (The Hidden Words, Arabic No. 26)"
     },
     "book": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "theme": {
@@ -429,7 +429,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "O Sohn des Seins! Wie konntest du deine eigenen Fehler vergessen und dich mit den Fehlern der anderen befassen? Wer solches tut, ist von Mir verworfen.",
     "textEn": "O Son of Being! How couldst thou forget thine own faults and busy thyself with the faults of others? Whoso doeth this is accursed of Me.",
     "keywords": [
-      "Den geraden Pfad beschreiten",
+      "Den geraden Pfad gehen",
       "Walking the Straight Path",
       "Fehler",
       "Vergessen",
@@ -446,7 +446,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "straightpath-kindly-tongue",
     "mainBook": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "section": {
@@ -459,7 +459,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "Bahá’u’lláh (Gleanings from the Writings of Bahá’u’lláh, 132:5)"
     },
     "book": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "theme": {
@@ -469,7 +469,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Eine freundliche Zunge ist ein Magnet für die Menschenherzen. Sie ist das Brot des Geistes, sie kleidet die Worte in Bedeutung, sie ist der Lichtquell der Weisheit und des Verstehens…",
     "textEn": "A kindly tongue is the lodestone of the hearts of men. It is the bread of the spirit, it clotheth the words with meaning, it is the fountain of the light of wisdom and understanding…",
     "keywords": [
-      "Den geraden Pfad beschreiten",
+      "Den geraden Pfad gehen",
       "Walking the Straight Path",
       "Zunge",
       "Magnet",
@@ -488,7 +488,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "straightpath-loving-kindness",
     "mainBook": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "section": {
@@ -501,7 +501,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "‘Abdu’l-Bahá (Paris Talks, 1:7)"
     },
     "book": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "theme": {
@@ -511,7 +511,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Setzt Bahá’u’lláhs Lehre von der Güte gegenüber allen Nationen in die Tat um. Begnügt euch nicht damit, durch Worte Freundschaft zu erzeigen, lasst euer Herz vielmehr von liebender Güte gegen alle entflammen, die euren Weg kreuzen.",
     "textEn": "Do not be content with showing friendship in words alone, let your heart burn with loving kindness for all who may cross your path.",
     "keywords": [
-      "Den geraden Pfad beschreiten",
+      "Den geraden Pfad gehen",
       "Walking the Straight Path",
       "Freundschaft",
       "Herzen",
@@ -530,7 +530,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "straightpath-two-wings",
     "mainBook": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "section": {
@@ -543,7 +543,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "‘Abdu’l-Bahá (Selections from the Writings of ‘Abdu’l-Bahá, 227:18)"
     },
     "book": {
-      "de": "Den geraden Pfad beschreiten",
+      "de": "Den geraden Pfad gehen",
       "en": "Walking the Straight Path"
     },
     "theme": {
@@ -553,7 +553,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Die Menschenwelt hat zwei Flügel: Den einen bilden die Frauen, den anderen die Männer. Erst wenn beide Flügel gleichmäßig entwickelt sind, kann der Vogel fliegen. Bleibt ein Flügel schwächlich, so ist kein Flug möglich.",
     "textEn": "The world of humanity has two wings—one is women and the other men. Not until both wings are equally developed can the bird fly. Should one wing remain weak, flight is impossible.",
     "keywords": [
-      "Den geraden Pfad beschreiten",
+      "Den geraden Pfad gehen",
       "Walking the Straight Path",
       "Schwingen",
       "Frauen",
@@ -743,7 +743,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "excellence-shining-lamp",
     "mainBook": {
-      "de": "Nach Vortrefflichkeit streben",
+      "de": "Etwas über Vortrefflichkeit lernen",
       "en": "Learning About Excellence"
     },
     "section": {
@@ -756,7 +756,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "‘Abdu’l-Bahá (The Promulgation of Universal Peace, 39:1)"
     },
     "book": {
-      "de": "Nach Vortrefflichkeit streben",
+      "de": "Etwas über Vortrefflichkeit lernen",
       "en": "Learning About Excellence"
     },
     "theme": {
@@ -766,7 +766,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Möget ihr eine Ursache für das Sichtbarwerden göttlicher Gaben sein – jeder Einzelne von euch ein leuchtender Stern, der das Licht der Einheit der Menschheit zum Horizont des Ostens und Westens ausstrahlt.",
     "textEn": "May you be the cause of the manifestation of divine bestowals—each one of you a shining star radiating the light of the oneness of humanity toward the horizons of the East and West.",
     "keywords": [
-      "Nach Vortrefflichkeit streben",
+      "Etwas über Vortrefflichkeit lernen",
       "Learning About Excellence",
       "Lampe",
       "Gestirn",
@@ -787,7 +787,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "excellence-purity-lifestyle",
     "mainBook": {
-      "de": "Nach Vortrefflichkeit streben",
+      "de": "Etwas über Vortrefflichkeit lernen",
       "en": "Learning About Excellence"
     },
     "section": {
@@ -800,7 +800,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "‘Abdu’l-Bahá (quoted in: The Advent of Divine Justice, 40)"
     },
     "book": {
-      "de": "Nach Vortrefflichkeit streben",
+      "de": "Etwas über Vortrefflichkeit lernen",
       "en": "Learning About Excellence"
     },
     "theme": {
@@ -810,7 +810,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Wahrhaftigkeit ist die Grundlage aller menschlichen Tugenden. Ohne Wahrhaftigkeit sind Fortschritt und Erfolg für jede Seele in allen Welten Gottes ausgeschlossen. Wenn der Mensch diese heilige Eigenschaft erlangt hat, wird er auch alle anderen himmlischen Wesensarten gewinnen.",
     "textEn": "Truthfulness is the foundation of all human virtues. Without truthfulness progress and success, in all of the worlds of God, are impossible for any soul. When this holy attribute is established in man, all the divine qualities will also be acquired.",
     "keywords": [
-      "Nach Vortrefflichkeit streben",
+      "Etwas über Vortrefflichkeit lernen",
       "Learning About Excellence",
       "Reinheit",
       "Frische",
@@ -830,7 +830,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "excellence-highest-degree",
     "mainBook": {
-      "de": "Nach Vortrefflichkeit streben",
+      "de": "Etwas über Vortrefflichkeit lernen",
       "en": "Learning About Excellence"
     },
     "section": {
@@ -843,7 +843,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "‘Abdu’l-Bahá (Selections from the Writings of ‘Abdu’l-Bahá, 114:1)"
     },
     "book": {
-      "de": "Nach Vortrefflichkeit streben",
+      "de": "Etwas über Vortrefflichkeit lernen",
       "en": "Learning About Excellence"
     },
     "theme": {
@@ -853,7 +853,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Ihr müsst euch deshalb gewaltig anstrengen, Tag und Nacht streben und keinen Augenblick rasten, damit ihr einen großen Anteil an allen Wissenschaften und Künsten erwerbt und damit Gottes Bild, aus der Sonne der Wahrheit strahlend, den Spiegel der Menschenherzen erleuchte.",
     "textEn": "Wherefore must ye exert yourselves with a heart and soul, and strive day and night, without a moment’s pause, to acquire a great share of all the sciences and arts, that the divine Image, radiating from the Sun of Truth, may illumine the mirror of the hearts of men.",
     "keywords": [
-      "Nach Vortrefflichkeit streben",
+      "Etwas über Vortrefflichkeit lernen",
       "Learning About Excellence",
       "Wissen",
       "Vortrefflichkeit",
@@ -872,7 +872,7 @@ export const QUOTES_DATA: QuoteItem[] = [
   {
     "id": "excellence-virtues-honor",
     "mainBook": {
-      "de": "Nach Vortrefflichkeit streben",
+      "de": "Etwas über Vortrefflichkeit lernen",
       "en": "Learning About Excellence"
     },
     "section": {
@@ -885,7 +885,7 @@ export const QUOTES_DATA: QuoteItem[] = [
       "en": "‘Abdu’l-Bahá (Selections from the Writings of ‘Abdu’l-Bahá, 227:18)"
     },
     "book": {
-      "de": "Nach Vortrefflichkeit streben",
+      "de": "Etwas über Vortrefflichkeit lernen",
       "en": "Learning About Excellence"
     },
     "theme": {
@@ -895,7 +895,7 @@ export const QUOTES_DATA: QuoteItem[] = [
     "textDe": "Erst wenn die Frauenwelt der Männerwelt im Erwerb von Tugenden und Vollkommenheiten gleichkommt, sind Erfolg und Gedeihen so erreichbar, wie es sein soll.",
     "textEn": "Only when the world of women becometh equal to the world of men in the pursuit of virtues and perfections will success and prosperity be attained in all their fullness.",
     "keywords": [
-      "Nach Vortrefflichkeit streben",
+      "Etwas über Vortrefflichkeit lernen",
       "Learning About Excellence",
       "Ehre",
       "Tugenden",

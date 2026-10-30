@@ -102,7 +102,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
             title={isDe ? 'Auswendiglernen öffnen' : 'Open memorisation'}
             aria-label={isDe ? 'Auswendiglernen öffnen' : 'Open memorisation'}
           >
-            <Zap className="w-4 h-4 text-accent shrink-0" />
+            <Zap className="w-4 h-4 text-accent fill-accent/20 shrink-0" />
             <span className="hidden sm:inline">{isDe ? 'Auswendiglernen' : 'Memorise'}</span>
           </button>
 

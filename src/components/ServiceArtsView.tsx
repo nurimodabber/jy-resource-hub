@@ -403,6 +403,31 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
         </button>
       </div>
 
+      {/* Quick category chips row */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 mb-4 -mx-1 px-1">
+        {categoryOptions.map((opt) => {
+          const isSelected = selectedSubCategory === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => {
+                const next = opt.value;
+                setSelectedSubCategory(next);
+                updateParams({ kategorie: next === 'all' ? null : next });
+              }}
+              className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer min-h-[36px] flex items-center ${
+                isSelected
+                  ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                  : 'bg-surface hover:bg-surface-2 text-text-secondary hover:text-text border border-border/80'
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* 3. Collapsible Filter Bar */}
       {showFilters && (
         <div id="service-filters-drawer" className="mb-3 animate-in fade-in duration-150">

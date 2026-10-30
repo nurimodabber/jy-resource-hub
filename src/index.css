@@ -4,8 +4,10 @@
 
 :root, [data-theme="light"] {
   color-scheme: light;
-  --glass-opacity: 0.25;
+  --glass-opacity: 0.82;
+  --glass-panel-opacity: 0.90;
   --glass-blur: 20px;
+  --glass-specular: 0.55;
   /* Noble Editorial Light: Warm porcelain & deep ink */
   --bg: #F9F8F5;
   --bg-rgb: 249 248 245;
@@ -135,6 +137,10 @@
 
 .dark, [data-theme="dark"] {
   color-scheme: dark;
+  --glass-opacity: 0.75;
+  --glass-panel-opacity: 0.85;
+  --glass-blur: 20px;
+  --glass-specular: 0.12;
   /* Noble Editorial Dark: Velvety midnight ink & warm parchment */
   --bg: #0E1522;
   --bg-rgb: 14 21 34;
@@ -262,40 +268,7 @@
   --transition-sheet: 180ms ease-out;
 }
 
-/* High-Contrast / OLED Dark Mode */
-html.contrast, [data-theme="contrast"] {
-  color-scheme: dark;
-  --bg: #000000;
-  --bg-rgb: 0 0 0;
-  --surface: #080E1A;
-  --surface-rgb: 8 14 26;
-  --surface-2: #111C33;
-  --surface-2-rgb: 17 28 51;
-  --surface-raised: #162442;
-  --surface-raised-rgb: 22 36 66;
-  --border: #384D78;
-  --border-rgb: 56 77 120;
-  --border-strong: #5470A8;
-  --border-strong-rgb: 84 112 168;
-  --border-subtle: #1E2F52;
-  --border-subtle-rgb: 30 47 82;
-  --text: #FFFFFF;
-  --text-rgb: 255 255 255;
-  --text-secondary: #E2E8F0;
-  --text-secondary-rgb: 226 232 240;
-  --text-tertiary: #CBD5E1;
-  --text-tertiary-rgb: 203 213 225;
-  --accent: #7AB0FF;
-  --accent-rgb: 122 176 255;
-  --accent-hover: #9BC4FF;
-  --accent-hover-rgb: 155 196 255;
-  --accent-subtle: #172B54;
-  --accent-subtle-rgb: 23 43 84;
-  --accent-text: #B8D4FF;
-  --accent-text-rgb: 184 212 255;
-  --accent-contrast: #000000;
-  --accent-contrast-rgb: 0 0 0;
-}
+
 
 @layer base {
   html {
@@ -340,35 +313,24 @@ html.contrast, [data-theme="contrast"] {
 .tabular { font-variant-numeric: tabular-nums; }
 
 .glass-surface {
-  background-color: rgb(var(--surface-rgb) / var(--glass-opacity, 0.85));
-  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.12));
+  background-color: rgb(var(--surface-rgb) / var(--glass-opacity, 0.82));
+  backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
+  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.55));
 }
 
 .glass-surface-panel {
-  background-color: rgb(var(--surface-rgb) / var(--glass-opacity, 0.85));
-  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.12));
+  background-color: rgb(var(--surface-rgb) / var(--glass-panel-opacity, 0.90));
+  backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
+  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.55)), 0 8px 32px 0 rgba(20, 32, 51, 0.08);
 }
 
 .glass-card {
-  background-color: rgb(var(--surface-rgb) / calc(var(--glass-opacity, 0.85) * 0.70 + 0.30));
-  backdrop-filter: blur(calc(var(--glass-blur, 16px) * 0.5));
-  -webkit-backdrop-filter: blur(calc(var(--glass-blur, 16px) * 0.5));
+  background-color: rgb(var(--surface-rgb) / calc(var(--glass-opacity, 0.82) * 0.70 + 0.30));
+  backdrop-filter: blur(calc(var(--glass-blur, 20px) * 0.5)) saturate(160%);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur, 20px) * 0.5)) saturate(160%);
   border: 1px solid rgb(var(--border-rgb) / 0.8);
-}
-
-html.contrast .glass-surface,
-html.contrast .glass-surface-panel,
-html.contrast .glass-card,
-[data-theme="contrast"] .glass-surface,
-[data-theme="contrast"] .glass-surface-panel,
-[data-theme="contrast"] .glass-card {
-  background-color: var(--surface) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
 /* Touch Targets on touch devices */
@@ -452,7 +414,7 @@ html.contrast .glass-card,
 
 /* Print is always light and clean */
 @media print {
-  :root, .dark, html.contrast {
+  :root, .dark {
     color-scheme: light !important;
     --bg: #ffffff !important;
     --surface: #ffffff !important;

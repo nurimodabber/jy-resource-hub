@@ -122,20 +122,15 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                       ? language === 'de'
                         ? 'Dunkel'
                         : 'Dark'
-                      : theme === 'contrast'
-                        ? language === 'de'
-                          ? 'Kontrast'
-                          : 'Contrast'
-                        : language === 'de'
-                          ? 'System'
-                          : 'System'}
+                      : language === 'de'
+                        ? 'System'
+                        : 'System'}
                 </span>
               </div>
               <SegmentedControl
                 options={[
                   { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
                   { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
-                  { id: 'contrast', label: language === 'de' ? 'Kontrast' : 'Contrast' },
                   { id: 'system', label: language === 'de' ? 'System' : 'System' },
                 ]}
                 value={theme}

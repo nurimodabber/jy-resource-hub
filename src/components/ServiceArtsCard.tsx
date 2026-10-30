@@ -57,6 +57,30 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
 
   const themeLabel = activity.theme ? activity.theme[language] : undefined;
 
+  // Metadata parts: duration, group size, setting
+  const metaParts: string[] = [];
+  if (activity.duration) {
+    metaParts.push(activity.duration[language]);
+  }
+  if (activity.groupSize) {
+    metaParts.push(
+      language === 'de'
+        ? `${activity.groupSize.min}–${activity.groupSize.max} Pers.`
+        : `${activity.groupSize.min}–${activity.groupSize.max} youth`
+    );
+  }
+  if (activity.setting && activity.setting !== 'beides') {
+    metaParts.push(
+      activity.setting === 'draussen'
+        ? language === 'de'
+          ? 'Draußen'
+          : 'Outdoors'
+        : language === 'de'
+        ? 'Drinnen'
+        : 'Indoors'
+    );
+  }
+
   return (
     <div className="group relative h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out p-5 sm:p-6 shadow-2xs">
       {/* Optional image preview if imageUrl is present */}
@@ -71,17 +95,16 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         </div>
       )}
 
-      {/* Top area: clean typography without pill badge */}
+      {/* Top area: noble, quiet tag chip + typographic metadata */}
       <div className="flex-1 min-w-0 pr-10">
-        <div className="flex items-center gap-1.5 text-xs text-text-tertiary mb-2 relative z-[1] pointer-events-none font-medium">
-          <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent">
+        <div className="flex items-center gap-2 text-xs text-text-tertiary mb-3 relative z-[1] pointer-events-none flex-wrap">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-chip text-2xs font-semibold bg-accent/8 text-accent border border-accent/20">
             {categoryLabel}
           </span>
-          {activity.duration && (
-            <>
-              <span className="text-border" aria-hidden="true">·</span>
-              <span className="text-2xs text-text-secondary">{activity.duration[language]}</span>
-            </>
+          {metaParts.length > 0 && (
+            <span className="text-2xs text-text-secondary truncate">
+              {metaParts.join(' · ')}
+            </span>
           )}
         </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bookmark, Music, ExternalLink, ArrowRight } from 'lucide-react';
+import { Bookmark, Music, ExternalLink, ArrowRight, Zap } from 'lucide-react';
 import { QuoteItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getQuoteSong } from '../data/quoteSongs';
@@ -79,7 +79,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
       <div className="space-y-3.5">
         {/* Top meta line: Book & Section + discreet actions */}
         <div className="flex items-center justify-between gap-2">
-          <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent truncate font-sans">
+          <span className="text-2xs font-semibold uppercase tracking-wider text-accent truncate font-sans">
             {metaTag}
           </span>
 
@@ -164,10 +164,15 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         <button
           type="button"
           onClick={() => onPracticeQuote(quote)}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:text-accent-hover transition-colors min-h-[44px] py-1 cursor-pointer group/btn"
+          aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
+          title={isDe ? 'Auswendiglernen' : 'Memorise'}
+          className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-accent hover:text-accent-hover hover:bg-accent/8 px-2 sm:px-2.5 py-1 rounded-control transition-all min-h-[44px] min-w-[44px] cursor-pointer group/btn"
         >
-          <span>{isDe ? 'Auswendig lernen' : 'Memorise'}</span>
-          <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+          <Zap className="w-4 h-4 text-accent fill-accent/20 group-hover/btn:scale-110 transition-transform" />
+          <span className="hidden sm:inline-block text-2xs font-bold uppercase tracking-wider">
+            {isDe ? 'Auswendiglernen' : 'Memorise'}
+          </span>
+          <ArrowRight className="w-3.5 h-3.5 opacity-60 group-hover/btn:opacity-100 group-hover/btn:translate-x-0.5 transition-all hidden sm:inline-block" />
         </button>
       </div>
     </article>

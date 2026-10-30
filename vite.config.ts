@@ -111,6 +111,9 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       open: false,
+      watch: {
+        ignored: ['**/.worktrees/**', '**/dist/**'],
+      },
     },
     build: {
       rollupOptions: {

@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
-  Search, X, BookOpen, Zap, Layers, Sparkles, Heart,
-  ArrowRight, Play, Check, SlidersHorizontal
+  Search, X, BookOpen, Layers, Sparkles, Heart,
+  ArrowRight, Play, Check, SlidersHorizontal, Zap
 } from 'lucide-react';
 import { QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
@@ -98,8 +98,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   const [isQuotePickerOpen, setIsQuotePickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState('');
 
-  // 50 Methods Catalog Filter State (search only, no phase filters)
+  // 50 Methods Catalog Filter State (search and phase filters)
   const [methodSearch, setMethodSearch] = useState('');
+  const [selectedPhase, setSelectedPhase] = useState<'all' | 'apps' | 'phase-1' | 'phase-2' | 'phase-3'>('all');
   const [selectedMethodForDetail, setSelectedMethodForDetail] = useState<QuoteMethod | null>(null);
 
   // Sync practice quote & tool when URL searchParams change
@@ -304,9 +305,21 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     setPracticeQuote(bookQuotes[nextIdx]);
   };
 
-  // Filtered 50 Methods catalog (flat list, no phase filter)
+  // Filtered 50 Methods catalog with phase and app filters
   const filtered50Methods = useMemo(() => {
     return QUOTE_METHODS_DATA.filter((m) => {
+      if (selectedPhase === 'apps' && !METHOD_TO_TOOL_MAP[m.id]) {
+        return false;
+      }
+      if (selectedPhase === 'phase-1' && m.phase !== 1) {
+        return false;
+      }
+      if (selectedPhase === 'phase-2' && m.phase !== 2) {
+        return false;
+      }
+      if (selectedPhase === 'phase-3' && m.phase !== 3) {
+        return false;
+      }
       if (methodSearch) {
         const query = methodSearch.toLowerCase();
         const nameMatch = m.name[language].toLowerCase().includes(query);
@@ -315,7 +328,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       }
       return true;
     });
-  }, [methodSearch, language]);
+  }, [methodSearch, selectedPhase, language]);
 
   // Filtered quotes in picker dialog
   const pickerQuotes = useMemo(() => {
@@ -372,7 +385,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             {
               id: 'practice',
               label: t.tabQuotesMemorise,
-              icon: <Zap className="w-4 h-4 text-accent" />,
+              icon: <Zap className="w-4 h-4 text-accent fill-accent/20" />,
             },
           ]}
           value={viewTab}
@@ -561,8 +574,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
           {/* Active Practice Quote Banner (always visible at top of practice view) */}
           <div className="bg-surface rounded-card border border-border/80 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-2xs">
             <div className="space-y-2 max-w-2xl">
-              <div className="flex items-center gap-2 text-2xs text-text-tertiary">
-                <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent">
+              <div className="flex items-center gap-2 text-xs text-text-tertiary">
+                <span className="px-2.5 py-0.5 rounded-chip text-2xs font-semibold bg-accent/8 text-accent border border-accent/20">
                   {t.activePracticeQuote}
                 </span>
                 <span className="text-border" aria-hidden="true">·</span>
@@ -633,8 +646,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 </h2>
                 <p className="text-xs text-text-secondary mt-0.5">
                   {isDe 
-                    ? '50 Methoden im Überblick – klicke auf eine Web-App zum sofortigen interaktiven Üben.' 
-                    : '50 methods overview – tap on any web app for instant interactive practice.'}
+                    ? '50 Methoden im Überblick – wähle eine Web-App zum interaktiven Üben oder erkunde Methoden für die Gruppe.' 
+                    : '50 methods overview – tap on any web app for interactive practice or explore group methods.'}
                 </p>
               </div>
 
@@ -661,7 +674,34 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               </div>
             </div>
 
-            {/* Flat Grid of Methods */}
+            {/* Phase & Web-App Filter Chips */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
+              {[
+                { id: 'all', label: isDe ? 'Alle Methoden (50)' : 'All methods (50)' },
+                { id: 'apps', label: isDe ? 'Interaktive Web-Apps (11)' : 'Interactive Web-Apps (11)' },
+                { id: 'phase-1', label: isDe ? '1. Annähern & Rhythmus' : '1. Rhythm & Flow' },
+                { id: 'phase-2', label: isDe ? '2. Einprägen & Festigen' : '2. Memorise & Anchor' },
+                { id: 'phase-3', label: isDe ? '3. Meistern & Rezitieren' : '3. Master & Recite' },
+              ].map((pill) => {
+                const isSelected = selectedPhase === pill.id;
+                return (
+                  <button
+                    key={pill.id}
+                    type="button"
+                    onClick={() => setSelectedPhase(pill.id as typeof selectedPhase)}
+                    className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer min-h-[36px] flex items-center ${
+                      isSelected
+                        ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                        : 'bg-surface hover:bg-surface-2 text-text-secondary hover:text-text border border-border/80'
+                    }`}
+                  >
+                    {pill.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Grid of Methods */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {filtered50Methods.map((method) => {
                 const toolId = METHOD_TO_TOOL_MAP[method.id];
@@ -686,18 +726,21 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-2 text-xs text-text-tertiary">
-                        <div className="flex items-center gap-1.5 font-medium">
+                        <div className="flex items-center gap-2 font-medium flex-wrap">
                           {toolId ? (
-                            <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent inline-flex items-center gap-1">
+                            <span className="px-2.5 py-0.5 rounded-chip text-2xs font-semibold bg-accent/8 text-accent border border-accent/20 inline-flex items-center gap-1">
                               <Play className="w-2.5 h-2.5 fill-current" />
                               <span>{isDe ? 'Web-App' : 'Web App'}</span>
                             </span>
                           ) : (
-                            <span className="text-2xs font-bold uppercase tracking-[0.14em] text-text-tertiary">
-                              {isDe ? 'Methode' : 'Method'}
+                            <span className="px-2.5 py-0.5 rounded-chip text-2xs font-medium bg-surface-2 text-text-secondary border border-border/70">
+                              {method.phase === 1
+                                ? isDe ? 'Phase 1: Annähern' : 'Phase 1: Approach'
+                                : method.phase === 2
+                                ? isDe ? 'Phase 2: Einprägen' : 'Phase 2: Memorise'
+                                : isDe ? 'Phase 3: Meistern' : 'Phase 3: Master'}
                             </span>
                           )}
-                          <span className="text-border" aria-hidden="true">·</span>
                           <span className="text-2xs text-text-secondary">{method.durationMinutes}</span>
                           {method.space && (
                             <>

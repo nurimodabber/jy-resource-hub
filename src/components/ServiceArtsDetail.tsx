@@ -136,13 +136,37 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
         <div className="p-6 sm:p-8 md:p-10">
           <header className="mb-8">
             <div className="flex items-center gap-2 mb-3 text-xs text-text-tertiary font-medium flex-wrap">
-              <span className="text-2xs font-bold uppercase tracking-[0.16em] text-accent">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-chip text-2xs font-semibold bg-accent/8 text-accent border border-accent/20">
                 {categoryLabel}
               </span>
               {activity.duration && (
                 <>
                   <span className="text-border" aria-hidden="true">·</span>
                   <span className="text-xs text-text-secondary">{activity.duration[language]}</span>
+                </>
+              )}
+              {activity.groupSize && (
+                <>
+                  <span className="text-border" aria-hidden="true">·</span>
+                  <span className="text-xs text-text-secondary">
+                    {language === 'de'
+                      ? `${activity.groupSize.min}–${activity.groupSize.max} Personen`
+                      : `${activity.groupSize.min}–${activity.groupSize.max} youth`}
+                  </span>
+                </>
+              )}
+              {activity.setting && activity.setting !== 'beides' && (
+                <>
+                  <span className="text-border" aria-hidden="true">·</span>
+                  <span className="text-xs text-text-secondary">
+                    {activity.setting === 'draussen'
+                      ? language === 'de'
+                        ? 'Draußen'
+                        : 'Outdoors'
+                      : language === 'de'
+                      ? 'Drinnen'
+                      : 'Indoors'}
+                  </span>
                 </>
               )}
               {bookTitle && (
@@ -160,15 +184,15 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
             </h1>
 
             {themeLabel && themeLabel !== categoryLabel && (
-              <p className="text-2xs text-text-tertiary mt-2.5 uppercase tracking-wider font-semibold">
-                {themeLabel}
+              <p className="text-xs text-text-secondary mt-2.5 font-medium">
+                {language === 'de' ? 'Thema' : 'Theme'}: {themeLabel}
               </p>
             )}
           </header>
 
           {/* Section 1: Was uns geleitet hat (Leitgedanke & Motivation) */}
           <section className="mb-10 pl-5 border-l-2 border-accent/70 py-1">
-            <h2 className="text-2xs font-bold uppercase tracking-[0.14em] text-accent mb-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-accent mb-2">
               {L('Was uns geleitet hat', 'What guided our initiative')}
             </h2>
             <p className="font-serif text-lg sm:text-xl text-text leading-relaxed italic">
