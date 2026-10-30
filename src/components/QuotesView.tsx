@@ -230,10 +230,10 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     });
   }, [selectedBook, language]);
 
-  // Dropdown options
+  // Dropdown options (Official Junior Youth books; prayers are accessed via the dedicated "Nur Gebete" toggle)
   const bookOptions = useMemo(() => [
     { value: 'all', label: isDe ? 'Alle Bücher' : 'All Books' },
-    ...JUNIOR_YOUTH_BOOKS.map((b) => ({
+    ...JUNIOR_YOUTH_BOOKS.filter((b) => b.id !== 'prayers').map((b) => ({
       value: b.title[language],
       label: b.title[language],
     })),
@@ -348,12 +348,12 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   return (
     <div className="space-y-6 max-w-6xl w-full mx-auto pb-20 animate-in fade-in duration-200">
       {/* 1. Header */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
             {t.tabQuotes}
           </h1>
-          <p className="text-xs sm:text-sm text-text-secondary mt-1">
+          <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
             {isDe
               ? 'Heilige Zitate und Gebete zum Lesen, Reflektieren und Auswendiglernen.'
               : 'Holy scripture verses and prayers for reading, reflection, and memorisation.'}
@@ -405,7 +405,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     : 'Search quotes by text, theme, or source...'
                 }
                 aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-                className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border/80 text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all shadow-2xs"
               />
               {localSearch && (
                 <button
@@ -432,10 +432,10 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   ? (isDe ? 'Filter schließen' : 'Hide filters')
                   : (isDe ? 'Filter öffnen' : 'Show filters')
               }
-              className={`min-h-[44px] h-11 px-3.5 rounded-control border text-sm font-semibold inline-flex items-center gap-2 shrink-0 transition-all cursor-pointer ${
+              className={`min-h-[44px] h-11 px-3.5 rounded-control border text-sm font-semibold inline-flex items-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs ${
                 showFilters || activeFilterCount > 0
-                  ? 'bg-accent/10 border-accent/30 text-accent hover:bg-accent/15'
-                  : 'bg-surface border-border text-text hover:bg-surface-2'
+                  ? 'bg-accent/12 border-accent/40 text-accent hover:bg-accent/18'
+                  : 'bg-surface border-border/80 text-text hover:bg-surface-2'
               }`}
             >
               <SlidersHorizontal className="w-4 h-4 shrink-0" />
@@ -559,20 +559,19 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       {viewTab === 'practice' && (
         <div className="space-y-6">
           {/* Active Practice Quote Banner (always visible at top of practice view) */}
-          <div className="bg-surface rounded-2xl border border-border p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-            <div className="space-y-1.5 max-w-2xl">
+          <div className="bg-surface rounded-card border border-border/80 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-2xs">
+            <div className="space-y-2 max-w-2xl">
               <div className="flex items-center gap-2 text-2xs text-text-tertiary">
-                <span className="font-semibold text-accent inline-flex items-center gap-1">
-                  <Zap className="w-3.5 h-3.5" />
+                <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent">
                   {t.activePracticeQuote}
                 </span>
-                <span>·</span>
-                <span>{practiceQuote.book[language]}</span>
+                <span className="text-border" aria-hidden="true">·</span>
+                <span className="text-xs text-text-secondary font-medium">{practiceQuote.book[language]}</span>
               </div>
-              <p className="font-serif text-base sm:text-lg text-text line-clamp-2 italic">
-                „{isDe ? practiceQuote.textDe : practiceQuote.textEn}“
+              <p className="font-serif text-lg sm:text-xl text-text leading-relaxed italic">
+                {isDe ? `»${practiceQuote.textDe}«` : `“${practiceQuote.textEn}”`}
               </p>
-              <p className="text-2xs text-text-secondary font-serif">
+              <p className="text-xs text-text-secondary font-sans font-medium">
                 — {practiceQuote.source[language]}
               </p>
             </div>
@@ -663,7 +662,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             </div>
 
             {/* Flat Grid of Methods */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {filtered50Methods.map((method) => {
                 const toolId = METHOD_TO_TOOL_MAP[method.id];
                 const isCurrentToolActive = activeTool === toolId;
@@ -679,32 +678,46 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                         setSelectedMethodForDetail(method);
                       }
                     }}
-                    className={`bg-surface rounded-2xl border p-4 sm:p-5 transition-all duration-150 cursor-pointer flex flex-col justify-between space-y-3 ${
+                    className={`bg-surface rounded-card border p-5 sm:p-6 transition-all duration-200 ease-out cursor-pointer flex flex-col justify-between group shadow-2xs ${
                       isCurrentToolActive
                         ? 'border-accent shadow-1 ring-1 ring-accent/30'
-                        : 'border-border hover:bg-surface-2/40 hover:shadow-2'
+                        : 'border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2'
                     }`}
                   >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xs text-text-tertiary font-medium">{method.durationMinutes}</span>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2 text-xs text-text-tertiary">
+                        <div className="flex items-center gap-1.5 font-medium">
+                          {toolId ? (
+                            <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent inline-flex items-center gap-1">
+                              <Play className="w-2.5 h-2.5 fill-current" />
+                              <span>{isDe ? 'Web-App' : 'Web App'}</span>
+                            </span>
+                          ) : (
+                            <span className="text-2xs font-bold uppercase tracking-[0.14em] text-text-tertiary">
+                              {isDe ? 'Methode' : 'Method'}
+                            </span>
+                          )}
+                          <span className="text-border" aria-hidden="true">·</span>
+                          <span className="text-2xs text-text-secondary">{method.durationMinutes}</span>
                           {method.space && (
-                            <span className="text-2xs text-text-tertiary truncate">· {method.space[language]}</span>
+                            <>
+                              <span className="text-border" aria-hidden="true">·</span>
+                              <span className="text-2xs text-text-secondary truncate">{method.space[language]}</span>
+                            </>
                           )}
                         </div>
                       </div>
 
-                      <h3 className="font-semibold text-sm sm:text-base text-text">
+                      <h3 className="font-serif text-base sm:text-lg font-medium text-text group-hover:text-accent transition-colors leading-snug">
                         {method.name[language]}
                       </h3>
 
-                      <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed">
                         {method.summary[language]}
                       </p>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-between border-t border-border text-xs text-accent font-semibold">
+                    <div className="pt-3 mt-3 flex items-center justify-between border-t border-border/40 text-xs text-accent font-semibold">
                       {toolId ? (
                         <span className="inline-flex items-center gap-1.5">
                           <Play className="w-3.5 h-3.5 fill-current" />
@@ -713,7 +726,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                       ) : (
                         <span>{isDe ? 'Anleitung ansehen' : 'View instructions'}</span>
                       )}
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </article>
                 );

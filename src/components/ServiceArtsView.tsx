@@ -325,9 +325,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   return (
     <div className="max-w-6xl mx-auto pb-20">
       {/* 1. Header: H1, one sentence, count on search/filter */}
-      <header className="mb-6">
-        <div className="flex items-baseline gap-3 flex-wrap">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
+      <header className="mb-6 sm:mb-8">
+        <div className="flex items-baseline gap-3.5 flex-wrap">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
             {pageTitle}
           </h1>
           {hasActiveFilterOrSearch && (
@@ -338,7 +338,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
             </div>
           )}
         </div>
-        <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
+        <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {pageDesc}
         </p>
       </header>
@@ -359,7 +359,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
             }}
             placeholder={searchPlaceholderText}
             aria-label={L('Suchen', 'Search')}
-            className="w-full h-11 pl-10 pr-10 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+            className="w-full h-11 pl-10 pr-10 rounded-control bg-surface border border-border/80 text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all shadow-2xs"
           />
           {query && (
             <button
@@ -387,10 +387,10 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               ? L('Filter schließen', 'Hide filters')
               : L('Filter öffnen', 'Show filters')
           }
-          className={`h-11 px-3 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-colors cursor-pointer shrink-0 min-w-[44px] justify-center ${
+          className={`h-11 px-3.5 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer shrink-0 min-w-[44px] justify-center shadow-2xs ${
             showFilters || activeSheetFilterCount > 0
-              ? 'bg-accent/15 border-accent text-accent'
-              : 'bg-surface hover:bg-surface-2 border-border text-text-secondary hover:text-text'
+              ? 'bg-accent/12 border-accent/40 text-accent'
+              : 'bg-surface hover:bg-surface-2 border-border/80 text-text-secondary hover:text-text'
           }`}
         >
           <SlidersHorizontal className="w-4 h-4 shrink-0" />

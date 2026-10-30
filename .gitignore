@@ -16,4 +16,5 @@ scripts/baseline-report.json
 dist-v2
 tmp-lh*
 scratch/
+.worktrees/
 

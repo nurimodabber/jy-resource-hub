@@ -96,16 +96,18 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
   }
 
   return (
-    <div className="max-w-6xl w-full mx-auto space-y-6 pb-20">
+    <div className="max-w-6xl w-full mx-auto space-y-8 pb-20">
       {/* Header following standard pattern */}
       <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight text-text">{t.savedItems}</h1>
-          <span className="px-2.5 py-0.5 rounded-chip bg-accent-subtle text-accent-text text-sm font-bold tabular-nums">
-            {favorites.length}
+        <div className="flex items-baseline gap-3.5 flex-wrap">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
+            {t.savedItems}
+          </h1>
+          <span className="text-sm font-bold text-accent tabular-nums">
+            {favorites.length} {isDe ? (favorites.length === 1 ? 'Eintrag' : 'Einträge') : (favorites.length === 1 ? 'item' : 'items')}
           </span>
         </div>
-        <p className="text-sm text-text-secondary mt-1">
+        <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {isDe
             ? 'Alle von dir gespeicherten Spiele, Zitate und Ideen auf einen Blick.'
             : 'All your bookmarked games, quotes, and project ideas in one place.'}
@@ -148,7 +150,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
                   className="flex items-center justify-between p-3.5 sm:p-4 hover:bg-surface-2 transition-colors duration-150 ease-out group"
                 >
                   <Link to={row.href} className="flex-1 min-w-0 pr-3">
-                    <div className="text-sm font-semibold text-text group-hover:text-accent transition-colors truncate">
+                    <div className="font-serif text-base font-medium text-text group-hover:text-accent transition-colors truncate">
                       {row.title}
                     </div>
                     <div className="text-xs text-text-tertiary truncate mt-0.5">

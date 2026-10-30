@@ -335,10 +335,10 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             <span>{L('Zurück zu Schritt', 'Back to step')} {step - 1}</span>
           </button>
         )}
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text">
+        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
           {L('Erfahrungen beitragen', 'Contribute')}
         </h1>
-        <p className="text-xs sm:text-sm text-text-secondary mt-1 max-w-lg leading-relaxed">
+        <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {L(
             'Du hast ein Spiel oder Projekt, das fehlt? Teile erprobte Spiele, Dienstprojekte oder künstlerische Aktivitäten mit anderen Animatoren – alle Beiträge werden vor der Veröffentlichung geprüft.',
             "Have a game or project idea that's missing? Share proven games, service projects, or creative activities with other animators – all contributions are reviewed before publishing."
@@ -400,15 +400,13 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
               updateField('type', 'spiel');
               setStep(2);
             }}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-1 transition-all text-left group cursor-pointer"
+            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
           >
-            <div className="w-12 h-12 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-              <Gamepad2 className="w-6 h-6" />
-            </div>
-            <h2 className="text-base font-bold text-text group-hover:text-accent-text transition-colors">
+            <Gamepad2 className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+            <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
               {L('Gruppenspiel', 'Group Game')}
             </h2>
-            <p className="text-xs text-text-secondary mt-1 leading-relaxed">
+            <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
               {L('Kooperative Spiele, Kennenlernspiele oder lebhafte Energizer.', 'Cooperative games, icebreakers, or lively energizers.')}
             </p>
           </button>
@@ -419,15 +417,13 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
               updateField('type', 'dienst');
               setStep(2);
             }}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-1 transition-all text-left group cursor-pointer"
+            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
           >
-            <div className="w-12 h-12 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-              <HeartHandshake className="w-6 h-6" />
-            </div>
-            <h2 className="text-base font-bold text-text group-hover:text-accent-text transition-colors">
+            <HeartHandshake className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+            <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
               {L('Dienstprojekt', 'Service Project')}
             </h2>
-            <p className="text-xs text-text-secondary mt-1 leading-relaxed">
+            <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
               {L('Gemeinwohlorientierte Aktionen in Nachbarschaft oder Natur.', 'Community service actions in the neighborhood or nature.')}
             </p>
           </button>
@@ -438,15 +434,13 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
               updateField('type', 'kunst');
               setStep(2);
             }}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-1 transition-all text-left group cursor-pointer"
+            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
           >
-            <div className="w-12 h-12 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-              <Palette className="w-6 h-6" />
-            </div>
-            <h2 className="text-base font-bold text-text group-hover:text-accent-text transition-colors">
+            <Palette className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+            <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
               {L('Kreative Aktivität', 'Creative Activity')}
             </h2>
-            <p className="text-xs text-text-secondary mt-1 leading-relaxed">
+            <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
               {L('Theater, Zeichnen, Musik oder Poesie für die Gruppe.', 'Drama, visual arts, music, or poetry for the group.')}
             </p>
           </button>

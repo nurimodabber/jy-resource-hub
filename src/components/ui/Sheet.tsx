@@ -125,12 +125,12 @@ export const Sheet: React.FC<SheetProps> = ({
             >
               <div>
                 {title && (
-                  <h2 id="sheet-title" className="text-lg font-bold text-text">
+                  <h2 id="sheet-title" className="font-serif text-xl sm:text-2xl font-medium tracking-tight text-text">
                     {title}
                   </h2>
                 )}
                 {description && (
-                  <p className="text-xs text-text-secondary mt-0.5">{description}</p>
+                  <p className="text-xs text-text-secondary mt-1">{description}</p>
                 )}
               </div>
               {showCloseButton && (

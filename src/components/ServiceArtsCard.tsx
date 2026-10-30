@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, BookOpen, Clock, Heart, Palette } from 'lucide-react';
+import { Bookmark, BookOpen } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getBookById } from '../utils/bookProgress';
@@ -58,10 +58,10 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
   const themeLabel = activity.theme ? activity.theme[language] : undefined;
 
   return (
-    <div className="group relative h-full flex flex-col justify-between bg-surface border border-border rounded-card hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 ease-out p-4 sm:p-5">
+    <div className="group relative h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out p-5 sm:p-6 shadow-2xs">
       {/* Optional image preview if imageUrl is present */}
       {activity.imageUrl && (
-        <div className="mb-3.5 -mx-4 -mt-4 sm:-mx-5 sm:-mt-5 overflow-hidden rounded-t-card border-b border-border aspect-16/9 bg-surface-2 relative z-[1] pointer-events-none">
+        <div className="mb-4 -mx-5 -mt-5 sm:-mx-6 sm:-mt-6 overflow-hidden rounded-t-card border-b border-border aspect-16/9 bg-surface-2 relative z-[1] pointer-events-none">
           <img
             src={activity.imageUrl}
             alt={activity.title[language]}
@@ -71,24 +71,29 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         </div>
       )}
 
-      {/* Top area with primary category badge, title, description */}
+      {/* Top area: clean typography without pill badge */}
       <div className="flex-1 min-w-0 pr-10">
-        <div className="flex items-center gap-1.5 mb-2 relative z-[1] pointer-events-none">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle text-accent-text">
-            {isService ? <Heart className="w-3 h-3" /> : <Palette className="w-3 h-3" />}
-            <span>{categoryLabel}</span>
+        <div className="flex items-center gap-1.5 text-xs text-text-tertiary mb-2 relative z-[1] pointer-events-none font-medium">
+          <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent">
+            {categoryLabel}
           </span>
+          {activity.duration && (
+            <>
+              <span className="text-border" aria-hidden="true">·</span>
+              <span className="text-2xs text-text-secondary">{activity.duration[language]}</span>
+            </>
+          )}
         </div>
 
         <Link
           to={isService ? `/service/${activity.id}` : `/arts/${activity.id}`}
           className="block focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0"
         >
-          <h3 className="text-base font-semibold text-text leading-snug line-clamp-1 group-hover:text-accent transition-colors relative z-[1]">
+          <h3 className="font-serif text-lg font-medium text-text leading-snug line-clamp-1 group-hover:text-accent transition-colors relative z-[1] tracking-tight">
             {activity.title[language]}
           </h3>
           {description && (
-            <p className="text-xs text-text-secondary line-clamp-2 mt-1 leading-relaxed relative z-[1]">
+            <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 mt-2 leading-relaxed relative z-[1]">
               {description}
             </p>
           )}
@@ -108,28 +113,25 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
       </button>
 
-      {/* Bottom meta row: calm contextual info (no "Inspiration lesen" button) */}
-      <div className="relative z-[1] pointer-events-none flex items-center justify-between gap-2 pt-2.5 mt-3 border-t border-border/50 text-2xs text-text-tertiary">
-        {bookTitle ? (
-          <span className="inline-flex items-center gap-1 font-medium truncate max-w-[200px]">
-            <BookOpen className="w-3 h-3 text-text-tertiary shrink-0" />
-            <span className="truncate">{bookTitle}{lessonNumber ? ` · L. ${lessonNumber}` : ''}</span>
-          </span>
-        ) : activity.duration ? (
-          <span className="inline-flex items-center gap-1 font-medium truncate max-w-[200px]">
-            <Clock className="w-3 h-3 text-text-tertiary shrink-0" />
-            <span className="truncate">{activity.duration[language]}</span>
-          </span>
-        ) : (
-          <span />
-        )}
+      {/* Bottom meta row: clean editorial footer (only when book or theme present) */}
+      {(bookTitle || (themeLabel && themeLabel !== categoryLabel)) && (
+        <div className="relative z-[1] pointer-events-none flex items-center justify-between gap-2 pt-3 mt-4 border-t border-border/40 text-xs text-text-tertiary">
+          {bookTitle ? (
+            <span className="inline-flex items-center gap-1.5 font-medium truncate max-w-[240px] text-text-secondary">
+              <BookOpen className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
+              <span className="truncate">{bookTitle}{lessonNumber ? ` · L. ${lessonNumber}` : ''}</span>
+            </span>
+          ) : (
+            <span />
+          )}
 
-        {themeLabel && themeLabel !== categoryLabel && (
-          <span className="truncate text-text-secondary max-w-[150px] text-right font-medium">
-            {themeLabel}
-          </span>
-        )}
-      </div>
+          {themeLabel && themeLabel !== categoryLabel && (
+            <span className="truncate text-text-tertiary max-w-[160px] text-right font-medium text-2xs uppercase tracking-wider">
+              {themeLabel}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -97,6 +97,9 @@ export interface QuoteItem {
   textDe: string;
   textEn: string;
   keywords: string[];
+  author?: string;
+  parId?: number;
+  libraryUrl?: LocalizedString;
 }
 
 export interface EmpirePromptCategory {

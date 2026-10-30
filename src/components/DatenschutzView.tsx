@@ -110,8 +110,8 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
           </h2>
           <p>
             {isDe
-              ? 'Damit du die Web-App komfortabel und offline nutzen kannst, werden deine persönlichen Einstellungen (Sprachwahl DE/EN, Farbschema, Glaseffekt-Transparenz, Lesezeichen/Merkliste sowie lokal in den Werkzeugen geführte Namenslisten) ausschließlich im lokalen Speicher deines Browsers (LocalStorage) abgelegt. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG (technisch erforderlich zur Bereitstellung der von dir aufgerufenen Funktionen). Diese Daten verlassen dein Gerät zu keinem Zeitpunkt.'
-              : 'To enable offline functionality and preserve your preferences (language, theme mode, transparency slider, bookmarks, and local tool rosters), data is stored strictly in your browser’s local storage pursuant to § 25 (2) No. 2 TDDDG. These items never leave your device.'}
+              ? 'Damit du die Web-App komfortabel und offline nutzen kannst, werden deine persönlichen Einstellungen (Sprachwahl DE/EN, Farbschema, Lesezeichen/Merkliste sowie lokal in den Werkzeugen geführte Namenslisten) ausschließlich im lokalen Speicher deines Browsers (LocalStorage) abgelegt. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG (technisch erforderlich zur Bereitstellung der von dir aufgerufenen Funktionen). Diese Daten verlassen dein Gerät zu keinem Zeitpunkt.'
+              : 'To enable offline functionality and preserve your preferences (language, theme mode, bookmarks, and local tool rosters), data is stored strictly in your browser’s local storage pursuant to § 25 (2) No. 2 TDDDG. These items never leave your device.'}
           </p>
 
           <div className="pt-2 flex items-center gap-3">

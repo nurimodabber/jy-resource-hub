@@ -26,45 +26,23 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return 'system';
   });
 
-  const [glassOpacity, setGlassOpacityState] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('jy_glass_opacity');
-      if (saved) {
-        const val = parseInt(saved, 10);
-        if (!isNaN(val) && val >= 0 && val <= 100) return val;
-      }
-    } catch {
-      // LocalStorage unavailable
-    }
-    return 60; // Standard: 'Sanft' (60 %), ruhiger Look der alten Version
-  });
-
-  const setGlassOpacity = (val: number) => {
-    const clamped = Math.min(100, Math.max(0, val));
-    setGlassOpacityState(clamped);
-    try {
-      localStorage.setItem('jy_glass_opacity', String(clamped));
-    } catch {
-      /* ignore */
-    }
-  };
+  // Fixed standard glass opacity: 25% (0.25 opacity, 20px blur, 0.165 specular), not adjustable
+  const glassOpacity = 25;
+  const setGlassOpacity = () => {};
 
   useEffect(() => {
     const root = document.documentElement;
-    const opacity = glassOpacity / 100;
-    root.style.setProperty('--glass-opacity', String(opacity));
-
-    if (glassOpacity >= 100) {
-      root.style.setProperty('--glass-blur', '0px');
-      root.style.setProperty('--glass-specular', '0');
-    } else {
-      // Blur: 24px at 0% down to 10px at 98%
-      const blurPx = Math.round(24 - (glassOpacity / 100) * 14);
-      root.style.setProperty('--glass-blur', `${Math.max(8, blurPx)}px`);
-      const specular = ((100 - glassOpacity) / 100) * 0.22;
-      root.style.setProperty('--glass-specular', specular.toFixed(3));
+    // Enforce fixed 25% standard glass opacity across the app
+    root.style.setProperty('--glass-opacity', '0.25');
+    root.style.setProperty('--glass-blur', '20px');
+    root.style.setProperty('--glass-specular', '0.165');
+    // Clear any obsolete custom glass opacity stored previously in localStorage
+    try {
+      localStorage.removeItem('jy_glass_opacity');
+    } catch {
+      /* ignore */
     }
-  }, [glassOpacity]);
+  }, []);
 
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;

@@ -1,9 +1,8 @@
 import React from 'react';
-import { Bookmark, Zap, Music, ExternalLink } from 'lucide-react';
+import { Bookmark, Music, ExternalLink, ArrowRight } from 'lucide-react';
 import { QuoteItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getQuoteSong } from '../data/quoteSongs';
-import { IconButton } from './ui/IconButton';
 import { ShareMenu } from './ui/ShareMenu';
 import { getBahaiLibraryUrl } from '../utils/libraryLinks';
 
@@ -47,9 +46,17 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
 
   const isPrayer = isPrayerQuote(quote);
   const text = isDe ? quote.textDe : quote.textEn;
-  const bookName = quote.mainBook ? quote.mainBook[language] : quote.book[language].split(',')[0].trim();
+  const rawBookName = quote.mainBook ? quote.mainBook[language] : quote.book[language].split(',')[0].trim();
+  const isDevotionalBook =
+    /gebete?\s*(&|und|\+)?\s*andacht/i.test(rawBookName) ||
+    /prayers?\s*(&|and|\+)?\s*devotions?/i.test(rawBookName);
+  const bookName = isDevotionalBook ? undefined : rawBookName;
   const sectionName = formatQuoteSection(quote.section ? quote.section[language] : undefined);
   const song = getQuoteSong(quote.id, language);
+
+  const metaTag = isPrayer
+    ? `${isDe ? 'Gebet' : 'Prayer'}${bookName ? ` · ${bookName}` : ''}${sectionName ? ` · ${sectionName}` : ''}`
+    : `${bookName ?? ''}${sectionName ? ` · ${sectionName}` : ''}`;
 
   const formattedShareText = `„${text}“\n— ${quote.source[language]} (${quote.book[language]})`;
   const quoteUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/quotes/${quote.id}`;
@@ -57,7 +64,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   return (
     <article
       onClick={() => onSelectQuote(quote)}
-      className="break-inside-avoid bg-surface rounded-card border border-border p-5 sm:p-6 mb-5 transition-all duration-150 ease-out hover:bg-surface-2/40 hover:shadow-2 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-1"
+      className="break-inside-avoid bg-surface rounded-card border border-border/80 p-5 sm:p-6 mb-5 transition-all duration-200 ease-out hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-2xs"
       tabIndex={0}
       role="article"
       onKeyDown={(e) => {
@@ -70,16 +77,33 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
       }}
     >
       <div className="space-y-3.5">
-        {/* Top small meta line: Source / Book & indicator */}
-        <div className="flex items-center justify-between gap-2 text-xs text-text-tertiary">
-          <span className="font-medium truncate font-sans">
-            {bookName} {sectionName ? `· ${sectionName}` : ''}
+        {/* Top meta line: Book & Section + discreet actions */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent truncate font-sans">
+            {metaTag}
           </span>
-          {isPrayer && (
-            <span className="shrink-0 text-2xs font-semibold px-2 py-0.5 rounded-control bg-surface-2 text-text-secondary border border-line">
-              {isDe ? 'Gebet' : 'Prayer'}
-            </span>
-          )}
+
+          <div className="flex items-center gap-0.5 -mr-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={(e) => onToggleFavorite(quote.id, e)}
+              aria-pressed={isFavorite}
+              aria-label={`${t.savedItems}: ${quote.source[language]}`}
+              className={`min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-full hover:bg-surface-2 transition-colors cursor-pointer ${
+                isFavorite ? 'text-accent' : 'text-text-tertiary hover:text-text'
+              }`}
+            >
+              <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent text-accent' : ''}`} />
+            </button>
+
+            <ShareMenu
+              textToCopy={formattedShareText}
+              urlToCopy={quoteUrl}
+              language={language}
+              direction="down"
+              align="right"
+            />
+          </div>
         </div>
 
         {/* Holy Text in Lora Serif font (strictly unmodified, up to 6 lines in list) */}
@@ -89,7 +113,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
             lang={language}
             style={{ hyphens: 'auto' }}
           >
-            „{text}“
+            {isDe ? `»${text}«` : `“${text}”`}
           </p>
         </div>
 
@@ -98,7 +122,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium">
             —{' '}
             <a
-              href={getBahaiLibraryUrl(quote.source[language], language)}
+              href={getBahaiLibraryUrl(quote, language)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -116,57 +140,35 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         </div>
       </div>
 
-      {/* Bottom Action Row: minimal, uncrowded toolbar */}
+      {/* Bottom Action Row: calm, uncrowded and literary */}
       <div
-        className="mt-5 pt-3 border-t border-line flex items-center justify-between gap-2 relative"
+        className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between gap-3 relative text-xs"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-1">
-          {/* Bookmark Button */}
-          <IconButton
-            label={isFavorite ? t.savedItems : (isDe ? 'Merken' : 'Save')}
-            variant="outline"
-            size="md"
-            className={`min-w-[44px] min-h-[44px] ${isFavorite ? 'text-accent' : 'text-text-secondary'}`}
-            onClick={(e) => onToggleFavorite(quote.id, e)}
-          >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent' : ''}`} />
-          </IconButton>
-
-          {/* Compact Share Dropdown: Text kopieren / Link kopieren */}
-          <ShareMenu
-            textToCopy={formattedShareText}
-            urlToCopy={quoteUrl}
-            language={language}
-            direction="up"
-            align="left"
-          />
-
-          {/* Optional song reference */}
+        <div>
           {song && (
             <a
               href={song.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-text-secondary hover:text-accent rounded-control hover:bg-surface-2 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+              className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-accent transition-colors font-medium min-h-[44px] py-1"
               aria-label={t.quoteSongAriaLabel}
               title={isDe ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
             >
-              <Music className="w-4 h-4 text-accent" />
+              <Music className="w-3.5 h-3.5 text-accent" />
+              <span className="truncate max-w-[180px]">{song.title}</span>
             </a>
           )}
         </div>
 
-        {/* Single discreet icon button for "Auswendiglernen" */}
-        <IconButton
-          label={t.practiceTextLink}
-          variant="secondary"
-          size="md"
-          className="min-w-[44px] min-h-[44px] text-accent hover:text-accent-hover hover:bg-accent-subtle/80"
+        <button
+          type="button"
           onClick={() => onPracticeQuote(quote)}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:text-accent-hover transition-colors min-h-[44px] py-1 cursor-pointer group/btn"
         >
-          <Zap className="w-4 h-4" />
-        </IconButton>
+          <span>{isDe ? 'Auswendig lernen' : 'Memorise'}</span>
+          <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+        </button>
       </div>
     </article>
   );

@@ -4,8 +4,8 @@
 
 :root, [data-theme="light"] {
   color-scheme: light;
-  --glass-opacity: 0.96;
-  --glass-blur: 12px;
+  --glass-opacity: 0.25;
+  --glass-blur: 20px;
   /* Noble Editorial Light: Warm porcelain & deep ink */
   --bg: #F9F8F5;
   --bg-rgb: 249 248 245;

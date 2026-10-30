@@ -200,13 +200,13 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
   };
 
   return (
-    <div className="max-w-5xl w-full mx-auto pb-24 space-y-6 animate-in fade-in duration-200">
+    <div className="max-w-5xl w-full mx-auto pb-24 space-y-8 animate-in fade-in duration-200">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text">
+        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
           {t.tabTools}
         </h1>
-        <p className="text-xs sm:text-sm text-text-secondary mt-1 max-w-prose">
+        <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {L(
             'Praktische Werkzeuge live in der Gruppe. Alle teilen eine gemeinsame Namensliste.',
             'Handy tools live in the group. All share a single group presence list.'
@@ -215,7 +215,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
       </div>
 
       {/* Raster (Grid) of Tools - 2 cols on mobile, 3 cols on tablet/desktop */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {TOOLS.map((x) => {
           const Icon = x.icon;
           const activeBadge = getActiveToolBadge(x.id);
@@ -223,31 +223,29 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
             <Link
               key={x.id}
               to={x.customHref || `/tools/${x.id}`}
-              className="group p-4 sm:p-5 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 hover:border-accent/40 transition-all duration-150 flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent min-h-[140px] sm:min-h-[160px] shadow-xs cursor-pointer relative"
+              className="group p-5 sm:p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent min-h-[160px] sm:min-h-[175px] shadow-2xs cursor-pointer relative"
             >
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="w-10 h-10 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <Icon className="w-5 h-5" strokeWidth={1.75} />
-                  </div>
+                  <Icon className="w-6 h-6 text-accent group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
                   {activeBadge && (
-                    <span className="tabular-nums text-2xs font-semibold px-2 py-0.5 rounded-full bg-surface-2 text-text-secondary border border-border truncate max-w-[110px]">
+                    <span className="tabular-nums text-2xs font-bold uppercase tracking-[0.14em] text-accent truncate max-w-[140px]">
                       {activeBadge}
                     </span>
                   )}
                 </div>
 
                 <div>
-                  <h2 className="font-bold text-sm sm:text-base text-text group-hover:text-accent transition-colors leading-snug">
+                  <h2 className="font-serif text-lg font-medium text-text group-hover:text-accent transition-colors leading-snug tracking-tight">
                     {x.title[isDe ? 0 : 1]}
                   </h2>
-                  <p className="text-2xs sm:text-xs text-text-secondary mt-1 leading-snug line-clamp-2">
+                  <p className="text-xs sm:text-sm text-text-secondary mt-2 leading-relaxed line-clamp-2">
                     {x.desc[isDe ? 0 : 1]}
                   </p>
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-end text-xs text-accent font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="pt-3 flex items-center justify-end text-xs text-accent font-semibold group-hover:translate-x-0.5 transition-transform duration-150">
                 <span className="mr-1">{isDe ? 'Öffnen' : 'Open'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>

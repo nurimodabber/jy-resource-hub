@@ -49,11 +49,19 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
   const isPrayer = isPrayerQuote(activeQuote);
 
   const text = isDe ? activeQuote.textDe : activeQuote.textEn;
-  const bookName = activeQuote.mainBook ? activeQuote.mainBook[language] : activeQuote.book[language].split(',')[0].trim();
+  const rawBookName = activeQuote.mainBook ? activeQuote.mainBook[language] : activeQuote.book[language].split(',')[0].trim();
+  const isDevotionalBook =
+    /gebete?\s*(&|und|\+)?\s*andacht/i.test(rawBookName) ||
+    /prayers?\s*(&|and|\+)?\s*devotions?/i.test(rawBookName);
+  const bookName = isDevotionalBook ? undefined : rawBookName;
   const sectionName = formatQuoteSection(activeQuote.section ? activeQuote.section[language] : undefined);
   const song = getQuoteSong(activeQuote.id, language);
 
-  const formattedShareText = `„${text}“\n— ${activeQuote.source[language]} (${activeQuote.book[language]})`;
+  const metaTag = isPrayer
+    ? `${isDe ? 'Gebet' : 'Prayer'}${bookName ? ` · ${bookName}` : ''}${sectionName ? ` · ${sectionName}` : ''}`
+    : `${bookName ?? ''}${sectionName ? ` · ${sectionName}` : ''}`;
+
+  const formattedShareText = `${isDe ? `»${text}«` : `“${text}”`}\n— ${activeQuote.source[language]} (${activeQuote.book[language]})`;
   const quoteUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/quotes/${activeQuote.id}`;
 
   // Sibling quotes in the same book for gentle pagination
@@ -133,22 +141,17 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
       </div>
 
       {/* 2. Main Sacred Text Reading Card (Calm surface, generous margin, Lora serif) */}
-      <section className="bg-surface rounded-3xl border border-border p-6 sm:p-12 lg:p-16 space-y-8 shadow-xs">
+      <section className="bg-surface rounded-3xl border border-border/80 p-6 sm:p-12 lg:p-16 space-y-8 shadow-xs">
         <div className="flex items-center justify-between gap-3 text-xs text-text-tertiary">
-          <span className="font-medium tracking-wide">
-            {bookName} {sectionName ? `· ${sectionName}` : ''}
+          <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent font-sans">
+            {metaTag}
           </span>
-          {isPrayer && (
-            <span className="text-2xs font-semibold px-2.5 py-1 rounded-full bg-surface-2 text-text-secondary border border-border">
-              {isDe ? 'Gebet & Andacht' : 'Prayer & Devotion'}
-            </span>
-          )}
         </div>
 
         {/* The Holy Text: strictly unmodified, Lora font */}
         <div className="max-w-3xl mx-auto py-2">
           <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-[1.7] text-text text-center sm:text-left select-text">
-            „{text}“
+            {isDe ? `»${text}«` : `“${text}”`}
           </blockquote>
         </div>
 
@@ -157,7 +160,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
           <cite className="not-italic text-sm sm:text-base text-text-secondary font-serif italic block">
             —{' '}
             <a
-              href={getBahaiLibraryUrl(activeQuote.source[language], language)}
+              href={getBahaiLibraryUrl(activeQuote, language)}
               target="_blank"
               rel="noopener noreferrer"
               title={

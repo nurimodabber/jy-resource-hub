@@ -1,4 +1,4 @@
-import { Language } from '../types';
+import { Language, LocalizedString } from '../types';
 
 /**
  * Extracts a searchable term from a scripture source string.
@@ -15,17 +15,48 @@ export function extractLibrarySearchQuery(source: string): string {
   return source.replace(/[,;:]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+export type LibraryLinkTarget =
+  | string
+  | {
+      libraryUrl?: LocalizedString;
+      parId?: number;
+      source?: LocalizedString;
+    };
+
 /**
- * Generates an authoritative link to the Bahá'í-Bibliothek (German)
- * or the official Bahá'í Reference Library (English).
+ * Generates an authoritative link to the official Bahá'í Online Bibliothek (German: bibliothek.bahai.de)
+ * or the official Bahá'í Reference Library (English: bahai.org/library).
+ *
+ * If a direct `libraryUrl` or `parId` is present on the quote item, it links directly
+ * to the exact reader paragraph (`pubReader.php?parId=...`).
  */
-export function getBahaiLibraryUrl(source: string, language: Language): string {
-  const query = extractLibrarySearchQuery(source);
+export function getBahaiLibraryUrl(target: LibraryLinkTarget, language: Language): string {
+  if (typeof target === 'object' && target !== null) {
+    if (target.libraryUrl && target.libraryUrl[language]) {
+      return target.libraryUrl[language];
+    }
+    if (target.parId) {
+      if (language === 'de') {
+        return `https://bibliothek.bahai.de/pubReader.php?parId=${target.parId}`;
+      }
+      if (target.libraryUrl?.en) {
+        return target.libraryUrl.en;
+      }
+      return 'https://www.bahai.org/library/';
+    }
+    if (target.source && target.source[language]) {
+      return getBahaiLibraryUrl(target.source[language], language);
+    }
+  }
+
+  const sourceStr = typeof target === 'string' ? target : '';
+  const query = extractLibrarySearchQuery(sourceStr);
+
   if (language === 'de') {
     if (!query) {
-      return 'https://bahaibibliothek.de/';
+      return 'https://bibliothek.bahai.de/';
     }
-    return `https://bahaibibliothek.de/?s=${encodeURIComponent(query)}`;
+    return `https://bibliothek.bahai.de/pubSearch.php?searchString=${encodeURIComponent(query)}`;
   }
 
   // English: official Bahá'í Reference Library
