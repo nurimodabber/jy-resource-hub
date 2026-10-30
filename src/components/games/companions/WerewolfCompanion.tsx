@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useModal } from '../../../hooks/useModal';
 import {
   Moon,
   Sun,
@@ -80,6 +81,8 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
 
   // Active Rule Info Modal
   const [infoRole, setInfoRole] = useState<WerewolfRole | null>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
+  useModal(infoRef, Boolean(infoRole), () => setInfoRole(null));
 
   useWakeLock(phase !== 'setup');
 
@@ -661,12 +664,14 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
         <div
           role="dialog"
           aria-modal="true"
+          aria-labelledby="werewolf-role-info-title"
           className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={(e) => e.target === e.currentTarget && setInfoRole(null)}
         >
-          <div className="relative w-full max-w-sm glass-surface-panel rounded-dialog shadow-2 border border-border p-5 space-y-4 text-left outline-hidden">
+          <div ref={infoRef} tabIndex={-1} className="relative w-full max-w-sm glass-surface-panel rounded-dialog shadow-2 border border-border p-5 space-y-4 text-left outline-hidden">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h4 className="text-base font-bold text-text">{infoRole.name[language]}</h4>
+                <h4 id="werewolf-role-info-title" className="text-base font-bold text-text">{infoRole.name[language]}</h4>
                 <span className="text-2xs font-semibold uppercase text-accent">
                   {infoRole.team === 'wolves'
                     ? L('Team Werwölfe', 'Werewolves')
@@ -678,6 +683,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
               <button
                 type="button"
                 onClick={() => setInfoRole(null)}
+                aria-label={L('Schließen', 'Close')}
                 className="p-1 rounded-full hover:bg-surface-2 text-text-tertiary cursor-pointer"
               >
                 <X className="w-4 h-4" />

@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useConfirm } from './ui/ConfirmDialog';
+import { clearLocalData } from '../utils/backup';
+
+const CLEARED_FLAG = 'jy_privacy_cleared';
 import { ArrowLeft, ShieldCheck, Check, Trash2, Mail } from 'lucide-react';
 import { Language } from '../types';
 import { Button } from './ui/Button';
@@ -10,26 +14,49 @@ export interface DatenschutzViewProps {
 }
 
 export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBack, onOpenContact }) => {
-  const [cleared, setCleared] = useState(false);
-  const isDe = language === 'de';
-
-  const handleClearData = () => {
-    if (window.confirm(
-      isDe
-        ? 'Möchtest du alle lokal im Browser gespeicherten Daten (Favoriten, Einstellungen, Gruppenliste) wirklich löschen?'
-        : 'Are you sure you want to clear all locally stored data (favorites, settings, group roster)?'
-    )) {
-      localStorage.removeItem('jy_favorites');
-      localStorage.removeItem('jy_lang');
-      localStorage.removeItem('jy_theme');
-      localStorage.removeItem('jy_group_names');
-      localStorage.removeItem('jy_scoreboard_teams');
-      localStorage.removeItem('jy_timer_presets');
-      localStorage.removeItem('jy_user_email');
-      localStorage.removeItem('jy_quick_pick');
-      setCleared(true);
-      setTimeout(() => setCleared(false), 3000);
+  // The page reloads after clearing, so the confirmation survives via a sessionStorage flag.
+  // Initializers must stay pure (StrictMode runs them twice), so the flag is removed in the effect.
+  const [cleared, setCleared] = useState(() => {
+    try {
+      return sessionStorage.getItem(CLEARED_FLAG) === '1';
+    } catch {
+      return false;
     }
+  });
+  const isDe = language === 'de';
+  const [confirm, confirmDialog] = useConfirm();
+
+  useEffect(() => {
+    if (!cleared) return;
+    try {
+      sessionStorage.removeItem(CLEARED_FLAG);
+    } catch {
+      // ignore
+    }
+    const timer = setTimeout(() => setCleared(false), 4000);
+    return () => clearTimeout(timer);
+  }, [cleared]);
+
+  const handleClearData = async () => {
+    const ok = await confirm({
+      title: isDe ? 'Lokale Daten löschen?' : 'Clear local data?',
+      message: isDe
+        ? 'Favoriten, Gruppenliste, Punktestände, Einstellungen und alle anderen auf diesem Gerät gespeicherten Daten werden entfernt.'
+        : 'Favorites, group roster, scores, settings and all other data stored on this device will be removed.',
+      confirmLabel: isDe ? 'Löschen' : 'Clear',
+      cancelLabel: isDe ? 'Abbrechen' : 'Cancel',
+    });
+    if (!ok) return;
+    // Clear every jy_* key, not a fixed list: tools add their own keys (jy_group_names can hold
+    // junior youths' names). Reload because in-memory app state would otherwise write the old
+    // values straight back on the next change.
+    clearLocalData();
+    try {
+      sessionStorage.setItem(CLEARED_FLAG, '1');
+    } catch {
+      // confirmation is optional
+    }
+    window.location.reload();
   };
 
   return (
@@ -215,6 +242,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
           </div>
         </section>
       </div>
+      {confirmDialog}
     </div>
   );
 };

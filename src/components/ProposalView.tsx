@@ -64,6 +64,9 @@ interface FormState {
 
 const STORAGE_DRAFT_KEY = 'jy_submit_draft';
 
+/** Same pattern as api/submit.ts: real links and domains, not sentences like "weiter.Der". */
+const CONTAINS_LINK = /(https?:\/\/|www\.|\b[a-z0-9-]+\.(com|org|net|de|io)\b)/i;
+
 export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
   const L = tr(language);
   const { showToast } = useToast();
@@ -183,11 +186,20 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
   };
 
   const validateForm = (): string | null => {
-    if (!formData.title.trim() || formData.title.length < 3) {
-      return L('Bitte gib einen aussagekräftigen Titel an (mind. 3 Zeichen).', 'Please enter a title (min. 3 characters).');
+    // Same limits as api/submit.ts, so a submission is never rejected after the user thinks it was sent.
+    const title = formData.title.trim();
+    const summary = formData.summary.trim();
+    if (title.length < 3 || title.length > 100) {
+      return L('Der Titel muss zwischen 3 und 100 Zeichen lang sein.', 'The title must be 3 to 100 characters long.');
     }
-    if (!formData.summary.trim() || formData.summary.length < 10) {
-      return L('Bitte gib eine kurze Zusammenfassung an (mind. 10 Zeichen).', 'Please enter a short summary (min. 10 characters).');
+    if (summary.length < 10 || summary.length > 300) {
+      return L('Die Zusammenfassung muss zwischen 10 und 300 Zeichen lang sein.', 'The summary must be 10 to 300 characters long.');
+    }
+    if (CONTAINS_LINK.test(title) || CONTAINS_LINK.test(summary)) {
+      return L(
+        'Titel und Zusammenfassung dürfen keine Web-Links enthalten. Ein Bild kannst du unten als Bild-URL angeben.',
+        'Title and summary must not contain web links. You can add an image below as an image URL.'
+      );
     }
     const validSteps = formData.steps.map((s) => s.trim()).filter(Boolean);
     if (validSteps.length < 3) {
@@ -288,12 +300,8 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       /* ignore */
     }
 
-    try {
-      localStorage.removeItem(STORAGE_DRAFT_KEY);
-    } catch {
-      /* ignore */
-    }
-
+    // Only a confirmed server response counts as sent. Before, every failure (validation, rate
+    // limit, GitHub outage) still showed the success screen, and the entry was lost.
     try {
       const response = await fetch('/api/submit', {
         method: 'POST',
@@ -302,16 +310,35 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
         },
         body: JSON.stringify(payload),
       });
-
       const resData = await response.json().catch(() => ({}));
-      if (resData.ok && resData.issueUrl) {
-        setCreatedIssueUrl(resData.issueUrl);
+      if (response.ok && resData.ok) {
+        try {
+          localStorage.removeItem(STORAGE_DRAFT_KEY);
+        } catch {
+          /* ignore */
+        }
+        if (resData.issueUrl) setCreatedIssueUrl(resData.issueUrl);
+        setStep(3);
+        return;
       }
+      setMailtoFallback(generateMailtoUrl());
+      setSubmitError(
+        (typeof resData.error === 'string' && resData.error) ||
+          L(
+            'Der Vorschlag konnte nicht gesendet werden. Dein Entwurf bleibt gespeichert. Du kannst ihn per E-Mail schicken oder es später erneut versuchen.',
+            'The proposal could not be sent. Your draft is kept. You can send it by email or try again later.'
+          )
+      );
     } catch {
-      /* Backend optional: local admin queue is already guaranteed */
+      setMailtoFallback(generateMailtoUrl());
+      setSubmitError(
+        L(
+          'Keine Verbindung zum Server. Dein Entwurf bleibt gespeichert. Du kannst ihn per E-Mail schicken oder es später erneut versuchen.',
+          'No connection to the server. Your draft is kept. You can send it by email or try again later.'
+        )
+      );
     } finally {
       setIsSubmitting(false);
-      setStep(3);
     }
   };
 
@@ -347,7 +374,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       </div>
 
       {/* Mobile Step Indicator */}
-      <div className="sm:hidden flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface border border-border" aria-label="Fortschritt">
+      <div className="sm:hidden flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface border border-border" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
         <div>
           <span className="text-2xs font-extrabold uppercase tracking-wider text-accent block">
             {L(`Schritt ${step} von 3`, `Step ${step} of 3`)}
@@ -377,7 +404,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       </div>
 
       {/* Desktop Step Indicator */}
-      <div className="hidden sm:flex items-center gap-2 text-xs font-semibold" aria-label="Fortschritt">
+      <div className="hidden sm:flex items-center gap-2 text-xs font-semibold" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
         <span className={`px-3 py-1 rounded-chip ${step === 1 ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary'}`}>
           1. {L('Art wählen', 'Choose type')}
         </span>
@@ -794,6 +821,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       }
                     }}
                     placeholder={L('z.B. Kreide, Augenbinden, Seil...', 'e.g. Chalk, blindfolds...')}
+                    aria-label={L('Material hinzufügen', 'Add material')}
                     className="flex-1 px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                   />
                   <button
@@ -843,6 +871,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                         value={st}
                         onChange={(e) => handleStepChange(idx, e.target.value)}
                         placeholder={L(`Schritt ${idx + 1} beschreiben...`, `Describe step ${idx + 1}...`)}
+                        aria-label={L(`Schritt ${idx + 1}`, `Step ${idx + 1}`)}
                         className="flex-1 px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                       />
                       {formData.steps.length > 3 && (
@@ -994,8 +1023,8 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                   />
                   <span>
                     {L(
-                      'Ich habe die Datenschutzerklärung zur Kenntnis genommen (Beiträge werden als GitHub Issue verarbeitet; E-Mail/Name sind freiwillig).',
-                      'I have read the privacy statement (Contributions are submitted as GitHub issues; name/email are optional).'
+                      'Ich habe die Datenschutzerklärung zur Kenntnis genommen (Beiträge werden als öffentliches GitHub Issue verarbeitet; Name und E-Mail sind freiwillig, die E-Mail wird nicht veröffentlicht).',
+                      'I have read the privacy statement (Contributions are submitted as public GitHub issues; name and email are optional, the email is not published).'
                     )}
                   </span>
                 </label>

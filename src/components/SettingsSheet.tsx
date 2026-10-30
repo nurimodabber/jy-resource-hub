@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useConfirm } from './ui/ConfirmDialog';
 import { Link } from 'react-router-dom';
 import {
   Download,
@@ -38,6 +39,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   onOpenBahaiSongs,
 }) => {
   const t = UI_TRANSLATIONS[language];
+  const [confirm, confirmDialog] = useConfirm();
   const { theme, setTheme, glassOpacity, setGlassOpacity } = useTheme();
   const { showToast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -70,8 +72,14 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
     }
   };
 
-  const handleClear = () => {
-    if (window.confirm(t.settingsDeleteConfirm)) {
+  const handleClear = async () => {
+    const ok = await confirm({
+      title: language === 'de' ? 'Alle Daten auf diesem Gerät löschen?' : 'Delete all data on this device?',
+      message: t.settingsDeleteConfirm,
+      confirmLabel: language === 'de' ? 'Löschen' : 'Delete',
+      cancelLabel: language === 'de' ? 'Abbrechen' : 'Cancel',
+    });
+    if (ok) {
       clearLocalData();
       window.location.reload();
     }
@@ -375,6 +383,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
           </div>
         </footer>
       </div>
+      {confirmDialog}
     </Sheet>
   );
 };

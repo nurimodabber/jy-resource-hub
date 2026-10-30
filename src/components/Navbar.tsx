@@ -70,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </Link>
 
         {/* Center: Tablet & Desktop Navigation (visible from 768px+) */}
-        <nav className="hidden md:flex short:hidden items-center gap-1" aria-label="Hauptnavigation">
+        <nav className="hidden md:flex short:hidden items-center gap-1" aria-label={language === 'de' ? 'Hauptnavigation' : 'Main navigation'}>
           {NAV_ITEMS.map((item) => {
             const isActive = activeTab === item.id;
             return (

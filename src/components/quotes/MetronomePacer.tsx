@@ -140,8 +140,8 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
               type="button"
               onClick={handleReset}
               className="p-2.5 rounded-full border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-              title="Reset"
-              aria-label="Reset"
+              title={language === 'de' ? 'Zurücksetzen' : 'Reset'}
+              aria-label={language === 'de' ? 'Zurücksetzen' : 'Reset'}
             >
               <RotateCcw className="w-4 h-4" />
             </button>

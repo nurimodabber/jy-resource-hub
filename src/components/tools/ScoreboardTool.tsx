@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useConfirm } from '../ui/ConfirmDialog';
 import {
   Plus,
   Minus,
@@ -14,6 +15,8 @@ import { Language } from '../../types';
 import { useLocalState } from '../../hooks/useLocalState';
 import { loadPresentNames } from '../../utils/groupNames';
 import { tr, Panel } from './common';
+import { useModal } from '../../hooks/useModal';
+import { useBackToClose } from '../../hooks/useBackToClose';
 
 interface TeamScore {
   id: string;
@@ -90,6 +93,7 @@ const MAX_TEAMS = 8;
 
 export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) => {
   const L = tr(language);
+  const [confirm, confirmDialog] = useConfirm();
   const [teams, setTeams] = useLocalState<TeamScore[]>('jy_scoreboard_teams', [
     { id: 't1', name: language === 'de' ? 'Team Blau' : 'Blue Team', score: 0 },
     { id: 't2', name: language === 'de' ? 'Team Gelb' : 'Yellow Team', score: 0 },
@@ -137,15 +141,17 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
     });
   }, [setTeams]);
 
-  // Listen to Escape key and undo shortcuts while in Fullscreen mode
+  // Escape, focus, Tab trap and scroll lock come from useModal; Back (phone) closes via useBackToClose.
+  const fullscreenRef = useRef<HTMLDivElement>(null);
+  const exitFullscreen = useBackToClose(isFullscreen, 'scoreboard', handleExitFullscreen);
+  useModal(fullscreenRef, isFullscreen, exitFullscreen);
+
+  // Undo shortcut while in Fullscreen mode
   useEffect(() => {
     if (!isFullscreen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        handleExitFullscreen();
-      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         handleUndo();
       }
@@ -153,7 +159,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, handleExitFullscreen, handleUndo]);
+  }, [isFullscreen, handleUndo]);
 
   // Synchronize state if user exits native fullscreen via browser controls
   useEffect(() => {
@@ -195,8 +201,13 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
     }, 900);
   };
 
-  const handleResetScores = () => {
-    if (window.confirm(L('Alle Punktestände auf 0 zurücksetzen?', 'Reset all scores to 0?'))) {
+  const handleResetScores = async () => {
+    const ok = await confirm({
+      title: L('Alle Punktestände auf 0 zurücksetzen?', 'Reset all scores to 0?'),
+      confirmLabel: L('Zurücksetzen', 'Reset'),
+      cancelLabel: L('Abbrechen', 'Cancel'),
+    });
+    if (ok) {
       setTeams((prev) => prev.map((t) => ({ ...t, score: 0 })));
       setHistory([]);
     }
@@ -517,6 +528,8 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
       {/* Fullscreen Overlay Mode (All up to 8 teams at a single glance without scrolling) */}
       {isFullscreen && (
         <div
+          ref={fullscreenRef}
+          tabIndex={-1}
           className="fixed inset-0 z-50 bg-bg text-text p-2.5 sm:p-4 flex flex-col justify-between overflow-hidden select-none"
           role="dialog"
           aria-modal="true"
@@ -600,7 +613,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
 
               <button
                 type="button"
-                onClick={handleExitFullscreen}
+                onClick={exitFullscreen}
                 className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 shadow-xs"
                 title={L('Vollbild beenden (Esc)', 'Exit full screen (Esc)')}
               >
@@ -793,6 +806,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
           </div>
         </div>
       )}
+      {confirmDialog}
     </>
   );
 };

@@ -219,7 +219,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
             onChange={handleFullInputChange}
             onKeyDown={handleKeyDown}
             autoFocus
-            aria-label="Tippfeld für Zitat"
+            aria-label={language === 'de' ? 'Tippfeld für Zitat' : 'Type the quote'}
           />
         </div>
 

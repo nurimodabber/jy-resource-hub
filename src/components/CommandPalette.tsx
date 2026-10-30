@@ -348,7 +348,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       className="fixed inset-0 z-70 flex items-start justify-center p-0 sm:p-6 sm:pt-16 md:pt-20 overflow-hidden"
       role="dialog"
       aria-modal="true"
-      aria-label="Schnellsuche"
+      aria-label={language === 'de' ? 'Schnellsuche' : 'Quick search'}
       style={viewportHeight ? { height: `${viewportHeight}px` } : undefined}
     >
       {/* Backdrop */}
@@ -391,7 +391,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 inputRef.current?.focus();
               }}
               className="p-1 rounded-full text-text-tertiary hover:text-text cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center"
-              aria-label="Suche löschen"
+              aria-label={language === 'de' ? 'Suche löschen' : 'Clear search'}
             >
               <X className="w-4 h-4" strokeWidth={1.75} />
             </button>
