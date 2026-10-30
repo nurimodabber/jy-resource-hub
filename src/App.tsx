@@ -631,7 +631,7 @@ export const AppContent: React.FC = () => {
                   <Logo className="w-5 h-5 text-accent shrink-0" />
                   <span className="font-extrabold text-sm text-text tracking-tight">{t.siteTitle}</span>
                 </div>
-                <span className="text-2xs font-semibold px-2.5 py-0.5 rounded-full bg-accent-subtle text-accent-text whitespace-nowrap shrink-0">
+                <span className="text-2xs text-text-tertiary whitespace-nowrap shrink-0">
                   {t.footerStatusBadge}
                 </span>
               </div>

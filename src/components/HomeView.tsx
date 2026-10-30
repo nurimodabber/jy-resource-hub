@@ -7,7 +7,6 @@ import {
   ChevronRight,
   X,
   Smartphone,
-  Quote as QuoteIcon,
   Palette,
   HeartHandshake,
   History,
@@ -304,17 +303,14 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               className="rounded-card bg-surface border border-border p-3.5 sm:p-4 lg:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex flex-col justify-between sm:flex-row sm:items-center sm:justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[92px] sm:min-h-0"
             >
               <div className="space-y-0.5 min-w-0 pr-1">
-                <div className="flex items-center gap-1.5 font-bold text-sm sm:text-base lg:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
+                <div className="font-bold text-sm sm:text-base lg:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
                   <span>{L('Spiel finden', 'Find a game')}</span>
-                  <Compass className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
                 </div>
                 <p className="text-2xs sm:text-xs text-text-secondary font-medium leading-tight">
                   {L('Gruppengröße & Zeit eingeben', 'Pick group size & time')}
                 </p>
               </div>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-surface-2 text-text flex items-center justify-center shrink-0 self-end sm:self-center mt-2 sm:mt-0 group-hover:bg-accent/15 group-hover:text-accent transition-colors">
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-text-tertiary group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0 self-end sm:self-center mt-2 sm:mt-0" />
             </button>
 
             {/* Aktion 2: Zitate & Gebete */}
@@ -323,17 +319,14 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               className="rounded-card bg-surface border border-border p-3.5 sm:p-4 lg:p-5 shadow-xs hover:border-accent hover:shadow-1 transition-all duration-150 flex flex-col justify-between sm:flex-row sm:items-center sm:justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[92px] sm:min-h-0"
             >
               <div className="space-y-0.5 min-w-0 pr-1">
-                <div className="flex items-center gap-1.5 font-bold text-sm sm:text-base lg:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
+                <div className="font-bold text-sm sm:text-base lg:text-lg text-text group-hover:text-accent tracking-tight transition-colors">
                   <span>{L('Zitate & Gebete', 'Quotes & Prayers')}</span>
-                  <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent shrink-0" />
                 </div>
                 <p className="text-2xs sm:text-xs text-text-secondary leading-tight">
                   {L('Texte nachschlagen & auswendig lernen', 'Look up texts & memorise')}
                 </p>
               </div>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-surface-2 text-text flex items-center justify-center shrink-0 self-end sm:self-center mt-2 sm:mt-0 group-hover:bg-accent/15 group-hover:text-accent transition-colors">
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-text-tertiary group-hover:text-accent group-hover:translate-x-0.5 transition-all shrink-0 self-end sm:self-center mt-2 sm:mt-0" />
             </Link>
           </nav>
 
@@ -406,14 +399,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           {/* Header Row: Label & Buch links, intuitive Icon-Buttons rechts */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="w-6 h-6 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center shrink-0">
-                <QuoteIcon className="w-3.5 h-3.5" />
-              </span>
-              <span className="text-2xs sm:text-xs font-bold text-text uppercase tracking-wider truncate">
-                {L('Zitat des Tages', 'Quote of the day')}
-              </span>
-              <span className="text-2xs text-text-tertiary font-medium hidden sm:inline truncate">
-                · {quote.book[language]}
+              <span className="text-2xs font-semibold text-text-tertiary uppercase tracking-wider truncate">
+                {L('Zitat des Tages', 'Quote of the day')} · {quote.book[language]}
               </span>
             </div>
 
@@ -500,12 +487,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             className="p-4 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-                {L('Uhr', 'Timer')}
+              <span className="text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
+                {L('Timer', 'Timer')}
               </span>
-              <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-text-secondary group-hover:text-text transition-colors shrink-0">
-                <TimerIcon className="w-4 h-4" />
-              </div>
+              <TimerIcon className="w-4 h-4 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
             </div>
             <div className="text-2xl font-bold tracking-tight text-text tabular-nums">
               05:00
@@ -520,12 +505,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             className="p-4 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+              <span className="text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
                 {L('Gruppen', 'Groups')}
               </span>
-              <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-text-secondary group-hover:text-text transition-colors shrink-0">
-                <UsersIcon className="w-4 h-4" />
-              </div>
+              <UsersIcon className="w-4 h-4 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
             </div>
             <div className="text-2xl font-bold tracking-tight text-text tabular-nums">
               2 Teams
@@ -540,12 +523,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             className="p-4 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+              <span className="text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
                 {L('Gespräch', 'Cards')}
               </span>
-              <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-text-secondary group-hover:text-text transition-colors shrink-0">
-                <MessageSquareQuote className="w-4 h-4" />
-              </div>
+              <MessageSquareQuote className="w-4 h-4 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
             </div>
             <div className="text-2xl font-bold tracking-tight text-text tabular-nums">
               {L('Karten', 'Cards')}
@@ -560,12 +541,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             className="p-4 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+              <span className="text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
                 {L('Stand', 'Score')}
               </span>
-              <div className="w-9 h-9 rounded-full bg-surface-2 flex items-center justify-center text-text-secondary group-hover:text-text transition-colors shrink-0">
-                <Award className="w-4 h-4" />
-              </div>
+              <Award className="w-4 h-4 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
             </div>
             <div className="text-2xl font-bold tracking-tight text-text tabular-nums">
               Punkte
@@ -607,12 +586,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
             >
               <div className="space-y-2.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase tracking-wider bg-surface-2 text-text-secondary flex items-center gap-1.5 shrink-0">
-                    <HeartHandshake className="w-3.5 h-3.5 text-text-secondary" />
-                    <span>{L('Dienstprojekt', 'Service Project')}</span>
+                <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
+                  <span className="font-semibold uppercase tracking-wider text-text-secondary">
+                    {L('Dienstprojekt', 'Service Project')}
                   </span>
-                  <span className="text-2xs text-text-tertiary font-semibold tabular-nums shrink-0">
+                  <span className="font-medium tabular-nums">
                     {sampleService.durationMin}–{sampleService.durationMax} {L('Min', 'min')}
                   </span>
                 </div>
@@ -639,12 +617,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
             >
               <div className="space-y-2.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase tracking-wider bg-surface-2 text-text-secondary flex items-center gap-1.5 shrink-0">
-                    <Palette className="w-3.5 h-3.5 text-text-secondary" />
-                    <span>{L('Kunst & Theater', 'Arts & Drama')}</span>
+                <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
+                  <span className="font-semibold uppercase tracking-wider text-text-secondary">
+                    {L('Kunst & Theater', 'Arts & Drama')}
                   </span>
-                  <span className="text-2xs text-text-tertiary font-semibold tabular-nums shrink-0">
+                  <span className="font-medium tabular-nums">
                     {sampleArt.durationMin}–{sampleArt.durationMax} {L('Min', 'min')}
                   </span>
                 </div>
@@ -676,11 +653,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           {/* Kachel 1: Werkzeuge */}
           <Link
             to="/tools"
-            className="flex items-center gap-3 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
+            className="flex items-center gap-3.5 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
-            <div className="w-10 h-10 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 group-hover:text-text transition-colors">
-              <Wrench className="w-5 h-5" />
-            </div>
+            <Wrench className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="font-bold text-text text-sm truncate transition-colors">
                 {t.tabTools}
@@ -695,11 +670,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           {/* Kachel 2: Gemerkt */}
           <Link
             to="/saved"
-            className="flex items-center gap-3 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
+            className="flex items-center gap-3.5 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
           >
-            <div className="w-10 h-10 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 group-hover:text-text transition-colors">
-              <Bookmark className="w-5 h-5" />
-            </div>
+            <Bookmark className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="font-bold text-text text-sm truncate transition-colors">
                 {t.savedItems}
@@ -715,10 +688,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
 
           {/* Kachel 3: Buch-Fortschritt mit mindestens 44px Touch-Zielen */}
           <div className="flex items-center justify-between gap-2 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group shadow-1">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-10 h-10 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 group-hover:text-text transition-colors">
-                <BookOpen className="w-5 h-5" />
-              </div>
+            <div className="flex items-center gap-3.5 min-w-0 flex-1">
+              <BookOpen className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
               <div className="flex-1 min-w-0">
                 <button
                   type="button"
@@ -814,7 +785,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                 to={item.path}
                 className="flex items-center gap-2.5 p-3 rounded-card bg-surface border border-border hover:bg-surface-2 transition-colors group min-h-[52px] focus-visible:ring-2 focus-visible:ring-accent shadow-1"
               >
-                <div className="w-8 h-8 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 text-xs">
+                <div className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors flex items-center justify-center shrink-0">
                   {item.type === 'game' ? (
                     <Compass className="w-4 h-4" />
                   ) : item.type === 'quote' ? (
@@ -840,9 +811,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         ) : (
           <div className="p-5 sm:p-6 rounded-card bg-surface border border-border shadow-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-full bg-surface-2 text-text-secondary flex items-center justify-center shrink-0 mt-0.5">
-                <History className="w-5 h-5" />
-              </div>
+              <History className="w-5 h-5 text-text-tertiary shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <p className="font-bold text-text text-sm">
                   {t.recentViewsEmptyTitle}
