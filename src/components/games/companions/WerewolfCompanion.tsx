@@ -188,7 +188,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
       {/* PHASE 1: SETUP & ROLLEN-AUSWAHL                                     */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-5 text-left w-full max-w-2xl">
+        <div className="space-y-5 text-left w-full max-w-2xl pb-16 md:pb-0">
           {/* 1. Spielende & Namen */}
           <Panel className="p-5 sm:p-6 space-y-4">
             <PlayerSetupSection
@@ -432,16 +432,18 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
             </div>
           </Panel>
 
-          {/* Start Dealing */}
-          <button
-            type="button"
-            disabled={isOverAllocated}
-            onClick={startDealing}
-            className={`${primaryBtn} w-full py-3.5 text-base flex items-center justify-center gap-2`}
-          >
-            <Eye className="w-4 h-4" />
-            <span>{L('Rollen geheim verteilen', 'Deal roles secretly')}</span>
-          </button>
+          {/* Start Dealing (sticky on mobile for instant thumb access, inline on desktop) */}
+          <div className="sticky md:static bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-auto z-30 pt-2 pb-2 md:p-0">
+            <button
+              type="button"
+              disabled={isOverAllocated}
+              onClick={startDealing}
+              className={`${primaryBtn} w-full py-3.5 text-base flex items-center justify-center gap-2 shadow-lg md:shadow-none`}
+            >
+              <Eye className="w-4 h-4" />
+              <span>{L('Rollen geheim verteilen', 'Deal roles secretly')}</span>
+            </button>
+          </div>
         </div>
       )}
 

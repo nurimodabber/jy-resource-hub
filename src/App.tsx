@@ -634,17 +634,17 @@ export const AppContent: React.FC = () => {
               <div className="w-5 h-5 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
                 <Logo className="w-3 h-3 text-accent" />
               </div>
-              <span className="font-bold text-sm tracking-tight text-text whitespace-nowrap">
+              <span className="font-bold text-sm tracking-tight text-text whitespace-nowrap leading-none">
                 {t.siteTitle}
               </span>
-              <span className="text-2xs text-text-tertiary select-none">
+              <span className="text-2xs text-text-tertiary select-none leading-none">
                 © {new Date().getFullYear()}
               </span>
-              <span className="text-border-strong select-none">·</span>
-              <span className="text-2xs text-text-tertiary whitespace-nowrap">
+              <span className="text-border-strong select-none leading-none">·</span>
+              <span className="text-2xs text-text-tertiary whitespace-nowrap leading-none">
                 {t.footerCluster}
               </span>
-              <span className="text-2xs font-medium text-text-secondary px-2.5 py-0.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0">
+              <span className="inline-flex items-center justify-center h-[22px] text-2xs font-medium text-text-secondary px-2.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0 leading-none">
                 {t.footerExperimental}
               </span>
             </div>
@@ -653,19 +653,19 @@ export const AppContent: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsContactOpen(true)}
-                className="font-medium text-text hover:text-accent transition-colors cursor-pointer py-0.5"
+                className="inline-flex items-center justify-center h-[22px] font-medium text-text hover:text-accent transition-colors cursor-pointer leading-none"
               >
                 {t.footerContact}
               </button>
               <Link
                 to="/impressum"
-                className="font-medium text-text hover:text-accent transition-colors py-0.5"
+                className="inline-flex items-center justify-center h-[22px] font-medium text-text hover:text-accent transition-colors leading-none"
               >
                 {t.footerImpressum}
               </Link>
               <Link
                 to="/datenschutz"
-                className="font-medium text-text hover:text-accent transition-colors py-0.5"
+                className="inline-flex items-center justify-center h-[22px] font-medium text-text hover:text-accent transition-colors leading-none"
               >
                 {t.footerDatenschutz}
               </Link>

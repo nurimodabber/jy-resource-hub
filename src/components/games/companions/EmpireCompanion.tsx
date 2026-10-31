@@ -224,7 +224,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
       {/* PHASE 1: STREAMLINED SETUP                                          */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-4 text-left w-full max-w-2xl">
+        <div className="space-y-4 text-left w-full max-w-2xl pb-16 md:pb-0">
           {/* 1. Spacious Left-Aligned Category Hero Card */}
           <Panel className="p-6 sm:p-8 space-y-5 text-left">
             {/* Top Toolbar: Symmetrical Buttons in One Line, Random on the Far Right */}
@@ -359,17 +359,19 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
             </div>
           </div>
 
-          {/* 3. Primary Start Button */}
-          <button
-            type="button"
-            onClick={startEntry}
-            className={`${primaryBtn} w-full text-base py-3.5 flex items-center justify-center gap-2 shadow-sm`}
-          >
-            <span>
-              {L('Zettel geheim eingeben', 'Secret slip entry')} ({playerCount} {L('Personen', 'players')})
-            </span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          {/* 3. Primary Start Button (sticky on mobile for instant thumb access, inline on desktop) */}
+          <div className="sticky md:static bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-auto z-30 pt-2 pb-2 md:p-0">
+            <button
+              type="button"
+              onClick={startEntry}
+              className={`${primaryBtn} w-full text-base py-3.5 flex items-center justify-center gap-2 shadow-lg md:shadow-none`}
+            >
+              <span>
+                {L('Zettel geheim eingeben', 'Secret slip entry')} ({playerCount} {L('Personen', 'players')})
+              </span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
 
           {/* 4. Full Category Picker Sheet - Ultra Compact & Space-Efficient */}
           <Sheet
