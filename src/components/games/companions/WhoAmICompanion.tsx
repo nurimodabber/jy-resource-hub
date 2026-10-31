@@ -275,7 +275,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
               <button
                 type="button"
                 onClick={() => setShowSpoilers(!showSpoilers)}
-                className="px-2.5 py-1 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 {showSpoilers ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 <span>{showSpoilers ? L('Begriffe verbergen', 'Hide terms') : L('Spielleiter-Lösung anzeigen', 'Show solutions')}</span>
@@ -312,7 +312,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
                     <button
                       type="button"
                       aria-label={L('Als erraten markieren', 'Mark as solved')}
-                      className={`w-7 h-7 rounded-full border flex items-center justify-center transition-colors shrink-0 ${
+                      className={`w-7 h-7 rounded-control border flex items-center justify-center transition-colors shrink-0 ${
                         isSolved
                           ? 'bg-emerald-500 border-emerald-500 text-white'
                           : 'border-border bg-surface-2 text-text-tertiary hover:border-accent hover:text-accent'

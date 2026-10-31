@@ -139,7 +139,7 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
             <button
               type="button"
               onClick={handleReset}
-              className="p-2.5 rounded-full border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2.5 rounded-control border border-border text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Reset"
               aria-label="Reset"
             >

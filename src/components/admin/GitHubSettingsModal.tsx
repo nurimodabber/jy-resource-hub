@@ -91,7 +91,7 @@ export const GitHubSettingsModal: React.FC<GitHubSettingsModalProps> = ({
               type="button"
               onClick={() => runConnectionTest(repo, token)}
               disabled={isTesting}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface border border-border text-2xs font-semibold text-text-secondary hover:text-text transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-control bg-surface border border-border text-2xs font-semibold text-text-secondary hover:text-text transition-colors cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3 h-3 ${isTesting ? 'animate-spin' : ''}`} />
               <span>{L('Verbindung prüfen', 'Test connection')}</span>

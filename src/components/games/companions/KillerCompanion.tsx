@@ -357,7 +357,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
               <button
                 type="button"
                 onClick={() => setIsRevealed(!isRevealed)}
-                className="px-3 py-1.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text cursor-pointer transition-colors"
+                className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text cursor-pointer transition-colors"
               >
                 {isRevealed ? L('Verbergen', 'Hide') : L('Aufdecken', 'Reveal')}
               </button>

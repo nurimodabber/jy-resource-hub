@@ -334,7 +334,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             <Link
               to="/admin"
               onClick={onClose}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border/70 text-text-tertiary hover:text-text transition-colors text-xs font-medium min-h-[44px]"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-text-tertiary hover:text-text transition-colors text-xs font-medium min-h-[44px]"
               title={language === 'de' ? 'Admin-Dashboard' : 'Admin Dashboard'}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-text-tertiary" strokeWidth={1.75} />

@@ -476,7 +476,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             <button
               type="button"
               onClick={() => setIsPreview(!isPreview)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-chip text-xs font-semibold bg-surface-2 hover:bg-surface-raised text-text cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface-2 hover:bg-surface-raised text-text cursor-pointer transition-colors"
             >
               <Eye className="w-3.5 h-3.5 text-accent-text" />
               <span>{isPreview ? L('Formular bearbeiten', 'Edit form') : L('Vorschau ansehen', 'Live preview')}</span>

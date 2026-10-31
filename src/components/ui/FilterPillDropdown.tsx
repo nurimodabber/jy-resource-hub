@@ -110,7 +110,7 @@ export function FilterPillDropdown<T = string | number | null>({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className={`inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg select-none shrink-0 cursor-pointer ${
+        className={`inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-control text-xs font-semibold whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg select-none shrink-0 cursor-pointer ${
           isActive
             ? 'bg-accent text-accent-ink border-accent font-bold shadow-xs'
             : 'bg-surface text-text-secondary border-border hover:border-text-secondary hover:text-text'
@@ -193,7 +193,7 @@ export function FilterPillButton({
       onClick={onClick}
       aria-pressed={isActive}
       aria-label={ariaLabel || label}
-      className={`inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg select-none shrink-0 snap-start cursor-pointer ${
+      className={`inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-control text-xs font-semibold whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg select-none shrink-0 snap-start cursor-pointer ${
         isActive
           ? 'bg-accent text-accent-ink border-accent font-bold shadow-xs'
           : 'bg-surface text-text-secondary border-border hover:border-text-secondary hover:text-text'

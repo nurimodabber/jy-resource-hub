@@ -110,7 +110,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
               onClick={(e) => onToggleFavorite(activity.id, e)}
               aria-pressed={isFavorite}
               aria-label={`${t.savedItems}: ${activity.title[language]}`}
-              className={`min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+              className={`min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-control transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
                 isFavorite
                   ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
                   : 'text-text-tertiary hover:text-text hover:bg-surface-2'

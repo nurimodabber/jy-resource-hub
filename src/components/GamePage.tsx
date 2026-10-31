@@ -215,11 +215,11 @@ export const GamePage: React.FC<GamePageProps> = ({
             {/* Seamless Mode Switcher (Anleitung vs Jetzt spielen) */}
             {hasCompanion && (
               <div className="pt-2 print:hidden">
-                <div className="inline-flex items-center p-1 rounded-full bg-surface-2 border border-border">
+                <div className="inline-flex items-center p-1 rounded-control bg-surface-2 border border-border">
                   <button
                     type="button"
                     onClick={() => switchMode('rules')}
-                    className={`flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-control text-xs font-bold transition-all cursor-pointer ${
                       viewMode === 'rules'
                         ? 'bg-surface text-text shadow-xs border border-border'
                         : 'text-text-secondary hover:text-text'
@@ -231,7 +231,7 @@ export const GamePage: React.FC<GamePageProps> = ({
                   <button
                     type="button"
                     onClick={() => switchMode('play')}
-                    className={`flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-control text-xs font-bold transition-all cursor-pointer ${
                       viewMode === 'play'
                         ? 'bg-accent text-accent-contrast shadow-xs'
                         : 'text-accent hover:text-accent-hover'

@@ -224,7 +224,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
             <button
               type="button"
               onClick={handleReset}
-              className="p-2 border border-border bg-surface text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 border border-border bg-surface text-text-secondary hover:text-text rounded-control hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Reset"
             >
               <RotateCcw className="w-3.5 h-3.5" />

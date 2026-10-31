@@ -417,7 +417,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                   <button
                     type="button"
                     onClick={() => handleRemoveTeam(team.id)}
-                    className="absolute top-3 right-3 text-text-tertiary hover:text-red-400 p-1 rounded-full cursor-pointer text-xs min-h-[32px] min-w-[32px] flex items-center justify-center"
+                    className="absolute top-3 right-3 text-text-tertiary hover:text-red-400 p-1 rounded-control cursor-pointer text-xs min-h-[32px] min-w-[32px] flex items-center justify-center"
                     title={L('Team entfernen', 'Remove team')}
                   >
                     ✕

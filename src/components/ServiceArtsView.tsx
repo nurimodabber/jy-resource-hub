@@ -369,7 +369,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                 updateParams({ q: null });
               }}
               aria-label={L('Suche löschen', 'Clear search')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-control flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>

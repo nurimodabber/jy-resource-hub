@@ -81,7 +81,7 @@ export const ScrollableFilterBar: React.FC<ScrollableFilterBarProps> = ({
           <button
             type="button"
             onClick={onClearAll}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-xs font-semibold text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors shrink-0 snap-start focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-xs font-semibold text-text-secondary hover:text-text rounded-control hover:bg-surface-2 transition-colors shrink-0 snap-start focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             aria-label={clearLabel}
             title={clearLabel}
           >

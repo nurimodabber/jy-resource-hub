@@ -390,7 +390,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 setQuery('');
                 inputRef.current?.focus();
               }}
-              className="p-1 rounded-full text-text-tertiary hover:text-text hover:bg-surface-2 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center transition-colors"
+              className="p-1 rounded-control text-text-tertiary hover:text-text hover:bg-surface-2 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center transition-colors"
               aria-label="Suche löschen"
             >
               <X className="w-4 h-4" strokeWidth={1.75} />

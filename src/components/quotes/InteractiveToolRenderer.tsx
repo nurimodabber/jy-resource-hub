@@ -149,7 +149,7 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
                   key={tId}
                   type="button"
                   onClick={() => onSelectTool(tId)}
-                  className={`px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded-control text-xs whitespace-nowrap transition-colors min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 ${
                     isActive
                       ? 'bg-accent text-white font-semibold shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-2/80 font-medium'

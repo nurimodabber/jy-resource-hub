@@ -502,13 +502,13 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
           {names.map((name) => (
             <span
               key={name}
-              className="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text shadow-2xs group transition-colors"
+              className="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text shadow-2xs group transition-colors"
             >
               <span className="truncate max-w-[140px]">{name}</span>
               <button
                 type="button"
                 onClick={() => handleRemovePerson(name)}
-                className="p-0.5 rounded-full text-text-tertiary hover:text-red-500 hover:bg-red-500/10 cursor-pointer transition-colors min-h-[20px] min-w-[20px] flex items-center justify-center"
+                className="p-0.5 rounded-control text-text-tertiary hover:text-red-500 hover:bg-red-500/10 cursor-pointer transition-colors min-h-[20px] min-w-[20px] flex items-center justify-center"
                 title={L(`${name} entfernen`, `Remove ${name}`)}
                 aria-label={L(`${name} entfernen`, `Remove ${name}`)}
               >
@@ -525,12 +525,12 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                 value={newNameInput}
                 onChange={(e) => setNewNameInput(e.target.value)}
                 placeholder={L('+ Person (z. B. Musonda)...', '+ Person (e.g. Musonda)...')}
-                className="pl-3 pr-7 py-1 text-xs rounded-full bg-surface-2 hover:bg-surface-raised focus:bg-surface border border-dashed border-border focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden min-h-[32px] w-32 sm:w-40 transition-all font-medium"
+                className="pl-3 pr-7 py-1 text-xs rounded-control bg-surface-2 hover:bg-surface-raised focus:bg-surface border border-dashed border-border focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden min-h-[32px] w-32 sm:w-40 transition-all font-medium"
               />
               {newNameInput.trim() && (
                 <button
                   type="submit"
-                  className="absolute right-1 p-1 rounded-full bg-accent text-accent-contrast hover:bg-accent-hover cursor-pointer"
+                  className="absolute right-1 p-1 rounded-control bg-accent text-accent-contrast hover:bg-accent-hover cursor-pointer"
                   title={L('Hinzufügen', 'Add')}
                 >
                   <Plus className="w-3 h-3 stroke-[3]" />
@@ -551,7 +551,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                 key={name}
                 type="button"
                 onClick={() => handleAddAbsentPerson(name)}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-2/60 hover:bg-surface-raised border border-border/60 text-text-secondary hover:text-text cursor-pointer transition-colors"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-control bg-surface-2/60 hover:bg-surface-raised border border-border/60 text-text-secondary hover:text-text cursor-pointer transition-colors"
                 title={L(`${name} hinzufügen`, `Add ${name}`)}
               >
                 <Plus className="w-2.5 h-2.5 text-accent" />

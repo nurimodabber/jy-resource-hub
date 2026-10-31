@@ -82,11 +82,11 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <span>{wpm} WPM</span>
           </span>
 
-          <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-full border border-border">
+          <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-control border border-border">
             <button
               type="button"
               onClick={() => { setChunkSize(1); setCurrentIndex(0); }}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
+              className={`px-3 py-1 rounded-control text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
                 chunkSize === 1 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary hover:text-text'
               }`}
             >
@@ -95,7 +95,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={() => { setChunkSize(2); setCurrentIndex(0); }}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
+              className={`px-3 py-1 rounded-control text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
                 chunkSize === 2 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary hover:text-text'
               }`}
             >
@@ -174,7 +174,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={handleReset}
-              className="p-2.5 rounded-full border border-border bg-surface text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2.5 rounded-control border border-border bg-surface text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Reset"
             >
               <RotateCcw className="w-4 h-4" />
