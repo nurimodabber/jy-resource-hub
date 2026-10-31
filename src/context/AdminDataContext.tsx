@@ -43,7 +43,7 @@ import {
   STORAGE_SYNCED_DELETED_KEY,
   SyncedApprovedContent,
 } from '../utils/githubIssues';
-import { hasAnyAdminAccount } from '../utils/adminAuth';
+import { hasAdminSession } from '../utils/adminAuth';
 
 export type AdminSpyLocation = SpyLocation & { status?: 'draft' };
 export type EmpireCategory = EmpireCategoryV2;
@@ -123,11 +123,7 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     }).catch(() => {});
 
-    if (
-      hasAnyAdminAccount() ||
-      getRevisions().length > 0 ||
-      (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'))
-    ) {
+    if (hasAdminSession()) {
       syncAdminStateWithCloud()
         .then((res) => {
           if (active && res.ok) {

@@ -3,4 +3,4 @@ Allow: /
 Disallow: /_design
 Disallow: /api/
 
-Sitemap: https://jy-resource-hub.vercel.app/sitemap.xml
+Sitemap: https://juju-hub.vercel.app/sitemap.xml

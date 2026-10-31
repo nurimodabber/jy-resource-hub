@@ -3,23 +3,139 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/home", "destination": "/index.html" },
-    { "source": "/games", "destination": "/games/index.html" },
-    { "source": "/games/:id", "destination": "/games/:id/index.html" },
-    { "source": "/quotes", "destination": "/quotes/index.html" },
-    { "source": "/quotes/:id", "destination": "/quotes/:id/index.html" },
-    { "source": "/treffen", "destination": "/treffen/index.html" },
-    { "source": "/planner", "destination": "/treffen/index.html" },
-    { "source": "/service-arts", "destination": "/service-arts/index.html" },
-    { "source": "/service-arts/:id", "destination": "/service-arts/:id/index.html" },
-    { "source": "/tools", "destination": "/tools/index.html" },
-    { "source": "/tools/:toolId", "destination": "/tools/:toolId/index.html" },
-    { "source": "/saved", "destination": "/saved/index.html" },
-    { "source": "/impressum", "destination": "/impressum/index.html" },
-    { "source": "/datenschutz", "destination": "/datenschutz/index.html" },
-    { "source": "/vorschlagen", "destination": "/vorschlagen/index.html" },
-    { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/_design", "destination": "/index.html" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/home",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/games",
+      "destination": "/games/index.html"
+    },
+    {
+      "source": "/games/:id",
+      "destination": "/games/:id/index.html"
+    },
+    {
+      "source": "/quotes",
+      "destination": "/quotes/index.html"
+    },
+    {
+      "source": "/quotes/:id",
+      "destination": "/quotes/:id/index.html"
+    },
+    {
+      "source": "/treffen",
+      "destination": "/treffen/index.html"
+    },
+    {
+      "source": "/planner",
+      "destination": "/treffen/index.html"
+    },
+    {
+      "source": "/service-arts",
+      "destination": "/service-arts/index.html"
+    },
+    {
+      "source": "/service-arts/:id",
+      "destination": "/service-arts/:id/index.html"
+    },
+    {
+      "source": "/tools",
+      "destination": "/tools/index.html"
+    },
+    {
+      "source": "/tools/:toolId",
+      "destination": "/tools/:toolId/index.html"
+    },
+    {
+      "source": "/saved",
+      "destination": "/saved/index.html"
+    },
+    {
+      "source": "/impressum",
+      "destination": "/impressum/index.html"
+    },
+    {
+      "source": "/datenschutz",
+      "destination": "/datenschutz/index.html"
+    },
+    {
+      "source": "/vorschlagen",
+      "destination": "/vorschlagen/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/_design",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'sha256-BIPV5mTpMghcqwte1ezvOpGJ2e17QKZEJDLYzySIN0g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.github.com; frame-src https://www.bahaisongs.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        }
+      ]
+    },
+    {
+      "source": "/admin(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
   ]
 }

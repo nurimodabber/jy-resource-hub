@@ -1,7 +1,10 @@
 /**
- * Multi-Account Admin Authentication, RBAC Permissions & Password Hashing (Web Crypto SHA-256 + Salt)
- * Stores salted password hashes & granular permissions under `jy_admin_accounts`
- * (automatically backed up via `backup.ts` and synced across devices via `/api/sync`).
+ * Admin authentication client.
+ *
+ * The server (/api/sync) is the only authority for accounts, passwords and permissions. This module
+ * only holds what the UI needs to render: the signed session token (sessionStorage, per tab), the
+ * signed-in account and the team list the server returned. Permission checks here are for showing
+ * or hiding UI; the server re-checks every action. Nothing secret is written to localStorage.
  */
 
 export type AdminRole = 'owner' | 'editor' | 'contributor' | 'viewer';
@@ -17,46 +20,54 @@ export interface AdminPermissions {
   // Fundamental permissions — strictly locked to 'owner' only:
   canManageAccounts: boolean;     // View/edit accounts, roles, permissions, status
   canRollbackAllChanges: boolean; // Undo/rollback ANY account's changes
-  canManageSystemSettings: boolean; // GitHub settings, full backup import, system config
+  canManageSystemSettings: boolean; // System status, full backup import, system config
 }
 
+/** Account as the server exposes it: never contains a salt or password hash. */
 export interface AdminAccount {
   id: string;
-  username: string; // Email or username (stored lowercase for lookup)
-  displayName: string; // Full name shown in sidebar & audit log
+  username: string;
+  displayName: string;
   role: AdminRole;
   status?: AccountStatus;
   isPrimaryOwner?: boolean;
   permissions?: AdminPermissions;
-  salt: string;
-  passwordHash: string;
   createdAt: number;
   updatedAt?: number;
   lastLoginAt?: number;
+  passwordResetRequired?: boolean;
 }
 
-export const STORAGE_ACCOUNTS_KEY = 'jy_admin_accounts';
-export const STORAGE_DELETED_ACCOUNTS_KEY = 'jy_admin_deleted_accounts';
-export const SESSION_ACTIVE_ACCOUNT_KEY = 'jy_admin_active_session';
+export interface AuthResult {
+  ok: boolean;
+  account?: AdminAccount;
+  code?: string;
+  errorDe?: string;
+  errorEn?: string;
+}
+
+const SESSION_TOKEN_KEY = 'jy_admin_session_token';
+const SESSION_ACCOUNT_KEY = 'jy_admin_session_account';
 
 /**
- * Checks whether an account username or displayName belongs to the project owner (Nuri Modabber).
+ * Keys written by the old client-side auth. They held password hashes, a GitHub token and a
+ * client-trusted session, so they are removed on load and excluded from backups.
  */
-export function isPrimaryOwnerIdentity(username: string, displayName = ''): boolean {
-  const u = (username || '').trim().toLowerCase();
-  const d = (displayName || '').trim().toLowerCase();
-  if (!u && !d) return false;
-  return (
-    u === 'nuri@modabber.net' ||
-    u === 'milan.modabber@gmail.com' ||
-    u === 'nurimodabber' ||
-    u === 'nuri' ||
-    u.includes('modabber') ||
-    u.startsWith('nuri@') ||
-    u.startsWith('nuri.') ||
-    d.includes('nuri') ||
-    d.includes('modabber')
-  );
+export const LEGACY_SENSITIVE_KEYS = [
+  'jy_admin_accounts',
+  'jy_admin_deleted_accounts',
+  'jy_admin_github_token',
+  'jy_admin_pin',
+];
+
+export function purgeLegacyAdminStorage(): void {
+  try {
+    LEGACY_SENSITIVE_KEYS.forEach((k) => localStorage.removeItem(k));
+    sessionStorage.removeItem('jy_admin_active_session');
+    sessionStorage.removeItem('jy_admin_authenticated');
+  } catch {
+    /* storage unavailable */
+  }
 }
 
 export function getDefaultPermissionsForRole(role: AdminRole): AdminPermissions {
@@ -79,7 +90,7 @@ export function getDefaultPermissionsForRole(role: AdminRole): AdminPermissions 
         canPublishLive: true,
         canReviewProposals: true,
         canEditMinigames: true,
-        canDeleteCatalogItems: false, // Cannot delete catalog items by default
+        canDeleteCatalogItems: false,
         canRollbackOwnChanges: true,
         canManageAccounts: false,
         canRollbackAllChanges: false,
@@ -88,7 +99,7 @@ export function getDefaultPermissionsForRole(role: AdminRole): AdminPermissions 
     case 'contributor':
       return {
         canCreateDrafts: true,
-        canPublishLive: false, // Can only save backend drafts, not publish live directly
+        canPublishLive: false,
         canReviewProposals: false,
         canEditMinigames: false,
         canDeleteCatalogItems: false,
@@ -112,15 +123,11 @@ export function getDefaultPermissionsForRole(role: AdminRole): AdminPermissions 
   }
 }
 
+/** UI-side view of permissions. Mirrors the server's masking; the server stays authoritative. */
 export function getEffectivePermissions(account: AdminAccount | null | undefined): AdminPermissions {
-  if (!account || account.status === 'suspended') {
-    return getDefaultPermissionsForRole('viewer');
-  }
-  if (account.role === 'owner' || account.isPrimaryOwner) {
-    return getDefaultPermissionsForRole('owner');
-  }
-  const defaults = getDefaultPermissionsForRole(account.role);
-  const custom = account.permissions || defaults;
+  if (!account || account.status === 'suspended') return getDefaultPermissionsForRole('viewer');
+  if (account.role === 'owner') return getDefaultPermissionsForRole('owner');
+  const custom = account.permissions || getDefaultPermissionsForRole(account.role);
   return {
     canCreateDrafts: Boolean(custom.canCreateDrafts),
     canPublishLive: Boolean(custom.canPublishLive),
@@ -128,226 +135,161 @@ export function getEffectivePermissions(account: AdminAccount | null | undefined
     canEditMinigames: Boolean(custom.canEditMinigames),
     canDeleteCatalogItems: Boolean(custom.canDeleteCatalogItems),
     canRollbackOwnChanges: Boolean(custom.canRollbackOwnChanges),
-    // Non-owners can NEVER have fundamental system permissions
     canManageAccounts: false,
     canRollbackAllChanges: false,
     canManageSystemSettings: false,
   };
 }
 
-/**
- * Normalizes an account so that:
- * 1. Nuri's account is always enforced as 'owner' (isPrimaryOwner = true) with full permissions.
- * 2. Any other account that was accidentally created as 'owner' on a separate browser's initial setup
- *    is automatically normalized to 'editor' with safe non-fundamental permissions.
- */
-export function normalizeAdminAccount(raw: AdminAccount): AdminAccount {
-  const isOwnerMatch = Boolean(raw.isPrimaryOwner) || isPrimaryOwnerIdentity(raw.username, raw.displayName);
-  const role: AdminRole = isOwnerMatch
-    ? 'owner'
-    : raw.role === 'owner'
-      ? 'editor'
-      : raw.role || 'editor';
+// --- Session ------------------------------------------------------------------------------------
 
-  const status: AccountStatus = isOwnerMatch ? 'active' : raw.status === 'suspended' ? 'suspended' : 'active';
-  const permissions = isOwnerMatch
-    ? getDefaultPermissionsForRole('owner')
-    : getEffectivePermissions({ ...raw, role, status, isPrimaryOwner: false });
-
-  return {
-    ...raw,
-    username: (raw.username || '').trim().toLowerCase(),
-    displayName: (raw.displayName || raw.username || 'Team').trim(),
-    role,
-    status,
-    isPrimaryOwner: isOwnerMatch,
-    permissions,
-    createdAt: raw.createdAt || Date.now(),
-    updatedAt: raw.updatedAt || raw.createdAt || Date.now(),
-  };
-}
-
-export function generateRandomSalt(): string {
-  const bytes = new Uint8Array(16);
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-    crypto.getRandomValues(bytes);
-  } else {
-    for (let i = 0; i < 16; i++) {
-      bytes[i] = Math.floor(Math.random() * 256);
-    }
-  }
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
-export async function hashPasswordWithSalt(password: string, salt: string): Promise<string> {
-  const input = `${salt}:${password}`;
-  if (typeof crypto !== 'undefined' && crypto.subtle) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(input);
-    const digest = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(digest))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-  // Fallback deterministic hash if SubtleCrypto is unavailable in non-secure context
-  let h1 = 0xdeadbeef ^ input.length;
-  let h2 = 0x41c6ce57 ^ input.length;
-  for (let i = 0, ch; i < input.length; i++) {
-    ch = input.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
-}
-
-export function getDeletedAccountIds(): string[] {
+export function getSessionToken(): string {
   try {
-    const raw = localStorage.getItem(STORAGE_DELETED_ACCOUNTS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return sessionStorage.getItem(SESSION_TOKEN_KEY) || '';
   } catch {
-    return [];
+    return '';
   }
 }
 
-export function saveDeletedAccountIds(ids: string[]): void {
+export function hasAdminSession(): boolean {
+  return Boolean(getSessionToken());
+}
+
+export function getActiveSessionAccount(): AdminAccount | null {
+  if (!getSessionToken()) return null;
   try {
-    const unique = Array.from(new Set(ids));
-    localStorage.setItem(STORAGE_DELETED_ACCOUNTS_KEY, JSON.stringify(unique));
+    const raw = sessionStorage.getItem(SESSION_ACCOUNT_KEY);
+    return raw ? (JSON.parse(raw) as AdminAccount) : null;
   } catch {
-    /* ignore */
+    return null;
   }
 }
 
-function isBetterOwnerCandidate(candidate: AdminAccount, current: AdminAccount): boolean {
-  const candPreferred = candidate.username === 'nuri@modabber.net' ? 2 : candidate.displayName.length > 6 ? 1 : 0;
-  const currPreferred = current.username === 'nuri@modabber.net' ? 2 : current.displayName.length > 6 ? 1 : 0;
-  if (candPreferred !== currPreferred) return candPreferred > currPreferred;
-  return (candidate.updatedAt || candidate.createdAt || 0) >= (current.updatedAt || current.createdAt || 0);
-}
-
-/**
- * Deduplicates accounts so that:
- * 1. Only a single Owner account can ever exist (consolidating any duplicate Nuri accounts into the canonical one).
- * 2. No two accounts can share the same username or displayName.
- * 3. Any superseded duplicate IDs are automatically added to deletedAccountIds.
- */
-function deduplicateAdminAccountsList(
-  accounts: AdminAccount[],
-  extraDeletedIds: string[] = []
-): { accounts: AdminAccount[]; deletedIds: string[] } {
-  const deletedSet = new Set([...getDeletedAccountIds(), ...extraDeletedIds]);
-  const byKey = new Map<string, AdminAccount>();
-  const nameToKey = new Map<string, string>();
-  let addedDeleted = false;
-
-  for (const raw of accounts) {
-    if (!raw || !raw.username) continue;
-    if (raw.id && deletedSet.has(raw.id)) continue;
-    const acc = normalizeAdminAccount(raw);
-    const isOwnerAcc = acc.role === 'owner' || Boolean(acc.isPrimaryOwner);
-    const nameKey = acc.displayName.trim().toLowerCase();
-    const userKey = acc.username.toLowerCase();
-
-    let key = isOwnerAcc ? '__primary_owner__' : userKey;
-    if (!isOwnerAcc && !byKey.has(key) && nameKey && nameToKey.has(nameKey)) {
-      key = nameToKey.get(nameKey)!;
-    }
-
-    const existing = byKey.get(key);
-    if (!existing) {
-      byKey.set(key, acc);
-      if (!isOwnerAcc && nameKey) nameToKey.set(nameKey, key);
+function storeSession(token: string | null, account: AdminAccount | null): void {
+  try {
+    if (token && account) {
+      sessionStorage.setItem(SESSION_TOKEN_KEY, token);
+      sessionStorage.setItem(SESSION_ACCOUNT_KEY, JSON.stringify(account));
+      sessionStorage.setItem('jy_admin_author', account.displayName);
     } else {
-      const incomingWins = isOwnerAcc
-        ? isBetterOwnerCandidate(acc, existing)
-        : (acc.updatedAt || acc.createdAt || 0) >= (existing.updatedAt || existing.createdAt || 0);
-      const winner = incomingWins ? acc : existing;
-      const loser = incomingWins ? existing : acc;
-
-      if (loser.id && winner.id && loser.id !== winner.id) {
-        deletedSet.add(loser.id);
-        addedDeleted = true;
-      }
-
-      byKey.set(
-        key,
-        normalizeAdminAccount({
-          ...loser,
-          ...winner,
-          id: winner.id,
-          username: winner.username,
-          displayName: winner.displayName,
-          salt: winner.salt,
-          passwordHash: winner.passwordHash,
-          isPrimaryOwner: Boolean(winner.isPrimaryOwner || loser.isPrimaryOwner),
-          role: winner.isPrimaryOwner || loser.isPrimaryOwner ? 'owner' : winner.role,
-          createdAt: Math.min(winner.createdAt || Date.now(), loser.createdAt || Date.now()),
-          lastLoginAt: Math.max(winner.lastLoginAt || 0, loser.lastLoginAt || 0) || undefined,
-        })
-      );
+      sessionStorage.removeItem(SESSION_TOKEN_KEY);
+      sessionStorage.removeItem(SESSION_ACCOUNT_KEY);
     }
+  } catch {
+    /* storage unavailable: the session then lasts only for this page view */
   }
-
-  const finalDeletedIds = Array.from(deletedSet);
-  if (addedDeleted) {
-    saveDeletedAccountIds(finalDeletedIds);
-  }
-
-  const finalAccounts = Array.from(byKey.values())
-    .map((a) => normalizeAdminAccount(a))
-    .sort((a, b) => {
-      if (a.role === 'owner' && b.role !== 'owner') return -1;
-      if (b.role === 'owner' && a.role !== 'owner') return 1;
-      return a.createdAt - b.createdAt;
-    });
-
-  return { accounts: finalAccounts, deletedIds: finalDeletedIds };
+  window.dispatchEvent(new CustomEvent('jy_accounts_updated'));
 }
+
+/** Signs out locally (the server token simply expires). */
+export function setActiveSessionAccount(account: AdminAccount | null): void {
+  if (!account) {
+    teamAccounts = [];
+    storeSession(null, null);
+    return;
+  }
+  const token = getSessionToken();
+  if (token) storeSession(token, account);
+}
+
+// --- Team list (from the last authenticated sync) -------------------------------------------------
+
+let teamAccounts: AdminAccount[] = [];
 
 export function getAdminAccounts(): AdminAccount[] {
+  return teamAccounts;
+}
+
+export function setAdminAccountsFromServer(accounts: AdminAccount[], self?: AdminAccount): void {
+  teamAccounts = Array.isArray(accounts) ? accounts : [];
+  if (self) setActiveSessionAccount(self);
+  else window.dispatchEvent(new CustomEvent('jy_accounts_updated'));
+}
+
+// --- Server calls -------------------------------------------------------------------------------
+
+export interface ApiResult {
+  ok: boolean;
+  code?: string;
+  [key: string]: unknown;
+}
+
+/** POSTs an action to /api/sync with the session token. A 401 ends the local session. */
+export async function adminApi<T extends ApiResult = ApiResult>(payload: Record<string, unknown>): Promise<T> {
+  const token = getSessionToken();
   try {
-    const raw = localStorage.getItem(STORAGE_ACCOUNTS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return deduplicateAdminAccountsList(parsed).accounts;
+    const res = await fetch('/api/sync', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+    const data = (await res.json().catch(() => ({}))) as T;
+    if (res.status === 401 && token) storeSession(null, null);
+    if (data && typeof data.ok === 'boolean') return data;
+    return { ok: false, code: res.status === 503 ? 'not_configured' : 'network' } as T;
   } catch {
-    return [];
+    return { ok: false, code: 'network' } as T;
   }
 }
 
-export function saveAdminAccounts(accounts: AdminAccount[]): void {
-  try {
-    const { accounts: deduplicated } = deduplicateAdminAccountsList(accounts);
-    localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(deduplicated));
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('jy_accounts_updated'));
-    }
-  } catch {
-    /* ignore */
-  }
+const MESSAGES: Record<string, [string, string]> = {
+  invalid: ['Ungültiger Benutzername oder falsches Passwort.', 'Invalid username or password.'],
+  reset_required: [
+    'Dein Passwort muss aus Sicherheitsgründen neu gesetzt werden. Bitte den Inhaber, dir ein neues Passwort zu geben. Als Inhaber nutzt du „Inhaber-Einrichtung“.',
+    'For security reasons your password must be reset. Ask the owner to set a new password for you. As the owner, use "Owner setup".',
+  ],
+  suspended: ['Dieser Account wurde vom Inhaber vorübergehend pausiert.', 'This account has been suspended by the owner.'],
+  rate_limited: ['Zu viele Versuche. Bitte warte eine Viertelstunde.', 'Too many attempts. Please wait 15 minutes.'],
+  weak_password: ['Das Passwort muss mindestens 8 Zeichen lang sein.', 'The password must be at least 8 characters long.'],
+  exists: ['Ein Account mit diesem Namen oder dieser E-Mail-Adresse existiert bereits.', 'An account with this name or email already exists.'],
+  reserved: ['Diese E-Mail-Adresse ist für den Inhaber reserviert.', 'This email address is reserved for the owner.'],
+  not_found: ['Account nicht gefunden.', 'Account not found.'],
+  owner_locked: ['Der Inhaber-Account kann so nicht geändert werden.', 'The owner account cannot be changed this way.'],
+  forbidden: ['Dafür fehlt dir die Berechtigung.', 'You do not have permission for this.'],
+  unauthorized: ['Deine Sitzung ist abgelaufen. Bitte melde dich neu an.', 'Your session has expired. Please sign in again.'],
+  setup_disabled: [
+    'Die Inhaber-Einrichtung ist nicht aktiv. Setze ADMIN_SETUP_TOKEN und OWNER_USERNAME in Vercel.',
+    'Owner setup is not active. Set ADMIN_SETUP_TOKEN and OWNER_USERNAME in Vercel.',
+  ],
+  not_configured: [
+    'Der Server ist noch nicht eingerichtet (GITHUB_TOKEN / ADMIN_SESSION_SECRET fehlen).',
+    'The server is not set up yet (GITHUB_TOKEN / ADMIN_SESSION_SECRET missing).',
+  ],
+  network: ['Keine Verbindung zum Server.', 'No connection to the server.'],
+};
+
+export function describeAuthCode(code: string | undefined): { errorDe: string; errorEn: string } {
+  const [de, en] = MESSAGES[code || ''] || ['Die Aktion ist fehlgeschlagen.', 'The action failed.'];
+  return { errorDe: de, errorEn: en };
 }
 
-/**
- * Merges local and remote admin accounts by Owner identity, ID, username, or displayName,
- * respecting deletedAccountIds and keeping the canonical/newer record.
- */
-export function mergeAdminAccounts(
-  localAccounts: AdminAccount[],
-  remoteAccounts: AdminAccount[],
-  deletedIds: string[] = []
-): AdminAccount[] {
-  return deduplicateAdminAccountsList([...remoteAccounts, ...localAccounts], deletedIds).accounts;
+function fail(code: string | undefined): AuthResult {
+  return { ok: false, code, ...describeAuthCode(code) };
 }
 
-export function hasAnyAdminAccount(): boolean {
-  return getAdminAccounts().length > 0;
+type SessionResponse = ApiResult & { token?: string; account?: AdminAccount };
+
+export async function verifyAdminLogin(username: string, password: string): Promise<AuthResult> {
+  const res = await adminApi<SessionResponse>({ action: 'login', username: username.trim().toLowerCase(), password });
+  if (!res.ok || !res.token || !res.account) return fail(res.code);
+  storeSession(res.token, res.account);
+  return { ok: true, account: res.account };
+}
+
+/** Owner setup/recovery with the temporary ADMIN_SETUP_TOKEN from the Vercel settings. */
+export async function setupOwnerAccount(params: {
+  setupToken: string;
+  username: string;
+  displayName: string;
+  password: string;
+}): Promise<AuthResult> {
+  const res = await adminApi<SessionResponse>({ action: 'setup_owner', ...params, username: params.username.trim().toLowerCase() });
+  if (!res.ok || !res.token || !res.account) return fail(res.code);
+  storeSession(res.token, res.account);
+  return { ok: true, account: res.account };
 }
 
 export async function createAdminAccount(params: {
@@ -356,442 +298,43 @@ export async function createAdminAccount(params: {
   password: string;
   role?: AdminRole;
   permissions?: Partial<AdminPermissions>;
-  forceOwner?: boolean;
-}): Promise<{ ok: boolean; account?: AdminAccount; errorDe?: string; errorEn?: string }> {
-  const cleanUsername = params.username.trim().toLowerCase();
-  const cleanDisplayName = params.displayName.trim();
-  const password = params.password;
-
-  if (!cleanUsername || cleanUsername.length < 3) {
-    return {
-      ok: false,
-      errorDe: 'Benutzername oder E-Mail muss mindestens 3 Zeichen lang sein.',
-      errorEn: 'Username or email must be at least 3 characters.',
-    };
-  }
-  if (!cleanDisplayName || cleanDisplayName.length < 2) {
-    return {
-      ok: false,
-      errorDe: 'Bitte gib einen Anzeigenamen ein.',
-      errorEn: 'Please enter a display name.',
-    };
-  }
-  if (!password || password.length < 8) {
-    return {
-      ok: false,
-      errorDe: 'Das Passwort muss mindestens 8 Zeichen lang sein.',
-      errorEn: 'Password must be at least 8 characters long.',
-    };
-  }
-
-  const accounts = getAdminAccounts();
-  const isOwner = Boolean(params.forceOwner) || isPrimaryOwnerIdentity(cleanUsername, cleanDisplayName);
-
-  if (isOwner && accounts.some((a) => a.role === 'owner' || a.isPrimaryOwner)) {
-    return {
-      ok: false,
-      errorDe: 'Das Inhaber-Konto (Owner) existiert bereits. Bitte melde dich direkt mit deinem bestehenden Inhaber-Account an.',
-      errorEn: 'The Owner account already exists. Please sign in with your existing Owner account.',
-    };
-  }
-
-  if (
-    accounts.some(
-      (a) =>
-        a.username.toLowerCase() === cleanUsername ||
-        a.displayName.trim().toLowerCase() === cleanDisplayName.toLowerCase()
-    )
-  ) {
-    return {
-      ok: false,
-      errorDe: 'Ein Account mit diesem Namen oder dieser E-Mail-Adresse existiert bereits.',
-      errorEn: 'An account with this name or email already exists.',
-    };
-  }
-
-  const salt = generateRandomSalt();
-  const passwordHash = await hashPasswordWithSalt(password, salt);
-  const assignedRole: AdminRole = isOwner
-    ? 'owner'
-    : params.role && params.role !== 'owner'
-      ? params.role
-      : 'editor';
-
-  const basePerms = getDefaultPermissionsForRole(assignedRole);
-  const finalPerms: AdminPermissions = isOwner
-    ? basePerms
-    : {
-        ...basePerms,
-        ...(params.permissions || {}),
-        canManageAccounts: false,
-        canRollbackAllChanges: false,
-        canManageSystemSettings: false,
-      };
-
-  const now = Date.now();
-  const newAccount: AdminAccount = normalizeAdminAccount({
-    id: `acc_${now.toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
-    username: cleanUsername,
-    displayName: cleanDisplayName,
-    role: assignedRole,
-    status: 'active',
-    isPrimaryOwner: isOwner,
-    permissions: finalPerms,
-    salt,
-    passwordHash,
-    createdAt: now,
-    updatedAt: now,
-    lastLoginAt: undefined,
-  });
-
-  accounts.push(newAccount);
-  saveAdminAccounts(accounts);
-
-  // Clean up legacy PIN if present
-  try {
-    localStorage.removeItem('jy_admin_pin');
-  } catch {
-    /* ignore */
-  }
-
-  return { ok: true, account: newAccount };
+}): Promise<AuthResult> {
+  const res = await adminApi<ApiResult & { account?: AdminAccount }>({ action: 'create_account', ...params });
+  if (!res.ok || !res.account) return fail(res.code);
+  teamAccounts = [...teamAccounts, res.account];
+  return { ok: true, account: res.account };
 }
 
-let sessionPasswordInMemory = '';
-
-/** Password of the current sign-in, held in memory only. Empty after a page reload. */
-export function getSessionPasswordInMemory(): string {
-  return sessionPasswordInMemory;
-}
-
-export async function verifyAdminLogin(
-  username: string,
-  password: string
-): Promise<{ ok: boolean; account?: AdminAccount; errorDe?: string; errorEn?: string }> {
-  const cleanUsername = username.trim().toLowerCase();
-  const accounts = getAdminAccounts();
-  const account =
-    accounts.find((a) => a.username.toLowerCase() === cleanUsername) ||
-    (isPrimaryOwnerIdentity(cleanUsername)
-      ? accounts.find((a) => a.role === 'owner' || a.isPrimaryOwner)
-      : undefined);
-
-  if (!account) {
-    return {
-      ok: false,
-      errorDe: 'Ungültiger Benutzername oder falsches Passwort.',
-      errorEn: 'Invalid username or password.',
-    };
-  }
-
-  if (account.status === 'suspended' && account.role !== 'owner') {
-    return {
-      ok: false,
-      errorDe: 'Dieser Account wurde vom Inhaber vorübergehend pausiert.',
-      errorEn: 'This account has been suspended by the owner.',
-    };
-  }
-
-  const computedHash = await hashPasswordWithSalt(password, account.salt);
-  if (computedHash !== account.passwordHash) {
-    return {
-      ok: false,
-      errorDe: 'Ungültiger Benutzername oder falsches Passwort.',
-      errorEn: 'Invalid username or password.',
-    };
-  }
-
-  account.lastLoginAt = Date.now();
-  account.updatedAt = Date.now();
-  saveAdminAccounts(accounts);
-  setActiveSessionAccount(account);
-  // Kept in memory only (never persisted) so the Owner can confirm access-request decisions.
-  sessionPasswordInMemory = password;
-
-  return { ok: true, account };
-}
-
-/**
- * Allows the Owner to update another account's role, status, and granular permissions.
- */
-export function updateAdminAccountPermissions(params: {
+export async function updateAdminAccountPermissions(params: {
   targetAccountId: string;
-  actorAccount: AdminAccount;
   role?: AdminRole;
   status?: AccountStatus;
   permissions?: Partial<AdminPermissions>;
   displayName?: string;
-}): { ok: boolean; account?: AdminAccount; errorDe?: string; errorEn?: string } {
-  if (params.actorAccount.role !== 'owner' && !params.actorAccount.isPrimaryOwner) {
-    return {
-      ok: false,
-      errorDe: 'Nur der Inhaber-Account (Owner) darf Rollen und Berechtigungen ändern.',
-      errorEn: 'Only the Owner account can change roles and permissions.',
-    };
-  }
-
-  const accounts = getAdminAccounts();
-  const idx = accounts.findIndex((a) => a.id === params.targetAccountId);
-  if (idx < 0) {
-    return {
-      ok: false,
-      errorDe: 'Account nicht gefunden.',
-      errorEn: 'Account not found.',
-    };
-  }
-
-  const target = accounts[idx];
-  if (target.isPrimaryOwner && target.id !== params.actorAccount.id) {
-    return {
-      ok: false,
-      errorDe: 'Der Haupt-Inhaber-Account kann nicht eingeschränkt werden.',
-      errorEn: 'The primary Owner account cannot be restricted.',
-    };
-  }
-
-  const nextRole: AdminRole = target.isPrimaryOwner
-    ? 'owner'
-    : params.role && params.role !== 'owner'
-      ? params.role
-      : target.role === 'owner'
-        ? 'editor'
-        : target.role;
-
-  const nextStatus: AccountStatus = target.isPrimaryOwner
-    ? 'active'
-    : params.status || target.status || 'active';
-
-  // If role changed and no explicit permissions override was passed, use the new role's defaults
-  const basePermissions =
-    params.role && params.role !== target.role && !params.permissions
-      ? getDefaultPermissionsForRole(nextRole)
-      : target.permissions || getDefaultPermissionsForRole(nextRole);
-
-  const mergedPermissions: AdminPermissions = target.isPrimaryOwner
-    ? getDefaultPermissionsForRole('owner')
-    : {
-        ...basePermissions,
-        ...(params.permissions || {}),
-        canManageAccounts: false,
-        canRollbackAllChanges: false,
-        canManageSystemSettings: false,
-      };
-
-  const updated: AdminAccount = normalizeAdminAccount({
-    ...target,
-    displayName: params.displayName ? params.displayName.trim() : target.displayName,
-    role: nextRole,
-    status: nextStatus,
-    permissions: mergedPermissions,
-    updatedAt: Date.now(),
-  });
-
-  accounts[idx] = updated;
-  saveAdminAccounts(accounts);
+}): Promise<AuthResult> {
+  const res = await adminApi<ApiResult & { account?: AdminAccount }>({ action: 'update_account', ...params });
+  if (!res.ok || !res.account) return fail(res.code);
+  const updated = res.account;
+  teamAccounts = teamAccounts.map((a) => (a.id === updated.id ? updated : a));
   return { ok: true, account: updated };
 }
 
-/**
- * Explicitly claims or sets the given account as the Primary Owner, and ensures all other accounts are non-owners.
- */
-export function claimOwnerAccount(targetAccountId: string): { ok: boolean; account?: AdminAccount } {
-  const accounts = getAdminAccounts();
-  let claimed: AdminAccount | undefined;
-
-  const updated = accounts.map((acc) => {
-    if (acc.id === targetAccountId) {
-      const next: AdminAccount = {
-        ...acc,
-        role: 'owner',
-        status: 'active',
-        isPrimaryOwner: true,
-        permissions: getDefaultPermissionsForRole('owner'),
-        updatedAt: Date.now(),
-      };
-      claimed = next;
-      return next;
-    }
-    return {
-      ...acc,
-      role: acc.role === 'owner' ? 'editor' : acc.role,
-      isPrimaryOwner: false,
-      permissions: getEffectivePermissions({ ...acc, role: acc.role === 'owner' ? 'editor' : acc.role, isPrimaryOwner: false }),
-      updatedAt: Date.now(),
-    };
-  });
-
-  saveAdminAccounts(updated);
-  if (claimed) {
-    setActiveSessionAccount(claimed);
-  }
-  return { ok: Boolean(claimed), account: claimed };
+export async function resetAdminAccountPasswordByOwner(targetAccountId: string, newPassword: string): Promise<AuthResult> {
+  const res = await adminApi({ action: 'reset_password', targetAccountId, newPassword });
+  return res.ok ? { ok: true } : fail(res.code);
 }
 
-/**
- * Allows the Owner to reset a team member's password without needing their old password.
- */
-export async function resetAdminAccountPasswordByOwner(
-  targetAccountId: string,
-  newPassword: string,
-  actorAccount: AdminAccount
-): Promise<{ ok: boolean; errorDe?: string; errorEn?: string }> {
-  if (actorAccount.role !== 'owner' && !actorAccount.isPrimaryOwner) {
-    return {
-      ok: false,
-      errorDe: 'Nur der Inhaber-Account darf Passwörter zurücksetzen.',
-      errorEn: 'Only the Owner account can reset passwords.',
-    };
-  }
-  if (!newPassword || newPassword.length < 8) {
-    return {
-      ok: false,
-      errorDe: 'Das neue Passwort muss mindestens 8 Zeichen lang sein.',
-      errorEn: 'New password must be at least 8 characters long.',
-    };
-  }
+export async function changeAdminPassword(currentPassword: string, newPassword: string): Promise<AuthResult> {
+  const res = await adminApi<SessionResponse>({ action: 'change_password', currentPassword, newPassword });
+  if (!res.ok || !res.token || !res.account) return fail(res.code);
+  // The old token died with the old password; keep working with the fresh one.
+  storeSession(res.token, res.account);
+  return { ok: true, account: res.account };
+}
 
-  const accounts = getAdminAccounts();
-  const account = accounts.find((a) => a.id === targetAccountId);
-  if (!account) {
-    return {
-      ok: false,
-      errorDe: 'Account nicht gefunden.',
-      errorEn: 'Account not found.',
-    };
-  }
-
-  const newSalt = generateRandomSalt();
-  account.salt = newSalt;
-  account.passwordHash = await hashPasswordWithSalt(newPassword, newSalt);
-  account.updatedAt = Date.now();
-  saveAdminAccounts(accounts);
-
+export async function deleteAdminAccount(targetAccountId: string): Promise<AuthResult> {
+  const res = await adminApi({ action: 'delete_account', targetAccountId });
+  if (!res.ok) return fail(res.code);
+  teamAccounts = teamAccounts.filter((a) => a.id !== targetAccountId);
   return { ok: true };
-}
-
-export async function changeAdminPassword(
-  accountId: string,
-  currentPassword: string,
-  newPassword: string
-): Promise<{ ok: boolean; errorDe?: string; errorEn?: string }> {
-  if (!newPassword || newPassword.length < 8) {
-    return {
-      ok: false,
-      errorDe: 'Das neue Passwort muss mindestens 8 Zeichen lang sein.',
-      errorEn: 'New password must be at least 8 characters long.',
-    };
-  }
-
-  const accounts = getAdminAccounts();
-  const account = accounts.find((a) => a.id === accountId);
-  if (!account) {
-    return {
-      ok: false,
-      errorDe: 'Account nicht gefunden.',
-      errorEn: 'Account not found.',
-    };
-  }
-
-  const currentHash = await hashPasswordWithSalt(currentPassword, account.salt);
-  if (currentHash !== account.passwordHash) {
-    return {
-      ok: false,
-      errorDe: 'Das aktuelle Passwort ist nicht korrekt.',
-      errorEn: 'Current password is incorrect.',
-    };
-  }
-
-  const newSalt = generateRandomSalt();
-  account.salt = newSalt;
-  account.passwordHash = await hashPasswordWithSalt(newPassword, newSalt);
-  account.updatedAt = Date.now();
-  saveAdminAccounts(accounts);
-
-  return { ok: true };
-}
-
-export function deleteAdminAccount(
-  targetAccountId: string,
-  currentAccountId: string
-): { ok: boolean; errorDe?: string; errorEn?: string } {
-  const accounts = getAdminAccounts();
-  const actor = accounts.find((a) => a.id === currentAccountId);
-  if (!actor || (actor.role !== 'owner' && !actor.isPrimaryOwner)) {
-    return {
-      ok: false,
-      errorDe: 'Nur der Inhaber-Account kann andere Accounts entfernen.',
-      errorEn: 'Only the Owner account can remove accounts.',
-    };
-  }
-
-  if (targetAccountId === currentAccountId) {
-    return {
-      ok: false,
-      errorDe: 'Du kannst deinen eigenen aktuell angemeldeten Account nicht löschen.',
-      errorEn: 'You cannot delete your own currently signed-in account.',
-    };
-  }
-
-  const target = accounts.find((a) => a.id === targetAccountId);
-  if (target?.isPrimaryOwner) {
-    return {
-      ok: false,
-      errorDe: 'Der Inhaber-Account kann nicht gelöscht werden.',
-      errorEn: 'The Owner account cannot be deleted.',
-    };
-  }
-
-  if (accounts.length <= 1) {
-    return {
-      ok: false,
-      errorDe: 'Der letzte Administrator-Account kann nicht gelöscht werden.',
-      errorEn: 'The last administrator account cannot be deleted.',
-    };
-  }
-
-  const deletedIds = getDeletedAccountIds();
-  saveDeletedAccountIds([...deletedIds, targetAccountId]);
-
-  const filtered = accounts.filter((a) => a.id !== targetAccountId);
-  saveAdminAccounts(filtered);
-  return { ok: true };
-}
-
-export function getActiveSessionAccount(): AdminAccount | null {
-  try {
-    const raw = sessionStorage.getItem(SESSION_ACTIVE_ACCOUNT_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as { accountId?: string; username?: string };
-    if (!parsed?.accountId && !parsed?.username) return null;
-    const accounts = getAdminAccounts();
-    const found =
-      accounts.find((a) => a.id === parsed.accountId) ||
-      (parsed.username ? accounts.find((a) => a.username.toLowerCase() === parsed.username?.toLowerCase()) : undefined) ||
-      null;
-    if (found && found.status === 'suspended' && found.role !== 'owner') {
-      setActiveSessionAccount(null);
-      return null;
-    }
-    return found;
-  } catch {
-    return null;
-  }
-}
-
-export function setActiveSessionAccount(account: AdminAccount | null): void {
-  try {
-    if (!account) {
-      sessionPasswordInMemory = '';
-      sessionStorage.removeItem(SESSION_ACTIVE_ACCOUNT_KEY);
-      sessionStorage.removeItem('jy_admin_authenticated');
-    } else {
-      sessionStorage.setItem(
-        SESSION_ACTIVE_ACCOUNT_KEY,
-        JSON.stringify({ accountId: account.id, username: account.username })
-      );
-      sessionStorage.setItem('jy_admin_author', account.displayName);
-    }
-  } catch {
-    /* ignore */
-  }
 }

@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 const PUBLIC = path.join(ROOT, 'public');
-const SITE_ORIGIN = 'https://jy-resource-hub.vercel.app';
+const SITE_ORIGIN = 'https://juju-hub.vercel.app';
 
 async function loadTsDataModule(relPath) {
   const fullPath = path.join(ROOT, relPath);
