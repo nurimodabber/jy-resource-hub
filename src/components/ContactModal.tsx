@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Copy, Check, ExternalLink, Send, MessageSquare, Sparkles } from 'lucide-react';
+import { Mail, Copy, Check, ExternalLink, Send, MessageSquare } from 'lucide-react';
 import { Language } from '../types';
 import { Dialog } from './ui/Dialog';
 import { Button } from './ui/Button';
@@ -109,9 +109,9 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
     >
       <div className="space-y-6 text-sm text-text">
         {/* Status notice badge */}
-        <div className="p-3.5 rounded-2xl bg-surface-2 border border-border-subtle flex items-start gap-3">
-          <div className="w-8 h-8 rounded-xl bg-accent-subtle text-accent-text flex items-center justify-center shrink-0 mt-0.5">
-            <Sparkles className="w-4 h-4" />
+        <div className="p-3.5 rounded-card bg-surface-2 border border-border-subtle flex items-start gap-3">
+          <div className="w-8 h-8 rounded-control bg-accent-subtle text-accent-text flex items-center justify-center shrink-0 mt-0.5">
+            <MessageSquare className="w-4 h-4" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold text-text uppercase tracking-wider">

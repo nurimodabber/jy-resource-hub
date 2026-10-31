@@ -39,7 +39,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
         </span>
       </div>
 
-      <div className="bg-surface rounded-3xl border border-border p-6 sm:p-12 text-center space-y-6 shadow-xs">
+      <div className="bg-surface rounded-card border border-border p-6 sm:p-12 text-center space-y-6 shadow-xs">
         <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text min-h-[140px]">
           {currentWords.map((word, idx) => {
             const isHidden = hiddenIndices.includes(idx);
@@ -54,7 +54,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
                     prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
                   );
                 }}
-                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-lg font-serif text-xl sm:text-3xl focus:outline-hidden ${
+                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-control font-serif text-xl sm:text-3xl focus:outline-hidden ${
                   isHidden
                     ? 'text-text-tertiary border-b-2 border-border opacity-40 tabular-nums tracking-widest'
                     : 'text-text hover:text-accent-text hover:bg-surface-2'
@@ -68,7 +68,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
         </div>
 
         {allHidden ? (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-center gap-2 text-success font-semibold text-xs animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-center gap-2 text-success font-semibold text-xs animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 text-success" />
             <span>{t.allWordsHidden}</span>
           </div>
@@ -83,7 +83,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
             type="button"
             onClick={handleEraseMoreWords}
             disabled={allHidden}
-            className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-xs transition-colors shadow-xs cursor-pointer min-h-[44px] disabled:opacity-40"
+            className="flex items-center gap-1.5 px-6 py-2.5 rounded-control bg-accent text-accent-contrast hover:bg-accent-hover font-semibold text-xs transition-colors shadow-xs cursor-pointer min-h-[44px] disabled:opacity-40"
           >
             <Eraser className="w-3.5 h-3.5" />
             <span>{t.eraseNextWord}</span>
@@ -92,7 +92,7 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
           <button
             type="button"
             onClick={handleResetChalkboard}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px]"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px]"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{t.resetBoard}</span>

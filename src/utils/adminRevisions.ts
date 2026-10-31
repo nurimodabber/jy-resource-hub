@@ -33,7 +33,7 @@ export interface DataRevision<T = unknown> {
 
 export interface ProposalItem {
   id: string;
-  type: 'spiel' | 'dienst' | 'kunst' | 'kategorie';
+  type: 'spiel' | 'dienst' | 'kunst' | 'kategorie' | 'feedback';
   title: string;
   subtitle?: string;
   summary: string;
@@ -308,6 +308,39 @@ export function saveProposal(
   };
   localStorage.setItem(STORAGE_PROPOSALS_KEY, JSON.stringify([item, ...list]));
   return item;
+}
+
+export function saveFeedback(feedback: {
+  category: 'general' | 'idea' | 'bug' | 'content';
+  message: string;
+  authorName?: string;
+  authorEmail?: string;
+}): ProposalItem {
+  const categoryLabels: Record<string, string> = {
+    general: 'Allgemeines Feedback',
+    idea: 'Idee & Vorschlag',
+    bug: 'Problem melden',
+    content: 'Inhalt & Zitate',
+  };
+  const categoryName = categoryLabels[feedback.category] || 'Feedback';
+  const cleanMsg = feedback.message.trim().replace(/\s+/g, ' ');
+  const snippet = cleanMsg.slice(0, 50);
+  const title = `[${categoryName}] ${snippet}${cleanMsg.length > 50 ? '…' : ''}`;
+
+  return saveProposal({
+    type: 'feedback',
+    title,
+    summary: feedback.message.trim(),
+    authorName: feedback.authorName?.trim() || undefined,
+    authorEmail: feedback.authorEmail?.trim() || undefined,
+    payload: {
+      category: feedback.category,
+      categoryLabel: categoryName,
+      message: feedback.message.trim(),
+      url: typeof window !== 'undefined' ? window.location.href : '',
+      timestamp: Date.now(),
+    },
+  });
 }
 
 export function updateProposalStatus(

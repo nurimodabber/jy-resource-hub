@@ -49,11 +49,19 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
   const isPrayer = isPrayerQuote(activeQuote);
 
   const text = isDe ? activeQuote.textDe : activeQuote.textEn;
-  const bookName = activeQuote.mainBook ? activeQuote.mainBook[language] : activeQuote.book[language].split(',')[0].trim();
+  const rawBookName = activeQuote.mainBook ? activeQuote.mainBook[language] : activeQuote.book[language].split(',')[0].trim();
+  const isDevotionalBook =
+    /gebete?\s*(&|und|\+)?\s*andacht/i.test(rawBookName) ||
+    /prayers?\s*(&|and|\+)?\s*devotions?/i.test(rawBookName);
+  const bookName = isDevotionalBook ? undefined : rawBookName;
   const sectionName = formatQuoteSection(activeQuote.section ? activeQuote.section[language] : undefined);
   const song = getQuoteSong(activeQuote.id, language);
 
-  const formattedShareText = `„${text}“\n— ${activeQuote.source[language]} (${activeQuote.book[language]})`;
+  const metaTag = isPrayer
+    ? `${isDe ? 'Gebet' : 'Prayer'}${bookName ? ` · ${bookName}` : ''}${sectionName ? ` · ${sectionName}` : ''}`
+    : `${bookName ?? ''}${sectionName ? ` · ${sectionName}` : ''}`;
+
+  const formattedShareText = `${isDe ? `»${text}«` : `“${text}”`}\n— ${activeQuote.source[language]} (${activeQuote.book[language]})`;
   const quoteUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/quotes/${activeQuote.id}`;
 
   // Sibling quotes in the same book for gentle pagination
@@ -90,12 +98,11 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
           <button
             type="button"
             onClick={() => navigate(`/quotes?tab=practice&quote=${activeQuote.id}`)}
-            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] h-11 px-0 sm:px-3 gap-1.5 rounded-control border border-border bg-surface hover:bg-surface-2 text-text text-xs font-semibold transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-            title={isDe ? 'Auswendiglernen öffnen' : 'Open memorisation'}
-            aria-label={isDe ? 'Auswendiglernen öffnen' : 'Open memorisation'}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control border border-border bg-surface hover:bg-surface-2 text-accent transition-all active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+            title={isDe ? 'Auswendiglernen' : 'Memorise'}
+            aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
           >
-            <Zap className="w-4 h-4 text-accent shrink-0" />
-            <span className="hidden sm:inline">{isDe ? 'Auswendiglernen' : 'Memorise'}</span>
+            <Zap className="w-4.5 h-4.5 text-accent fill-accent/30" />
           </button>
 
           {/* Song (if available) */}
@@ -104,22 +111,22 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
               href={song.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text-secondary hover:text-accent transition-colors focus-visible:ring-2 focus-visible:ring-accent"
               title={isDe ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
               aria-label={t.quoteSongAriaLabel}
             >
-              <Music className="w-4 h-4 text-accent" />
+              <Music className="w-4 h-4" />
             </a>
           )}
 
           {/* Bookmark Button */}
           <IconButton
             label={isFavorite ? t.savedItems : (isDe ? 'Merken' : 'Save')}
-            variant="outline"
-            className={`min-h-[44px] min-w-[44px] ${isFavorite ? 'text-accent' : 'text-text-secondary'}`}
+            variant={isFavorite ? 'secondary' : 'outline'}
+            className={`min-h-[44px] min-w-[44px] ${isFavorite ? 'text-accent bg-accent-subtle/80 border-accent/30' : 'text-text-secondary'}`}
             onClick={(e) => onToggleFavorite(activeQuote.id, e)}
           >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent' : ''}`} />
+            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
           </IconButton>
 
           {/* Compact Share Menu: Text kopieren / Link kopieren */}
@@ -133,22 +140,17 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
       </div>
 
       {/* 2. Main Sacred Text Reading Card (Calm surface, generous margin, Lora serif) */}
-      <section className="bg-surface rounded-3xl border border-border p-6 sm:p-12 lg:p-16 space-y-8 shadow-xs">
+      <section className="bg-surface rounded-3xl border border-border/80 p-6 sm:p-12 lg:p-16 space-y-8 shadow-xs">
         <div className="flex items-center justify-between gap-3 text-xs text-text-tertiary">
-          <span className="font-medium tracking-wide">
-            {bookName} {sectionName ? `· ${sectionName}` : ''}
+          <span className="text-2xs font-semibold uppercase tracking-[0.14em] text-text-tertiary font-sans">
+            {metaTag}
           </span>
-          {isPrayer && (
-            <span className="text-2xs font-semibold px-2.5 py-1 rounded-full bg-surface-2 text-text-secondary border border-border">
-              {isDe ? 'Gebet & Andacht' : 'Prayer & Devotion'}
-            </span>
-          )}
         </div>
 
         {/* The Holy Text: strictly unmodified, Lora font */}
         <div className="max-w-3xl mx-auto py-2">
           <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-[1.7] text-text text-center sm:text-left select-text">
-            „{text}“
+            {isDe ? `»${text}«` : `“${text}”`}
           </blockquote>
         </div>
 
@@ -157,7 +159,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
           <cite className="not-italic text-sm sm:text-base text-text-secondary font-serif italic block">
             —{' '}
             <a
-              href={getBahaiLibraryUrl(activeQuote.source[language], language)}
+              href={getBahaiLibraryUrl(activeQuote, language)}
               target="_blank"
               rel="noopener noreferrer"
               title={

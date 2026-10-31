@@ -78,17 +78,17 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
               <p className="text-text-secondary">{isDe ? 'Private Einzelinitiative' : 'Independent Initiative'}</p>
             </div>
 
-            <div className="pt-2 border-t border-border-subtle flex flex-col gap-1 text-xs">
+            <div className="pt-2 border-t border-border-subtle flex flex-col gap-1.5 text-xs text-text-secondary">
               <span className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-accent shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
                 <span>Nuri Modabber · Cluster Rhein-Neckar (Baden-Württemberg, Deutschland)</span>
               </span>
               <span className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
+                <Mail className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
                 <span className="font-mono select-all">nuri@modabber.net · lasse.nieruch@bahai.de</span>
               </span>
               <span className="flex items-center gap-2">
-                <Globe className="w-3.5 h-3.5 text-accent shrink-0" />
+                <Globe className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
                 <span>https://juju-hub.vercel.app</span>
               </span>
             </div>
@@ -100,7 +100,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
                   variant="outline"
                   size="sm"
                   onClick={onOpenContact}
-                  icon={<Mail className="w-3.5 h-3.5 text-accent" />}
+                  icon={<Mail className="w-3.5 h-3.5" />}
                   iconPosition="left"
                 >
                   {isDe ? 'Kontakt aufnehmen / E-Mail hinterlegen' : 'Open Contact / Leave email'}
@@ -110,7 +110,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
                   href="mailto:nuri@modabber.net,lasse.nieruch@bahai.de"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-3 border border-border text-text transition-colors"
                 >
-                  <Mail className="w-3.5 h-3.5 text-accent" />
+                  <Mail className="w-3.5 h-3.5" />
                   <span>{isDe ? 'E-Mail schreiben' : 'Send email'}</span>
                 </a>
               )}

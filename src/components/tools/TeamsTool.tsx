@@ -13,7 +13,6 @@ import {
   Plus,
   Minus,
   X,
-  Sparkles,
 } from 'lucide-react';
 import { Language } from '../../types';
 import { useLocalState } from '../../hooks/useLocalState';
@@ -525,7 +524,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                 type="text"
                 value={newNameInput}
                 onChange={(e) => setNewNameInput(e.target.value)}
-                placeholder={L('+ Person...', '+ Person...')}
+                placeholder={L('+ Person (z. B. Musonda)...', '+ Person (e.g. Musonda)...')}
                 className="pl-3 pr-7 py-1 text-xs rounded-full bg-surface-2 hover:bg-surface-raised focus:bg-surface border border-dashed border-border focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden min-h-[32px] w-32 sm:w-40 transition-all font-medium"
               />
               {newNameInput.trim() && (
@@ -768,7 +767,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
         {/* Rotate Notification Toast */}
         {rotateNotice && (
           <div className="p-2.5 rounded-card bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
-            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <RotateCw className="w-3.5 h-3.5 shrink-0" />
             <span>{rotateNotice}</span>
           </div>
         )}

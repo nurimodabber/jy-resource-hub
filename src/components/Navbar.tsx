@@ -96,12 +96,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenCommandPalette}
-            className="hidden md:flex items-center gap-2.5 h-11 w-44 lg:w-52 px-3.5 rounded-control bg-surface-2 text-sm text-text-secondary hover:text-text hover:bg-surface-2/80 transition-colors duration-150 ease-out border-0 focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+            className="group hidden md:flex items-center gap-2.5 h-11 w-48 lg:w-56 px-3.5 rounded-control bg-surface-2/70 hover:bg-surface-2 border border-line/80 hover:border-text-tertiary/60 text-sm text-text-secondary hover:text-text transition-all duration-150 ease-out shadow-2xs hover:shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             aria-label={t.cmdKSearch}
           >
-            <Search className="w-4 h-4 text-text-tertiary shrink-0" strokeWidth={1.75} />
+            <Search className="w-4 h-4 text-text-tertiary group-hover:text-accent shrink-0 transition-colors duration-150" strokeWidth={1.75} />
             <span className="flex-1 text-left truncate">{language === 'de' ? 'Suchen...' : 'Search...'}</span>
-            <kbd className="text-2xs px-1.5 py-0.5 rounded-control bg-surface shadow-1 font-semibold text-text-tertiary tabular-nums">
+            <kbd className="text-2xs px-1.5 py-0.5 rounded-md bg-surface border border-line/60 shadow-2xs font-mono font-semibold text-text-tertiary group-hover:text-text-secondary tabular-nums transition-colors">
               {isMac ? '⌘K' : 'Ctrl K'}
             </kbd>
           </button>
@@ -110,26 +110,30 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenCommandPalette}
-            className="md:hidden w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+            className="md:hidden w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all duration-150 ease-out focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             aria-label={language === 'de' ? 'Suche öffnen' : 'Open search'}
           >
             <Search className="w-5 h-5" strokeWidth={1.75} />
           </button>
 
-          {/* Saved Items */}
+          {/* Saved Items (Lesezeichen) */}
           <Link
             to="/saved"
-            className="relative w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent"
+            className={`relative w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center transition-all duration-150 ease-out active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
+              activeTab === 'saved'
+                ? 'bg-accent-subtle text-accent-text font-semibold'
+                : 'text-text-secondary hover:text-text hover:bg-surface-2'
+            }`}
             aria-label={`${t.savedItems}${favoriteCount > 0 ? ` (${favoriteCount})` : ''}`}
           >
             <Bookmark
-              className={`w-5 h-5 transition-colors ${
-                activeTab === 'saved' || favoriteCount > 0 ? 'text-accent fill-current' : ''
+              className={`w-5 h-5 transition-colors duration-150 ${
+                activeTab === 'saved' ? 'fill-accent text-accent' : favoriteCount > 0 ? 'text-accent' : ''
               }`}
               strokeWidth={1.75}
             />
             {favoriteCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-chip bg-accent text-accent-contrast text-2xs font-bold tabular-nums flex items-center justify-center leading-none">
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-accent-contrast text-[11px] font-bold tabular-nums flex items-center justify-center leading-none ring-2 ring-surface shadow-xs pointer-events-none animate-in zoom-in duration-150">
                 {favoriteCount}
               </span>
             )}
@@ -139,7 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenSettings}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 active:scale-95 transition-all duration-150 ease-out focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={t.tabSettings}
           >
             <Settings className="w-5 h-5" strokeWidth={1.75} />

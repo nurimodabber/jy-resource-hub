@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Zap } from 'lucide-react';
+import { X } from 'lucide-react';
 import { QuoteItem, Language, QuoteMethod } from '../../types';
 import { QUOTE_METHODS_DATA } from '../../data/quoteMethods';
 
@@ -107,8 +107,7 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
           <span className="w-2.5 h-2.5 rounded-full bg-accent inline-block animate-pulse shrink-0" aria-hidden="true" />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text border border-accent/20 inline-flex items-center gap-1">
-                <Zap className="w-3 h-3 text-accent" />
+              <span className="text-2xs font-semibold px-2.5 py-0.5 rounded-full bg-accent-subtle text-accent-text border border-accent/20 inline-flex items-center">
                 Web-App
               </span>
               {currentMethod?.durationMinutes && (
@@ -150,7 +149,7 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
                   key={tId}
                   type="button"
                   onClick={() => onSelectTool(tId)}
-                  className={`px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors min-h-[36px] cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 ${
                     isActive
                       ? 'bg-accent text-white font-semibold shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-2/80 font-medium'

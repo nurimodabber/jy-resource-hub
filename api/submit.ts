@@ -19,7 +19,7 @@ function encryptContact(contact: { name?: string; email?: string }): string {
 const noMentions = (str: string): string => str.replace(/@/g, '@\u200b');
 
 interface ProposalPayload {
-  type: 'spiel' | 'dienst' | 'kunst';
+  type: 'spiel' | 'dienst' | 'kunst' | 'feedback';
   title: string;
   subtitle?: string;
   summary: string;
@@ -151,7 +151,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
 
     // 3. Field validation
     const type = payload.type;
-    if (!['spiel', 'dienst', 'kunst'].includes(type)) {
+    if (!['spiel', 'dienst', 'kunst', 'feedback'].includes(type)) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ error: 'Ungültige Art der Aktivität' }));
@@ -173,23 +173,23 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     }
 
     const summary = sanitize(payload.summary);
-    if (!summary || summary.length < 10 || summary.length > 300) {
+    if (!summary || summary.length < 5 || summary.length > 1500) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'Zusammenfassung muss zwischen 10 und 300 Zeichen lang sein.' }));
+      res.end(JSON.stringify({ error: 'Text muss zwischen 5 und 1500 Zeichen lang sein.' }));
       return;
     }
     if (containsUrl(summary)) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'Zusammenfassung darf keine Web-Links enthalten.' }));
+      res.end(JSON.stringify({ error: 'Text darf keine Web-Links enthalten.' }));
       return;
     }
 
     const steps = (Array.isArray(payload.steps) ? payload.steps : [])
       .map(sanitize)
       .filter((s) => s.length > 0);
-    if (steps.length < 3) {
+    if (type !== 'feedback' && steps.length < 3) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ error: 'Bitte gib mindestens 3 Ablaufschritte an.' }));
@@ -227,7 +227,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     }
 
     // 5. Build GitHub Issue content
-    const kindLabel = type === 'spiel' ? 'Spiel' : type === 'dienst' ? 'Dienst' : 'Kunst';
+    const kindLabel = type === 'spiel' ? 'Spiel' : type === 'dienst' ? 'Dienst' : type === 'kunst' ? 'Kunst' : 'Feedback';
     const issueTitle = `[${kindLabel}] ${title}`;
 
     const jsonDraft = {
@@ -263,7 +263,24 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       } : {})
     };
 
-    const markdownBody = `
+    const markdownBody = type === 'feedback'
+      ? `
+### Neues Feedback: ${title}
+
+**Art:** Feedback  
+**Eingereicht von:** ${authorName || 'Anonym'} ${authorEmail ? `(${authorEmail})` : ''}  
+**Datum:** ${new Date().toLocaleDateString('de-DE')}  
+
+---
+
+#### Nachricht
+${summary}
+
+\`\`\`json
+${JSON.stringify({ kind: 'feedback', submittedBy: authorName || 'Anonym', submittedAt: new Date().toISOString(), message: summary }, null, 2)}
+\`\`\`
+`.trim()
+      : `
 ### Neuer Vorschlag: ${title}
 
 **Art:** ${kindLabel}  
@@ -308,7 +325,7 @@ ${JSON.stringify(jsonDraft, null, 2)}
       body: JSON.stringify({
         title: noMentions(issueTitle),
         body: publicBody,
-        labels: ['vorschlag', type],
+        labels: type === 'feedback' ? ['feedback'] : ['vorschlag', type],
       }),
     });
 

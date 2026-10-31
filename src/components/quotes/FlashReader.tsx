@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Play, Pause, RotateCcw, Zap, Eye, CheckCircle2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, Eye, CheckCircle2 } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 
 interface FlashReaderProps {
@@ -78,17 +78,16 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
         </p>
 
         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-          <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-accent-text" />
+          <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1.5 rounded-control text-text flex items-center">
             <span>{wpm} WPM</span>
           </span>
 
-          <div className="flex items-center gap-1 bg-surface-2 p-0.5 rounded-full border border-border">
+          <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-full border border-border">
             <button
               type="button"
               onClick={() => { setChunkSize(1); setCurrentIndex(0); }}
-              className={`px-2.5 py-0.5 rounded-lg text-2xs font-semibold transition-all cursor-pointer ${
-                chunkSize === 1 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary'
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
+                chunkSize === 1 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary hover:text-text'
               }`}
             >
               1W
@@ -96,8 +95,8 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={() => { setChunkSize(2); setCurrentIndex(0); }}
-              className={`px-2.5 py-0.5 rounded-lg text-2xs font-semibold transition-all cursor-pointer ${
-                chunkSize === 2 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary'
+              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
+                chunkSize === 2 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary hover:text-text'
               }`}
             >
               2W
@@ -107,7 +106,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
       </div>
 
       {/* Main Flash Canvas */}
-      <div className="bg-surface rounded-3xl border border-border p-6 sm:p-12 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-6 sm:p-12 shadow-xs space-y-6">
         {/* Progress Bar */}
         <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden border border-border">
           <div
@@ -129,7 +128,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
 
         {/* Completion Message */}
         {isFinished && (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-between gap-3 text-text animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
@@ -145,7 +144,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={() => setShowFullText(!showFullText)}
-              className="px-3 py-1.5 bg-surface text-text hover:bg-surface-2 rounded-xl text-xs font-semibold border border-border transition-colors shrink-0 cursor-pointer min-h-[44px]"
+              className="px-3.5 py-2 bg-surface text-text hover:bg-surface-2 rounded-control text-xs font-semibold border border-border transition-colors shrink-0 cursor-pointer min-h-[44px]"
             >
               <Eye className="w-3.5 h-3.5 inline mr-1" />
               <span>{showFullText ? (language === 'de' ? 'Verbergen' : 'Hide') : (language === 'de' ? 'Volltext prüfen' : 'Check text')}</span>
@@ -155,7 +154,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
 
         {/* Full Text Reveal if toggled */}
         {showFullText && (
-          <div className="p-4 rounded-2xl bg-surface-2 border border-border text-center font-serif italic text-sm sm:text-base text-text animate-in fade-in">
+          <div className="p-4 rounded-card bg-surface-2 border border-border text-center font-serif italic text-sm sm:text-base text-text animate-in fade-in">
             „{quoteText}“
           </div>
         )}
@@ -166,7 +165,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={handleTogglePlay}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[44px]"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-control text-xs font-semibold bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[44px]"
             >
               {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
               <span>{isPlaying ? (language === 'de' ? 'Pause' : 'Pause') : (language === 'de' ? 'Starten' : 'Start')}</span>

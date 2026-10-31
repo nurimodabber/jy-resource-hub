@@ -229,10 +229,10 @@ export const GamesView: React.FC<GamesViewProps> = ({
   return (
     <div className="max-w-6xl mx-auto pb-20">
       {/* 1. Header: H1, one sentence, count on search/filter, and random button aligned right */}
-      <header className="mb-4 sm:mb-6 flex items-start justify-between gap-3">
+      <header className="mb-6 sm:mb-8 flex items-start justify-between gap-4">
         <div>
-          <div className="flex items-baseline gap-3 flex-wrap">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
+          <div className="flex items-baseline gap-3.5 flex-wrap">
+            <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
               {t.tabGames}
             </h1>
             {hasActiveFilterOrSearch && (
@@ -243,7 +243,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
               </div>
             )}
           </div>
-          <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
+          <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
             {L(
               'Spiele für den Kreis, die Wiese und den Gruppenraum.',
               'Games for the circle, lawn, and group room.'
@@ -251,14 +251,14 @@ export const GamesView: React.FC<GamesViewProps> = ({
           </p>
         </div>
 
-        {/* Random Game Button (Icon-only, aligned with header) */}
+        {/* Random Game Button (aligned with header) */}
         {filteredGames.length > 0 && (
           <button
             type="button"
             onClick={handleRandomGame}
             aria-label={language === 'de' ? 'Zufälliges Spiel' : 'Random game'}
             title={language === 'de' ? 'Zufälliges Spiel' : 'Random game'}
-            className="p-2.5 sm:p-3 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-accent hover:text-accent-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            className="p-3 rounded-full bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
           >
             <Shuffle className="w-5 h-5" />
           </button>
@@ -267,13 +267,14 @@ export const GamesView: React.FC<GamesViewProps> = ({
 
       {/* 2. Search Input with Filter Button on the right */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="relative flex-1 min-w-0">
+        <div className="relative flex-1 min-w-0 group">
           <Search
-            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent pointer-events-none transition-colors duration-150"
             aria-hidden="true"
           />
           <input
-            type="search"
+            type="text"
+            inputMode="search"
             value={filters.q || ''}
             onChange={(e) =>
               updateFilters(
@@ -286,14 +287,14 @@ export const GamesView: React.FC<GamesViewProps> = ({
             }
             placeholder={L('Spiel suchen...', 'Search games...')}
             aria-label={L('Spiel suchen', 'Search games')}
-            className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+            className="w-full h-11 pl-10 pr-11 rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
           />
           {filters.q && (
             <button
               type="button"
               onClick={() => updateFilters({ ...filters, q: undefined })}
               aria-label={L('Suche löschen', 'Clear search')}
-              className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -311,10 +312,10 @@ export const GamesView: React.FC<GamesViewProps> = ({
               ? L('Filter schließen', 'Hide filters')
               : L('Filter öffnen', 'Show filters')
           }
-          className={`h-11 px-3 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-colors cursor-pointer shrink-0 min-w-[44px] justify-center ${
+          className={`h-11 px-3.5 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer shrink-0 min-w-[44px] justify-center shadow-2xs ${
             showFilters || totalActiveFilterCount > 0
-              ? 'bg-accent/15 border-accent text-accent'
-              : 'bg-surface hover:bg-surface-2 border-border text-text-secondary hover:text-text'
+              ? 'bg-accent/12 border-accent/40 text-accent'
+              : 'bg-surface hover:bg-surface-2 border-border/80 text-text-secondary hover:text-text'
           }`}
         >
           <SlidersHorizontal className="w-4 h-4 shrink-0" />

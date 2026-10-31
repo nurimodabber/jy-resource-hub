@@ -211,7 +211,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const [minigameSubTab, setMinigameSubTab] = useState<MinigameSubTab>('empire');
 
   // Filter & Search States
-  const [reviewTypeFilter, setReviewTypeFilter] = useState<'all' | 'spiel' | 'dienst' | 'kunst' | 'kategorie'>('all');
+  const [reviewTypeFilter, setReviewTypeFilter] = useState<'all' | 'spiel' | 'dienst' | 'kunst' | 'kategorie' | 'feedback'>('all');
+  const [selectedFeedback, setSelectedFeedback] = useState<ProposalItem | null>(null);
   const [reviewSubmitterFilter, setReviewSubmitterFilter] = useState<string>('all');
   const [reviewSearch, setReviewSearch] = useState('');
 
@@ -446,6 +447,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
 
   // Open Editor from a Proposal
   const openProposalInEditor = useCallback((prop: ProposalItem) => {
+    if (prop.type === 'feedback') {
+      setSelectedFeedback(prop);
+      return;
+    }
     const p = prop.payload || {};
     const stepsArr = Array.isArray(p.steps) && p.steps.length ? (p.steps as string[]) : [prop.summary];
     const matArr = Array.isArray(p.materials) ? (p.materials as string[]) : [];
@@ -1507,7 +1512,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     }
   };
 
-  const kindLabel = (kind: 'spiel' | 'dienst' | 'kunst' | 'kategorie') => {
+  const kindLabel = (kind: 'spiel' | 'dienst' | 'kunst' | 'kategorie' | 'feedback') => {
     switch (kind) {
       case 'spiel':
         return L('Spiel', 'Game');
@@ -1517,6 +1522,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
         return L('Kunstimpuls', 'Arts prompt');
       case 'kategorie':
         return L('Minispiel-Kategorie', 'Mini-game category');
+      case 'feedback':
+        return L('Feedback', 'Feedback');
     }
   };
 
@@ -1623,7 +1630,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                   type="text"
                   value={setupDisplayName}
                   onChange={(e) => setSetupDisplayName(e.target.value)}
-                  placeholder="z. B. Nuri Milan Modabber"
+                  placeholder={L('z. B. Musonda Mwamba', 'e.g. Musonda Mwamba')}
                   className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
                   required
                   autoFocus
@@ -1638,7 +1645,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                   type="text"
                   value={loginUsername}
                   onChange={(e) => setLoginUsername(e.target.value)}
-                  placeholder="z. B. nuri@modabber.net"
+                  placeholder="animator@gemeinde.org"
                   className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
                   required
                 />
@@ -1810,7 +1817,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                     setLoginUsername(e.target.value);
                     setAuthError(null);
                   }}
-                  placeholder="z. B. nuri@modabber.net"
+                  placeholder="animator@gemeinde.org"
                   className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
                   required
                   autoFocus
@@ -3067,6 +3074,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                               { id: 'dienst', label: L('Dienst', 'Service') },
                               { id: 'kunst', label: L('Kunst', 'Art') },
                               { id: 'kategorie', label: L('Minispiele', 'Mini-games') },
+                              { id: 'feedback', label: L('Feedback', 'Feedback') },
                             ] as const
                           ).map((seg) => (
                             <button
@@ -3163,7 +3171,13 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                           <button
                             key={prop.id}
                             type="button"
-                            onClick={() => openProposalInEditor(prop)}
+                            onClick={() => {
+                              if (prop.type === 'feedback') {
+                                setSelectedFeedback(prop);
+                              } else {
+                                openProposalInEditor(prop);
+                              }
+                            }}
                             className="w-full px-5 py-4 flex items-center justify-between gap-4 text-left hover:bg-surface-2/60 transition-colors cursor-pointer group"
                           >
                             <div className="min-w-0 space-y-1">
@@ -3171,7 +3185,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                                 <span className="font-bold text-sm text-text group-hover:text-accent transition-colors">
                                   {prop.title}
                                 </span>
-                                <span className="px-2 py-0.5 rounded-full text-2xs font-semibold border border-border text-text-secondary">
+                                <span className={`px-2 py-0.5 rounded-full text-2xs font-semibold border ${
+                                  prop.type === 'feedback'
+                                    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 font-bold'
+                                    : 'border-border text-text-secondary'
+                                }`}>
                                   {L('Neu:', 'New:')} {kindLabel(prop.type)}
                                 </span>
                                 {prop.githubIssueNumber && (
@@ -4672,6 +4690,106 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 className="px-4 py-2 rounded-control bg-accent text-accent-contrast text-xs font-bold cursor-pointer"
               >
                 {L('Live speichern', 'Save live')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Inspection Modal */}
+      {selectedFeedback && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div className="bg-surface border border-border rounded-card max-w-lg w-full p-6 space-y-4 shadow-2">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full text-2xs font-extrabold uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                  Feedback
+                </span>
+                <span className="text-xs text-text-tertiary">
+                  {formatShortDate(selectedFeedback.createdAt)}
+                </span>
+              </div>
+              <span className={`px-2.5 py-0.5 rounded-full text-2xs font-semibold ${
+                selectedFeedback.status === 'accepted'
+                  ? 'bg-success/15 text-success'
+                  : selectedFeedback.status === 'rejected'
+                  ? 'bg-surface-2 text-text-tertiary'
+                  : 'bg-accent/15 text-accent font-bold'
+              }`}>
+                {selectedFeedback.status === 'accepted'
+                  ? L('Gelesen / Erledigt', 'Read / Done')
+                  : selectedFeedback.status === 'rejected'
+                  ? L('Archiviert', 'Archived')
+                  : L('Neu / Offen', 'New / Pending')}
+              </span>
+            </div>
+
+            <div className="p-3 rounded-control bg-surface-2 border border-border text-xs space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-text-tertiary font-semibold">{L('Absender', 'Submitter')}:</span>
+                <span className="font-bold text-text">{selectedFeedback.authorName || L('Anonym', 'Anonymous')}</span>
+              </div>
+              {selectedFeedback.authorEmail && (
+                <div className="flex items-center justify-between">
+                  <span className="text-text-tertiary font-semibold">{L('E-Mail', 'Email')}:</span>
+                  <a href={`mailto:${selectedFeedback.authorEmail}`} className="font-semibold text-accent hover:underline">
+                    {selectedFeedback.authorEmail}
+                  </a>
+                </div>
+              )}
+              {selectedFeedback.payload && typeof selectedFeedback.payload.categoryLabel === 'string' && (
+                <div className="flex items-center justify-between">
+                  <span className="text-text-tertiary font-semibold">{L('Kategorie', 'Category')}:</span>
+                  <span className="font-semibold text-text-secondary">{String(selectedFeedback.payload.categoryLabel)}</span>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary mb-1.5">
+                {L('Nachricht', 'Message')}
+              </label>
+              <div className="p-3.5 rounded-control bg-bg border border-border text-xs sm:text-sm text-text leading-relaxed whitespace-pre-wrap select-text max-h-60 overflow-y-auto">
+                {selectedFeedback.summary || (selectedFeedback.payload?.message as string) || ''}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border flex-wrap">
+              <div className="flex items-center gap-2">
+                {selectedFeedback.status !== 'accepted' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      adminData.acceptProposal(selectedFeedback.id, adminAuthor);
+                      setSelectedFeedback((prev) => (prev ? { ...prev, status: 'accepted' } : null));
+                      showToast(L('Feedback als gelesen markiert.', 'Feedback marked as read.'));
+                    }}
+                    className="px-3 py-1.5 rounded-control bg-success text-success-contrast text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer shadow-2xs"
+                  >
+                    {L('Als gelesen markieren', 'Mark as read')}
+                  </button>
+                )}
+                {selectedFeedback.status !== 'rejected' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      adminData.rejectProposal(selectedFeedback.id, 'Archiviert', adminAuthor);
+                      setSelectedFeedback((prev) => (prev ? { ...prev, status: 'rejected' } : null));
+                      showToast(L('Feedback archiviert.', 'Feedback archived.'));
+                    }}
+                    className="px-3 py-1.5 rounded-control bg-surface-2 text-text-secondary hover:text-text border border-border text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    {L('Archivieren', 'Archive')}
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedFeedback(null)}
+                className="px-4 py-1.5 rounded-control bg-surface border border-border text-xs font-semibold text-text hover:bg-surface-2 transition-colors cursor-pointer"
+              >
+                {L('Schließen', 'Close')}
               </button>
             </div>
           </div>

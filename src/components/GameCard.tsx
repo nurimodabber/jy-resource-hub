@@ -102,7 +102,7 @@ export const GameCard: React.FC<GameCardProps> = ({
 
   return (
     <div
-      className={`group relative h-full flex flex-col justify-between bg-surface border border-border rounded-card hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 ease-out p-4 ${
+      className={`group relative h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-4 pb-3.5 pt-3 sm:px-5 sm:pb-4 sm:pt-3.5 shadow-2xs ${
         !matchesGroup ? 'opacity-60 hover:opacity-100' : ''
       }`}
     >
@@ -111,7 +111,7 @@ export const GameCard: React.FC<GameCardProps> = ({
         className="block flex-1 min-w-0 pr-10 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0"
       >
         <div className="flex items-center gap-2 relative z-[1]">
-          <h3 className="text-base font-semibold text-text leading-snug truncate group-hover:text-accent transition-colors min-w-0">
+          <h3 className="font-serif text-lg font-medium text-text leading-snug truncate group-hover:text-accent transition-colors min-w-0 tracking-tight">
             {game.title[language]}
           </h3>
           <span
@@ -122,7 +122,7 @@ export const GameCard: React.FC<GameCardProps> = ({
             <EnergyDots energyLevel={game.energyLevel} />
           </span>
         </div>
-        <p className="text-xs text-text-secondary line-clamp-2 mt-1 leading-relaxed relative z-[1]">
+        <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 mt-1.5 sm:mt-2 leading-relaxed relative z-[1]">
           {description}
         </p>
       </Link>
@@ -133,23 +133,25 @@ export const GameCard: React.FC<GameCardProps> = ({
         onClick={(e) => onToggleFavorite(game.id, e)}
         aria-pressed={isFavorite}
         aria-label={`${t.savedItems}: ${game.title[language]}`}
-        className={`absolute top-2.5 right-2.5 z-10 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-full hover:bg-surface-2 transition-all duration-100 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
-          isFavorite ? 'text-accent' : 'text-text-tertiary hover:text-text'
+        className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+          isFavorite
+            ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
+            : 'text-text-tertiary hover:text-text hover:bg-surface-2'
         }`}
       >
-        <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+        <Bookmark className={`w-4 h-4 transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
       </button>
 
-      {/* Bottom row: Category badge (and Web-App) on bottom-left, group size & duration on right */}
-      <div className="relative z-[1] pointer-events-none flex items-center justify-between gap-2 flex-wrap pt-3 mt-3 border-t border-border/50 text-xs text-text-secondary">
-        <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle text-accent-text">
+      {/* Bottom row: Clean typography without pill badges */}
+      <div className="relative z-[1] pointer-events-none flex items-center justify-between gap-2 flex-wrap pt-2.5 mt-3 border-t border-border/40 text-xs text-text-secondary">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <span className="text-2xs font-semibold text-accent">
             {categoryBadge}
           </span>
           {hasCompanion && (
-            <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent-subtle text-accent-text border border-accent/20">
-              <Play className="w-2.5 h-2.5 fill-current text-accent" />
-              <span>{language === 'de' ? 'Jetzt spielen' : 'Play now'}</span>
+            <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent text-accent-contrast shadow-2xs">
+              <Play className="w-2.5 h-2.5 fill-current" />
+              <span>{language === 'de' ? 'Spielen' : 'Play'}</span>
             </span>
           )}
         </div>

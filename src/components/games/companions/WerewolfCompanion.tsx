@@ -12,7 +12,7 @@ import {
   Info,
   X,
   AlertCircle,
-  Sparkles,
+  Users,
 } from 'lucide-react';
 import { Language } from '../../../types';
 import {
@@ -188,7 +188,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
       {/* PHASE 1: SETUP & ROLLEN-AUSWAHL                                     */}
       {/* =================================================================== */}
       {phase === 'setup' && (
-        <div className="space-y-5 text-left w-full max-w-2xl">
+        <div className="space-y-5 text-left w-full max-w-2xl pb-16 md:pb-0">
           {/* 1. Spielende & Namen */}
           <Panel className="p-5 sm:p-6 space-y-4">
             <PlayerSetupSection
@@ -317,7 +317,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
                 className="w-full flex items-center justify-between py-2 px-3 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-accent" />
+                  <Users className="w-3.5 h-3.5 text-accent" />
                   <span>{L('Weitere klassische Rollen', 'Additional classic roles')}</span>
                   {activeExtendedCount > 0 && (
                     <span className="text-2xs px-2 py-0.5 rounded-full bg-accent text-accent-contrast font-semibold">
@@ -432,16 +432,18 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
             </div>
           </Panel>
 
-          {/* Start Dealing */}
-          <button
-            type="button"
-            disabled={isOverAllocated}
-            onClick={startDealing}
-            className={`${primaryBtn} w-full py-3.5 text-base flex items-center justify-center gap-2`}
-          >
-            <Eye className="w-4 h-4" />
-            <span>{L('Rollen geheim verteilen', 'Deal roles secretly')}</span>
-          </button>
+          {/* Start Dealing (sticky on mobile for instant thumb access, inline on desktop) */}
+          <div className="sticky md:static bottom-[calc(4.5rem+env(safe-area-inset-bottom))] md:bottom-auto z-30 pt-2 pb-2 md:p-0">
+            <button
+              type="button"
+              disabled={isOverAllocated}
+              onClick={startDealing}
+              className={`${primaryBtn} w-full py-3.5 text-base flex items-center justify-center gap-2 shadow-lg md:shadow-none`}
+            >
+              <Eye className="w-4 h-4" />
+              <span>{L('Rollen geheim verteilen', 'Deal roles secretly')}</span>
+            </button>
+          </div>
         </div>
       )}
 

@@ -117,7 +117,7 @@ export const ToggleSwitch: React.FC<{
       e.stopPropagation();
       onChange(!checked);
     }}
-    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-40 select-none p-0.5 ${
+    className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-40 select-none p-0.5 ${
       checked ? 'bg-accent border border-accent' : 'bg-surface-2 border border-border-strong dark:border-border'
     }`}
   >
@@ -162,24 +162,33 @@ export const primaryBtn =
 export const secondaryBtn =
   'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-control bg-surface-2 text-text text-sm font-medium hover:bg-surface-2/80 disabled:opacity-50 transition-colors duration-150 ease-out border-0 cursor-pointer active:scale-[0.99]';
 
+export const JY_SAMPLE_NAMES = [
+  'Musonda', 'Rose', 'Chishimba', 'Godwin',
+  'Habib', 'Maya', 'Alain', 'Li',
+  'Diego', 'Marta', 'Rosa', 'Carlos',
+  'Kibomi', 'Tendai', 'Navid', 'Shirin'
+];
+
+export function getSamplePlayerName(index: number): string {
+  return JY_SAMPLE_NAMES[index % JY_SAMPLE_NAMES.length];
+}
+
 /**
  * Standardized player list hook:
  * Seamlessly manages playerCount and editable playerNames.
  * Automatically loads present names from localStorage, pads additional slots
- * with "Spieler X" (or "Player X"), allows inline renaming, and supports reload from group.
+ * with canonical JY book character names (Musonda, Rose, Chishimba...), allows inline renaming,
+ * and supports reload from group.
  */
 export function usePlayerList(defaultCount: number, language: Language, minPlayers = 2) {
   const storedNames = useMemo(() => loadPresentNames(), []);
   const initialCount = Math.max(minPlayers, storedNames.length >= minPlayers ? storedNames.length : defaultCount);
   const [playerCount, setPlayerCount] = useState<number>(initialCount);
 
-  const getPrefix = (lang: Language) => (lang === 'de' ? 'Spieler' : 'Player');
-
   const [playerNames, setPlayerNames] = useState<string[]>(() => {
     const list: string[] = [];
-    const prefix = getPrefix(language);
     for (let i = 0; i < initialCount; i++) {
-      list.push(storedNames[i]?.trim() || `${prefix} ${i + 1}`);
+      list.push(storedNames[i]?.trim() || getSamplePlayerName(i));
     }
     return list;
   });
@@ -187,18 +196,17 @@ export function usePlayerList(defaultCount: number, language: Language, minPlaye
   // Keep playerNames synced when playerCount changes
   useEffect(() => {
     setPlayerNames((prev) => {
-      const prefix = getPrefix(language);
       if (playerCount === prev.length) return prev;
       if (playerCount > prev.length) {
         const next = [...prev];
         for (let i = prev.length; i < playerCount; i++) {
-          next.push(storedNames[i]?.trim() || `${prefix} ${i + 1}`);
+          next.push(storedNames[i]?.trim() || getSamplePlayerName(i));
         }
         return next;
       }
       return prev.slice(0, playerCount);
     });
-  }, [playerCount, language, storedNames]);
+  }, [playerCount, storedNames]);
 
   const handleRename = (index: number, newName: string) => {
     setPlayerNames((prev) => {
@@ -212,10 +220,9 @@ export function usePlayerList(defaultCount: number, language: Language, minPlaye
     const group = loadPresentNames();
     const count = Math.max(minPlayers, group.length);
     setPlayerCount(count);
-    const prefix = getPrefix(language);
     const list: string[] = [];
     for (let i = 0; i < count; i++) {
-      list.push(group[i]?.trim() || `${prefix} ${i + 1}`);
+      list.push(group[i]?.trim() || getSamplePlayerName(i));
     }
     setPlayerNames(list);
   };
@@ -347,7 +354,7 @@ export const PlayerSetupSection: React.FC<{
                       type="text"
                       value={name}
                       onChange={(e) => onRename(i, e.target.value)}
-                      placeholder={`${language === 'de' ? 'Spieler' : 'Player'} ${i + 1}`}
+                      placeholder={getSamplePlayerName(i)}
                       className="w-full px-3 py-1.5 pr-8 rounded-control bg-surface-2 border border-border/80 text-xs font-semibold text-text focus:border-accent focus:bg-surface focus:outline-hidden transition-colors"
                     />
                     <Pencil className="w-3 h-3 text-text-tertiary absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />

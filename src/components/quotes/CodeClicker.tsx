@@ -72,7 +72,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
       </div>
 
       {/* Main Reading Canvas */}
-      <div className="bg-surface rounded-3xl border border-border p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
         {/* Active Action Words Pills */}
         <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-border">
           <div className="flex flex-wrap items-center gap-2">
@@ -87,7 +87,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
                   type="button"
                   key={word}
                   onClick={() => handleToggleTaboo(word)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-accent-subtle text-accent-text border border-accent/20 cursor-pointer hover:bg-accent/20 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-accent-subtle text-accent-text border border-accent/20 cursor-pointer hover:bg-accent/20 transition-colors min-h-[36px]"
                   title={language === 'de' ? 'Klicken zum Entfernen' : 'Click to remove'}
                 >
                   <span className="capitalize">{word}</span>
@@ -100,9 +100,9 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
           <button
             type="button"
             onClick={pickRandomCodeWords}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors border border-border cursor-pointer min-h-[44px]"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs text-text hover:bg-surface-2 rounded-control transition-colors border border-border cursor-pointer min-h-[44px]"
           >
-            <Shuffle className="w-3 h-3 text-accent-text" />
+            <Shuffle className="w-3.5 h-3.5 text-accent-text" />
             <span>{t.newCodeWords}</span>
           </button>
         </div>
@@ -119,7 +119,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
                 type="button"
                 key={idx}
                 onClick={() => handleToggleTaboo(word)}
-                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-xl font-serif text-xl sm:text-3xl ${
+                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-control font-serif text-xl sm:text-3xl ${
                   action
                     ? 'bg-accent-subtle text-accent-text font-bold border border-accent/30'
                     : 'hover:bg-surface-2'
@@ -128,7 +128,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
               >
                 {action ? (
                   <span className="inline-flex items-center gap-1">
-                    <span className="text-xs font-sans uppercase font-bold text-accent-text px-2 py-0.5 rounded-md bg-accent/20 border border-accent/40">
+                    <span className="text-xs font-sans uppercase font-bold text-accent-text px-2 py-0.5 rounded-control bg-accent/20 border border-accent/40">
                       [{language === 'de' ? action.labelDe : action.labelEn}]
                     </span>
                     <span className="opacity-70">{punctuation}</span>

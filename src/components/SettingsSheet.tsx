@@ -8,9 +8,6 @@ import {
   Music,
   Users,
   ChevronRight,
-  Blend,
-  Palette,
-  Globe,
   ShieldCheck,
 } from 'lucide-react';
 import { Language } from '../types';
@@ -38,7 +35,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   onOpenBahaiSongs,
 }) => {
   const t = UI_TRANSLATIONS[language];
-  const { theme, setTheme, glassOpacity, setGlassOpacity } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { showToast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [isGroupExpanded, setIsGroupExpanded] = useState(false);
@@ -62,7 +59,10 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
     try {
       const n = importLocalData(await file.text());
       showToast({
-        text: language === 'de' ? `${n} Einträge wiederhergestellt. Seite lädt neu...` : `${n} entries restored. Reloading...`,
+        text:
+          language === 'de'
+            ? `${n} Einträge wiederhergestellt. Seite lädt neu...`
+            : `${n} entries restored. Reloading...`,
       });
       setTimeout(() => window.location.reload(), 800);
     } catch {
@@ -88,40 +88,38 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={t.tabSettings}
-      description={language === 'de' ? 'App-Einstellungen, Gruppe & Datensicherung' : 'App preferences, group & backup'}
       position="bottom"
     >
       <div className="space-y-4 max-w-xl mx-auto pb-4">
         {/* ================================================================= */}
-        {/* SECTION 1: DARSTELLUNG & SPRACHE (IN EINEM EINHEITLICHEN BLOCK)    */}
+        {/* SECTION 1: DARSTELLUNG & SPRACHE                                  */}
         {/* ================================================================= */}
-        <section className="space-y-1.5 text-left">
-          <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
-            {language === 'de' ? 'Darstellung & Sprache' : 'Appearance & Language'}
-          </h3>
-          <div className="glass-card rounded-card p-4 space-y-4 overflow-hidden shadow-1">
+        <section className="text-left">
+          <div className="bg-surface/90 border border-border/80 rounded-card p-4 space-y-4 overflow-hidden shadow-xs">
             {/* Theme 4-segment selector */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-text flex items-center gap-2">
-                  <Palette className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
-                  <span>{t.settingsAppearance}</span>
+                <span className="font-semibold text-text">
+                  {t.settingsAppearance}
                 </span>
                 <span className="text-2xs font-medium text-text-secondary capitalize">
                   {theme === 'light'
-                    ? (language === 'de' ? 'Hell' : 'Light')
+                    ? language === 'de'
+                      ? 'Hell'
+                      : 'Light'
                     : theme === 'dark'
-                    ? (language === 'de' ? 'Dunkel' : 'Dark')
-                    : theme === 'contrast'
-                    ? (language === 'de' ? 'Kontrast' : 'Contrast')
-                    : (language === 'de' ? 'System' : 'System')}
+                      ? language === 'de'
+                        ? 'Dunkel'
+                        : 'Dark'
+                      : language === 'de'
+                        ? 'System'
+                        : 'System'}
                 </span>
               </div>
               <SegmentedControl
                 options={[
                   { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
                   { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
-                  { id: 'contrast', label: language === 'de' ? 'Kontrast' : 'Contrast' },
                   { id: 'system', label: language === 'de' ? 'System' : 'System' },
                 ]}
                 value={theme}
@@ -131,36 +129,11 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               />
             </div>
 
-            {/* Simple Transparenz Slider - unified, no extra subheaders or borders */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-text flex items-center gap-2">
-                  <Blend className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
-                  <span>{language === 'de' ? 'Transparenz' : 'Transparency'}</span>
-                </span>
-                <span className="text-2xs font-bold text-accent tabular-nums bg-accent-subtle px-2 py-0.5 rounded-chip">
-                  {glassOpacity} %
-                </span>
-              </div>
-              <input
-                id="glass-slider"
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={glassOpacity}
-                onChange={(e) => setGlassOpacity(Number(e.target.value))}
-                className="w-full h-2 bg-surface-2 rounded-full appearance-none cursor-pointer accent-accent focus-visible:outline-hidden"
-                aria-label={language === 'de' ? 'Transparenz' : 'Transparency'}
-              />
-            </div>
-
             {/* Language 2-segment switch */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-text flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
-                  <span>{t.settingsLanguage}</span>
+                <span className="font-semibold text-text">
+                  {t.settingsLanguage}
                 </span>
                 <span className="text-2xs font-medium text-text-secondary">
                   {language === 'de' ? 'Deutsch' : 'English'}
@@ -183,12 +156,8 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         {/* ================================================================= */}
         {/* SECTION 2: GRUPPE                                                 */}
         {/* ================================================================= */}
-        <section className="space-y-1.5 text-left">
-          <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
-            {language === 'de' ? 'Gruppe' : 'Group'}
-          </h3>
-          <div className="glass-card rounded-card overflow-hidden shadow-1">
-            {/* Group member status row with a chevron */}
+        <section className="text-left">
+          <div className="bg-surface/90 border border-border/80 rounded-card overflow-hidden shadow-xs">
             <div className="p-3.5 space-y-3">
               <div
                 onClick={() => setIsGroupExpanded((prev) => !prev)}
@@ -203,22 +172,22 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                 }}
                 aria-expanded={isGroupExpanded}
               >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-control bg-accent-subtle flex items-center justify-center shrink-0 text-accent-text group-hover:bg-accent/20 transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-control bg-surface-2 border border-border/60 flex items-center justify-center shrink-0 text-text group-hover:text-accent group-hover:bg-accent-subtle transition-colors">
                     <Users className="w-4 h-4" strokeWidth={1.75} />
                   </div>
                   <div className="min-w-0">
                     <span className="block text-xs font-semibold text-text truncate">
                       {groupTitle || (language === 'de' ? 'Meine Gruppe' : 'My Group')}
                     </span>
-                    <span className="block text-2xs text-text-secondary truncate">
+                    <span className="block text-2xs text-text-secondary truncate mt-0.5">
                       {groupNames.length > 0
-                        ? (language === 'de'
-                            ? `${presentCount} von ${groupNames.length} Personen anwesend`
-                            : `${presentCount} of ${groupNames.length} members present`)
-                        : (language === 'de'
-                            ? 'Noch keine Namen hinterlegt'
-                            : 'No group members added yet')}
+                        ? language === 'de'
+                          ? `${presentCount} von ${groupNames.length} Personen anwesend`
+                          : `${presentCount} of ${groupNames.length} members present`
+                        : language === 'de'
+                          ? 'Noch keine Namen hinterlegt'
+                          : 'No group members added yet'}
                     </span>
                   </div>
                 </div>
@@ -226,8 +195,12 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-2xs font-semibold text-accent hidden sm:inline">
                     {isGroupExpanded
-                      ? (language === 'de' ? 'Schließen' : 'Close')
-                      : (language === 'de' ? 'Verwalten' : 'Manage')}
+                      ? language === 'de'
+                        ? 'Schließen'
+                        : 'Close'
+                      : language === 'de'
+                        ? 'Verwalten'
+                        : 'Manage'}
                   </span>
                   <ChevronRight
                     className={`w-4 h-4 text-text-tertiary transition-transform duration-200 ${
@@ -238,7 +211,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               </div>
 
               {isGroupExpanded && (
-                <div className="pt-2 border-t border-border/60 animate-in fade-in duration-150">
+                <div className="pt-3 border-t border-border/60 animate-in fade-in duration-150">
                   <GroupManager language={language} compact={true} />
                 </div>
               )}
@@ -249,18 +222,15 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         {/* ================================================================= */}
         {/* SECTION 3: DATEN & SICHERUNG                                      */}
         {/* ================================================================= */}
-        <section className="space-y-1.5 text-left">
-          <h3 className="text-2xs font-bold uppercase tracking-wider text-text-tertiary px-3">
-            {language === 'de' ? 'Daten & Sicherung' : 'Data & Backup'}
-          </h3>
-          <div className="glass-card rounded-card divide-y divide-border/60 overflow-hidden shadow-1">
+        <section className="text-left">
+          <div className="bg-surface/90 border border-border/80 rounded-card divide-y divide-border/60 overflow-hidden shadow-xs">
             {/* Symmetrical Flat Action Buttons (2-column grid) */}
             <div className="p-3.5">
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={handleExport}
-                  className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-colors cursor-pointer active:scale-[0.99]"
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-all cursor-pointer active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   <Download className="w-3.5 h-3.5 text-accent shrink-0" strokeWidth={1.75} />
                   <span className="truncate">{language === 'de' ? 'Sichern' : 'Backup'}</span>
@@ -269,7 +239,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
-                  className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-colors cursor-pointer active:scale-[0.99]"
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-all cursor-pointer active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   <Upload className="w-3.5 h-3.5 text-accent shrink-0" strokeWidth={1.75} />
                   <span className="truncate">{language === 'de' ? 'Einspielen' : 'Restore'}</span>
@@ -288,9 +258,12 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                     window.print();
                     onClose();
                   }}
-                  className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-colors cursor-pointer active:scale-[0.99]"
+                  className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-all cursor-pointer active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                  <Printer className="w-3.5 h-3.5 text-text-secondary shrink-0" strokeWidth={1.75} />
+                  <Printer
+                    className="w-3.5 h-3.5 text-text-secondary shrink-0"
+                    strokeWidth={1.75}
+                  />
                   <span className="truncate">{language === 'de' ? 'Drucken' : 'Print'}</span>
                 </button>
 
@@ -301,9 +274,12 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                       onOpenBahaiSongs();
                       onClose();
                     }}
-                    className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-colors cursor-pointer active:scale-[0.99]"
+                    className="flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border/70 text-xs font-semibold text-text transition-all cursor-pointer active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                   >
-                    <Music className="w-3.5 h-3.5 text-text-secondary shrink-0" strokeWidth={1.75} />
+                    <Music
+                      className="w-3.5 h-3.5 text-text-secondary shrink-0"
+                      strokeWidth={1.75}
+                    />
                     <span className="truncate">Bahá'í Songs</span>
                   </button>
                 ) : (
@@ -312,15 +288,17 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               </div>
             </div>
 
-            {/* Subtle Red Danger Action at the bottom */}
-            <div className="p-3 bg-danger/5">
+            {/* Subtle Danger Action at the bottom */}
+            <div className="p-3 bg-surface-2/30">
               <button
                 type="button"
                 onClick={handleClear}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 min-h-[40px] rounded-control text-xs font-semibold text-danger hover:bg-danger/10 transition-colors cursor-pointer active:scale-[0.99]"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 min-h-[44px] rounded-control text-xs font-semibold text-danger/80 hover:text-danger hover:bg-danger/10 border border-transparent hover:border-danger/20 transition-all cursor-pointer active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-danger"
               >
                 <Trash2 className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
-                <span>{language === 'de' ? 'Alle lokalen Daten zurücksetzen' : 'Reset all local data'}</span>
+                <span>
+                  {language === 'de' ? 'Alle lokalen Daten zurücksetzen' : 'Reset all local data'}
+                </span>
               </button>
             </div>
           </div>
@@ -335,28 +313,28 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             <Link
               to="/impressum"
               onClick={onClose}
-              className="hover:text-text transition-colors py-1 min-h-[32px] inline-flex items-center"
+              className="hover:text-text transition-colors py-1 min-h-[44px] inline-flex items-center"
             >
               {t.impressumTitle}
             </Link>
             <Link
               to="/datenschutz"
               onClick={onClose}
-              className="hover:text-text transition-colors py-1 min-h-[32px] inline-flex items-center"
+              className="hover:text-text transition-colors py-1 min-h-[44px] inline-flex items-center"
             >
               {t.datenschutzTitle}
             </Link>
             <Link
               to="/vorschlagen"
               onClick={onClose}
-              className="hover:text-accent font-medium transition-colors py-1 min-h-[32px] inline-flex items-center"
+              className="hover:text-accent font-medium transition-colors py-1 min-h-[44px] inline-flex items-center"
             >
               {t.settingsSubmitProposal}
             </Link>
             <Link
               to="/admin"
               onClick={onClose}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 hover:bg-surface-raised border border-border/70 text-text-tertiary hover:text-text transition-colors text-xs font-medium min-h-[32px]"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border/70 text-text-tertiary hover:text-text transition-colors text-xs font-medium min-h-[44px]"
               title={language === 'de' ? 'Admin-Dashboard' : 'Admin Dashboard'}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-text-tertiary" strokeWidth={1.75} />
@@ -364,12 +342,16 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             </Link>
           </div>
 
-          {/* Row 2: Version & Offline Readiness (stacks gracefully on mobile) */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2.5 text-2xs text-text-tertiary">
-            <span>{t.siteTitle} · {t.settingsVersion}</span>
-            <span className="hidden sm:inline text-border-strong select-none">·</span>
-            <div className="inline-flex items-center gap-1.5">
-              <span className={`w-1.5 h-1.5 rounded-full ${isOfflineReady ? 'bg-emerald-500' : 'bg-emerald-500/80'} inline-block shrink-0`} />
+          {/* Row 2: Version & Offline Readiness (immer in der gleichen Zeile) */}
+          <div className="flex flex-row flex-wrap items-center justify-center gap-1.5 sm:gap-2.5 text-2xs text-text-tertiary">
+            <span className="whitespace-nowrap">
+              {t.siteTitle} · {t.settingsVersion}
+            </span>
+            <span className="text-border-strong select-none">·</span>
+            <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${isOfflineReady ? 'bg-emerald-500' : 'bg-emerald-500/80'} inline-block shrink-0`}
+              />
               <span>{isOfflineReady ? t.settingsOfflineReady : t.settingsOfflineDesc}</span>
             </div>
           </div>

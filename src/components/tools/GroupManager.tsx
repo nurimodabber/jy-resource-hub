@@ -200,7 +200,7 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
               handleAddName();
             }
           }}
-          placeholder={L('Name eingeben...', 'Enter name...')}
+          placeholder={L('Name eingeben (z. B. Musonda)...', 'Enter name (e.g. Musonda)...')}
           className="flex-1 px-3.5 py-2 text-xs rounded-control bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
         />
         <button

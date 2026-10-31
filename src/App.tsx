@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
-import { WifiOff, Mail, Settings } from 'lucide-react';
+import { WifiOff } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { BottomTabBar } from './components/BottomTabBar';
 import { LeftNavigationRail } from './components/LeftNavigationRail';
@@ -403,7 +403,8 @@ export const AppContent: React.FC = () => {
         }
       >
         <Suspense fallback={<RouteLoading />}>
-          <Routes>
+          <div key={location.pathname} className="animate-fade-in">
+            <Routes>
             <Route
               path="/"
               element={
@@ -570,6 +571,10 @@ export const AppContent: React.FC = () => {
               path="/vorschlagen"
               element={<ProposalView language={language} />}
             />
+            <Route
+              path="/feedback"
+              element={<Navigate to="/vorschlagen?feedback=true" replace />}
+            />
 
             <Route
               path="/admin"
@@ -581,6 +586,7 @@ export const AppContent: React.FC = () => {
             {/* Real 404 Route */}
             <Route path="*" element={<NotFoundView language={language} />} />
           </Routes>
+          </div>
         </Suspense>
       </main>
 
@@ -620,81 +626,95 @@ export const AppContent: React.FC = () => {
       )}
 
       {!isAdminRoute && (
-      <footer className="short-content-pad border-t border-line mt-6 sm:mt-10 pt-4 pb-4 sm:pt-5 sm:pb-5 text-xs text-text-secondary print:hidden safe-bottom mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-4">
-          {/* Main row: Brand + Status Notice on left, Compact Actions on right */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 sm:gap-4">
-            {/* Brand & Status Notice */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <div className="flex items-center gap-2 shrink-0">
-                  <Logo className="w-5 h-5 text-accent shrink-0" />
-                  <span className="font-extrabold text-sm text-text tracking-tight">{t.siteTitle}</span>
-                </div>
-                <span className="text-2xs font-semibold px-2.5 py-0.5 rounded-full bg-accent-subtle text-accent-text whitespace-nowrap shrink-0">
-                  {t.footerStatusBadge}
-                </span>
+      <footer className="short-content-pad border-t border-line mt-4 sm:mt-6 py-3 sm:py-3.5 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          {/* Desktop Footer (alles in einer Zeile angeordnet) */}
+          <div className="hidden md:flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
+                <Logo className="w-3 h-3 text-accent" />
               </div>
-              <span className="hidden sm:inline text-border-strong select-none">·</span>
-              <span className="text-2xs text-text-tertiary">
-                {t.footerScopeNote}
+              <span className="font-bold text-sm tracking-tight text-text whitespace-nowrap leading-none">
+                {t.siteTitle}
+              </span>
+              <span className="text-2xs text-text-tertiary select-none leading-none">
+                © {new Date().getFullYear()}
+              </span>
+              <span className="text-border-strong select-none leading-none">·</span>
+              <span className="text-2xs text-text-tertiary whitespace-nowrap leading-none">
+                {t.footerCluster}
+              </span>
+              <span className="inline-flex items-center justify-center h-[22px] text-2xs font-medium text-text-secondary px-2.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0 leading-none">
+                {t.footerExperimental}
               </span>
             </div>
 
-            {/* Quick Actions: Contact Button & Settings */}
-            <div className="flex items-center justify-center sm:justify-end gap-2 shrink-0">
+            <div className="flex items-center gap-5 text-2xs sm:text-xs">
               <button
                 type="button"
                 onClick={() => setIsContactOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] focus-visible:ring-2 focus-visible:ring-accent cursor-pointer shadow-2xs"
+                className="inline-flex items-center justify-center h-[22px] font-medium text-text hover:text-accent transition-colors cursor-pointer leading-none"
               >
-                <Mail className="w-3.5 h-3.5 text-accent" />
-                <span>{t.footerContact}</span>
+                {t.footerContact}
               </button>
-              <button
-                type="button"
-                onClick={() => setIsSettingsOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface hover:bg-surface-2 border border-border text-text transition-colors min-h-[36px] focus-visible:ring-2 focus-visible:ring-accent cursor-pointer shadow-2xs"
+              <Link
+                to="/impressum"
+                className="inline-flex items-center justify-center h-[22px] font-medium text-text hover:text-accent transition-colors leading-none"
               >
-                <Settings className="w-3.5 h-3.5 text-text-tertiary" />
-                <span>{t.tabSettings}</span>
-              </button>
+                {t.footerImpressum}
+              </Link>
+              <Link
+                to="/datenschutz"
+                className="inline-flex items-center justify-center h-[22px] font-medium text-text hover:text-accent transition-colors leading-none"
+              >
+                {t.footerDatenschutz}
+              </Link>
             </div>
           </div>
 
-          {/* Links & Legal Row (fluid responsive wrap, no orphan dots) */}
-          <div className="border-t border-line/60 pt-3 flex flex-col md:flex-row items-center justify-between gap-3 text-2xs text-text-tertiary text-center md:text-left">
-            <nav aria-label="Footer" className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1.5">
-              <Link to="/games" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
-                {t.tabGames}
-              </Link>
-              <Link to="/quotes" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
-                {t.tabQuotes}
-              </Link>
-              <Link to="/service-arts" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
-                {t.tabServiceArts}
-              </Link>
-              <Link to="/tools" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
-                {t.tabTools}
-              </Link>
-              <Link to="/vorschlagen" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
-                {t.tabProposal}
-              </Link>
-              <Link to="/impressum" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
-                {t.impressumTitle}
-              </Link>
-              <Link to="/datenschutz" className="hover:text-text transition-colors py-0.5 min-h-[28px] inline-flex items-center">
-                {t.datenschutzTitle}
-              </Link>
-            </nav>
-
-            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 shrink-0 pt-1 md:pt-0">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-success inline-block shrink-0" aria-hidden="true" />
-                <span>{t.settingsOfflineReady}</span>
+          {/* Mobile / Vertikal Footer:
+              - Tausche Experimentell mit Cluster Rhein Neckar
+              - Verschiebe Kontakt Impressum Datenschutz nach rechts
+              - Geringerer Abstand / kompaktere Größe, alle Elemente horizontal exakt auf gleicher Höhe */}
+          <div className="md:hidden space-y-2">
+            {/* Zeile 1: Brand links, Cluster Rhein-Neckar rechts */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <div className="w-4 h-4 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
+                  <Logo className="w-2.5 h-2.5 text-accent" />
+                </div>
+                <span className="font-bold text-xs tracking-tight text-text leading-none">
+                  {t.siteTitle}
+                </span>
+                <span className="text-2xs text-text-tertiary select-none leading-none">
+                  © {new Date().getFullYear()}
+                </span>
+              </div>
+              <span className="text-2xs text-text-tertiary font-medium shrink-0 leading-none">
+                {t.footerCluster}
               </span>
-              <span className="text-border-strong select-none">·</span>
-              <span>© 2026 {t.siteTitle}</span>
+            </div>
+
+            {/* Zeile 2: Experimentell links, Kontakt / Impressum / Datenschutz rechts */}
+            <div className="flex items-center justify-between gap-3 text-2xs">
+              <span className="inline-flex items-center justify-center h-[22px] text-2xs font-medium text-text-secondary px-2.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0 leading-none">
+                {t.footerExperimental}
+              </span>
+              <div className="flex items-center gap-3.5 ml-auto font-medium text-text">
+                <button
+                  type="button"
+                  onClick={() => setIsContactOpen(true)}
+                  className="h-[22px] flex items-center hover:text-accent transition-colors cursor-pointer leading-none"
+                >
+                  {t.footerContact}
+                </button>
+                <Link to="/impressum" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
+                  {t.footerImpressum}
+                </Link>
+                <Link to="/datenschutz" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
+                  {t.footerDatenschutz}
+                </Link>
+              </div>
             </div>
           </div>
         </div>

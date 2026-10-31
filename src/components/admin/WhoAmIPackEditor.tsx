@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Search, Check, Sparkles, User } from 'lucide-react';
+import { X, Plus, Trash2, Search, Check, User } from 'lucide-react';
 import { WhoAmIPack } from '../../data/roleContent';
 import { Language } from '../../types';
 import { tr, primaryBtn, secondaryBtn } from '../tools/common';
@@ -94,7 +94,7 @@ export const WhoAmIPackEditor: React.FC<WhoAmIPackEditorProps> = ({
         <div className="flex items-center justify-between pb-3 border-b border-border/60 shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-control bg-accent/15 text-accent flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4" />
+              <User className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-base font-bold text-text">

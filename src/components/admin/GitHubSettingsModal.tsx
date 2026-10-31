@@ -100,7 +100,7 @@ export const GitHubSettingsModal: React.FC<GitHubSettingsModalProps> = ({ langua
               type="button"
               onClick={load}
               disabled={isLoading}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface border border-border text-2xs font-semibold text-text-secondary hover:text-text transition-colors cursor-pointer disabled:opacity-50"
+              className="liquid-pill-secondary inline-flex items-center gap-1 px-3 py-1 text-2xs font-semibold text-text-secondary hover:text-text cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
               <span>{L('Neu prüfen', 'Check again')}</span>

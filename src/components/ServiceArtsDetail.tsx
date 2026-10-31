@@ -3,16 +3,11 @@ import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
   Bookmark,
-  BookOpen,
   ChevronDown,
-  Sparkles,
-  Heart,
-  Palette,
 } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { IconButton } from './ui/IconButton';
-import { Badge } from './ui/Badge';
 import { getBookById } from '../utils/bookProgress';
 import { ShareMenu } from './ui/ShareMenu';
 import { tr } from './tools/common';
@@ -107,12 +102,12 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
         <div className="flex items-center gap-1 shrink-0">
           <IconButton
             label={isFavorite ? t.savedItems : L('Merken', 'Bookmark')}
-            variant="outline"
+            variant={isFavorite ? 'secondary' : 'outline'}
             size="md"
-            className={`min-w-[44px] min-h-[44px] ${isFavorite ? 'text-accent' : 'text-text-secondary'}`}
+            className={`min-w-[44px] min-h-[44px] ${isFavorite ? 'text-accent bg-accent-subtle/80 border-accent/30' : 'text-text-secondary'}`}
             onClick={(e) => onToggleFavorite(activity.id, e)}
           >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent' : ''}`} />
+            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
           </IconButton>
 
           <ShareMenu
@@ -125,10 +120,10 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
       </div>
 
       {/* 2. Main Card */}
-      <div className="bg-surface rounded-card border border-border overflow-hidden shadow-1">
+      <div className="bg-surface rounded-card border border-border/80 overflow-hidden shadow-xs">
         {/* Optional hero image */}
         {activity.imageUrl && (
-          <div className="aspect-16/9 w-full bg-surface-2 border-b border-border overflow-hidden">
+          <div className="aspect-16/9 w-full bg-surface-2 border-b border-border/80 overflow-hidden">
             <img
               src={activity.imageUrl}
               alt={activity.title[language]}
@@ -139,48 +134,68 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
 
         <div className="p-6 sm:p-8 md:p-10">
           <header className="mb-8">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="p-1 rounded-md bg-accent/10 text-accent">
-                {isService ? <Heart className="w-3.5 h-3.5" /> : <Palette className="w-3.5 h-3.5" />}
+            <div className="flex items-center gap-2 mb-3 text-xs text-text-tertiary font-medium flex-wrap">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-chip text-2xs font-semibold bg-accent/8 text-accent border border-accent/20">
+                {categoryLabel}
               </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-text-tertiary">
-                {isService ? L('Dienstprojekt als Inspiration', 'Service Project Inspiration') : L('Kreativimpuls als Inspiration', 'Creative Arts Inspiration')}
-              </span>
+              {activity.duration && (
+                <>
+                  <span className="text-border" aria-hidden="true">·</span>
+                  <span className="text-xs text-text-secondary">{activity.duration[language]}</span>
+                </>
+              )}
+              {activity.groupSize && (
+                <>
+                  <span className="text-border" aria-hidden="true">·</span>
+                  <span className="text-xs text-text-secondary">
+                    {language === 'de'
+                      ? `${activity.groupSize.min}–${activity.groupSize.max} Personen`
+                      : `${activity.groupSize.min}–${activity.groupSize.max} youth`}
+                  </span>
+                </>
+              )}
+              {activity.setting && activity.setting !== 'beides' && (
+                <>
+                  <span className="text-border" aria-hidden="true">·</span>
+                  <span className="text-xs text-text-secondary">
+                    {activity.setting === 'draussen'
+                      ? language === 'de'
+                        ? 'Draußen'
+                        : 'Outdoors'
+                      : language === 'de'
+                      ? 'Drinnen'
+                      : 'Indoors'}
+                  </span>
+                </>
+              )}
+              {bookTitle && (
+                <>
+                  <span className="text-border" aria-hidden="true">·</span>
+                  <span className="text-xs text-text-secondary font-medium">
+                    {bookTitle}{activity.lesson ? ` · L. ${activity.lesson}` : ''}
+                  </span>
+                </>
+              )}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-text text-balance">
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text text-balance leading-[1.14]">
               {activity.title[language]}
             </h1>
 
-            {/* Kategorisierung & ruhiger Kontext (Art als Badge, Buch & Thema als ruhige Meta-Elemente) */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 mt-4 text-xs sm:text-sm text-text-secondary print:hidden select-none">
-              <Badge size="md" category="accent" className="shrink-0 whitespace-nowrap">
-                {categoryLabel}
-              </Badge>
-
-              {bookTitle && (
-                <span className="inline-flex items-center gap-1.5 font-medium text-text shrink-0 bg-surface-2/60 px-2.5 py-1 rounded-control">
-                  <BookOpen className="w-3.5 h-3.5 text-text-tertiary shrink-0" />
-                  <span>{bookTitle}{activity.lesson ? ` · ${language === 'de' ? 'Lektion' : 'Lesson'} ${activity.lesson}` : ''}</span>
-                </span>
-              )}
-
-              {themeLabel && themeLabel !== categoryLabel && (
-                <span className="inline-flex items-center gap-1.5 text-text-secondary shrink-0 bg-surface-2/60 px-2.5 py-1 rounded-control">
-                  <Sparkles className="w-3.5 h-3.5 text-accent shrink-0" />
-                  <span>{themeLabel}</span>
-                </span>
-              )}
-            </div>
+            {themeLabel && themeLabel !== categoryLabel && (
+              <p className="text-xs text-text-secondary mt-2.5 font-medium">
+                {language === 'de' ? 'Thema' : 'Theme'}: {themeLabel}
+              </p>
+            )}
           </header>
 
           {/* Section 1: Was uns geleitet hat (Leitgedanke & Motivation) */}
-          <section className="mb-8 bg-surface-2/40 border border-border/60 rounded-card p-5 sm:p-6">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-accent mb-2">
+          <section className="mb-10 py-1">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-accent mb-2">
               {L('Was uns geleitet hat', 'What guided our initiative')}
             </h2>
-            <p className="text-base sm:text-lg text-text leading-relaxed">
-              {objectiveText}
+            <p className="font-serif text-lg sm:text-xl text-text leading-relaxed italic">
+              „{objectiveText}“
             </p>
           </section>
 
@@ -198,13 +213,13 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
               </p>
             </div>
 
-            <ol className="space-y-3">
+            <ol className="space-y-3.5">
               {stepsList.map((step, idx) => (
                 <li
                   key={idx}
-                  className="flex items-start gap-3.5 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 transition-colors"
+                  className="flex items-start gap-4 p-4 sm:p-5 rounded-card border border-border/80 bg-surface hover:bg-surface-2/40 transition-colors shadow-2xs"
                 >
-                  <span className="w-6 h-6 rounded-full bg-accent-subtle text-accent-text text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="font-serif text-lg font-bold text-accent shrink-0 w-6 text-center tabular-nums leading-none mt-0.5">
                     {idx + 1}
                   </span>
                   <div className="flex-1 min-w-0">
@@ -241,7 +256,6 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
                 aria-expanded={isQuestionsOpen}
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-accent" />
                   <h2 className="text-xs font-bold uppercase tracking-wider text-text">
                     {L('Reflexionsfragen im Kreis', 'Reflection questions for the circle')}
                   </h2>

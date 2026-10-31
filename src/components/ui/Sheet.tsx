@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { IconButton } from './IconButton';
 
@@ -23,8 +24,13 @@ export const Sheet: React.FC<SheetProps> = ({
 }) => {
   const sheetRef = useRef<HTMLDivElement>(null);
   const triggerElementRef = useRef<HTMLElement | null>(null);
+  const [mounted, setMounted] = useState(false);
   const [dragOffset, setDragOffset] = React.useState(0);
   const touchStartY = useRef<number | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -78,7 +84,7 @@ export const Sheet: React.FC<SheetProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  const content = (
     <div
       className="fixed inset-0 z-60 flex items-end sm:items-center justify-center p-0 sm:p-4"
       role="dialog"
@@ -125,12 +131,12 @@ export const Sheet: React.FC<SheetProps> = ({
             >
               <div>
                 {title && (
-                  <h2 id="sheet-title" className="text-lg font-bold text-text">
+                  <h2 id="sheet-title" className="font-serif text-xl sm:text-2xl font-medium tracking-tight text-text">
                     {title}
                   </h2>
                 )}
                 {description && (
-                  <p className="text-xs text-text-secondary mt-0.5">{description}</p>
+                  <p className="text-xs text-text-secondary mt-1">{description}</p>
                 )}
               </div>
               {showCloseButton && (
@@ -184,4 +190,6 @@ export const Sheet: React.FC<SheetProps> = ({
       )}
     </div>
   );
+
+  return mounted && typeof document !== 'undefined' ? createPortal(content, document.body) : content;
 };

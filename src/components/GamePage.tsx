@@ -153,11 +153,11 @@ export const GamePage: React.FC<GamePageProps> = ({
         <div className="flex items-center gap-1.5 shrink-0 lg:hidden">
           <IconButton
             label={isFavorite ? t.savedItems : L('Merken', 'Save')}
-            variant="outline"
-            className={`min-h-[44px] min-w-[44px] ${isFavorite ? 'text-accent' : 'text-text-secondary'}`}
+            variant={isFavorite ? 'secondary' : 'outline'}
+            className={`min-h-[44px] min-w-[44px] ${isFavorite ? 'text-accent bg-accent-subtle/80 border-accent/30' : 'text-text-secondary'}`}
             onClick={(e) => onToggleFavorite(game.id, e)}
           >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent' : ''}`} />
+            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
           </IconButton>
 
           <ShareMenu
@@ -176,12 +176,12 @@ export const GamePage: React.FC<GamePageProps> = ({
           <header className="mb-4 sm:mb-5 space-y-2.5">
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent/15 text-accent">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle/80 text-accent-text">
                   {categoryBadge}
                 </span>
               </div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text text-balance">
+              <div className="flex items-center gap-3.5 flex-wrap pt-1">
+                <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text text-balance leading-[1.12]">
                   {game.title[language]}
                 </h1>
                 <span

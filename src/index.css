@@ -4,8 +4,11 @@
 
 :root, [data-theme="light"] {
   color-scheme: light;
-  --glass-opacity: 0.96;
-  --glass-blur: 12px;
+  --glass-opacity: 0.68;
+  --glass-panel-opacity: 0.80;
+  --glass-blur: 20px;
+  --glass-specular: 0.55;
+  /* Designsystem frisch und freundlich per 00-design-system.md: helle kühle Flächen & Royal Blau */
   --bg: #F7F9FC;
   --bg-rgb: 247 249 252;
   --surface: #FFFFFF;
@@ -32,14 +35,14 @@
   --fg-muted-rgb: 74 85 104;
   --text-secondary: #4A5568;
   --text-secondary-rgb: 74 85 104;
-  --text-tertiary: #4E5A6B;
-  --text-tertiary-rgb: 78 90 107;
+  --text-tertiary: #667085;
+  --text-tertiary-rgb: 102 112 133;
 
-  /* Accent / Action: #1858C7 (WCAG AA 4.63:1 calibrated Royal Blue) */
-  --accent: #1858C7;
-  --accent-rgb: 24 88 199;
-  --accent-hover: #1348A6;
-  --accent-hover-rgb: 19 72 166;
+  /* Accent: #1F6FEB (WCAG AA calibrated Royal Blue per design-system.md) */
+  --accent: #1F6FEB;
+  --accent-rgb: 31 111 235;
+  --accent-hover: #1859C4;
+  --accent-hover-rgb: 24 89 196;
   --accent-subtle: #E8F0FE;
   --accent-subtle-rgb: 232 240 254;
   --accent-text: #1850B8;
@@ -134,48 +137,53 @@
 
 .dark, [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0D131F;
-  --bg-rgb: 13 19 31;
-  --surface: #131C2A;
-  --surface-rgb: 19 28 42;
-  --surface-2: #1A2438;
-  --surface-2-rgb: 26 36 56;
-  --surface-3: #22304A;
-  --surface-3-rgb: 34 48 74;
-  --surface-raised: #1E2A3E;
-  --surface-raised-rgb: 30 42 62;
-  --line: #1F2C40;
-  --line-rgb: 31 44 64;
-  --border: #1F2C40;
-  --border-rgb: 31 44 64;
-  --border-strong: #2B3D59;
-  --border-strong-rgb: 43 61 89;
-  --border-subtle: #16202E;
-  --border-subtle-rgb: 22 32 46;
-  --fg: #EEF2FA;
-  --fg-rgb: 238 242 250;
-  --text: #EEF2FA;
-  --text-rgb: 238 242 250;
-  --fg-muted: #AAB6CC;
-  --fg-muted-rgb: 170 182 204;
-  --text-secondary: #AAB6CC;
-  --text-secondary-rgb: 170 182 204;
-  --text-tertiary: #8D9AB3;
-  --text-tertiary-rgb: 141 154 179;
+  --glass-opacity: 0.62;
+  --glass-panel-opacity: 0.74;
+  --glass-blur: 20px;
+  --glass-specular: 0.12;
+  /* Designsystem: Dark Graphite (Neutral Minimal Charcoal & Platinum) */
+  --bg: #0C0D0E;
+  --bg-rgb: 12 13 14;
+  --surface: #15171A;
+  --surface-rgb: 21 23 26;
+  --surface-2: #1E2025;
+  --surface-2-rgb: 30 32 37;
+  --surface-3: #282B32;
+  --surface-3-rgb: 40 43 50;
+  --surface-raised: #1A1C20;
+  --surface-raised-rgb: 26 28 32;
+  --line: #23262D;
+  --line-rgb: 35 38 45;
+  --border: #23262D;
+  --border-rgb: 35 38 45;
+  --border-strong: #383D48;
+  --border-strong-rgb: 56 61 72;
+  --border-subtle: #191B20;
+  --border-subtle-rgb: 25 27 32;
+  --fg: #F4F4F6;
+  --fg-rgb: 244 244 246;
+  --text: #F4F4F6;
+  --text-rgb: 244 244 246;
+  --fg-muted: #A1A1AA;
+  --fg-muted-rgb: 161 161 170;
+  --text-secondary: #A1A1AA;
+  --text-secondary-rgb: 161 161 170;
+  --text-tertiary: #71717A;
+  --text-tertiary-rgb: 113 113 122;
 
-  /* Accent / Action: #6FA3FF per design-system.md */
-  --accent: #6FA3FF;
-  --accent-rgb: 111 163 255;
-  --accent-hover: #8DB8FF;
-  --accent-hover-rgb: 141 184 255;
-  --accent-subtle: #23374D;
-  --accent-subtle-rgb: 35 55 77;
-  --accent-text: #A9C8FF;
-  --accent-text-rgb: 169 200 255;
-  --accent-contrast: #0A1426;
-  --accent-contrast-rgb: 10 20 38;
-  --accent-ink: #0A1426;
-  --accent-ink-rgb: 10 20 38;
+  /* Accent: #3B82F6 (Calibrated Royal Cobalt on dark graphite) */
+  --accent: #3B82F6;
+  --accent-rgb: 59 130 246;
+  --accent-hover: #60A5FA;
+  --accent-hover-rgb: 96 165 250;
+  --accent-subtle: #162238;
+  --accent-subtle-rgb: 22 34 56;
+  --accent-text: #93C5FD;
+  --accent-text-rgb: 147 197 253;
+  --accent-contrast: #080C14;
+  --accent-contrast-rgb: 8 12 20;
+  --accent-ink: #080C14;
+  --accent-ink-rgb: 8 12 20;
 
   --action: var(--accent);
   --action-rgb: var(--accent-rgb);
@@ -187,16 +195,16 @@
   --action-contrast-rgb: var(--accent-contrast-rgb);
 
   /* Warme Akzentfarbe für Andacht, Zitate & Gebete (sanftes Gold/Amber) */
-  --amber: #FBBF24;
-  --amber-rgb: 251 191 36;
-  --amber-hover: #FCD34D;
-  --amber-hover-rgb: 252 211 77;
-  --amber-subtle: #2A1D0D;
-  --amber-subtle-rgb: 42 29 13;
+  --amber: #F59E0B;
+  --amber-rgb: 245 158 11;
+  --amber-hover: #FBBF24;
+  --amber-hover-rgb: 251 191 36;
+  --amber-subtle: #2B1D08;
+  --amber-subtle-rgb: 43 29 8;
   --amber-text: #FDE68A;
   --amber-text-rgb: 253 230 138;
-  --amber-border: #4D3818;
-  --amber-border-rgb: 77 56 24;
+  --amber-border: #4D3410;
+  --amber-border-rgb: 77 52 16;
 
   --devotion: var(--amber);
   --devotion-rgb: var(--amber-rgb);
@@ -260,40 +268,7 @@
   --transition-sheet: 180ms ease-out;
 }
 
-/* High-Contrast / OLED Dark Mode */
-html.contrast, [data-theme="contrast"] {
-  color-scheme: dark;
-  --bg: #000000;
-  --bg-rgb: 0 0 0;
-  --surface: #080E1A;
-  --surface-rgb: 8 14 26;
-  --surface-2: #111C33;
-  --surface-2-rgb: 17 28 51;
-  --surface-raised: #162442;
-  --surface-raised-rgb: 22 36 66;
-  --border: #384D78;
-  --border-rgb: 56 77 120;
-  --border-strong: #5470A8;
-  --border-strong-rgb: 84 112 168;
-  --border-subtle: #1E2F52;
-  --border-subtle-rgb: 30 47 82;
-  --text: #FFFFFF;
-  --text-rgb: 255 255 255;
-  --text-secondary: #E2E8F0;
-  --text-secondary-rgb: 226 232 240;
-  --text-tertiary: #CBD5E1;
-  --text-tertiary-rgb: 203 213 225;
-  --accent: #7AB0FF;
-  --accent-rgb: 122 176 255;
-  --accent-hover: #9BC4FF;
-  --accent-hover-rgb: 155 196 255;
-  --accent-subtle: #172B54;
-  --accent-subtle-rgb: 23 43 84;
-  --accent-text: #B8D4FF;
-  --accent-text-rgb: 184 212 255;
-  --accent-contrast: #000000;
-  --accent-contrast-rgb: 0 0 0;
-}
+
 
 @layer base {
   html {
@@ -333,52 +308,41 @@ html.contrast, [data-theme="contrast"] {
     outline-offset: 0 !important;
     box-shadow: none !important;
   }
+
+  /* Touch Targets on touch devices (inside @layer base so explicit Tailwind h-* and min-h-* utilities can override it) */
+  @media (pointer: coarse) {
+    button:not([role="switch"]),
+    [role="button"],
+    a,
+    input[type="checkbox"],
+    input[type="radio"],
+    select {
+      min-height: 44px;
+    }
+  }
 }
 
 .tabular { font-variant-numeric: tabular-nums; }
 
 .glass-surface {
-  background-color: rgb(var(--surface-rgb) / var(--glass-opacity, 0.85));
-  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.12));
+  background-color: rgb(var(--surface-rgb) / var(--glass-opacity, 0.68));
+  backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
+  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.55));
 }
 
 .glass-surface-panel {
-  background-color: rgb(var(--surface-rgb) / var(--glass-opacity, 0.85));
-  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(140%);
-  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.12));
+  background-color: rgb(var(--surface-rgb) / var(--glass-panel-opacity, 0.80));
+  backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
+  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.55)), 0 8px 32px 0 rgba(20, 32, 51, 0.08);
 }
 
 .glass-card {
-  background-color: rgb(var(--surface-rgb) / calc(var(--glass-opacity, 0.85) * 0.70 + 0.30));
-  backdrop-filter: blur(calc(var(--glass-blur, 16px) * 0.5));
-  -webkit-backdrop-filter: blur(calc(var(--glass-blur, 16px) * 0.5));
+  background-color: rgb(var(--surface-rgb) / calc(var(--glass-opacity, 0.68) * 0.70 + 0.30));
+  backdrop-filter: blur(calc(var(--glass-blur, 20px) * 0.5)) saturate(160%);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur, 20px) * 0.5)) saturate(160%);
   border: 1px solid rgb(var(--border-rgb) / 0.8);
-}
-
-html.contrast .glass-surface,
-html.contrast .glass-surface-panel,
-html.contrast .glass-card,
-[data-theme="contrast"] .glass-surface,
-[data-theme="contrast"] .glass-surface-panel,
-[data-theme="contrast"] .glass-card {
-  background-color: var(--surface) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Touch Targets on touch devices */
-@media (pointer: coarse) {
-  button, 
-  [role="button"],
-  a,
-  input[type="checkbox"],
-  input[type="radio"],
-  select {
-    min-height: 44px;
-  }
 }
 
 /* Safe Area Insets for notched devices */
@@ -404,9 +368,53 @@ html.contrast .glass-card,
     scroll-behavior: auto !important;
   }
   .animate-pulse,
-  .animate-spin {
+  .animate-spin,
+  .animate-fade-in {
     animation: none !important;
   }
+  .card-hover-lift:hover,
+  .btn-spring:active {
+    transform: none !important;
+  }
+}
+
+/* Refined Micro-Motion Suite (Polished, Fast & Aesthetic) */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: pageFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Tactile button & card active spring */
+.btn-spring {
+  transition: transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out, box-shadow 150ms ease-out;
+}
+.btn-spring:active {
+  transform: scale(0.985);
+}
+
+/* Card hover lift micro-interaction */
+.card-hover-lift {
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .card-hover-lift:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Silky Theme Transitions across shell */
+body, footer, header, nav {
+  transition: background-color 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -450,7 +458,7 @@ html.contrast .glass-card,
 
 /* Print is always light and clean */
 @media print {
-  :root, .dark, html.contrast {
+  :root, .dark {
     color-scheme: light !important;
     --bg: #ffffff !important;
     --surface: #ffffff !important;

@@ -1,17 +1,19 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
-  Search, X, BookOpen, Zap, Layers, Sparkles, Heart,
-  ArrowRight, Play, Check, SlidersHorizontal
+  Search, X, BookOpen, Layers, Tag, Heart,
+  ArrowLeft, ArrowRight, Play, Check, SlidersHorizontal, Zap, Music, Shuffle
 } from 'lucide-react';
 import { QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { QUOTES_DATA, JUNIOR_YOUTH_BOOKS } from '../data/quotes';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { getQuoteSong } from '../data/quoteSongs';
 import { SegmentedControl } from './ui/SegmentedControl';
 import { Sheet } from './ui/Sheet';
 import { Dialog } from './ui/Dialog';
 import { Button } from './ui/Button';
+import { IconButton } from './ui/IconButton';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
 import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { EmptyState } from './ui/EmptyState';
@@ -98,8 +100,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   const [isQuotePickerOpen, setIsQuotePickerOpen] = useState(false);
   const [pickerSearch, setPickerSearch] = useState('');
 
-  // 50 Methods Catalog Filter State (search only, no phase filters)
+  // 50 Methods Catalog Filter State (search and phase filters)
   const [methodSearch, setMethodSearch] = useState('');
+  const [selectedPhase, setSelectedPhase] = useState<'all' | 'apps' | 'phase-1' | 'phase-2' | 'phase-3'>('all');
   const [selectedMethodForDetail, setSelectedMethodForDetail] = useState<QuoteMethod | null>(null);
 
   // Sync practice quote & tool when URL searchParams change
@@ -230,10 +233,10 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     });
   }, [selectedBook, language]);
 
-  // Dropdown options
+  // Dropdown options (Official Junior Youth books; prayers are accessed via the dedicated "Nur Gebete" toggle)
   const bookOptions = useMemo(() => [
     { value: 'all', label: isDe ? 'Alle Bücher' : 'All Books' },
-    ...JUNIOR_YOUTH_BOOKS.map((b) => ({
+    ...JUNIOR_YOUTH_BOOKS.filter((b) => b.id !== 'prayers').map((b) => ({
       value: b.title[language],
       label: b.title[language],
     })),
@@ -294,19 +297,61 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     });
   };
 
-  const handleNextQuoteInBook = () => {
+  const currentBookQuotes = useMemo(() => {
     const bookTitleDe = practiceQuote.mainBook?.de || practiceQuote.book.de.split(',')[0].trim();
-    const bookQuotes = QUOTES_DATA.filter(
+    return QUOTES_DATA.filter(
       (q) => (q.mainBook?.de || q.book.de.split(',')[0].trim()) === bookTitleDe
     );
-    const currIdx = bookQuotes.findIndex((q) => q.id === practiceQuote.id);
-    const nextIdx = (currIdx + 1) % bookQuotes.length;
-    setPracticeQuote(bookQuotes[nextIdx]);
+  }, [practiceQuote]);
+
+  const currentQuoteIndexInBook = useMemo(() => {
+    const idx = currentBookQuotes.findIndex((q) => q.id === practiceQuote.id);
+    return idx >= 0 ? idx : 0;
+  }, [currentBookQuotes, practiceQuote.id]);
+
+  const handleNextQuoteInBook = () => {
+    if (currentBookQuotes.length === 0) return;
+    const nextIdx = (currentQuoteIndexInBook + 1) % currentBookQuotes.length;
+    const nextQuote = currentBookQuotes[nextIdx];
+    setPracticeQuote(nextQuote);
+    updateParams({ quote: nextQuote.id });
   };
 
-  // Filtered 50 Methods catalog (flat list, no phase filter)
+  const handlePrevQuoteInBook = () => {
+    if (currentBookQuotes.length === 0) return;
+    const prevIdx = (currentQuoteIndexInBook - 1 + currentBookQuotes.length) % currentBookQuotes.length;
+    const prevQuote = currentBookQuotes[prevIdx];
+    setPracticeQuote(prevQuote);
+    updateParams({ quote: prevQuote.id });
+  };
+
+  const handleRandomQuote = () => {
+    const list = filteredQuotes.length > 0 ? filteredQuotes : QUOTES_DATA;
+    const randomIndex = Math.floor(Math.random() * list.length);
+    const randomQuote = list[randomIndex];
+    if (viewTab === 'practice') {
+      setPracticeQuote(randomQuote);
+      updateParams({ quote: randomQuote.id });
+    } else {
+      navigate(`/quotes/${randomQuote.id}`);
+    }
+  };
+
+  // Filtered 50 Methods catalog with phase and app filters
   const filtered50Methods = useMemo(() => {
     return QUOTE_METHODS_DATA.filter((m) => {
+      if (selectedPhase === 'apps' && !METHOD_TO_TOOL_MAP[m.id]) {
+        return false;
+      }
+      if (selectedPhase === 'phase-1' && m.phase !== 1) {
+        return false;
+      }
+      if (selectedPhase === 'phase-2' && m.phase !== 2) {
+        return false;
+      }
+      if (selectedPhase === 'phase-3' && m.phase !== 3) {
+        return false;
+      }
       if (methodSearch) {
         const query = methodSearch.toLowerCase();
         const nameMatch = m.name[language].toLowerCase().includes(query);
@@ -315,7 +360,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       }
       return true;
     });
-  }, [methodSearch, language]);
+  }, [methodSearch, selectedPhase, language]);
 
   // Filtered quotes in picker dialog
   const pickerQuotes = useMemo(() => {
@@ -331,6 +376,23 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       );
     });
   }, [pickerSearch, language, isDe]);
+
+  const tabOptions = useMemo(
+    () => [
+      {
+        id: 'quotes' as ViewTab,
+        label: t.tabQuotesRead,
+        icon: <BookOpen className="w-4 h-4" />,
+        count: effectiveSearch || activeFilterCount > 0 ? filteredQuotes.length : undefined,
+      },
+      {
+        id: 'practice' as ViewTab,
+        label: t.tabQuotesMemorise,
+        icon: <Zap className="w-4 h-4 fill-current/20" />,
+      },
+    ],
+    [t.tabQuotesRead, t.tabQuotesMemorise, effectiveSearch, activeFilterCount, filteredQuotes.length]
+  );
 
   // If viewing a detail page, render QuoteDetail directly!
   if (activeDetailQuote) {
@@ -349,35 +411,59 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     <div className="space-y-6 max-w-6xl w-full mx-auto pb-20 animate-in fade-in duration-200">
       {/* 1. Header */}
       <div className="space-y-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
-            {t.tabQuotes}
-          </h1>
-          <p className="text-xs sm:text-sm text-text-secondary mt-1">
-            {isDe
-              ? 'Heilige Zitate und Gebete zum Lesen, Reflektieren und Auswendiglernen.'
-              : 'Holy scripture verses and prayers for reading, reflection, and memorisation.'}
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-4">
+          <div>
+            <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+              {t.tabQuotes}
+            </h1>
+            <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-xl font-normal leading-relaxed">
+              {isDe
+                ? 'Heilige Zitate und Gebete zum Lesen, Reflektieren und Auswendiglernen.'
+                : 'Holy scripture verses and prayers for reading, reflection, and memorisation.'}
+            </p>
+          </div>
+
+          {/* Desktop: SegmentedControl + Random Quote Button placed on the right next to headline */}
+          <div className="hidden sm:flex items-center gap-2.5 shrink-0">
+            <SegmentedControl<ViewTab>
+              options={tabOptions}
+              value={viewTab}
+              onChange={handleTabChange}
+            />
+
+            <button
+              type="button"
+              onClick={handleRandomQuote}
+              aria-label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+              title={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+              className="p-3 rounded-full bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <Shuffle className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Top 2 Tabs SegmentedControl */}
-        <SegmentedControl<ViewTab>
-          options={[
-            {
-              id: 'quotes',
-              label: t.tabQuotesRead,
-              icon: <BookOpen className="w-4 h-4 text-accent" />,
-              count: (effectiveSearch || activeFilterCount > 0) ? filteredQuotes.length : undefined,
-            },
-            {
-              id: 'practice',
-              label: t.tabQuotesMemorise,
-              icon: <Zap className="w-4 h-4 text-accent" />,
-            },
-          ]}
-          value={viewTab}
-          onChange={handleTabChange}
-        />
+        {/* Mobile: SegmentedControl with Random Quote Button to the right */}
+        <div className="sm:hidden flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <SegmentedControl<ViewTab>
+              options={tabOptions}
+              value={viewTab}
+              onChange={handleTabChange}
+              fullWidth
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleRandomQuote}
+            aria-label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+            title={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+            className="p-2.5 rounded-full bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <Shuffle className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* ========================================================================= */}
@@ -387,13 +473,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         <div className="space-y-3">
           {/* 1. Search Input with Filter Toggle Button */}
           <div className="flex items-center gap-2">
-            <div className="relative flex-1">
+            <div className="relative flex-1 group">
               <Search
-                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+                className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent pointer-events-none transition-colors duration-150"
                 aria-hidden="true"
               />
               <input
-                type="search"
+                type="text"
+                inputMode="search"
                 value={localSearch}
                 onChange={(e) => {
                   setLocalSearch(e.target.value);
@@ -405,7 +492,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     : 'Search quotes by text, theme, or source...'
                 }
                 aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-                className="w-full h-11 pl-10 pr-11 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                className="w-full h-11 pl-10 pr-11 rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
               />
               {localSearch && (
                 <button
@@ -415,7 +502,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     updateParams({ q: null });
                   }}
                   aria-label={isDe ? 'Suche löschen' : 'Clear search'}
-                  className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -432,10 +519,10 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   ? (isDe ? 'Filter schließen' : 'Hide filters')
                   : (isDe ? 'Filter öffnen' : 'Show filters')
               }
-              className={`min-h-[44px] h-11 px-3.5 rounded-control border text-sm font-semibold inline-flex items-center gap-2 shrink-0 transition-all cursor-pointer ${
+              className={`min-h-[44px] h-11 px-3.5 rounded-control border text-sm font-semibold inline-flex items-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs ${
                 showFilters || activeFilterCount > 0
-                  ? 'bg-accent/10 border-accent/30 text-accent hover:bg-accent/15'
-                  : 'bg-surface border-border text-text hover:bg-surface-2'
+                  ? 'bg-accent/12 border-accent/40 text-accent hover:bg-accent/18'
+                  : 'bg-surface border-border/80 text-text hover:bg-surface-2'
               }`}
             >
               <SlidersHorizontal className="w-4 h-4 shrink-0" />
@@ -496,7 +583,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 label={isDe ? 'Thema' : 'Theme'}
                 activeLabel={activeTopicLabel}
                 isActive={selectedTopic !== 'all'}
-                icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
+                icon={<Tag className="w-3.5 h-3.5 shrink-0" />}
                 options={topicOptions}
                 selectedValue={selectedTopic}
                 onSelect={(val) => {
@@ -537,7 +624,10 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     isFavorite={favorites.includes(quote.id)}
                     onToggleFavorite={onToggleFavorite}
                     onSelectQuote={(q) => navigate(`/quotes/${q.id}`)}
-                    onPracticeQuote={(q) => navigate(`/quotes?tab=practice&quote=${q.id}`)}
+                    onPracticeQuote={(q) => {
+                      navigate(`/quotes?tab=practice&quote=${q.id}`);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
                   />
                 ))}
               </div>
@@ -558,56 +648,109 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       {/* ========================================================================= */}
       {viewTab === 'practice' && (
         <div className="space-y-6">
-          {/* Active Practice Quote Banner (always visible at top of practice view) */}
-          <div className="bg-surface rounded-2xl border border-border p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-            <div className="space-y-1.5 max-w-2xl">
-              <div className="flex items-center gap-2 text-2xs text-text-tertiary">
-                <span className="font-semibold text-accent inline-flex items-center gap-1">
-                  <Zap className="w-3.5 h-3.5" />
-                  {t.activePracticeQuote}
-                </span>
-                <span>·</span>
-                <span>{practiceQuote.book[language]}</span>
+          {/* Active Practice Quote Banner (Hero) */}
+          {(() => {
+            const practiceSong = getQuoteSong(practiceQuote.id, language);
+            return (
+              <div className="bg-surface rounded-card border border-border/80 shadow-xs overflow-hidden transition-all duration-200">
+                {/* 1. Header Bar: Badge, Book/Lesson info & Quote counter */}
+                <div className="px-4 sm:px-6 py-3 bg-surface-2/40 border-b border-border/60 flex items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle text-accent-text shrink-0">
+                      <Zap className="w-3.5 h-3.5 fill-accent/30" />
+                      <span>{isDe ? 'Ausgewählt zum Üben' : 'Selected for practice'}</span>
+                    </span>
+                    <span className="text-border-strong text-xs hidden sm:inline" aria-hidden="true">·</span>
+                    <span className="text-xs text-text-secondary font-medium truncate max-w-xs sm:max-w-md">
+                      {practiceQuote.book[language]}
+                    </span>
+                  </div>
+
+                  <span className="text-2xs font-bold text-text-tertiary tabular-nums shrink-0">
+                    {isDe 
+                      ? `Zitat ${currentQuoteIndexInBook + 1} von ${currentBookQuotes.length}` 
+                      : `Quote ${currentQuoteIndexInBook + 1} of ${currentBookQuotes.length}`}
+                  </span>
+                </div>
+
+                {/* 2. Main Content: Holy text and attribution */}
+                <div className="p-5 sm:p-6 pb-3 space-y-2.5">
+                  <p className="font-serif text-lg sm:text-xl md:text-2xl text-text leading-relaxed font-normal">
+                    {isDe ? `»${practiceQuote.textDe}«` : `“${practiceQuote.textEn}”`}
+                  </p>
+                  <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium">
+                    — {practiceQuote.source[language]}
+                  </p>
+                </div>
+
+                {/* 3. Action Toolbar: Navigation on left, Quick Actions on right */}
+                <div className="px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+                  {/* Left: Previous & Next Quote in Book Navigation */}
+                  <div className="flex items-center gap-1.5">
+                    <IconButton
+                      variant="outline"
+                      size="md"
+                      onClick={handlePrevQuoteInBook}
+                      label={isDe ? 'Vorheriges Zitat aus diesem Buch' : 'Previous quote in book'}
+                      className="bg-surface hover:bg-surface-2 border border-border/80 text-text"
+                    >
+                      <ArrowLeft className="w-4 h-4" strokeWidth={1.75} />
+                    </IconButton>
+
+                    <span className="text-xs font-semibold text-text-secondary px-2 tabular-nums select-none">
+                      {currentQuoteIndexInBook + 1} / {currentBookQuotes.length}
+                    </span>
+
+                    <IconButton
+                      variant="outline"
+                      size="md"
+                      onClick={handleNextQuoteInBook}
+                      label={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
+                      className="bg-surface hover:bg-surface-2 border border-border/80 text-text"
+                    >
+                      <ArrowRight className="w-4 h-4" strokeWidth={1.75} />
+                    </IconButton>
+                  </div>
+
+                  {/* Right: Change Quote, Reading Mode, Song */}
+                  <div className="flex items-center gap-1.5">
+                    {practiceSong && (
+                      <a
+                        href={practiceSong.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-control border border-border/80 bg-surface hover:bg-surface-2 text-accent inline-flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                        title={isDe ? `Lied „${practiceSong.title}“ auf bahaisongs.com anhören` : `Listen to song "${practiceSong.title}" on bahaisongs.com`}
+                        aria-label={t.quoteSongAriaLabel}
+                      >
+                        <Music className="w-4 h-4" />
+                      </a>
+                    )}
+
+                    <IconButton
+                      variant="secondary"
+                      size="md"
+                      onClick={() => setIsQuotePickerOpen(true)}
+                      label={t.chooseAnotherQuote}
+                      className="bg-surface-2 hover:bg-surface-2/80 border border-border/80 text-text"
+                    >
+                      <Search className="w-4 h-4" strokeWidth={1.75} />
+                    </IconButton>
+
+                    <IconButton
+                      variant="outline"
+                      size="md"
+                      onClick={() => navigate(`/quotes/${practiceQuote.id}`)}
+                      label={isDe ? 'Im Lesemodus lesen' : 'Read in reading mode'}
+                      className="bg-surface hover:bg-surface-2 border border-border/80 text-text"
+                    >
+                      <BookOpen className="w-4 h-4" strokeWidth={1.75} />
+                    </IconButton>
+                  </div>
+                </div>
               </div>
-              <p className="font-serif text-base sm:text-lg text-text line-clamp-2 italic">
-                „{isDe ? practiceQuote.textDe : practiceQuote.textEn}“
-              </p>
-              <p className="text-2xs text-text-secondary font-serif">
-                — {practiceQuote.source[language]}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <Button
-                variant="secondary"
-                onClick={() => setIsQuotePickerOpen(true)}
-                className="min-h-[44px]"
-              >
-                <Search className="w-4 h-4 mr-1.5" />
-                <span>{t.chooseAnotherQuote}</span>
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={handleNextQuoteInBook}
-                className="min-h-[44px]"
-                title={isDe ? 'Nächstes Zitat aus diesem Buch' : 'Next quote in book'}
-              >
-                <span>{isDe ? 'Nächstes' : 'Next'}</span>
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/quotes/${practiceQuote.id}`)}
-                className="min-h-[44px]"
-                title={isDe ? 'Im Lesemodus ansehen' : 'View in reading mode'}
-              >
-                <BookOpen className="w-4 h-4 mr-1.5" />
-                <span>{isDe ? 'Lesen' : 'Read'}</span>
-              </Button>
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Active Interactive Simulator (when a Web-App tool is launched) */}
           {activeTool && (
@@ -634,27 +777,28 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 </h2>
                 <p className="text-xs text-text-secondary mt-0.5">
                   {isDe 
-                    ? '50 Methoden im Überblick – klicke auf eine Web-App zum sofortigen interaktiven Üben.' 
-                    : '50 methods overview – tap on any web app for instant interactive practice.'}
+                    ? '50 Methoden im Überblick – wähle eine Web-App zum interaktiven Üben oder erkunde Methoden für die Gruppe.' 
+                    : '50 methods overview – tap on any web app for interactive practice or explore group methods.'}
                 </p>
               </div>
 
-              <div className="relative w-full sm:w-80">
-                <Search className="w-4 h-4 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="relative w-full sm:w-80 group">
+                <Search className="w-4 h-4 text-text-tertiary group-focus-within:text-accent absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors duration-150" />
                 <input
-                  type="search"
+                  type="text"
+                  inputMode="search"
                   value={methodSearch}
                   onChange={(e) => setMethodSearch(e.target.value)}
                   placeholder={isDe ? 'Methoden durchsuchen...' : 'Search methods...'}
                   aria-label={isDe ? 'Methoden durchsuchen' : 'Search methods'}
-                  className="w-full pl-9 pr-10 py-2 text-xs rounded-xl bg-surface border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
+                  className="w-full h-11 pl-10 pr-10 text-sm rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
                 />
                 {methodSearch && (
                   <button
                     type="button"
                     onClick={() => setMethodSearch('')}
                     aria-label={isDe ? 'Suche löschen' : 'Clear search'}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 min-w-[36px] min-h-[36px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control cursor-pointer"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -662,8 +806,35 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               </div>
             </div>
 
-            {/* Flat Grid of Methods */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Phase & Web-App Filter Chips */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
+              {[
+                { id: 'all', label: isDe ? 'Alle Methoden (50)' : 'All methods (50)' },
+                { id: 'apps', label: isDe ? 'Interaktive Web-Apps (11)' : 'Interactive Web-Apps (11)' },
+                { id: 'phase-1', label: isDe ? '1. Annähern & Rhythmus' : '1. Rhythm & Flow' },
+                { id: 'phase-2', label: isDe ? '2. Einprägen & Festigen' : '2. Memorise & Anchor' },
+                { id: 'phase-3', label: isDe ? '3. Meistern & Rezitieren' : '3. Master & Recite' },
+              ].map((pill) => {
+                const isSelected = selectedPhase === pill.id;
+                return (
+                  <button
+                    key={pill.id}
+                    type="button"
+                    onClick={() => setSelectedPhase(pill.id as typeof selectedPhase)}
+                    className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer min-h-[36px] flex items-center ${
+                      isSelected
+                        ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
+                        : 'bg-surface hover:bg-surface-2 text-text-secondary hover:text-text border border-border/80'
+                    }`}
+                  >
+                    {pill.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Grid of Methods */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {filtered50Methods.map((method) => {
                 const toolId = METHOD_TO_TOOL_MAP[method.id];
                 const isCurrentToolActive = activeTool === toolId;
@@ -679,32 +850,49 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                         setSelectedMethodForDetail(method);
                       }
                     }}
-                    className={`bg-surface rounded-2xl border p-4 sm:p-5 transition-all duration-150 cursor-pointer flex flex-col justify-between space-y-3 ${
+                    className={`bg-surface rounded-card border p-5 sm:p-6 transition-all duration-200 ease-out cursor-pointer flex flex-col justify-between group shadow-2xs ${
                       isCurrentToolActive
                         ? 'border-accent shadow-1 ring-1 ring-accent/30'
-                        : 'border-border hover:bg-surface-2/40 hover:shadow-2'
+                        : 'border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2'
                     }`}
                   >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xs text-text-tertiary font-medium">{method.durationMinutes}</span>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between gap-2 text-xs text-text-tertiary">
+                        <div className="flex items-center gap-2 font-medium flex-wrap">
+                          {toolId ? (
+                            <span className="px-2.5 py-0.5 rounded-chip text-2xs font-semibold bg-accent/8 text-accent border border-accent/20 inline-flex items-center gap-1">
+                              <Play className="w-2.5 h-2.5 fill-current" />
+                              <span>{isDe ? 'Web-App' : 'Web App'}</span>
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-0.5 rounded-chip text-2xs font-medium bg-surface-2 text-text-secondary border border-border/70">
+                              {method.phase === 1
+                                ? isDe ? 'Phase 1: Annähern' : 'Phase 1: Approach'
+                                : method.phase === 2
+                                ? isDe ? 'Phase 2: Einprägen' : 'Phase 2: Memorise'
+                                : isDe ? 'Phase 3: Meistern' : 'Phase 3: Master'}
+                            </span>
+                          )}
+                          <span className="text-2xs text-text-secondary">{method.durationMinutes}</span>
                           {method.space && (
-                            <span className="text-2xs text-text-tertiary truncate">· {method.space[language]}</span>
+                            <>
+                              <span className="text-border" aria-hidden="true">·</span>
+                              <span className="text-2xs text-text-secondary truncate">{method.space[language]}</span>
+                            </>
                           )}
                         </div>
                       </div>
 
-                      <h3 className="font-semibold text-sm sm:text-base text-text">
+                      <h3 className="font-serif text-base sm:text-lg font-medium text-text group-hover:text-accent transition-colors leading-snug">
                         {method.name[language]}
                       </h3>
 
-                      <p className="text-xs text-text-secondary line-clamp-2 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed">
                         {method.summary[language]}
                       </p>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-between border-t border-border text-xs text-accent font-semibold">
+                    <div className="pt-3 mt-3 flex items-center justify-between border-t border-border/40 text-xs text-accent font-semibold">
                       {toolId ? (
                         <span className="inline-flex items-center gap-1.5">
                           <Play className="w-3.5 h-3.5 fill-current" />
@@ -713,7 +901,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                       ) : (
                         <span>{isDe ? 'Anleitung ansehen' : 'View instructions'}</span>
                       )}
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </article>
                 );
@@ -798,15 +986,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         title={t.chooseAnotherQuote}
       >
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+          <div className="relative group">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent pointer-events-none transition-colors duration-150" />
             <input
-              type="search"
+              type="text"
+              inputMode="search"
               value={pickerSearch}
               onChange={(e) => setPickerSearch(e.target.value)}
               placeholder={isDe ? 'Zitate durchsuchen...' : 'Search quotes...'}
               aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
+              className="w-full h-11 pl-10 pr-3 text-sm rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
             />
           </div>
 
@@ -818,6 +1007,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   key={q.id}
                   onClick={() => {
                     setPracticeQuote(q);
+                    updateParams({ quote: q.id });
                     setIsQuotePickerOpen(false);
                   }}
                   className={`p-3 rounded-xl border text-left cursor-pointer transition-colors ${

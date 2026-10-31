@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, BookOpen, Tag, SlidersHorizontal } from 'lucide-react';
+import { Search, X, ArrowLeft, BookOpen, Tag, SlidersHorizontal, HeartHandshake, Palette } from 'lucide-react';
 import {
   Language,
   ActivityItem,
@@ -226,9 +226,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     return opts;
   }, [fixedKind, t, L]);
 
-  const activeCategoryOption = categoryOptions.find((o) => o.value === selectedSubCategory);
-  const activeCategoryLabel =
-    activeCategoryOption && activeCategoryOption.value !== 'all' ? activeCategoryOption.label : undefined;
+  const activeCategoryOption = categoryOptions.find((c) => c.value === selectedSubCategory);
+  const activeCategoryLabel = activeCategoryOption && activeCategoryOption.value !== 'all' ? activeCategoryOption.label : undefined;
 
   // 2. Book options
   const bookOptions = useMemo(() => {
@@ -325,9 +324,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   return (
     <div className="max-w-6xl mx-auto pb-20">
       {/* 1. Header: H1, one sentence, count on search/filter */}
-      <header className="mb-6">
-        <div className="flex items-baseline gap-3 flex-wrap">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
+      <header className="mb-6 sm:mb-8">
+        <div className="flex items-baseline gap-3.5 flex-wrap">
+          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {pageTitle}
           </h1>
           {hasActiveFilterOrSearch && (
@@ -338,20 +337,21 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
             </div>
           )}
         </div>
-        <p className="text-sm sm:text-base text-text-secondary mt-1 max-w-2xl">
+        <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {pageDesc}
         </p>
       </header>
 
       {/* 2. Search Input + Filter Toggle Button */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="relative flex-1">
+        <div className="relative flex-1 group">
           <Search
-            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+            className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent pointer-events-none transition-colors duration-150"
             aria-hidden="true"
           />
           <input
-            type="search"
+            type="text"
+            inputMode="search"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -359,7 +359,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
             }}
             placeholder={searchPlaceholderText}
             aria-label={L('Suchen', 'Search')}
-            className="w-full h-11 pl-10 pr-10 rounded-control bg-surface border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+            className="w-full h-11 pl-10 pr-11 rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
           />
           {query && (
             <button
@@ -369,7 +369,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                 updateParams({ q: null });
               }}
               aria-label={L('Suche löschen', 'Clear search')}
-              className="absolute right-0.5 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-text-tertiary hover:text-text rounded-control focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -387,10 +387,10 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               ? L('Filter schließen', 'Hide filters')
               : L('Filter öffnen', 'Show filters')
           }
-          className={`h-11 px-3 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-colors cursor-pointer shrink-0 min-w-[44px] justify-center ${
+          className={`h-11 px-3.5 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer shrink-0 min-w-[44px] justify-center shadow-2xs ${
             showFilters || activeSheetFilterCount > 0
-              ? 'bg-accent/15 border-accent text-accent'
-              : 'bg-surface hover:bg-surface-2 border-border text-text-secondary hover:text-text'
+              ? 'bg-accent/12 border-accent/40 text-accent'
+              : 'bg-surface hover:bg-surface-2 border-border/80 text-text-secondary hover:text-text'
           }`}
         >
           <SlidersHorizontal className="w-4 h-4 shrink-0" />
@@ -403,9 +403,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
         </button>
       </div>
 
-      {/* 3. Collapsible Filter Bar */}
+      {/* 2. & 3. Collapsible Filter Area: All filters visually identical in ONE line */}
       {showFilters && (
-        <div id="service-filters-drawer" className="mb-3 animate-in fade-in duration-150">
+        <div id="service-filters-drawer" className="mb-4 animate-in fade-in duration-150">
           <ScrollableFilterBar
             activeFilterCount={activeSheetFilterCount + (query ? 1 : 0)}
             onClearAll={handleClearAll}
@@ -424,11 +424,26 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               </div>
             )}
 
-            {/* 1. Art / Bereich Dropdown Pill */}
+            {/* 1. Bereich / Kunstform Dropdown Pill */}
             <FilterPillDropdown
-              label={fixedKind === 'kunst' ? L('Kunstform', 'Art form') : L('Art des Projekts', 'Type of activity')}
+              label={
+                fixedKind === 'dienst'
+                  ? L('Bereich', 'Area')
+                  : fixedKind === 'kunst'
+                  ? L('Kunstform', 'Art form')
+                  : L('Bereich', 'Area')
+              }
               activeLabel={activeCategoryLabel}
               isActive={selectedSubCategory !== 'all'}
+              icon={
+                fixedKind === 'dienst' ? (
+                  <HeartHandshake className="w-3.5 h-3.5 shrink-0" />
+                ) : fixedKind === 'kunst' ? (
+                  <Palette className="w-3.5 h-3.5 shrink-0" />
+                ) : (
+                  <Tag className="w-3.5 h-3.5 shrink-0" />
+                )
+              }
               options={categoryOptions}
               selectedValue={selectedSubCategory}
               onSelect={(val) => {

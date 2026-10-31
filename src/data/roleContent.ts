@@ -1,1224 +1,2669 @@
 export type LS = { de: string; en: string };
-export interface SpyLocation { id: string; name: LS; roles: LS[] }          // exactly 7 roles per location, each role 1-4 words
-export interface SpyPack { id: string; name: LS; locations: SpyLocation[]; status: 'draft' }
-export interface WhoAmIPack { id: string; name: LS; difficulty: 1 | 2 | 3; entries: LS[]; status: 'draft' }   // entries are what a player guesses about themselves: single concepts
-export interface NarratorStep { id: string; phase: 'night' | 'day' | 'setup'; title: LS; script: LS; seconds?: number }   // script = the exact sentence(s) the narrator reads aloud
-export interface WerewolfRole { id: string; name: LS; team: 'village' | 'wolves' | 'neutral'; description: LS; minPlayers: number; wakesAtNight: boolean }
-export interface NoOneOutVariant { id: string; name: LS; summary: LS; rules: { de: string[]; en: string[] } }
-export interface KillerRole { id: string; name: LS; description: LS }
+export interface SpyLocation {
+  id: string;
+  name: LS;
+  roles: LS[];
+} // exactly 7 roles per location, each role 1-4 words
+export interface SpyPack {
+  id: string;
+  name: LS;
+  locations: SpyLocation[];
+  status: 'draft';
+}
+export interface WhoAmIPack {
+  id: string;
+  name: LS;
+  difficulty: 1 | 2 | 3;
+  entries: LS[];
+  status: 'draft';
+} // entries are what a player guesses about themselves: single concepts
+export interface NarratorStep {
+  id: string;
+  phase: 'night' | 'day' | 'setup';
+  title: LS;
+  script: LS;
+  seconds?: number;
+} // script = the exact sentence(s) the narrator reads aloud
+export interface WerewolfRole {
+  id: string;
+  name: LS;
+  team: 'village' | 'wolves' | 'neutral';
+  description: LS;
+  minPlayers: number;
+  wakesAtNight: boolean;
+}
+export interface NoOneOutVariant {
+  id: string;
+  name: LS;
+  summary: LS;
+  rules: { de: string[]; en: string[] };
+}
+export interface KillerRole {
+  id: string;
+  name: LS;
+  description: LS;
+}
 
 export const SPY_PACKS: SpyPack[] = [
   {
     id: 'schule',
-    name: { de: 'Schule', en: 'School' },
+    name: {
+      de: 'Schule',
+      en: 'School',
+    },
     status: 'draft',
     locations: [
       {
         id: 'schule-klassenzimmer',
-        name: { de: 'Klassenzimmer', en: 'Classroom' },
+        name: {
+          de: 'Klassenzimmer',
+          en: 'Classroom',
+        },
         roles: [
-          { de: 'Lehrkraft am Pult', en: 'Teacher at the desk' },
-          { de: 'Klassensprecher', en: 'Class rep' },
-          { de: 'Kind mit Meldung', en: 'Child raising a hand' },
-          { de: 'Tafeldienst', en: 'Board monitor' },
-          { de: 'Kind in letzter Reihe', en: 'Child in back row' },
-          { de: 'Praktikumskraft', en: 'Intern teacher' },
-          { de: 'Austauschschüler', en: 'Exchange student' },
+          {
+            de: 'Lehrkraft am Pult',
+            en: 'Teacher at the desk',
+          },
+          {
+            de: 'Klassensprecher',
+            en: 'Class rep',
+          },
+          {
+            de: 'Kind mit Meldung',
+            en: 'Child raising a hand',
+          },
+          {
+            de: 'Tafeldienst',
+            en: 'Board monitor',
+          },
+          {
+            de: 'Kind in letzter Reihe',
+            en: 'Child in back row',
+          },
+          {
+            de: 'Praktikumskraft',
+            en: 'Intern teacher',
+          },
+          {
+            de: 'Austauschschüler',
+            en: 'Exchange student',
+          },
         ],
       },
       {
         id: 'schule-pausenhof',
-        name: { de: 'Pausenhof', en: 'Schoolyard' },
+        name: {
+          de: 'Pausenhof',
+          en: 'Schoolyard',
+        },
         roles: [
-          { de: 'Pausenaufsicht', en: 'Break supervisor' },
-          { de: 'Fußballspieler', en: 'Football player' },
-          { de: 'Kind mit Pausenbrot', en: 'Child with a snack' },
-          { de: 'Seilspringerin', en: 'Rope jumper' },
-          { de: 'Hausmeisterteam', en: 'Caretaker' },
-          { de: 'Kind auf der Bank', en: 'Child on the bench' },
-          { de: 'Neues Kind', en: 'New kid' },
+          {
+            de: 'Pausenaufsicht',
+            en: 'Break supervisor',
+          },
+          {
+            de: 'Fußballspieler',
+            en: 'Football player',
+          },
+          {
+            de: 'Kind mit Pausenbrot',
+            en: 'Child with a snack',
+          },
+          {
+            de: 'Seilspringerin',
+            en: 'Rope jumper',
+          },
+          {
+            de: 'Hausmeisterteam',
+            en: 'Caretaker',
+          },
+          {
+            de: 'Kind auf der Bank',
+            en: 'Child on the bench',
+          },
+          {
+            de: 'Neues Kind',
+            en: 'New kid',
+          },
         ],
       },
       {
         id: 'schule-turnhalle',
-        name: { de: 'Turnhalle', en: 'Gym hall' },
+        name: {
+          de: 'Turnhalle',
+          en: 'Gym hall',
+        },
         roles: [
-          { de: 'Sportlehrkraft', en: 'PE teacher' },
-          { de: 'Kind am Barren', en: 'Child on parallel bars' },
-          { de: 'Ballwart', en: 'Ball monitor' },
-          { de: 'Kletterer am Seil', en: 'Rope climber' },
-          { de: 'Torwart', en: 'Goalkeeper' },
-          { de: 'Schiedsrichter', en: 'Referee' },
-          { de: 'Zuschauer auf der Bank', en: 'Spectator on bench' },
+          {
+            de: 'Sportlehrkraft',
+            en: 'PE teacher',
+          },
+          {
+            de: 'Kind am Barren',
+            en: 'Child on parallel bars',
+          },
+          {
+            de: 'Ballwart',
+            en: 'Ball monitor',
+          },
+          {
+            de: 'Kletterer am Seil',
+            en: 'Rope climber',
+          },
+          {
+            de: 'Torwart',
+            en: 'Goalkeeper',
+          },
+          {
+            de: 'Schiedsrichter',
+            en: 'Referee',
+          },
+          {
+            de: 'Zuschauer auf der Bank',
+            en: 'Spectator on bench',
+          },
         ],
       },
       {
         id: 'schule-schulbibliothek',
-        name: { de: 'Schulbibliothek', en: 'School library' },
+        name: {
+          de: 'Schulbibliothek',
+          en: 'School library',
+        },
         roles: [
-          { de: 'Bibliothekskraft', en: 'Librarian' },
-          { de: 'Leseratte', en: 'Bookworm' },
-          { de: 'Kind mit Hausaufgaben', en: 'Child doing homework' },
-          { de: 'Kind am Regal', en: 'Child at the shelf' },
-          { de: 'Vorlesende', en: 'Reader aloud' },
-          { de: 'Comic-Fan', en: 'Comic fan' },
-          { de: 'Kind mit Kopfhörern', en: 'Child with headphones' },
+          {
+            de: 'Bibliothekskraft',
+            en: 'Librarian',
+          },
+          {
+            de: 'Leseratte',
+            en: 'Bookworm',
+          },
+          {
+            de: 'Kind mit Hausaufgaben',
+            en: 'Child doing homework',
+          },
+          {
+            de: 'Kind am Regal',
+            en: 'Child at the shelf',
+          },
+          {
+            de: 'Vorlesende',
+            en: 'Reader aloud',
+          },
+          {
+            de: 'Comic-Fan',
+            en: 'Comic fan',
+          },
+          {
+            de: 'Kind mit Kopfhörern',
+            en: 'Child with headphones',
+          },
         ],
       },
       {
         id: 'schule-mensa',
-        name: { de: 'Mensa', en: 'Cafeteria' },
+        name: {
+          de: 'Mensa',
+          en: 'Cafeteria',
+        },
         roles: [
-          { de: 'Kochkraft', en: 'Cook' },
-          { de: 'Kind mit Tablett', en: 'Child with a tray' },
-          { de: 'Kassenkraft', en: 'Cashier' },
-          { de: 'Kind in der Schlange', en: 'Child in the queue' },
-          { de: 'Tischdienst', en: 'Table duty' },
-          { de: 'Kind mit Allergie', en: 'Child with allergy' },
-          { de: 'Aufsichtslehrkraft', en: 'Supervising teacher' },
+          {
+            de: 'Kochkraft',
+            en: 'Cook',
+          },
+          {
+            de: 'Kind mit Tablett',
+            en: 'Child with a tray',
+          },
+          {
+            de: 'Kassenkraft',
+            en: 'Cashier',
+          },
+          {
+            de: 'Kind in der Schlange',
+            en: 'Child in the queue',
+          },
+          {
+            de: 'Tischdienst',
+            en: 'Table duty',
+          },
+          {
+            de: 'Kind mit Allergie',
+            en: 'Child with allergy',
+          },
+          {
+            de: 'Aufsichtslehrkraft',
+            en: 'Supervising teacher',
+          },
         ],
       },
       {
         id: 'schule-computerraum',
-        name: { de: 'Computerraum', en: 'Computer room' },
+        name: {
+          de: 'Computerraum',
+          en: 'Computer room',
+        },
         roles: [
-          { de: 'IT-Betreuung', en: 'IT support' },
-          { de: 'Kind beim Programmieren', en: 'Child coding' },
-          { de: 'Kind am Drucker', en: 'Child at the printer' },
-          { de: 'Informatiklehrkraft', en: 'Computer teacher' },
-          { de: 'Kind mit Referat', en: 'Child with presentation' },
-          { de: 'Kind mit Headset', en: 'Child with headset' },
-          { de: 'Kind mit Computerproblem', en: 'Child with computer trouble' },
+          {
+            de: 'IT-Betreuung',
+            en: 'IT support',
+          },
+          {
+            de: 'Kind beim Programmieren',
+            en: 'Child coding',
+          },
+          {
+            de: 'Kind am Drucker',
+            en: 'Child at the printer',
+          },
+          {
+            de: 'Informatiklehrkraft',
+            en: 'Computer teacher',
+          },
+          {
+            de: 'Kind mit Referat',
+            en: 'Child with presentation',
+          },
+          {
+            de: 'Kind mit Headset',
+            en: 'Child with headset',
+          },
+          {
+            de: 'Kind mit Computerproblem',
+            en: 'Child with computer trouble',
+          },
         ],
       },
       {
         id: 'schule-musikraum',
-        name: { de: 'Musikraum', en: 'Music room' },
+        name: {
+          de: 'Musikraum',
+          en: 'Music room',
+        },
         roles: [
-          { de: 'Chorleitung', en: 'Choir director' },
-          { de: 'Geigerin', en: 'Violinist' },
-          { de: 'Schlagzeuger', en: 'Drummer' },
-          { de: 'Kind mit Triangel', en: 'Child with triangle' },
-          { de: 'Blockflötenspieler', en: 'Recorder player' },
-          { de: 'Sängerin', en: 'Singer' },
-          { de: 'Kind am Klavier', en: 'Child at the piano' },
+          {
+            de: 'Chorleitung',
+            en: 'Choir director',
+          },
+          {
+            de: 'Geigerin',
+            en: 'Violinist',
+          },
+          {
+            de: 'Schlagzeuger',
+            en: 'Drummer',
+          },
+          {
+            de: 'Kind mit Triangel',
+            en: 'Child with triangle',
+          },
+          {
+            de: 'Blockflötenspieler',
+            en: 'Recorder player',
+          },
+          {
+            de: 'Sängerin',
+            en: 'Singer',
+          },
+          {
+            de: 'Kind am Klavier',
+            en: 'Child at the piano',
+          },
         ],
       },
       {
         id: 'schule-schulbus',
-        name: { de: 'Schulbus', en: 'School bus' },
+        name: {
+          de: 'Schulbus',
+          en: 'School bus',
+        },
         roles: [
-          { de: 'Busfahrerin', en: 'Bus driver' },
-          { de: 'Kind am Fenster', en: 'Child by the window' },
-          { de: 'Kind mit Schulranzen', en: 'Child with school bag' },
-          { de: 'Schlafendes Kind', en: 'Sleeping child' },
-          { de: 'Busbegleitung', en: 'Bus escort' },
-          { de: 'Rennendes Kind', en: 'Child running for bus' },
-          { de: 'Kind mit Hörspiel', en: 'Child with audiobook' },
+          {
+            de: 'Busfahrerin',
+            en: 'Bus driver',
+          },
+          {
+            de: 'Kind am Fenster',
+            en: 'Child by the window',
+          },
+          {
+            de: 'Kind mit Schulranzen',
+            en: 'Child with school bag',
+          },
+          {
+            de: 'Schlafendes Kind',
+            en: 'Sleeping child',
+          },
+          {
+            de: 'Busbegleitung',
+            en: 'Bus escort',
+          },
+          {
+            de: 'Rennendes Kind',
+            en: 'Child running for bus',
+          },
+          {
+            de: 'Kind mit Hörspiel',
+            en: 'Child with audiobook',
+          },
         ],
       },
       {
         id: 'schule-schulfest',
-        name: { de: 'Schulfest', en: 'School fair' },
+        name: {
+          de: 'Schulfest',
+          en: 'School fair',
+        },
         roles: [
-          { de: 'Kuchenverkäufer', en: 'Cake seller' },
-          { de: 'Kind beim Dosenwerfen', en: 'Child throwing cans' },
-          { de: 'Elternteil am Grill', en: 'Parent at the grill' },
-          { de: 'Gitarrist der Schülerband', en: 'School band guitarist' },
-          { de: 'Schulleitung', en: 'Principal' },
-          { de: 'Gesichtsmalerin', en: 'Face painter' },
-          { de: 'Kind an der Tombola', en: 'Child at raffle' },
+          {
+            de: 'Kuchenverkäufer',
+            en: 'Cake seller',
+          },
+          {
+            de: 'Kind beim Dosenwerfen',
+            en: 'Child throwing cans',
+          },
+          {
+            de: 'Elternteil am Grill',
+            en: 'Parent at the grill',
+          },
+          {
+            de: 'Gitarrist der Schülerband',
+            en: 'School band guitarist',
+          },
+          {
+            de: 'Schulleitung',
+            en: 'Principal',
+          },
+          {
+            de: 'Gesichtsmalerin',
+            en: 'Face painter',
+          },
+          {
+            de: 'Kind an der Tombola',
+            en: 'Child at raffle',
+          },
         ],
       },
       {
         id: 'schule-kunstraum',
-        name: { de: 'Kunstraum', en: 'Art room' },
+        name: {
+          de: 'Kunstraum',
+          en: 'Art room',
+        },
         roles: [
-          { de: 'Kunstlehrkraft', en: 'Art teacher' },
-          { de: 'Kind mit Pinsel', en: 'Child with brush' },
-          { de: 'Kind mit Tonklumpen', en: 'Child with clay' },
-          { de: 'Kind mit Kleber', en: 'Child with glue' },
-          { de: 'Kind beim Zeichnen', en: 'Child drawing' },
-          { de: 'Kind mit Farbklecks', en: 'Child with paint smudge' },
-          { de: 'Kind beim Aufräumen', en: 'Child tidying up' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'zeltlager',
-    name: { de: 'Zeltlager', en: 'Camp' },
-    status: 'draft',
-    locations: [
-      {
-        id: 'zeltlager-zeltplatz',
-        name: { de: 'Zeltplatz', en: 'Campsite' },
-        roles: [
-          { de: 'Lagerleitung', en: 'Camp leader' },
-          { de: 'Kind beim Zeltaufbau', en: 'Child pitching tent' },
-          { de: 'Kind mit Schlafsack', en: 'Child with sleeping bag' },
-          { de: 'Kind mit Hammer', en: 'Child with mallet' },
-          { de: 'Kind mit Taschenlampe', en: 'Child with flashlight' },
-          { de: 'Kind mit Heimweh', en: 'Homesick child' },
-          { de: 'Ordnungsdienst', en: 'Tidy-up crew' },
-        ],
-      },
-      {
-        id: 'zeltlager-lagerfeuer',
-        name: { de: 'Lagerfeuer', en: 'Campfire' },
-        roles: [
-          { de: 'Feuerwächter', en: 'Fire keeper' },
-          { de: 'Gitarrenspieler', en: 'Guitar player' },
-          { de: 'Geschichtenerzählerin', en: 'Storyteller' },
-          { de: 'Kind mit Marshmallow', en: 'Child with marshmallow' },
-          { de: 'Kind mit Stockbrot', en: 'Child with stick bread' },
-          { de: 'Müdes Kind', en: 'Sleepy child' },
-          { de: 'Kind mit Liedwunsch', en: 'Child requesting song' },
-        ],
-      },
-      {
-        id: 'zeltlager-kuechenzelt',
-        name: { de: 'Küchenzelt', en: 'Kitchen tent' },
-        roles: [
-          { de: 'Kochleitung', en: 'Head cook' },
-          { de: 'Kartoffelschäler', en: 'Potato peeler' },
-          { de: 'Kind mit Spüldienst', en: 'Child on dish duty' },
-          { de: 'Brotschneiderin', en: 'Bread slicer' },
-          { de: 'Kind beim Abwiegen', en: 'Child weighing food' },
-          { de: 'Teekocher', en: 'Tea maker' },
-          { de: 'Kind mit Schürze', en: 'Child in apron' },
-        ],
-      },
-      {
-        id: 'zeltlager-waschhaus',
-        name: { de: 'Waschhaus', en: 'Washhouse' },
-        roles: [
-          { de: 'Kind beim Zähneputzen', en: 'Child brushing teeth' },
-          { de: 'Kind mit Handtuch', en: 'Child with towel' },
-          { de: 'Kind in der Warteschlange', en: 'Child waiting in line' },
-          { de: 'Putzdienst', en: 'Cleaning duty' },
-          { de: 'Kind mit Shampoo', en: 'Child with shampoo' },
-          { de: 'Trödelndes Kind', en: 'Dawdling child' },
-          { de: 'Kind mit Kulturbeutel', en: 'Child with toiletry bag' },
-        ],
-      },
-      {
-        id: 'zeltlager-badesee',
-        name: { de: 'Badesee', en: 'Swimming lake' },
-        roles: [
-          { de: 'Rettungsschwimmerin', en: 'Lifeguard' },
-          { de: 'Kind mit Luftmatratze', en: 'Child on air mattress' },
-          { de: 'Schnorchler', en: 'Snorkeler' },
-          { de: 'Kind am Steg', en: 'Child on the jetty' },
-          { de: 'Kind mit Wasserball', en: 'Child with water ball' },
-          { de: 'Angler', en: 'Angler' },
-          { de: 'Entenfütterer', en: 'Duck feeder' },
-        ],
-      },
-      {
-        id: 'zeltlager-kletterpark',
-        name: { de: 'Kletterpark', en: 'Climbing park' },
-        roles: [
-          { de: 'Kletterführung', en: 'Climbing guide' },
-          { de: 'Kind auf Seilbrücke', en: 'Child on rope bridge' },
-          { de: 'Kind mit Helm', en: 'Child with helmet' },
-          { de: 'Sicherungskraft', en: 'Belayer' },
-          { de: 'Kind an der Zipline', en: 'Child on zipline' },
-          { de: 'Kind mit Höhenangst', en: 'Child afraid of heights' },
-          { de: 'Zuschauer unten', en: 'Spectator below' },
-        ],
-      },
-      {
-        id: 'zeltlager-nachtwanderung',
-        name: { de: 'Nachtwanderung', en: 'Night hike' },
-        roles: [
-          { de: 'Wanderführung', en: 'Hike leader' },
-          { de: 'Kind mit Stirnlampe', en: 'Child with headlamp' },
-          { de: 'Letztes Kind', en: 'Last in line' },
-          { de: 'Kind mit Gruselgeschichte', en: 'Child telling spooky story' },
-          { de: 'Kind mit Sternkarte', en: 'Child with star chart' },
-          { de: 'Leiser Schleicher', en: 'Quiet sneaker' },
-          { de: 'Kind mit Kompass', en: 'Child with compass' },
-        ],
-      },
-      {
-        id: 'zeltlager-jugendherberge',
-        name: { de: 'Jugendherberge', en: 'Youth hostel' },
-        roles: [
-          { de: 'Herbergseltern', en: 'Hostel hosts' },
-          { de: 'Kind im Etagenbett', en: 'Child in bunk bed' },
-          { de: 'Kind mit Hausschuhen', en: 'Child in slippers' },
-          { de: 'Frühstücksdienst', en: 'Breakfast duty' },
-          { de: 'Gruppenleitung', en: 'Group leader' },
-          { de: 'Kind beim Kartenspiel', en: 'Child playing cards' },
-          { de: 'Kind mit Zimmerschlüssel', en: 'Child with room key' },
-        ],
-      },
-      {
-        id: 'zeltlager-radtour',
-        name: { de: 'Radtour', en: 'Bike tour' },
-        roles: [
-          { de: 'Tourleitung', en: 'Tour leader' },
-          { de: 'Kind mit Platten', en: 'Child with flat tire' },
-          { de: 'Schlusslicht der Gruppe', en: 'Rear rider' },
-          { de: 'Kind mit Landkarte', en: 'Child with map' },
-          { de: 'Kind mit Trinkflasche', en: 'Child with water bottle' },
-          { de: 'Kind schiebt bergauf', en: 'Child pushing uphill' },
-          { de: 'Fahrradflicker', en: 'Bike repairer' },
-        ],
-      },
-      {
-        id: 'zeltlager-spielwiese',
-        name: { de: 'Spielwiese', en: 'Games meadow' },
-        roles: [
-          { de: 'Spielleitung', en: 'Game leader' },
-          { de: 'Kind beim Fangen', en: 'Child playing tag' },
-          { de: 'Kind mit Frisbee', en: 'Child with frisbee' },
-          { de: 'Kind im Sackhüpfen', en: 'Child in sack race' },
-          { de: 'Kind mit Staffelstab', en: 'Child with baton' },
-          { de: 'Zuschauer im Gras', en: 'Spectator in the grass' },
-          { de: 'Punkteschreiberin', en: 'Score keeper' },
+          {
+            de: 'Kunstlehrkraft',
+            en: 'Art teacher',
+          },
+          {
+            de: 'Kind mit Pinsel',
+            en: 'Child with brush',
+          },
+          {
+            de: 'Kind mit Tonklumpen',
+            en: 'Child with clay',
+          },
+          {
+            de: 'Kind mit Kleber',
+            en: 'Child with glue',
+          },
+          {
+            de: 'Kind beim Zeichnen',
+            en: 'Child drawing',
+          },
+          {
+            de: 'Kind mit Farbklecks',
+            en: 'Child with paint smudge',
+          },
+          {
+            de: 'Kind beim Aufräumen',
+            en: 'Child tidying up',
+          },
         ],
       },
     ],
   },
   {
     id: 'stadt',
-    name: { de: 'Stadt', en: 'Town' },
+    name: {
+      de: 'Stadt',
+      en: 'Town',
+    },
     status: 'draft',
     locations: [
       {
         id: 'stadt-baeckerei',
-        name: { de: 'Bäckerei', en: 'Bakery' },
+        name: {
+          de: 'Bäckerei',
+          en: 'Bakery',
+        },
         roles: [
-          { de: 'Bäckerin', en: 'Baker' },
-          { de: 'Kunde mit Brötchentüte', en: 'Customer with bread bag' },
-          { de: 'Verkäufer an der Kasse', en: 'Seller at till' },
-          { de: 'Kind mit Münzen', en: 'Child with coins' },
-          { de: 'Lieferfahrer', en: 'Delivery driver' },
-          { de: 'Tortenverzierer', en: 'Cake decorator' },
-          { de: 'Frühaufsteher in Schlange', en: 'Early bird in queue' },
+          {
+            de: 'Bäckerin',
+            en: 'Baker',
+          },
+          {
+            de: 'Kunde mit Brötchentüte',
+            en: 'Customer with bread bag',
+          },
+          {
+            de: 'Verkäufer an der Kasse',
+            en: 'Seller at till',
+          },
+          {
+            de: 'Kind mit Münzen',
+            en: 'Child with coins',
+          },
+          {
+            de: 'Lieferfahrer',
+            en: 'Delivery driver',
+          },
+          {
+            de: 'Tortenverzierer',
+            en: 'Cake decorator',
+          },
+          {
+            de: 'Frühaufsteher in Schlange',
+            en: 'Early bird in queue',
+          },
         ],
       },
       {
         id: 'stadt-bahnhof',
-        name: { de: 'Bahnhof', en: 'Train station' },
+        name: {
+          de: 'Bahnhof',
+          en: 'Train station',
+        },
         roles: [
-          { de: 'Zugbegleitung', en: 'Train conductor' },
-          { de: 'Reisende mit Koffer', en: 'Traveler with suitcase' },
-          { de: 'Kind am Gleis', en: 'Child on platform' },
-          { de: 'Lokführer', en: 'Train driver' },
-          { de: 'Mensch an der Auskunft', en: 'Information desk person' },
-          { de: 'Kioskverkäuferin', en: 'Kiosk seller' },
-          { de: 'Straßenmusiker', en: 'Busker' },
+          {
+            de: 'Zugbegleitung',
+            en: 'Train conductor',
+          },
+          {
+            de: 'Reisende mit Koffer',
+            en: 'Traveler with suitcase',
+          },
+          {
+            de: 'Kind am Gleis',
+            en: 'Child on platform',
+          },
+          {
+            de: 'Lokführer',
+            en: 'Train driver',
+          },
+          {
+            de: 'Mensch an der Auskunft',
+            en: 'Information desk person',
+          },
+          {
+            de: 'Kioskverkäuferin',
+            en: 'Kiosk seller',
+          },
+          {
+            de: 'Straßenmusiker',
+            en: 'Busker',
+          },
         ],
       },
       {
         id: 'stadt-kino',
-        name: { de: 'Kino', en: 'Cinema' },
+        name: {
+          de: 'Kino',
+          en: 'Cinema',
+        },
         roles: [
-          { de: 'Popcornverkäufer', en: 'Popcorn seller' },
-          { de: 'Kartenkontrolle', en: 'Ticket checker' },
-          { de: 'Kind mit Nachos', en: 'Child with nachos' },
-          { de: 'Filmvorführer', en: 'Projectionist' },
-          { de: 'Kind kommt zu spät', en: 'Late child' },
-          { de: 'Kind in erster Reihe', en: 'Child in front row' },
-          { de: 'Putzkraft', en: 'Cleaner' },
+          {
+            de: 'Popcornverkäufer',
+            en: 'Popcorn seller',
+          },
+          {
+            de: 'Kartenkontrolle',
+            en: 'Ticket checker',
+          },
+          {
+            de: 'Kind mit Nachos',
+            en: 'Child with nachos',
+          },
+          {
+            de: 'Filmvorführer',
+            en: 'Projectionist',
+          },
+          {
+            de: 'Kind kommt zu spät',
+            en: 'Late child',
+          },
+          {
+            de: 'Kind in erster Reihe',
+            en: 'Child in front row',
+          },
+          {
+            de: 'Putzkraft',
+            en: 'Cleaner',
+          },
         ],
       },
       {
         id: 'stadt-supermarkt',
-        name: { de: 'Supermarkt', en: 'Supermarket' },
+        name: {
+          de: 'Supermarkt',
+          en: 'Supermarket',
+        },
         roles: [
-          { de: 'Kassenkraft', en: 'Cashier' },
-          { de: 'Kind mit Einkaufswagen', en: 'Child with cart' },
-          { de: 'Regaleinräumer', en: 'Shelf stocker' },
-          { de: 'Elternteil mit Einkaufszettel', en: 'Parent with list' },
-          { de: 'Kind an der Obstwaage', en: 'Child at fruit scale' },
-          { de: 'Filialleitung', en: 'Store manager' },
-          { de: 'Pfandflaschen-Bringer', en: 'Bottle returner' },
+          {
+            de: 'Kassenkraft',
+            en: 'Cashier',
+          },
+          {
+            de: 'Kind mit Einkaufswagen',
+            en: 'Child with cart',
+          },
+          {
+            de: 'Regaleinräumer',
+            en: 'Shelf stocker',
+          },
+          {
+            de: 'Elternteil mit Einkaufszettel',
+            en: 'Parent with list',
+          },
+          {
+            de: 'Kind an der Obstwaage',
+            en: 'Child at fruit scale',
+          },
+          {
+            de: 'Filialleitung',
+            en: 'Store manager',
+          },
+          {
+            de: 'Pfandflaschen-Bringer',
+            en: 'Bottle returner',
+          },
         ],
       },
       {
         id: 'stadt-eisdiele',
-        name: { de: 'Eisdiele', en: 'Ice cream shop' },
+        name: {
+          de: 'Eisdiele',
+          en: 'Ice cream shop',
+        },
         roles: [
-          { de: 'Eisverkäufer', en: 'Ice cream seller' },
-          { de: 'Kind mit drei Kugeln', en: 'Child with three scoops' },
-          { de: 'Kind mit tropfendem Eis', en: 'Child with dripping cone' },
-          { de: 'Kellner mit Eisbecher', en: 'Waiter with sundae' },
-          { de: 'Kind beim Auswählen', en: 'Child choosing flavor' },
-          { de: 'Großelternteil mit Eisbecher', en: 'Grandparent with sundae' },
-          { de: 'Eismacher', en: 'Ice cream maker' },
+          {
+            de: 'Eisverkäufer',
+            en: 'Ice cream seller',
+          },
+          {
+            de: 'Kind mit drei Kugeln',
+            en: 'Child with three scoops',
+          },
+          {
+            de: 'Kind mit tropfendem Eis',
+            en: 'Child with dripping cone',
+          },
+          {
+            de: 'Kellner mit Eisbecher',
+            en: 'Waiter with sundae',
+          },
+          {
+            de: 'Kind beim Auswählen',
+            en: 'Child choosing flavor',
+          },
+          {
+            de: 'Großelternteil mit Eisbecher',
+            en: 'Grandparent with sundae',
+          },
+          {
+            de: 'Eismacher',
+            en: 'Ice cream maker',
+          },
         ],
       },
       {
         id: 'stadt-schwimmbad',
-        name: { de: 'Schwimmbad', en: 'Swimming pool' },
+        name: {
+          de: 'Schwimmbad',
+          en: 'Swimming pool',
+        },
         roles: [
-          { de: 'Bademeisterin', en: 'Lifeguard' },
-          { de: 'Kind mit Schwimmflügeln', en: 'Child with armbands' },
-          { de: 'Pommesverkäufer', en: 'Fries seller' },
-          { de: 'Elternteil mit Sonnencreme', en: 'Parent with sunscreen' },
-          { de: 'Turmspringerin', en: 'High diver' },
-          { de: 'Kassenkraft', en: 'Cashier' },
-          { de: 'Bahnenschwimmer', en: 'Lap swimmer' },
+          {
+            de: 'Bademeisterin',
+            en: 'Lifeguard',
+          },
+          {
+            de: 'Kind mit Schwimmflügeln',
+            en: 'Child with armbands',
+          },
+          {
+            de: 'Pommesverkäufer',
+            en: 'Fries seller',
+          },
+          {
+            de: 'Elternteil mit Sonnencreme',
+            en: 'Parent with sunscreen',
+          },
+          {
+            de: 'Turmspringerin',
+            en: 'High diver',
+          },
+          {
+            de: 'Kassenkraft',
+            en: 'Cashier',
+          },
+          {
+            de: 'Bahnenschwimmer',
+            en: 'Lap swimmer',
+          },
         ],
       },
       {
         id: 'stadt-stadtbibliothek',
-        name: { de: 'Stadtbibliothek', en: 'City library' },
+        name: {
+          de: 'Stadtbibliothek',
+          en: 'City library',
+        },
         roles: [
-          { de: 'Bibliothekarin', en: 'Librarian' },
-          { de: 'Kind mit Büchertasche', en: 'Child with book bag' },
-          { de: 'Student mit Laptop', en: 'Student with laptop' },
-          { de: 'Senior mit Zeitung', en: 'Senior with newspaper' },
-          { de: 'Vorleserin im Kinderbereich', en: 'Story reader' },
-          { de: 'Kind am Kopierer', en: 'Child at copier' },
-          { de: 'Leser mit Hörbuch', en: 'Reader with audiobook' },
+          {
+            de: 'Bibliothekarin',
+            en: 'Librarian',
+          },
+          {
+            de: 'Kind mit Büchertasche',
+            en: 'Child with book bag',
+          },
+          {
+            de: 'Student mit Laptop',
+            en: 'Student with laptop',
+          },
+          {
+            de: 'Senior mit Zeitung',
+            en: 'Senior with newspaper',
+          },
+          {
+            de: 'Vorleserin im Kinderbereich',
+            en: 'Story reader',
+          },
+          {
+            de: 'Kind am Kopierer',
+            en: 'Child at copier',
+          },
+          {
+            de: 'Leser mit Hörbuch',
+            en: 'Reader with audiobook',
+          },
         ],
       },
       {
         id: 'stadt-fahrradwerkstatt',
-        name: { de: 'Fahrradwerkstatt', en: 'Bike repair shop' },
+        name: {
+          de: 'Fahrradwerkstatt',
+          en: 'Bike repair shop',
+        },
         roles: [
-          { de: 'Mechanikerin', en: 'Mechanic' },
-          { de: 'Kind mit kaputter Kette', en: 'Child with broken chain' },
-          { de: 'Kunde mit Platten', en: 'Customer with flat tire' },
-          { de: 'Lehrling', en: 'Apprentice' },
-          { de: 'Kind mit neuem Rad', en: 'Child with new bike' },
-          { de: 'Werkstatthund', en: 'Shop dog' },
-          { de: 'Probefahrer', en: 'Test rider' },
+          {
+            de: 'Mechanikerin',
+            en: 'Mechanic',
+          },
+          {
+            de: 'Kind mit kaputter Kette',
+            en: 'Child with broken chain',
+          },
+          {
+            de: 'Kunde mit Platten',
+            en: 'Customer with flat tire',
+          },
+          {
+            de: 'Lehrling',
+            en: 'Apprentice',
+          },
+          {
+            de: 'Kind mit neuem Rad',
+            en: 'Child with new bike',
+          },
+          {
+            de: 'Werkstatthund',
+            en: 'Shop dog',
+          },
+          {
+            de: 'Probefahrer',
+            en: 'Test rider',
+          },
         ],
       },
       {
         id: 'stadt-fussgaengerzone',
-        name: { de: 'Fußgängerzone', en: 'Pedestrian street' },
+        name: {
+          de: 'Fußgängerzone',
+          en: 'Pedestrian street',
+        },
         roles: [
-          { de: 'Pantomime', en: 'Mime' },
-          { de: 'Kind mit Luftballons', en: 'Child with balloons' },
-          { de: 'Blumenverkäuferin', en: 'Flower seller' },
-          { de: 'Tourist mit Stadtplan', en: 'Tourist with map' },
-          { de: 'Kind mit Einkaufstüten', en: 'Child with shopping bags' },
-          { de: 'Schaufensterbummler', en: 'Window shopper' },
-          { de: 'Skater', en: 'Skater' },
+          {
+            de: 'Pantomime',
+            en: 'Mime',
+          },
+          {
+            de: 'Kind mit Luftballons',
+            en: 'Child with balloons',
+          },
+          {
+            de: 'Blumenverkäuferin',
+            en: 'Flower seller',
+          },
+          {
+            de: 'Tourist mit Stadtplan',
+            en: 'Tourist with map',
+          },
+          {
+            de: 'Kind mit Einkaufstüten',
+            en: 'Child with shopping bags',
+          },
+          {
+            de: 'Schaufensterbummler',
+            en: 'Window shopper',
+          },
+          {
+            de: 'Skater',
+            en: 'Skater',
+          },
         ],
       },
       {
         id: 'stadt-feuerwehrwache',
-        name: { de: 'Feuerwehrwache', en: 'Fire station' },
+        name: {
+          de: 'Feuerwehrwache',
+          en: 'Fire station',
+        },
         roles: [
-          { de: 'Wachleitung', en: 'Station chief' },
-          { de: 'Besuchskind', en: 'Visiting child' },
-          { de: 'Fahrer des Löschfahrzeugs', en: 'Fire truck driver' },
-          { de: 'Kind mit Schlauch', en: 'Child with hose' },
-          { de: 'Atemschutzträger', en: 'Breathing-gear wearer' },
-          { de: 'Funkerin', en: 'Radio operator' },
-          { de: 'Kind mit Feuerwehrhelm', en: 'Child with fire helmet' },
+          {
+            de: 'Wachleitung',
+            en: 'Station chief',
+          },
+          {
+            de: 'Besuchskind',
+            en: 'Visiting child',
+          },
+          {
+            de: 'Fahrer des Löschfahrzeugs',
+            en: 'Fire truck driver',
+          },
+          {
+            de: 'Kind mit Schlauch',
+            en: 'Child with hose',
+          },
+          {
+            de: 'Atemschutzträger',
+            en: 'Breathing-gear wearer',
+          },
+          {
+            de: 'Funkerin',
+            en: 'Radio operator',
+          },
+          {
+            de: 'Kind mit Feuerwehrhelm',
+            en: 'Child with fire helmet',
+          },
         ],
       },
     ],
   },
   {
     id: 'natur',
-    name: { de: 'Natur', en: 'Nature' },
+    name: {
+      de: 'Natur',
+      en: 'Nature',
+    },
     status: 'draft',
     locations: [
       {
         id: 'natur-wanderweg',
-        name: { de: 'Wanderweg im Wald', en: 'Forest trail' },
+        name: {
+          de: 'Wanderweg im Wald',
+          en: 'Forest trail',
+        },
         roles: [
-          { de: 'Wanderführerin', en: 'Hiking guide' },
-          { de: 'Kind mit Wanderstock', en: 'Child with hiking stick' },
-          { de: 'Pilzsammler', en: 'Mushroom picker' },
-          { de: 'Kind mit Käfer', en: 'Child with a beetle' },
-          { de: 'Vogelbeobachter', en: 'Birdwatcher' },
-          { de: 'Jogger mit Hund', en: 'Jogger with dog' },
-          { de: 'Förster', en: 'Forester' },
+          {
+            de: 'Wanderführerin',
+            en: 'Hiking guide',
+          },
+          {
+            de: 'Kind mit Wanderstock',
+            en: 'Child with hiking stick',
+          },
+          {
+            de: 'Pilzsammler',
+            en: 'Mushroom picker',
+          },
+          {
+            de: 'Kind mit Käfer',
+            en: 'Child with a beetle',
+          },
+          {
+            de: 'Vogelbeobachter',
+            en: 'Birdwatcher',
+          },
+          {
+            de: 'Jogger mit Hund',
+            en: 'Jogger with dog',
+          },
+          {
+            de: 'Förster',
+            en: 'Forester',
+          },
         ],
       },
       {
         id: 'natur-zoo',
-        name: { de: 'Zoo', en: 'Zoo' },
+        name: {
+          de: 'Zoo',
+          en: 'Zoo',
+        },
         roles: [
-          { de: 'Tierpflegerin', en: 'Zookeeper' },
-          { de: 'Kind am Affenkäfig', en: 'Child at monkey cage' },
-          { de: 'Elternteil mit Kinderwagen', en: 'Parent with stroller' },
-          { de: 'Fotograf mit Teleobjektiv', en: 'Photographer' },
-          { de: 'Kind mit Futtertüte', en: 'Child with feed bag' },
-          { de: 'Souvenirverkäufer', en: 'Souvenir seller' },
-          { de: 'Lehrkraft auf Ausflug', en: 'Teacher on trip' },
+          {
+            de: 'Tierpflegerin',
+            en: 'Zookeeper',
+          },
+          {
+            de: 'Kind am Affenkäfig',
+            en: 'Child at monkey cage',
+          },
+          {
+            de: 'Elternteil mit Kinderwagen',
+            en: 'Parent with stroller',
+          },
+          {
+            de: 'Fotograf mit Teleobjektiv',
+            en: 'Photographer',
+          },
+          {
+            de: 'Kind mit Futtertüte',
+            en: 'Child with feed bag',
+          },
+          {
+            de: 'Souvenirverkäufer',
+            en: 'Souvenir seller',
+          },
+          {
+            de: 'Lehrkraft auf Ausflug',
+            en: 'Teacher on trip',
+          },
         ],
       },
       {
         id: 'natur-bauernhof',
-        name: { de: 'Bauernhof', en: 'Farm' },
+        name: {
+          de: 'Bauernhof',
+          en: 'Farm',
+        },
         roles: [
-          { de: 'Landwirtin', en: 'Farmer' },
-          { de: 'Kind beim Streicheln', en: 'Child petting animal' },
-          { de: 'Melker', en: 'Milker' },
-          { de: 'Traktorfahrer', en: 'Tractor driver' },
-          { de: 'Kind mit Eierkorb', en: 'Child with egg basket' },
-          { de: 'Hofhund', en: 'Farm dog' },
-          { de: 'Erntehelfer', en: 'Harvest helper' },
+          {
+            de: 'Landwirtin',
+            en: 'Farmer',
+          },
+          {
+            de: 'Kind beim Streicheln',
+            en: 'Child petting animal',
+          },
+          {
+            de: 'Melker',
+            en: 'Milker',
+          },
+          {
+            de: 'Traktorfahrer',
+            en: 'Tractor driver',
+          },
+          {
+            de: 'Kind mit Eierkorb',
+            en: 'Child with egg basket',
+          },
+          {
+            de: 'Hofhund',
+            en: 'Farm dog',
+          },
+          {
+            de: 'Erntehelfer',
+            en: 'Harvest helper',
+          },
         ],
       },
       {
         id: 'natur-strand',
-        name: { de: 'Strand', en: 'Beach' },
+        name: {
+          de: 'Strand',
+          en: 'Beach',
+        },
         roles: [
-          { de: 'Strandkorbvermieter', en: 'Beach chair renter' },
-          { de: 'Sandburgbauer', en: 'Sand castle builder' },
-          { de: 'Surfer', en: 'Surfer' },
-          { de: 'Muschelsucherin', en: 'Shell collector' },
-          { de: 'Kind mit Eimer', en: 'Child with bucket' },
-          { de: 'Sonnenbader', en: 'Sunbather' },
-          { de: 'Kind mit Drachen', en: 'Child with kite' },
+          {
+            de: 'Strandkorbvermieter',
+            en: 'Beach chair renter',
+          },
+          {
+            de: 'Sandburgbauer',
+            en: 'Sand castle builder',
+          },
+          {
+            de: 'Surfer',
+            en: 'Surfer',
+          },
+          {
+            de: 'Muschelsucherin',
+            en: 'Shell collector',
+          },
+          {
+            de: 'Kind mit Eimer',
+            en: 'Child with bucket',
+          },
+          {
+            de: 'Sonnenbader',
+            en: 'Sunbather',
+          },
+          {
+            de: 'Kind mit Drachen',
+            en: 'Child with kite',
+          },
         ],
       },
       {
         id: 'natur-berghuette',
-        name: { de: 'Berghütte', en: 'Mountain hut' },
+        name: {
+          de: 'Berghütte',
+          en: 'Mountain hut',
+        },
         roles: [
-          { de: 'Hüttenwirt', en: 'Hut keeper' },
-          { de: 'Wanderer mit Rucksack', en: 'Hiker with backpack' },
-          { de: 'Kind mit heißem Kakao', en: 'Child with hot cocoa' },
-          { de: 'Bergführerin', en: 'Mountain guide' },
-          { de: 'Kind mit Gipfelfoto', en: 'Child with summit photo' },
-          { de: 'Bergsteiger mit Seil', en: 'Climber with rope' },
-          { de: 'Hüttenkatze', en: 'Hut cat' },
+          {
+            de: 'Hüttenwirt',
+            en: 'Hut keeper',
+          },
+          {
+            de: 'Wanderer mit Rucksack',
+            en: 'Hiker with backpack',
+          },
+          {
+            de: 'Kind mit heißem Kakao',
+            en: 'Child with hot cocoa',
+          },
+          {
+            de: 'Bergführerin',
+            en: 'Mountain guide',
+          },
+          {
+            de: 'Kind mit Gipfelfoto',
+            en: 'Child with summit photo',
+          },
+          {
+            de: 'Bergsteiger mit Seil',
+            en: 'Climber with rope',
+          },
+          {
+            de: 'Hüttenkatze',
+            en: 'Hut cat',
+          },
         ],
       },
       {
         id: 'natur-gemeinschaftsgarten',
-        name: { de: 'Gemeinschaftsgarten', en: 'Community garden' },
+        name: {
+          de: 'Gemeinschaftsgarten',
+          en: 'Community garden',
+        },
         roles: [
-          { de: 'Gärtnerin', en: 'Gardener' },
-          { de: 'Kind mit Gießkanne', en: 'Child with watering can' },
-          { de: 'Imker', en: 'Beekeeper' },
-          { de: 'Kind beim Unkrautzupfen', en: 'Child weeding' },
-          { de: 'Tomatenernter', en: 'Tomato picker' },
-          { de: 'Kompostbeauftragte', en: 'Compost keeper' },
-          { de: 'Nachbar mit Schubkarre', en: 'Neighbor with wheelbarrow' },
+          {
+            de: 'Gärtnerin',
+            en: 'Gardener',
+          },
+          {
+            de: 'Kind mit Gießkanne',
+            en: 'Child with watering can',
+          },
+          {
+            de: 'Imker',
+            en: 'Beekeeper',
+          },
+          {
+            de: 'Kind beim Unkrautzupfen',
+            en: 'Child weeding',
+          },
+          {
+            de: 'Tomatenernter',
+            en: 'Tomato picker',
+          },
+          {
+            de: 'Kompostbeauftragte',
+            en: 'Compost keeper',
+          },
+          {
+            de: 'Nachbar mit Schubkarre',
+            en: 'Neighbor with wheelbarrow',
+          },
         ],
       },
       {
         id: 'natur-kanutour',
-        name: { de: 'Kanutour', en: 'Canoe trip' },
+        name: {
+          de: 'Kanutour',
+          en: 'Canoe trip',
+        },
         roles: [
-          { de: 'Kanuführung', en: 'Canoe guide' },
-          { de: 'Kind im Bug', en: 'Child in the bow' },
-          { de: 'Steuermann', en: 'Steerer' },
-          { de: 'Kind mit Paddel', en: 'Child with paddle' },
-          { de: 'Gekentertes Kind', en: 'Child who tipped over' },
-          { de: 'Kind mit Schwimmweste', en: 'Child with life vest' },
-          { de: 'Schwanenfamilie', en: 'Swan family' },
+          {
+            de: 'Kanuführung',
+            en: 'Canoe guide',
+          },
+          {
+            de: 'Kind im Bug',
+            en: 'Child in the bow',
+          },
+          {
+            de: 'Steuermann',
+            en: 'Steerer',
+          },
+          {
+            de: 'Kind mit Paddel',
+            en: 'Child with paddle',
+          },
+          {
+            de: 'Gekentertes Kind',
+            en: 'Child who tipped over',
+          },
+          {
+            de: 'Kind mit Schwimmweste',
+            en: 'Child with life vest',
+          },
+          {
+            de: 'Schwanenfamilie',
+            en: 'Swan family',
+          },
         ],
       },
       {
         id: 'natur-aussichtsturm',
-        name: { de: 'Aussichtsturm', en: 'Lookout tower' },
+        name: {
+          de: 'Aussichtsturm',
+          en: 'Lookout tower',
+        },
         roles: [
-          { de: 'Turmwächter', en: 'Tower keeper' },
-          { de: 'Kind mit Fernglas', en: 'Child with binoculars' },
-          { de: 'Kind auf der Treppe', en: 'Child on the stairs' },
-          { de: 'Tourist mit Selfie-Stange', en: 'Tourist with selfie stick' },
-          { de: 'Kind zählt Stufen', en: 'Child counting steps' },
-          { de: 'Elternteil mit Picknick', en: 'Parent with picnic' },
-          { de: 'Kind am Münzfernrohr', en: 'Child at coin telescope' },
+          {
+            de: 'Turmwächter',
+            en: 'Tower keeper',
+          },
+          {
+            de: 'Kind mit Fernglas',
+            en: 'Child with binoculars',
+          },
+          {
+            de: 'Kind auf der Treppe',
+            en: 'Child on the stairs',
+          },
+          {
+            de: 'Tourist mit Selfie-Stange',
+            en: 'Tourist with selfie stick',
+          },
+          {
+            de: 'Kind zählt Stufen',
+            en: 'Child counting steps',
+          },
+          {
+            de: 'Elternteil mit Picknick',
+            en: 'Parent with picnic',
+          },
+          {
+            de: 'Kind am Münzfernrohr',
+            en: 'Child at coin telescope',
+          },
         ],
       },
       {
         id: 'natur-obstwiese',
-        name: { de: 'Obstwiese', en: 'Orchard' },
+        name: {
+          de: 'Obstwiese',
+          en: 'Orchard',
+        },
         roles: [
-          { de: 'Apfelpflückerin', en: 'Apple picker' },
-          { de: 'Kind auf der Leiter', en: 'Child on ladder' },
-          { de: 'Kind mit Wespenangst', en: 'Child afraid of wasps' },
-          { de: 'Saftpresser', en: 'Juice presser' },
-          { de: 'Kind mit Obstkorb', en: 'Child with fruit basket' },
-          { de: 'Schäferin', en: 'Shepherd' },
-          { de: 'Kind unter dem Baum', en: 'Child under tree' },
+          {
+            de: 'Apfelpflückerin',
+            en: 'Apple picker',
+          },
+          {
+            de: 'Kind auf der Leiter',
+            en: 'Child on ladder',
+          },
+          {
+            de: 'Kind mit Wespenangst',
+            en: 'Child afraid of wasps',
+          },
+          {
+            de: 'Saftpresser',
+            en: 'Juice presser',
+          },
+          {
+            de: 'Kind mit Obstkorb',
+            en: 'Child with fruit basket',
+          },
+          {
+            de: 'Schäferin',
+            en: 'Shepherd',
+          },
+          {
+            de: 'Kind unter dem Baum',
+            en: 'Child under tree',
+          },
         ],
       },
       {
         id: 'natur-bergsee',
-        name: { de: 'Bergsee', en: 'Mountain lake' },
+        name: {
+          de: 'Bergsee',
+          en: 'Mountain lake',
+        },
         roles: [
-          { de: 'Wanderer am Ufer', en: 'Hiker on shore' },
-          { de: 'Kind beim Steinehüpfen', en: 'Child skipping stones' },
-          { de: 'Kind mit Picknickdecke', en: 'Child with picnic blanket' },
-          { de: 'Fischer', en: 'Angler' },
-          { de: 'Kind mit nassen Füßen', en: 'Child with wet feet' },
-          { de: 'Gipfelstürmer', en: 'Summit climber' },
-          { de: 'Tretbootfahrer', en: 'Pedal boat rider' },
+          {
+            de: 'Wanderer am Ufer',
+            en: 'Hiker on shore',
+          },
+          {
+            de: 'Kind beim Steinehüpfen',
+            en: 'Child skipping stones',
+          },
+          {
+            de: 'Kind mit Picknickdecke',
+            en: 'Child with picnic blanket',
+          },
+          {
+            de: 'Fischer',
+            en: 'Angler',
+          },
+          {
+            de: 'Kind mit nassen Füßen',
+            en: 'Child with wet feet',
+          },
+          {
+            de: 'Gipfelstürmer',
+            en: 'Summit climber',
+          },
+          {
+            de: 'Tretbootfahrer',
+            en: 'Pedal boat rider',
+          },
         ],
       },
     ],
   },
   {
     id: 'freizeit',
-    name: { de: 'Freizeit', en: 'Free time' },
+    name: {
+      de: 'Freizeit',
+      en: 'Free time',
+    },
     status: 'draft',
     locations: [
       {
         id: 'freizeit-jahrmarkt',
-        name: { de: 'Jahrmarkt', en: 'Fairground' },
+        name: {
+          de: 'Jahrmarkt',
+          en: 'Fairground',
+        },
         roles: [
-          { de: 'Karussellbetreiber', en: 'Carousel operator' },
-          { de: 'Kind mit Zuckerwatte', en: 'Child with cotton candy' },
-          { de: 'Losverkäuferin', en: 'Raffle seller' },
-          { de: 'Kind im Autoscooter', en: 'Child in bumper car' },
-          { de: 'Kind an der Dosenwurfbude', en: 'Child at can toss' },
-          { de: 'Riesenrad-Mitfahrer', en: 'Ferris wheel rider' },
-          { de: 'Kind mit Plüschtier', en: 'Child with plush toy' },
+          {
+            de: 'Karussellbetreiber',
+            en: 'Carousel operator',
+          },
+          {
+            de: 'Kind mit Zuckerwatte',
+            en: 'Child with cotton candy',
+          },
+          {
+            de: 'Losverkäuferin',
+            en: 'Raffle seller',
+          },
+          {
+            de: 'Kind im Autoscooter',
+            en: 'Child in bumper car',
+          },
+          {
+            de: 'Kind an der Dosenwurfbude',
+            en: 'Child at can toss',
+          },
+          {
+            de: 'Riesenrad-Mitfahrer',
+            en: 'Ferris wheel rider',
+          },
+          {
+            de: 'Kind mit Plüschtier',
+            en: 'Child with plush toy',
+          },
         ],
       },
       {
         id: 'freizeit-sportplatz',
-        name: { de: 'Sportplatz', en: 'Sports field' },
+        name: {
+          de: 'Sportplatz',
+          en: 'Sports field',
+        },
         roles: [
-          { de: 'Trainerin', en: 'Coach' },
-          { de: 'Kind im Tor', en: 'Child in goal' },
-          { de: 'Stürmer', en: 'Striker' },
-          { de: 'Schiedsrichterin', en: 'Referee' },
-          { de: 'Kind beim Aufwärmen', en: 'Child warming up' },
-          { de: 'Platzwart', en: 'Groundskeeper' },
-          { de: 'Zuschauer am Rand', en: 'Spectator at edge' },
+          {
+            de: 'Trainerin',
+            en: 'Coach',
+          },
+          {
+            de: 'Kind im Tor',
+            en: 'Child in goal',
+          },
+          {
+            de: 'Stürmer',
+            en: 'Striker',
+          },
+          {
+            de: 'Schiedsrichterin',
+            en: 'Referee',
+          },
+          {
+            de: 'Kind beim Aufwärmen',
+            en: 'Child warming up',
+          },
+          {
+            de: 'Platzwart',
+            en: 'Groundskeeper',
+          },
+          {
+            de: 'Zuschauer am Rand',
+            en: 'Spectator at edge',
+          },
         ],
       },
       {
         id: 'freizeit-freizeitpark',
-        name: { de: 'Freizeitpark', en: 'Theme park' },
+        name: {
+          de: 'Freizeitpark',
+          en: 'Theme park',
+        },
         roles: [
-          { de: 'Achterbahnfahrer', en: 'Roller coaster rider' },
-          { de: 'Maskottchen', en: 'Mascot' },
-          { de: 'Kind an der Größenlatte', en: 'Child at height bar' },
-          { de: 'Parkkassenkraft', en: 'Park cashier' },
-          { de: 'Wasserbahn-Fahrer', en: 'Log flume rider' },
-          { de: 'Ordner am Eingang', en: 'Gate attendant' },
-          { de: 'Elternteil mit Parkplan', en: 'Parent with park map' },
+          {
+            de: 'Achterbahnfahrer',
+            en: 'Roller coaster rider',
+          },
+          {
+            de: 'Maskottchen',
+            en: 'Mascot',
+          },
+          {
+            de: 'Kind an der Größenlatte',
+            en: 'Child at height bar',
+          },
+          {
+            de: 'Parkkassenkraft',
+            en: 'Park cashier',
+          },
+          {
+            de: 'Wasserbahn-Fahrer',
+            en: 'Log flume rider',
+          },
+          {
+            de: 'Ordner am Eingang',
+            en: 'Gate attendant',
+          },
+          {
+            de: 'Elternteil mit Parkplan',
+            en: 'Parent with park map',
+          },
         ],
       },
       {
         id: 'freizeit-eishalle',
-        name: { de: 'Eishalle', en: 'Ice rink' },
+        name: {
+          de: 'Eishalle',
+          en: 'Ice rink',
+        },
         roles: [
-          { de: 'Eiskunstläufer', en: 'Figure skater' },
-          { de: 'Eishockeyspieler', en: 'Hockey player' },
-          { de: 'Kind fällt hin', en: 'Child who falls' },
-          { de: 'Schlittschuhverleih', en: 'Skate rental' },
-          { de: 'Eismaschinenfahrer', en: 'Ice resurfacer driver' },
-          { de: 'Kind an der Bande', en: 'Child at the barrier' },
-          { de: 'Kufenschleifer', en: 'Skate sharpener' },
+          {
+            de: 'Eiskunstläufer',
+            en: 'Figure skater',
+          },
+          {
+            de: 'Eishockeyspieler',
+            en: 'Hockey player',
+          },
+          {
+            de: 'Kind fällt hin',
+            en: 'Child who falls',
+          },
+          {
+            de: 'Schlittschuhverleih',
+            en: 'Skate rental',
+          },
+          {
+            de: 'Eismaschinenfahrer',
+            en: 'Ice resurfacer driver',
+          },
+          {
+            de: 'Kind an der Bande',
+            en: 'Child at the barrier',
+          },
+          {
+            de: 'Kufenschleifer',
+            en: 'Skate sharpener',
+          },
         ],
       },
       {
         id: 'freizeit-bowlingbahn',
-        name: { de: 'Bowlingbahn', en: 'Bowling alley' },
+        name: {
+          de: 'Bowlingbahn',
+          en: 'Bowling alley',
+        },
         roles: [
-          { de: 'Kind mit Kugel', en: 'Child with ball' },
-          { de: 'Kind wirft Strike', en: 'Child bowling strike' },
-          { de: 'Schuhverleih', en: 'Shoe rental' },
-          { de: 'Kind an der Anzeige', en: 'Child at scoreboard' },
-          { de: 'Pinsetzer', en: 'Pin setter' },
-          { de: 'Geburtstagskind', en: 'Birthday child' },
-          { de: 'Kellner mit Pommes', en: 'Waiter with fries' },
+          {
+            de: 'Kind mit Kugel',
+            en: 'Child with ball',
+          },
+          {
+            de: 'Kind wirft Strike',
+            en: 'Child bowling strike',
+          },
+          {
+            de: 'Schuhverleih',
+            en: 'Shoe rental',
+          },
+          {
+            de: 'Kind an der Anzeige',
+            en: 'Child at scoreboard',
+          },
+          {
+            de: 'Pinsetzer',
+            en: 'Pin setter',
+          },
+          {
+            de: 'Geburtstagskind',
+            en: 'Birthday child',
+          },
+          {
+            de: 'Kellner mit Pommes',
+            en: 'Waiter with fries',
+          },
         ],
       },
       {
         id: 'freizeit-skatepark',
-        name: { de: 'Skatepark', en: 'Skate park' },
+        name: {
+          de: 'Skatepark',
+          en: 'Skate park',
+        },
         roles: [
-          { de: 'Skater', en: 'Skater' },
-          { de: 'Kind auf Roller', en: 'Child on scooter' },
-          { de: 'BMX-Fahrer', en: 'BMX rider' },
-          { de: 'Anfänger mit Knieschonern', en: 'Beginner with kneepads' },
-          { de: 'Zuschauer auf Mauer', en: 'Spectator on wall' },
-          { de: 'Kind filmt', en: 'Child filming' },
-          { de: 'Kind übt Trick', en: 'Child practicing trick' },
+          {
+            de: 'Skater',
+            en: 'Skater',
+          },
+          {
+            de: 'Kind auf Roller',
+            en: 'Child on scooter',
+          },
+          {
+            de: 'BMX-Fahrer',
+            en: 'BMX rider',
+          },
+          {
+            de: 'Anfänger mit Knieschonern',
+            en: 'Beginner with kneepads',
+          },
+          {
+            de: 'Zuschauer auf Mauer',
+            en: 'Spectator on wall',
+          },
+          {
+            de: 'Kind filmt',
+            en: 'Child filming',
+          },
+          {
+            de: 'Kind übt Trick',
+            en: 'Child practicing trick',
+          },
         ],
       },
       {
         id: 'freizeit-jugendzentrum',
-        name: { de: 'Jugendzentrum', en: 'Youth center' },
+        name: {
+          de: 'Jugendzentrum',
+          en: 'Youth center',
+        },
         roles: [
-          { de: 'Jugendbetreuung', en: 'Youth worker' },
-          { de: 'Kind am Tischkicker', en: 'Child at foosball' },
-          { de: 'Kind am Tischtennis', en: 'Child at ping-pong' },
-          { de: 'Kind mit Brettspiel', en: 'Child with board game' },
-          { de: 'Kind an der Theke', en: 'Child at counter' },
-          { de: 'Kind beim Basteln', en: 'Child crafting' },
-          { de: 'Kind mit Hausaufgabenhilfe', en: 'Child getting homework help' },
+          {
+            de: 'Jugendbetreuung',
+            en: 'Youth worker',
+          },
+          {
+            de: 'Kind am Tischkicker',
+            en: 'Child at foosball',
+          },
+          {
+            de: 'Kind am Tischtennis',
+            en: 'Child at ping-pong',
+          },
+          {
+            de: 'Kind mit Brettspiel',
+            en: 'Child with board game',
+          },
+          {
+            de: 'Kind an der Theke',
+            en: 'Child at counter',
+          },
+          {
+            de: 'Kind beim Basteln',
+            en: 'Child crafting',
+          },
+          {
+            de: 'Kind mit Hausaufgabenhilfe',
+            en: 'Child getting homework help',
+          },
         ],
       },
       {
         id: 'freizeit-museum',
-        name: { de: 'Museum', en: 'Museum' },
+        name: {
+          de: 'Museum',
+          en: 'Museum',
+        },
         roles: [
-          { de: 'Museumsführung', en: 'Museum guide' },
-          { de: 'Kind vor Dinoskelett', en: 'Child at dino skeleton' },
-          { de: 'Aufsicht im Saal', en: 'Gallery guard' },
-          { de: 'Kind mit Audioguide', en: 'Child with audio guide' },
-          { de: 'Kind mit Arbeitsblatt', en: 'Child with worksheet' },
-          { de: 'Restaurator', en: 'Restorer' },
-          { de: 'Kind im Museumsshop', en: 'Child in gift shop' },
+          {
+            de: 'Museumsführung',
+            en: 'Museum guide',
+          },
+          {
+            de: 'Kind vor Dinoskelett',
+            en: 'Child at dino skeleton',
+          },
+          {
+            de: 'Aufsicht im Saal',
+            en: 'Gallery guard',
+          },
+          {
+            de: 'Kind mit Audioguide',
+            en: 'Child with audio guide',
+          },
+          {
+            de: 'Kind mit Arbeitsblatt',
+            en: 'Child with worksheet',
+          },
+          {
+            de: 'Restaurator',
+            en: 'Restorer',
+          },
+          {
+            de: 'Kind im Museumsshop',
+            en: 'Child in gift shop',
+          },
         ],
       },
       {
         id: 'freizeit-minigolfplatz',
-        name: { de: 'Minigolfplatz', en: 'Mini golf course' },
+        name: {
+          de: 'Minigolfplatz',
+          en: 'Mini golf course',
+        },
         roles: [
-          { de: 'Kind beim Putten', en: 'Child putting' },
-          { de: 'Kind mit Hole-in-one', en: 'Child with hole-in-one' },
-          { de: 'Kassenkraft am Eingang', en: 'Cashier at entrance' },
-          { de: 'Kind mit Zählkarte', en: 'Child with scorecard' },
-          { de: 'Kind sucht Ball', en: 'Child searching ball' },
-          { de: 'Elternteil mit Eis', en: 'Parent with ice cream' },
-          { de: 'Wartende Gruppe', en: 'Waiting group' },
+          {
+            de: 'Kind beim Putten',
+            en: 'Child putting',
+          },
+          {
+            de: 'Kind mit Hole-in-one',
+            en: 'Child with hole-in-one',
+          },
+          {
+            de: 'Kassenkraft am Eingang',
+            en: 'Cashier at entrance',
+          },
+          {
+            de: 'Kind mit Zählkarte',
+            en: 'Child with scorecard',
+          },
+          {
+            de: 'Kind sucht Ball',
+            en: 'Child searching ball',
+          },
+          {
+            de: 'Elternteil mit Eis',
+            en: 'Parent with ice cream',
+          },
+          {
+            de: 'Wartende Gruppe',
+            en: 'Waiting group',
+          },
         ],
       },
       {
         id: 'freizeit-fussballstadion',
-        name: { de: 'Fußballstadion', en: 'Football stadium' },
+        name: {
+          de: 'Fußballstadion',
+          en: 'Football stadium',
+        },
         roles: [
-          { de: 'Stadionsprecher', en: 'Announcer' },
-          { de: 'Fan mit Schal', en: 'Fan with scarf' },
-          { de: 'Würstchenverkäufer', en: 'Sausage seller' },
-          { de: 'Ordner', en: 'Steward' },
-          { de: 'Fan mit Trommel', en: 'Fan with drum' },
-          { de: 'Ballkind', en: 'Ball kid' },
-          { de: 'Kommentator', en: 'Commentator' },
+          {
+            de: 'Stadionsprecher',
+            en: 'Announcer',
+          },
+          {
+            de: 'Fan mit Schal',
+            en: 'Fan with scarf',
+          },
+          {
+            de: 'Würstchenverkäufer',
+            en: 'Sausage seller',
+          },
+          {
+            de: 'Ordner',
+            en: 'Steward',
+          },
+          {
+            de: 'Fan mit Trommel',
+            en: 'Fan with drum',
+          },
+          {
+            de: 'Ballkind',
+            en: 'Ball kid',
+          },
+          {
+            de: 'Kommentator',
+            en: 'Commentator',
+          },
         ],
       },
     ],
   },
-  // NEUE THEMENPAKETE AUS PHASE 2 (Inspiration: Places, Movies, Travel, Stars, Disney)
   {
     id: 'places',
-    name: { de: 'Orte weltweit', en: 'Places' },
+    name: {
+      de: 'Orte weltweit',
+      en: 'Places',
+    },
     status: 'draft',
     locations: [
       {
         id: 'places-strand',
-        name: { de: 'Sandstrand am Meer', en: 'Beach' },
+        name: {
+          de: 'Sandstrand am Meer',
+          en: 'Beach',
+        },
         roles: [
-          { de: 'Rettungsschwimmer', en: 'Lifeguard' },
-          { de: 'Sandburgenbauer', en: 'Sand castle builder' },
-          { de: 'Surfer mit Brett', en: 'Surfer' },
-          { de: 'Eisverkäufer', en: 'Ice cream seller' },
-          { de: 'Sonnenanbeter', en: 'Sunbather' },
-          { de: 'Muschelsammler', en: 'Shell collector' },
-          { de: 'Möwenbeobachter', en: 'Seagull watcher' },
+          {
+            de: 'Rettungsschwimmer',
+            en: 'Lifeguard',
+          },
+          {
+            de: 'Sandburgenbauer',
+            en: 'Sand castle builder',
+          },
+          {
+            de: 'Surfer mit Brett',
+            en: 'Surfer',
+          },
+          {
+            de: 'Eisverkäufer',
+            en: 'Ice cream seller',
+          },
+          {
+            de: 'Sonnenanbeter',
+            en: 'Sunbather',
+          },
+          {
+            de: 'Muschelsammler',
+            en: 'Shell collector',
+          },
+          {
+            de: 'Möwenbeobachter',
+            en: 'Seagull watcher',
+          },
         ],
       },
       {
         id: 'places-flughafen',
-        name: { de: 'Internationaler Flughafen', en: 'Airport' },
+        name: {
+          de: 'Internationaler Flughafen',
+          en: 'Airport',
+        },
         roles: [
-          { de: 'Flugkapitän', en: 'Flight captain' },
-          { de: 'Flugbegleiterin', en: 'Flight attendant' },
-          { de: 'Sicherheitskontrolle', en: 'Security officer' },
-          { de: 'Passagier mit Verspätung', en: 'Delayed passenger' },
-          { de: 'Kofferabfertiger', en: 'Baggage handler' },
-          { de: 'Zollbeamtin', en: 'Customs officer' },
-          { de: 'Duty-Free-Verkäufer', en: 'Duty free cashier' },
+          {
+            de: 'Flugkapitän',
+            en: 'Flight captain',
+          },
+          {
+            de: 'Flugbegleiterin',
+            en: 'Flight attendant',
+          },
+          {
+            de: 'Sicherheitskontrolle',
+            en: 'Security officer',
+          },
+          {
+            de: 'Passagier mit Verspätung',
+            en: 'Delayed passenger',
+          },
+          {
+            de: 'Kofferabfertiger',
+            en: 'Baggage handler',
+          },
+          {
+            de: 'Zollbeamtin',
+            en: 'Customs officer',
+          },
+          {
+            de: 'Duty-Free-Verkäufer',
+            en: 'Duty free cashier',
+          },
         ],
       },
       {
         id: 'places-bibliothek',
-        name: { de: 'Große Stadtbibliothek', en: 'Library' },
+        name: {
+          de: 'Große Stadtbibliothek',
+          en: 'Library',
+        },
         roles: [
-          { de: 'Bibliothekarin', en: 'Head librarian' },
-          { de: 'Leseratte mit Bücherstapel', en: 'Avid bookworm' },
-          { de: 'Schüler beim Lernen', en: 'Studying student' },
-          { de: 'Flüsternder Gast', en: 'Whispering visitor' },
-          { de: 'Buchbinder', en: 'Book repairer' },
-          { de: 'Comic-Fan am Regal', en: 'Comic reader' },
-          { de: 'Archivar', en: 'Archivist' },
+          {
+            de: 'Bibliothekarin',
+            en: 'Head librarian',
+          },
+          {
+            de: 'Leseratte mit Bücherstapel',
+            en: 'Avid bookworm',
+          },
+          {
+            de: 'Schüler beim Lernen',
+            en: 'Studying student',
+          },
+          {
+            de: 'Flüsternder Gast',
+            en: 'Whispering visitor',
+          },
+          {
+            de: 'Buchbinder',
+            en: 'Book repairer',
+          },
+          {
+            de: 'Comic-Fan am Regal',
+            en: 'Comic reader',
+          },
+          {
+            de: 'Archivar',
+            en: 'Archivist',
+          },
         ],
       },
       {
         id: 'places-krankenhaus',
-        name: { de: 'Krankenhaus', en: 'Hospital' },
+        name: {
+          de: 'Krankenhaus',
+          en: 'Hospital',
+        },
         roles: [
-          { de: 'Notärztin', en: 'Emergency doctor' },
-          { de: 'Pfleger mit Rollstuhl', en: 'Orderly with wheelchair' },
-          { de: 'Patient mit Gipsarm', en: 'Patient in cast' },
-          { de: 'Rettungssanitäter', en: 'Paramedic' },
-          { de: 'Besucher mit Blumenstrauß', en: 'Visitor with flowers' },
-          { de: 'Chirurgin', en: 'Surgeon' },
-          { de: 'Empfangskraft', en: 'Receptionist' },
+          {
+            de: 'Notärztin',
+            en: 'Emergency doctor',
+          },
+          {
+            de: 'Pfleger mit Rollstuhl',
+            en: 'Orderly with wheelchair',
+          },
+          {
+            de: 'Patient mit Gipsarm',
+            en: 'Patient in cast',
+          },
+          {
+            de: 'Rettungssanitäter',
+            en: 'Paramedic',
+          },
+          {
+            de: 'Besucher mit Blumenstrauß',
+            en: 'Visitor with flowers',
+          },
+          {
+            de: 'Chirurgin',
+            en: 'Surgeon',
+          },
+          {
+            de: 'Empfangskraft',
+            en: 'Receptionist',
+          },
         ],
       },
       {
         id: 'places-fitnessstudio',
-        name: { de: 'Fitnessstudio', en: 'Gym' },
+        name: {
+          de: 'Fitnessstudio',
+          en: 'Gym',
+        },
         roles: [
-          { de: 'Fitnesstrainer', en: 'Fitness coach' },
-          { de: 'Gewichtheber', en: 'Weight lifter' },
-          { de: 'Jogger auf dem Laufband', en: 'Treadmill runner' },
-          { de: 'Yoga-Übende', en: 'Yoga practitioner' },
-          { de: 'Smoothie-Mixer an der Bar', en: 'Shake bar tender' },
-          { de: 'Anfänger mit Hanteln', en: 'Gym rookie' },
-          { de: 'Dehnende Person', en: 'Stretching person' },
+          {
+            de: 'Fitnesstrainer',
+            en: 'Fitness coach',
+          },
+          {
+            de: 'Gewichtheber',
+            en: 'Weight lifter',
+          },
+          {
+            de: 'Jogger auf dem Laufband',
+            en: 'Treadmill runner',
+          },
+          {
+            de: 'Yoga-Übende',
+            en: 'Yoga practitioner',
+          },
+          {
+            de: 'Smoothie-Mixer an der Bar',
+            en: 'Shake bar tender',
+          },
+          {
+            de: 'Anfänger mit Hanteln',
+            en: 'Gym rookie',
+          },
+          {
+            de: 'Dehnende Person',
+            en: 'Stretching person',
+          },
         ],
       },
       {
         id: 'places-museum',
-        name: { de: 'Naturkundemuseum', en: 'Museum' },
+        name: {
+          de: 'Naturkundemuseum',
+          en: 'Museum',
+        },
         roles: [
-          { de: 'Museumsführerin', en: 'Tour guide' },
-          { de: 'Kind vor Dinoskelett', en: 'Kid at T-Rex fossil' },
-          { de: 'Museumswärter', en: 'Hall guard' },
-          { de: 'Restaurator im Labor', en: 'Fossil restorer' },
-          { de: 'Tourist mit Audioguide', en: 'Tourist with audio guide' },
-          { de: 'Souvenirverkäufer', en: 'Gift shop seller' },
-          { de: 'Kunststudentin', en: 'Art sketcher' },
+          {
+            de: 'Museumsführerin',
+            en: 'Tour guide',
+          },
+          {
+            de: 'Kind vor Dinoskelett',
+            en: 'Kid at T-Rex fossil',
+          },
+          {
+            de: 'Museumswärter',
+            en: 'Hall guard',
+          },
+          {
+            de: 'Restaurator im Labor',
+            en: 'Fossil restorer',
+          },
+          {
+            de: 'Tourist mit Audioguide',
+            en: 'Tourist with audio guide',
+          },
+          {
+            de: 'Souvenirverkäufer',
+            en: 'Gift shop seller',
+          },
+          {
+            de: 'Kunststudentin',
+            en: 'Art sketcher',
+          },
         ],
       },
       {
         id: 'places-aquarium',
-        name: { de: 'Riesen-Aquarium', en: 'Aquarium' },
+        name: {
+          de: 'Riesen-Aquarium',
+          en: 'Aquarium',
+        },
         roles: [
-          { de: 'Meeresbiologe', en: 'Marine biologist' },
-          { de: 'Haifütterer', en: 'Shark feeder' },
-          { de: 'Kind vor Panoramascheibe', en: 'Child at viewing glass' },
-          { de: 'Taucher im Korallenbecken', en: 'Tank diver' },
-          { de: 'Pinguinpflegerin', en: 'Penguin keeper' },
-          { de: 'Souvenirladen-Kraft', en: 'Souvenir shop cashier' },
-          { de: 'Fotograf mit Polfilter', en: 'Underwater photographer' },
+          {
+            de: 'Meeresbiologe',
+            en: 'Marine biologist',
+          },
+          {
+            de: 'Haifütterer',
+            en: 'Shark feeder',
+          },
+          {
+            de: 'Kind vor Panoramascheibe',
+            en: 'Child at viewing glass',
+          },
+          {
+            de: 'Taucher im Korallenbecken',
+            en: 'Tank diver',
+          },
+          {
+            de: 'Pinguinpflegerin',
+            en: 'Penguin keeper',
+          },
+          {
+            de: 'Souvenirladen-Kraft',
+            en: 'Souvenir shop cashier',
+          },
+          {
+            de: 'Fotograf mit Polfilter',
+            en: 'Underwater photographer',
+          },
         ],
       },
       {
         id: 'places-freizeitpark',
-        name: { de: 'Erlebnispark & Achterbahn', en: 'Amusement park' },
+        name: {
+          de: 'Erlebnispark & Achterbahn',
+          en: 'Amusement park',
+        },
         roles: [
-          { de: 'Achterbahn-Bediener', en: 'Roller coaster operator' },
-          { de: 'Parkmaskottchen im Kostüm', en: 'Costumed mascot' },
-          { de: 'Zuckerwatteverkäuferin', en: 'Cotton candy seller' },
-          { de: 'Gast mit weichen Knien', en: 'Dizzy park guest' },
-          { de: 'Kind im Kettenkarussell', en: 'Merry-go-round rider' },
-          { de: 'Sanitäter der Erste-Hilfe-Station', en: 'Park paramedic' },
-          { de: 'Fotograf am Ausstieg', en: 'Photo booth seller' },
+          {
+            de: 'Achterbahn-Bediener',
+            en: 'Roller coaster operator',
+          },
+          {
+            de: 'Parkmaskottchen im Kostüm',
+            en: 'Costumed mascot',
+          },
+          {
+            de: 'Zuckerwatteverkäuferin',
+            en: 'Cotton candy seller',
+          },
+          {
+            de: 'Gast mit weichen Knien',
+            en: 'Dizzy park guest',
+          },
+          {
+            de: 'Kind im Kettenkarussell',
+            en: 'Merry-go-round rider',
+          },
+          {
+            de: 'Sanitäter der Erste-Hilfe-Station',
+            en: 'Park paramedic',
+          },
+          {
+            de: 'Fotograf am Ausstieg',
+            en: 'Photo booth seller',
+          },
         ],
       },
       {
         id: 'places-supermarkt',
-        name: { de: 'Großsupermarkt', en: 'Supermarket' },
+        name: {
+          de: 'Großsupermarkt',
+          en: 'Supermarket',
+        },
         roles: [
-          { de: 'Schnellkassiererin', en: 'Fast cashier' },
-          { de: 'Regaleinräumer', en: 'Shelf stocker' },
-          { de: 'Filialleitung', en: 'Store manager' },
-          { de: 'Kunde mit langem Einkaufszettel', en: 'Customer with long list' },
-          { de: 'Bäcker an der Frischetheke', en: 'Bakery counter baker' },
-          { de: 'Pfandflaschen-Sammler', en: 'Bottle refund regular' },
-          { de: 'Kind im Einkaufswagen', en: 'Toddler in shopping cart' },
+          {
+            de: 'Schnellkassiererin',
+            en: 'Fast cashier',
+          },
+          {
+            de: 'Regaleinräumer',
+            en: 'Shelf stocker',
+          },
+          {
+            de: 'Filialleitung',
+            en: 'Store manager',
+          },
+          {
+            de: 'Kunde mit langem Einkaufszettel',
+            en: 'Customer with long list',
+          },
+          {
+            de: 'Bäcker an der Frischetheke',
+            en: 'Bakery counter baker',
+          },
+          {
+            de: 'Pfandflaschen-Sammler',
+            en: 'Bottle refund regular',
+          },
+          {
+            de: 'Kind im Einkaufswagen',
+            en: 'Toddler in shopping cart',
+          },
         ],
       },
       {
         id: 'places-baeckerei',
-        name: { de: 'Handwerksbäckerei', en: 'Bakery' },
+        name: {
+          de: 'Handwerksbäckerei',
+          en: 'Bakery',
+        },
         roles: [
-          { de: 'Bäckermeister', en: 'Master baker' },
-          { de: 'Lehrling am Steinofen', en: 'Apprentice at the oven' },
-          { de: 'Verkäuferin mit Schürze', en: 'Counter salesperson' },
-          { de: 'Frühaufsteher in der Schlange', en: 'Early morning regular' },
-          { de: 'Tortenverzierer', en: 'Pastry decorator' },
-          { de: 'Kind mit Münze fürs Brötchen', en: 'Child buying bread roll' },
-          { de: 'Lieferfahrer mit Mehl', en: 'Flour delivery driver' },
+          {
+            de: 'Bäckermeister',
+            en: 'Master baker',
+          },
+          {
+            de: 'Lehrling am Steinofen',
+            en: 'Apprentice at the oven',
+          },
+          {
+            de: 'Verkäuferin mit Schürze',
+            en: 'Counter salesperson',
+          },
+          {
+            de: 'Frühaufsteher in der Schlange',
+            en: 'Early morning regular',
+          },
+          {
+            de: 'Tortenverzierer',
+            en: 'Pastry decorator',
+          },
+          {
+            de: 'Kind mit Münze fürs Brötchen',
+            en: 'Child buying bread roll',
+          },
+          {
+            de: 'Lieferfahrer mit Mehl',
+            en: 'Flour delivery driver',
+          },
         ],
       },
       {
         id: 'places-waschsalon',
-        name: { de: 'Waschsalon', en: 'Laundromat' },
+        name: {
+          de: 'Waschsalon',
+          en: 'Laundromat',
+        },
         roles: [
-          { de: 'Student mit riesigem Wäschekorb', en: 'Student with giant basket' },
-          { de: 'Waschmaschinen-Techniker', en: 'Repair technician' },
-          { de: 'Wartende Person mit Buch', en: 'Waiting reader' },
-          { de: 'Waschmittel-Dosierer', en: 'Detergent measurer' },
-          { de: 'Socken-Sucher vor Trommel', en: 'Missing sock hunter' },
-          { de: 'Besitzer des Waschsalons', en: 'Laundromat owner' },
-          { de: 'Kaffeetrinker am Automaten', en: 'Vending coffee drinker' },
+          {
+            de: 'Student mit riesigem Wäschekorb',
+            en: 'Student with giant basket',
+          },
+          {
+            de: 'Waschmaschinen-Techniker',
+            en: 'Repair technician',
+          },
+          {
+            de: 'Wartende Person mit Buch',
+            en: 'Waiting reader',
+          },
+          {
+            de: 'Waschmittel-Dosierer',
+            en: 'Detergent measurer',
+          },
+          {
+            de: 'Socken-Sucher vor Trommel',
+            en: 'Missing sock hunter',
+          },
+          {
+            de: 'Besitzer des Waschsalons',
+            en: 'Laundromat owner',
+          },
+          {
+            de: 'Kaffeetrinker am Automaten',
+            en: 'Vending coffee drinker',
+          },
         ],
       },
       {
         id: 'places-konzerthalle',
-        name: { de: 'Philharmonie & Konzerthalle', en: 'Concert hall' },
+        name: {
+          de: 'Philharmonie & Konzerthalle',
+          en: 'Concert hall',
+        },
         roles: [
-          { de: 'Dirigentin am Pult', en: 'Conductor' },
-          { de: 'Erste Geigerin', en: 'Concertmaster violinist' },
-          { de: 'Tontechniker am Mischpult', en: 'Sound engineer' },
-          { de: 'Platzanweiser mit Taschenlampe', en: 'Usher with flashlight' },
-          { de: 'Zuschauer im Festanzug', en: 'Dressed-up audience member' },
-          { de: 'Bühnentechniker mit Kabel', en: 'Stagehand' },
-          { de: 'Beleuchter am Scheinwerfer', en: 'Spotlight operator' },
+          {
+            de: 'Dirigentin am Pult',
+            en: 'Conductor',
+          },
+          {
+            de: 'Erste Geigerin',
+            en: 'Concertmaster violinist',
+          },
+          {
+            de: 'Tontechniker am Mischpult',
+            en: 'Sound engineer',
+          },
+          {
+            de: 'Platzanweiser mit Taschenlampe',
+            en: 'Usher with flashlight',
+          },
+          {
+            de: 'Zuschauer im Festanzug',
+            en: 'Dressed-up audience member',
+          },
+          {
+            de: 'Bühnentechniker mit Kabel',
+            en: 'Stagehand',
+          },
+          {
+            de: 'Beleuchter am Scheinwerfer',
+            en: 'Spotlight operator',
+          },
         ],
       },
       {
         id: 'places-dachterrasse',
-        name: { de: 'Dachterrasse über der Stadt', en: 'Rooftop' },
+        name: {
+          de: 'Dachterrasse über der Stadt',
+          en: 'Rooftop',
+        },
         roles: [
-          { de: 'Barkeeper mit Limonade', en: 'Limonade bartender' },
-          { de: 'Grillmeister am Rost', en: 'Barbecue chef' },
-          { de: 'Taubenbeobachter', en: 'Skyline pigeon watcher' },
-          { de: 'Sonnenuntergangs-Genießer', en: 'Sunset watcher' },
-          { de: 'Stadtgärtner mit Tomaten', en: 'Rooftop gardener' },
-          { de: 'Tourist mit Spiegelreflexkamera', en: 'Tourist taking photos' },
-          { de: 'DJ mit Kopfhörern', en: 'Chillout DJ' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'movies',
-    name: { de: 'Filme & Serien', en: 'Movies & TV' },
-    status: 'draft',
-    locations: [
-      {
-        id: 'movies-star-wars',
-        name: { de: 'Sternenkreuzer (Star Wars)', en: 'Star Wars Star Cruiser' },
-        roles: [
-          { de: 'Jedi-Ritter mit Lichtschwert', en: 'Jedi Knight' },
-          { de: 'Sith-Lord mit Maske', en: 'Sith Lord' },
-          { de: 'Astromech-Droide', en: 'Repair droid' },
-          { de: 'Wookiee-Kopilot', en: 'Wookiee co-pilot' },
-          { de: 'Sturmtruppler auf Patrouille', en: 'Stormtrooper' },
-          { de: 'Schmuggler im Hyperraum', en: 'Smuggler pilot' },
-          { de: 'Rebellen-Kommandant', en: 'Rebel commander' },
-        ],
-      },
-      {
-        id: 'movies-harry-potter',
-        name: { de: 'Zauberschule Hogwarts (Harry Potter)', en: 'Hogwarts (Harry Potter)' },
-        roles: [
-          { de: 'Schulleiter mit weißem Bart', en: 'Headmaster with beard' },
-          { de: 'Zauberschüler im Umhang', en: 'Magic student' },
-          { de: 'Quidditch-Sucher auf dem Besen', en: 'Quidditch seeker' },
-          { de: 'Tränkemeister im Kerker', en: 'Potion master' },
-          { de: 'Hauself in der Schlossküche', en: 'House elf in kitchen' },
-          { de: 'Schlossgeist auf Wanderschaft', en: 'Castle ghost' },
-          { de: 'Sprechender Hut auf Stuhl', en: 'Sorting hat' },
-        ],
-      },
-      {
-        id: 'movies-koenig-der-loewen',
-        name: { de: 'Die Savanne (Der König der Löwen)', en: 'Pride Lands (Lion King)' },
-        roles: [
-          { de: 'Weiser Pavian-Schamane', en: 'Wise mandrill shaman' },
-          { de: 'Junger Löwenprinz', en: 'Young lion prince' },
-          { de: 'Witziges Erdmännchen', en: 'Joking meerkat' },
-          { de: 'Gemütliches Warzenschwein', en: 'Easygoing warthog' },
-          { de: 'Nashornvogel-Hofberater', en: 'Hornbill royal advisor' },
-          { de: 'Stolze Löwenkönigin', en: 'Proud lion queen' },
-          { de: 'Zebra im Herdenlauf', en: 'Galloping zebra' },
-        ],
-      },
-      {
-        id: 'movies-jurassic-park',
-        name: { de: 'Dinosaurier-Insel (Jurassic Park)', en: 'Jurassic Park Island' },
-        roles: [
-          { de: 'Paläontologe mit Schürfhut', en: 'Paleontologist' },
-          { de: 'T-Rex-Wärter mit Fleischhappen', en: 'T-Rex enclosure keeper' },
-          { de: 'Parkranger im Elektro-Jeep', en: 'Ranger in electric jeep' },
-          { de: 'Genetiker im Brutlabor', en: 'Genetics scientist' },
-          { de: 'Parkgründer mit Bernsteinstock', en: 'Park founder with cane' },
-          { de: 'Kind auf der Flucht vor Raptoren', en: 'Kid running from raptors' },
-          { de: 'Tourguide am Infostand', en: 'Safari tour guide' },
-        ],
-      },
-      {
-        id: 'movies-spider-man',
-        name: { de: 'Dächer von Manhattan (Spider-Man)', en: 'Spider-Man Manhattan' },
-        roles: [
-          { de: 'Netzschwingender Superheld', en: 'Web-slinging superhero' },
-          { de: 'Wütender Zeitungs-Chefredakteur', en: 'Furious editor-in-chief' },
-          { de: 'Maskierter Superschurke', en: 'Masked supervillain' },
-          { de: 'Nachrichtenfotograf auf dem Dach', en: 'Press photographer on roof' },
-          { de: 'Staunender Passant auf der 5th Ave', en: 'Stunned pedestrian' },
-          { de: 'Liebevolle Tante in Queens', en: 'Caring aunt in Queens' },
-          { de: 'Polizist im Streifenwagen', en: 'Patrol officer' },
-        ],
-      },
-      {
-        id: 'movies-findet-nemo',
-        name: { de: 'Großes Barriereriff (Findet Nemo)', en: 'Great Barrier Reef (Nemo)' },
-        roles: [
-          { de: 'Besorgter Clownfisch-Vater', en: 'Worried clownfish dad' },
-          { de: 'Vergesslicher blauer Doktorfisch', en: 'Forgetful blue tang fish' },
-          { de: 'Uralte Surfer-Meeresschildkröte', en: 'Surfer sea turtle' },
-          { de: 'Vegetarischer Riffhai', en: 'Vegetarian shark' },
-          { de: 'Möwe mit „Meins!“-Rufen', en: 'Seagull shouting Mine!' },
-          { de: 'Zahnarzt mit Praxis-Aquarium', en: 'Dentist with tank' },
-          { de: 'Hilfsbereiter Pelikan am Hafen', en: 'Pelican at the harbor' },
-        ],
-      },
-      {
-        id: 'movies-frozen',
-        name: { de: 'Eispalast auf dem Nordberg (Frozen)', en: 'Frozen Ice Palace' },
-        roles: [
-          { de: 'Eiskönigin mit Frostzauber', en: 'Snow Queen with frost magic' },
-          { de: 'Mutige Schwester mit Zöpfen', en: 'Brave princess with braids' },
-          { de: 'Eisverkäufer mit Holzschlitten', en: 'Ice harvester with sled' },
-          { de: 'Treues Rentier mit Möhre', en: 'Loyal reindeer with carrot' },
-          { de: 'Lebendiger Schneemann der Umarmungen liebt', en: 'Living snowman hugging everyone' },
-          { de: 'Weiser Troll-Ältester im Moos', en: 'Elder moss troll' },
-          { de: 'Schlosskoch mit heißer Schokolade', en: 'Castle chef with hot cocoa' },
-        ],
-      },
-      {
-        id: 'movies-avatar-aang',
-        name: { de: 'Lufttempel (Avatar Herr der Elemente)', en: 'Air Temple (Avatar Aang)' },
-        roles: [
-          { de: 'Luftbändiger-Avatar mit Gleiter', en: 'Airbender avatar with glider' },
-          { de: 'Wasserbändigerin vom Südpol', en: 'Waterbender from South Pole' },
-          { de: 'Blinder Erdbändiger-Champion', en: 'Earthbender champion' },
-          { de: 'Feuerbändiger-Prinz auf Wandlung', en: 'Fire prince seeking redemption' },
-          { de: 'Riesiger fliegender Himmelsbison', en: 'Giant flying sky bison' },
-          { de: 'Krieger mit Bumerang', en: 'Boomerang warrior' },
-          { de: 'Weiser Onkel beim Teetrinken', en: 'Wise uncle drinking tea' },
+          {
+            de: 'Barkeeper mit Limonade',
+            en: 'Limonade bartender',
+          },
+          {
+            de: 'Grillmeister am Rost',
+            en: 'Barbecue chef',
+          },
+          {
+            de: 'Taubenbeobachter',
+            en: 'Skyline pigeon watcher',
+          },
+          {
+            de: 'Sonnenuntergangs-Genießer',
+            en: 'Sunset watcher',
+          },
+          {
+            de: 'Stadtgärtner mit Tomaten',
+            en: 'Rooftop gardener',
+          },
+          {
+            de: 'Tourist mit Spiegelreflexkamera',
+            en: 'Tourist taking photos',
+          },
+          {
+            de: 'DJ mit Kopfhörern',
+            en: 'Chillout DJ',
+          },
         ],
       },
     ],
   },
   {
     id: 'travel-world',
-    name: { de: 'Länder & Weltstädte', en: 'Countries & Cities' },
+    name: {
+      de: 'Länder & Weltstädte',
+      en: 'Countries & Cities',
+    },
     status: 'draft',
     locations: [
       {
         id: 'travel-paris',
-        name: { de: 'Paris (Frankreich)', en: 'Paris (France)' },
+        name: {
+          de: 'Paris (Frankreich)',
+          en: 'Paris (France)',
+        },
         roles: [
-          { de: 'Bäcker mit warmem Baguette', en: 'Baker with warm baguette' },
-          { de: 'Eiffelturm-Aufzugführer', en: 'Eiffel tower elevator guard' },
-          { de: 'Porträtmaler am Montmartre', en: 'Montmartre street painter' },
-          { de: 'Louvre-Museumsführerin vor Mona Lisa', en: 'Louvre tour guide' },
-          { de: 'Café-Kellner mit Silbertablett', en: 'Bistro waiter with tray' },
-          { de: 'Akkordeonspieler an der Seine', en: 'Accordion busker by Seine' },
-          { de: 'Spaziergänger mit Pudel', en: 'Stroller with poodle' },
+          {
+            de: 'Bäcker mit warmem Baguette',
+            en: 'Baker with warm baguette',
+          },
+          {
+            de: 'Eiffelturm-Aufzugführer',
+            en: 'Eiffel tower elevator guard',
+          },
+          {
+            de: 'Porträtmaler am Montmartre',
+            en: 'Montmartre street painter',
+          },
+          {
+            de: 'Louvre-Museumsführerin vor Mona Lisa',
+            en: 'Louvre tour guide',
+          },
+          {
+            de: 'Café-Kellner mit Silbertablett',
+            en: 'Bistro waiter with tray',
+          },
+          {
+            de: 'Akkordeonspieler an der Seine',
+            en: 'Accordion busker by Seine',
+          },
+          {
+            de: 'Spaziergänger mit Pudel',
+            en: 'Stroller with poodle',
+          },
         ],
       },
       {
         id: 'travel-new-york',
-        name: { de: 'New York City (USA)', en: 'New York City (USA)' },
+        name: {
+          de: 'New York City (USA)',
+          en: 'New York City (USA)',
+        },
         roles: [
-          { de: 'Fahrer im gelben Taxi', en: 'Yellow cab driver' },
-          { de: 'Broadway-Musical-Sängerin', en: 'Broadway musical singer' },
-          { de: 'Polizist auf Dienstpferd', en: 'Mounted police officer' },
-          { de: 'Bagel-Bäcker in Manhattan', en: 'Bagel deli baker' },
-          { de: 'Skater im Central Park', en: 'Central Park skater' },
-          { de: 'Fährkapitän zur Freiheitsstatue', en: 'Statue ferry captain' },
-          { de: 'Hot-Dog-Stand-Inhaber', en: 'Hot dog vendor' },
+          {
+            de: 'Fahrer im gelben Taxi',
+            en: 'Yellow cab driver',
+          },
+          {
+            de: 'Broadway-Musical-Sängerin',
+            en: 'Broadway musical singer',
+          },
+          {
+            de: 'Polizist auf Dienstpferd',
+            en: 'Mounted police officer',
+          },
+          {
+            de: 'Bagel-Bäcker in Manhattan',
+            en: 'Bagel deli baker',
+          },
+          {
+            de: 'Skater im Central Park',
+            en: 'Central Park skater',
+          },
+          {
+            de: 'Fährkapitän zur Freiheitsstatue',
+            en: 'Statue ferry captain',
+          },
+          {
+            de: 'Hot-Dog-Stand-Inhaber',
+            en: 'Hot dog vendor',
+          },
         ],
       },
       {
         id: 'travel-tokyo',
-        name: { de: 'Tokio (Japan)', en: 'Tokyo (Japan)' },
+        name: {
+          de: 'Tokio (Japan)',
+          en: 'Tokyo (Japan)',
+        },
         roles: [
-          { de: 'Sushi-Meister am Zedernholztresen', en: 'Master sushi chef' },
-          { de: 'Manga-Zeichner am Zeichentablet', en: 'Manga comic artist' },
-          { de: 'U-Bahn-Stationsvorsteher mit Trillerpfeife', en: 'Train station master' },
-          { de: 'Teemeisterin im Bambus-Garten', en: 'Tea master in kimono' },
-          { de: 'Roboter-Programmierer in Akihabara', en: 'Robot engineer in Akihabara' },
-          { de: 'Shinkansen-Schnellzugführer', en: 'Bullet train conductor' },
-          { de: 'Tempelwächter am Asakusa-Schrein', en: 'Temple gatekeeper' },
+          {
+            de: 'Sushi-Meister am Zedernholztresen',
+            en: 'Master sushi chef',
+          },
+          {
+            de: 'Manga-Zeichner am Zeichentablet',
+            en: 'Manga comic artist',
+          },
+          {
+            de: 'U-Bahn-Stationsvorsteher mit Trillerpfeife',
+            en: 'Train station master',
+          },
+          {
+            de: 'Teemeisterin im Bambus-Garten',
+            en: 'Tea master in kimono',
+          },
+          {
+            de: 'Roboter-Programmierer in Akihabara',
+            en: 'Robot engineer in Akihabara',
+          },
+          {
+            de: 'Shinkansen-Schnellzugführer',
+            en: 'Bullet train conductor',
+          },
+          {
+            de: 'Tempelwächter am Asakusa-Schrein',
+            en: 'Temple gatekeeper',
+          },
         ],
       },
       {
         id: 'travel-london',
-        name: { de: 'London (Großbritannien)', en: 'London (UK)' },
+        name: {
+          de: 'London (Großbritannien)',
+          en: 'London (UK)',
+        },
         roles: [
-          { de: 'Palastwache mit Bärenfellmütze', en: 'Buckingham palace guard' },
-          { de: 'Fahrerin des roten Doppeldeckers', en: 'Red double-decker bus driver' },
-          { de: 'Uhrmachermeister am Big Ben', en: 'Big Ben clockmaker' },
-          { de: 'Rabenmeister im Tower of London', en: 'Ravenmaster at the Tower' },
-          { de: 'U-Bahn-Ansager „Mind the gap“', en: 'Tube announcer' },
-          { de: 'Tee-Sommelier im Traditionshaus', en: 'Afternoon tea sommelier' },
-          { de: 'Künstler am Covent Garden', en: 'Covent garden street performer' },
+          {
+            de: 'Palastwache mit Bärenfellmütze',
+            en: 'Buckingham palace guard',
+          },
+          {
+            de: 'Fahrerin des roten Doppeldeckers',
+            en: 'Red double-decker bus driver',
+          },
+          {
+            de: 'Uhrmachermeister am Big Ben',
+            en: 'Big Ben clockmaker',
+          },
+          {
+            de: 'Rabenmeister im Tower of London',
+            en: 'Ravenmaster at the Tower',
+          },
+          {
+            de: 'U-Bahn-Ansager „Mind the gap“',
+            en: 'Tube announcer',
+          },
+          {
+            de: 'Tee-Sommelier im Traditionshaus',
+            en: 'Afternoon tea sommelier',
+          },
+          {
+            de: 'Künstler am Covent Garden',
+            en: 'Covent garden street performer',
+          },
         ],
       },
       {
         id: 'travel-aegypten',
-        name: { de: 'Pyramiden von Gizeh (Ägypten)', en: 'Pyramids of Giza (Egypt)' },
+        name: {
+          de: 'Pyramiden von Gizeh (Ägypten)',
+          en: 'Pyramids of Giza (Egypt)',
+        },
         roles: [
-          { de: 'Archäologe mit Bürste und Lupe', en: 'Archaeologist with brush' },
-          { de: 'Kamelführer in den Sanddünen', en: 'Camel guide in the dunes' },
-          { de: 'Faszinierter Tourist vor der Sphinx', en: 'Tourist before Sphinx' },
-          { de: 'Papyrusmalerin am Schreibtisch', en: 'Papyrus artisan' },
-          { de: 'Nil-Schiffer auf traditioneller Feluke', en: 'Nile felucca sailor' },
-          { de: 'Gewürzhändler auf dem Kairo-Basar', en: 'Spice bazaar merchant' },
-          { de: 'Wächter des Grabkammer-Eingangs', en: 'Tomb entrance keeper' },
+          {
+            de: 'Archäologe mit Bürste und Lupe',
+            en: 'Archaeologist with brush',
+          },
+          {
+            de: 'Kamelführer in den Sanddünen',
+            en: 'Camel guide in the dunes',
+          },
+          {
+            de: 'Faszinierter Tourist vor der Sphinx',
+            en: 'Tourist before Sphinx',
+          },
+          {
+            de: 'Papyrusmalerin am Schreibtisch',
+            en: 'Papyrus artisan',
+          },
+          {
+            de: 'Nil-Schiffer auf traditioneller Feluke',
+            en: 'Nile felucca sailor',
+          },
+          {
+            de: 'Gewürzhändler auf dem Kairo-Basar',
+            en: 'Spice bazaar merchant',
+          },
+          {
+            de: 'Wächter des Grabkammer-Eingangs',
+            en: 'Tomb entrance keeper',
+          },
         ],
       },
       {
         id: 'travel-rio',
-        name: { de: 'Rio de Janeiro & Copacabana (Brasilien)', en: 'Rio de Janeiro (Brazil)' },
+        name: {
+          de: 'Rio de Janeiro & Copacabana (Brasilien)',
+          en: 'Rio de Janeiro (Brazil)',
+        },
         roles: [
-          { de: 'Sambatrommler auf der Straße', en: 'Samba parade drummer' },
-          { de: 'Rettungsschwimmer an der Copacabana', en: 'Copacabana lifeguard' },
-          { de: 'Seilbahn-Führer am Zuckerhut', en: 'Sugarloaf cable car guide' },
-          { de: 'Fußball-Künstler am Sandstrand', en: 'Beach soccer player' },
-          { de: 'Tropenfrucht-Saftverkäufer', en: 'Fresh acai juice seller' },
-          { de: 'Capoeira-Tänzer im Kreis', en: 'Capoeira martial artist' },
-          { de: 'Papageienforscher im Stadt-Urwald', en: 'Jungle parrot researcher' },
+          {
+            de: 'Sambatrommler auf der Straße',
+            en: 'Samba parade drummer',
+          },
+          {
+            de: 'Rettungsschwimmer an der Copacabana',
+            en: 'Copacabana lifeguard',
+          },
+          {
+            de: 'Seilbahn-Führer am Zuckerhut',
+            en: 'Sugarloaf cable car guide',
+          },
+          {
+            de: 'Fußball-Künstler am Sandstrand',
+            en: 'Beach soccer player',
+          },
+          {
+            de: 'Tropenfrucht-Saftverkäufer',
+            en: 'Fresh acai juice seller',
+          },
+          {
+            de: 'Capoeira-Tänzer im Kreis',
+            en: 'Capoeira martial artist',
+          },
+          {
+            de: 'Papageienforscher im Stadt-Urwald',
+            en: 'Jungle parrot researcher',
+          },
         ],
       },
       {
         id: 'travel-hawaii',
-        name: { de: 'Hawaii Strände & Vulkane', en: 'Hawaii Islands' },
+        name: {
+          de: 'Hawaii Strände & Vulkane',
+          en: 'Hawaii Islands',
+        },
         roles: [
-          { de: 'Surflehrer auf den Riesenwellen', en: 'Big-wave surf coach' },
-          { de: 'Hula-Tänzerin mit Blumenkranz', en: 'Traditional hula dancer' },
-          { de: 'Ukulele-Spieler am Lagerfeuer', en: 'Campfire ukulele singer' },
-          { de: 'Vulkanforscher mit Hitzeschutzanzug', en: 'Volcanologist in heat suit' },
-          { de: 'Ananas-Gärtner', en: 'Pineapple farmer' },
-          { de: 'Taucher mit Meeresschildkröten', en: 'Sea turtle scuba diver' },
-          { de: 'Begrüßer am Flughafen mit Blumen-Lei', en: 'Airport flower-lei greeter' },
+          {
+            de: 'Surflehrer auf den Riesenwellen',
+            en: 'Big-wave surf coach',
+          },
+          {
+            de: 'Hula-Tänzerin mit Blumenkranz',
+            en: 'Traditional hula dancer',
+          },
+          {
+            de: 'Ukulele-Spieler am Lagerfeuer',
+            en: 'Campfire ukulele singer',
+          },
+          {
+            de: 'Vulkanforscher mit Hitzeschutzanzug',
+            en: 'Volcanologist in heat suit',
+          },
+          {
+            de: 'Ananas-Gärtner',
+            en: 'Pineapple farmer',
+          },
+          {
+            de: 'Taucher mit Meeresschildkröten',
+            en: 'Sea turtle scuba diver',
+          },
+          {
+            de: 'Begrüßer am Flughafen mit Blumen-Lei',
+            en: 'Airport flower-lei greeter',
+          },
         ],
       },
       {
         id: 'travel-grand-canyon',
-        name: { de: 'Grand Canyon Nationalpark', en: 'Grand Canyon' },
+        name: {
+          de: 'Grand Canyon Nationalpark',
+          en: 'Grand Canyon',
+        },
         roles: [
-          { de: 'Nationalpark-Ranger mit Fernglas', en: 'Park ranger with binoculars' },
-          { de: 'Wanderer am Steilküstenrand', en: 'Cliff edge hiker' },
-          { de: 'Maultiertreiber auf dem Schluchtenpfad', en: 'Mule trail guide' },
-          { de: 'Helikopterpilot über der Schlucht', en: 'Scenic helicopter pilot' },
-          { de: 'Rafting-Kapitän auf dem Colorado River', en: 'River rafting captain' },
-          { de: 'Geologin mit Steinhammer', en: 'Geologist examining rock' },
-          { de: 'Fotograf im goldenen Abendlicht', en: 'Golden hour photographer' },
+          {
+            de: 'Nationalpark-Ranger mit Fernglas',
+            en: 'Park ranger with binoculars',
+          },
+          {
+            de: 'Wanderer am Steilküstenrand',
+            en: 'Cliff edge hiker',
+          },
+          {
+            de: 'Maultiertreiber auf dem Schluchtenpfad',
+            en: 'Mule trail guide',
+          },
+          {
+            de: 'Helikopterpilot über der Schlucht',
+            en: 'Scenic helicopter pilot',
+          },
+          {
+            de: 'Rafting-Kapitän auf dem Colorado River',
+            en: 'River rafting captain',
+          },
+          {
+            de: 'Geologin mit Steinhammer',
+            en: 'Geologist examining rock',
+          },
+          {
+            de: 'Fotograf im goldenen Abendlicht',
+            en: 'Golden hour photographer',
+          },
         ],
       },
     ],
   },
   {
-    id: 'stars',
-    name: { de: 'Promis & Bühnen', en: 'Celebrities & Stages' },
+    id: 'movies',
+    name: {
+      de: 'Filme & Serien',
+      en: 'Movies & TV',
+    },
     status: 'draft',
     locations: [
       {
-        id: 'stars-fussball-gala',
-        name: { de: 'Ballon d\'Or Preisverleihung (Messi & Ronaldo)', en: 'World Football Gala' },
+        id: 'movies-star-wars',
+        name: {
+          de: 'Sternenkreuzer (Star Wars)',
+          en: 'Star Wars Star Cruiser',
+        },
         roles: [
-          { de: 'Superstar mit goldenem Pokal', en: 'Superstar with golden trophy' },
-          { de: 'Schiedsrichter im Smoking', en: 'Ref in tuxedo' },
-          { de: 'Erfolgstrainer am Tisch', en: 'Winning head coach' },
-          { de: 'Sportmoderatorin auf der Bühne', en: 'TV gala presenter' },
-          { de: 'Jubelnder Edelfan im Publikum', en: 'Cheering VIP fan' },
-          { de: 'Torwartlegende im Maßanzug', en: 'Legendary goalkeeper' },
-          { de: 'Roter-Teppich-Fotograf', en: 'Red carpet photographer' },
+          {
+            de: 'Jedi-Ritter mit Lichtschwert',
+            en: 'Jedi Knight',
+          },
+          {
+            de: 'Sith-Lord mit Maske',
+            en: 'Sith Lord',
+          },
+          {
+            de: 'Astromech-Droide',
+            en: 'Repair droid',
+          },
+          {
+            de: 'Wookiee-Kopilot',
+            en: 'Wookiee co-pilot',
+          },
+          {
+            de: 'Sturmtruppler auf Patrouille',
+            en: 'Stormtrooper',
+          },
+          {
+            de: 'Schmuggler im Hyperraum',
+            en: 'Smuggler pilot',
+          },
+          {
+            de: 'Rebellen-Kommandant',
+            en: 'Rebel commander',
+          },
         ],
       },
       {
-        id: 'stars-pop-konzert',
-        name: { de: 'Mega-Stadionkonzert (Taylor Swift & Adele)', en: 'Mega Pop Concert' },
+        id: 'movies-harry-potter',
+        name: {
+          de: 'Zauberschule Hogwarts (Harry Potter)',
+          en: 'Hogwarts (Harry Potter)',
+        },
         roles: [
-          { de: 'Pop-Superstar am Glitzermikrofon', en: 'Global pop superstar' },
-          { de: 'Lead-Gitarrist mit Gitarrensolo', en: 'Lead solo guitarist' },
-          { de: 'Background-Tänzerin mit Choreo', en: 'Choreography dancer' },
-          { de: 'Tonmeister am riesigen Mischpult', en: 'Front-of-house sound engineer' },
-          { de: 'Sicherheitschef am Absperrgitter', en: 'Stage pit security head' },
-          { de: 'Fan in Reihe 1 mit Freundschaftsarmbändern', en: 'Superfan in row 1' },
-          { de: 'Lichtshow- und Pyro-Techniker', en: 'Pyrotechnics operator' },
+          {
+            de: 'Schulleiter mit weißem Bart',
+            en: 'Headmaster with beard',
+          },
+          {
+            de: 'Zauberschüler im Umhang',
+            en: 'Magic student',
+          },
+          {
+            de: 'Quidditch-Sucher auf dem Besen',
+            en: 'Quidditch seeker',
+          },
+          {
+            de: 'Tränkemeister im Kerker',
+            en: 'Potion master',
+          },
+          {
+            de: 'Hauself in der Schlossküche',
+            en: 'House elf in kitchen',
+          },
+          {
+            de: 'Schlossgeist auf Wanderschaft',
+            en: 'Castle ghost',
+          },
+          {
+            de: 'Sprechender Hut auf Stuhl',
+            en: 'Sorting hat',
+          },
         ],
       },
       {
-        id: 'stars-basketball-arena',
-        name: { de: 'NBA Finale Arena (LeBron James & Jordan)', en: 'Basketball Finals Arena' },
+        id: 'movies-koenig-der-loewen',
+        name: {
+          de: 'Die Savanne (Der König der Löwen)',
+          en: 'Pride Lands (Lion King)',
+        },
         roles: [
-          { de: 'Top-Scorer mit Wurftechnik', en: 'Star point guard' },
-          { de: 'Center beim Dunking am Korb', en: 'Center executing a slam dunk' },
-          { de: 'Stadionsprecher mit Megastimme', en: 'Arena court announcer' },
-          { de: 'Team-Maskottchen mit Trampolin', en: 'Trampoline mascot' },
-          { de: 'Cheftrainer mit Taktik-Klemmbrett', en: 'Head coach with tactics board' },
-          { de: 'Schiedsrichter mit Pfeife im Mund', en: 'Courtside referee' },
-          { de: 'Kameramann am Spielfeldrand', en: 'Floor camera operator' },
+          {
+            de: 'Weiser Pavian-Schamane',
+            en: 'Wise mandrill shaman',
+          },
+          {
+            de: 'Junger Löwenprinz',
+            en: 'Young lion prince',
+          },
+          {
+            de: 'Witziges Erdmännchen',
+            en: 'Joking meerkat',
+          },
+          {
+            de: 'Gemütliches Warzenschwein',
+            en: 'Easygoing warthog',
+          },
+          {
+            de: 'Nashornvogel-Hofberater',
+            en: 'Hornbill royal advisor',
+          },
+          {
+            de: 'Stolze Löwenkönigin',
+            en: 'Proud lion queen',
+          },
+          {
+            de: 'Zebra im Herdenlauf',
+            en: 'Galloping zebra',
+          },
         ],
       },
       {
-        id: 'stars-filmset',
-        name: { de: 'Hollywood-Blockbuster-Set (Tom Hanks & Keanu)', en: 'Hollywood Film Set' },
+        id: 'movies-jurassic-park',
+        name: {
+          de: 'Dinosaurier-Insel (Jurassic Park)',
+          en: 'Jurassic Park Island',
+        },
         roles: [
-          { de: 'Schauspiel-Legende im Kostüm', en: 'Oscar-winning actor' },
-          { de: 'Regisseurin im Klappstuhl mit „Und Bitte!“', en: 'Film director shouting Action!' },
-          { de: 'Kamerafrau am 10-Meter-Kran', en: 'Cinematographer on crane' },
-          { de: 'Furchtloses Stunt-Double', en: 'Fearless stunt double' },
-          { de: 'Maskenbildnerin mit Puderpinsel', en: 'Makeup and hair artist' },
-          { de: 'Tonassistent mit langer Mikrofonangel', en: 'Boom mic operator' },
-          { de: 'Requisiteur mit Geheimkoffer', en: 'Props master' },
+          {
+            de: 'Paläontologe mit Schürfhut',
+            en: 'Paleontologist',
+          },
+          {
+            de: 'T-Rex-Wärter mit Fleischhappen',
+            en: 'T-Rex enclosure keeper',
+          },
+          {
+            de: 'Parkranger im Elektro-Jeep',
+            en: 'Ranger in electric jeep',
+          },
+          {
+            de: 'Genetiker im Brutlabor',
+            en: 'Genetics scientist',
+          },
+          {
+            de: 'Parkgründer mit Bernsteinstock',
+            en: 'Park founder with cane',
+          },
+          {
+            de: 'Kind auf der Flucht vor Raptoren',
+            en: 'Kid running from raptors',
+          },
+          {
+            de: 'Tourguide am Infostand',
+            en: 'Safari tour guide',
+          },
         ],
       },
       {
-        id: 'stars-youtube-studio',
-        name: { de: 'Challenge-Studio (MrBeast & Creators)', en: 'YouTube Challenge Studio' },
+        id: 'movies-spider-man',
+        name: {
+          de: 'Dächer von Manhattan (Spider-Man)',
+          en: 'Spider-Man Manhattan',
+        },
         roles: [
-          { de: 'Haupt-YouTuber mit Challenge-Idee', en: 'Main creator with challenge idea' },
-          { de: 'Herausforderer im Preisgeld-Wettkampf', en: 'Contestant competing for prize' },
-          { de: 'Chef-Cutter am 4-Bildschirm-Rechner', en: 'Chief video editor' },
-          { de: 'Kamera-Operator auf Rollerblades', en: 'Camera operator on rollerblades' },
-          { de: 'Requisitenbauer für Riesen-Labyrinthe', en: 'Set builder for giant games' },
-          { de: 'Schiedsrichter mit Stoppuhr', en: 'Challenge referee with timer' },
-          { de: 'Thumbnail-Designer mit Fotoblitz', en: 'Thumbnail photo specialist' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'disney',
-    name: { de: 'Disney-Welten', en: 'Disney Worlds' },
-    status: 'draft',
-    locations: [
-      {
-        id: 'disney-toy-story',
-        name: { de: 'Andys Kinderzimmer (Toy Story)', en: 'Andy’s Room (Toy Story)' },
-        roles: [
-          { de: 'Cowboy-Sheriff mit Zugschnur', en: 'Pull-string cowboy sheriff' },
-          { de: 'Space-Ranger mit Laserpointer', en: 'Space ranger with laser' },
-          { de: 'Ängstlicher grüner Plastik-Dino', en: 'Anxious green plastic dino' },
-          { de: 'Schlaues Sparschwein mit Münzen', en: 'Wise piggy bank' },
-          { de: 'Dackel mit Sprungfeder-Körper', en: 'Spring-body slinky dog' },
-          { de: 'Plastik-Soldaten-Anführer mit Funkgerät', en: 'Bucket soldier commander' },
-          { de: 'Dreiäugiges Alien aus dem Greifautomaten', en: 'Three-eyed claw alien' },
-        ],
-      },
-      {
-        id: 'disney-aladdin',
-        name: { de: 'Palast von Agrabah (Aladdin)', en: 'Palace of Agrabah' },
-        roles: [
-          { de: 'Flotter Straßenjunge mit Schiebermütze', en: 'Street boy with smart pet' },
-          { de: 'Prinzessin mit treuem Haustiger', en: 'Princess with pet tiger' },
-          { de: 'Blauer Flaschengeist voller Witze', en: 'Blue genie from magic lamp' },
-          { de: 'Gutgläubiger Sultan mit Spielzeugpalast', en: 'Sultan stacking toy towers' },
-          { de: 'Fieser Großwesir mit Schlangenstab', en: 'Grand vizier with snake staff' },
-          { de: 'Verzauberter fliegender Teppich', en: 'Enchanted flying carpet' },
-          { de: 'Wache mit Krummsäbel am Schlosstor', en: 'Palace guard with scimitar' },
+          {
+            de: 'Netzschwingender Superheld',
+            en: 'Web-slinging superhero',
+          },
+          {
+            de: 'Wütender Zeitungs-Chefredakteur',
+            en: 'Furious editor-in-chief',
+          },
+          {
+            de: 'Maskierter Superschurke',
+            en: 'Masked supervillain',
+          },
+          {
+            de: 'Nachrichtenfotograf auf dem Dach',
+            en: 'Press photographer on roof',
+          },
+          {
+            de: 'Staunender Passant auf der 5th Ave',
+            en: 'Stunned pedestrian',
+          },
+          {
+            de: 'Liebevolle Tante in Queens',
+            en: 'Caring aunt in Queens',
+          },
+          {
+            de: 'Polizist im Streifenwagen',
+            en: 'Patrol officer',
+          },
         ],
       },
       {
-        id: 'disney-vaiana',
-        name: { de: 'Offener Südpazifik (Vaiana / Moana)', en: 'South Pacific Ocean (Moana)' },
+        id: 'movies-findet-nemo',
+        name: {
+          de: 'Großes Barriereriff (Findet Nemo)',
+          en: 'Great Barrier Reef (Nemo)',
+        },
         roles: [
-          { de: 'Mutige Wegfinderin am Segelruder', en: 'Wayfinding navigator at the helm' },
-          { de: 'Riesiger Halbgott mit Zauberhaken', en: 'Demigod with magical fishhook' },
-          { de: 'Verwirrter Hahn im Bootskasten', en: 'Confused rooster on deck' },
-          { de: 'Alte Großmutter mit Manta-Tattoo', en: 'Wise grandmother with manta ray' },
-          { de: 'Kokosnuss-Pirat mit Rüstung', en: 'Coconut armor pirate' },
-          { de: 'Lebendige Ozeanwelle', en: 'Living wave of ocean water' },
-          { de: 'Dorfoberhaupt der Heimatinsel', en: 'Island village chief' },
+          {
+            de: 'Besorgter Clownfisch-Vater',
+            en: 'Worried clownfish dad',
+          },
+          {
+            de: 'Vergesslicher blauer Doktorfisch',
+            en: 'Forgetful blue tang fish',
+          },
+          {
+            de: 'Uralte Surfer-Meeresschildkröte',
+            en: 'Surfer sea turtle',
+          },
+          {
+            de: 'Vegetarischer Riffhai',
+            en: 'Vegetarian shark',
+          },
+          {
+            de: 'Möwe mit „Meins!“-Rufen',
+            en: 'Seagull shouting Mine!',
+          },
+          {
+            de: 'Zahnarzt mit Praxis-Aquarium',
+            en: 'Dentist with tank',
+          },
+          {
+            de: 'Hilfsbereiter Pelikan am Hafen',
+            en: 'Pelican at the harbor',
+          },
         ],
       },
       {
-        id: 'disney-schoene-biest',
-        name: { de: 'Verwunschenes Schloss (Die Schöne & das Biest)', en: 'Enchanted Castle (Beast)' },
+        id: 'movies-frozen',
+        name: {
+          de: 'Eispalast auf dem Nordberg (Frozen)',
+          en: 'Frozen Ice Palace',
+        },
         roles: [
-          { de: 'Bücherlesende Dorftochter', en: 'Book-loving village maiden' },
-          { de: 'Verzauberter Schlossherr im Prachtsaal', en: 'Enchanted prince in grand ballroom' },
-          { de: 'Singender Kerzenleuchter-Oberkellner', en: 'Singing candelabra maitre d\'' },
-          { de: 'Herzliche Teekannen-Hausdame', en: 'Warm teapot housekeeper' },
-          { de: 'Ängstliche Kaminuhr im Frack', en: 'Anxious mantel clock in suit' },
-          { de: 'Selbstverliebter Jäger mit Spiegel', en: 'Vain village hunter with mirror' },
-          { de: 'Kreativer Erfinder mit Zahnrädern', en: 'Eccentric inventor with gears' },
+          {
+            de: 'Eiskönigin mit Frostzauber',
+            en: 'Snow Queen with frost magic',
+          },
+          {
+            de: 'Mutige Schwester mit Zöpfen',
+            en: 'Brave princess with braids',
+          },
+          {
+            de: 'Eisverkäufer mit Holzschlitten',
+            en: 'Ice harvester with sled',
+          },
+          {
+            de: 'Treues Rentier mit Möhre',
+            en: 'Loyal reindeer with carrot',
+          },
+          {
+            de: 'Lebendiger Schneemann der Umarmungen liebt',
+            en: 'Living snowman hugging everyone',
+          },
+          {
+            de: 'Weiser Troll-Ältester im Moos',
+            en: 'Elder moss troll',
+          },
+          {
+            de: 'Schlosskoch mit heißer Schokolade',
+            en: 'Castle chef with hot cocoa',
+          },
+        ],
+      },
+      {
+        id: 'movies-avatar-aang',
+        name: {
+          de: 'Lufttempel (Avatar Herr der Elemente)',
+          en: 'Air Temple (Avatar Aang)',
+        },
+        roles: [
+          {
+            de: 'Luftbändiger-Avatar mit Gleiter',
+            en: 'Airbender avatar with glider',
+          },
+          {
+            de: 'Wasserbändigerin vom Südpol',
+            en: 'Waterbender from South Pole',
+          },
+          {
+            de: 'Blinder Erdbändiger-Champion',
+            en: 'Earthbender champion',
+          },
+          {
+            de: 'Feuerbändiger-Prinz auf Wandlung',
+            en: 'Fire prince seeking redemption',
+          },
+          {
+            de: 'Riesiger fliegender Himmelsbison',
+            en: 'Giant flying sky bison',
+          },
+          {
+            de: 'Krieger mit Bumerang',
+            en: 'Boomerang warrior',
+          },
+          {
+            de: 'Weiser Onkel beim Teetrinken',
+            en: 'Wise uncle drinking tea',
+          },
         ],
       },
     ],
@@ -1226,424 +2671,1045 @@ export const SPY_PACKS: SpyPack[] = [
 ];
 
 export const WHO_AM_I_PACKS: WhoAmIPack[] = [
-  // NEUE KURATIERTE PACKS AUS PHASE 2
   {
     id: 'popkultur',
-    name: { de: 'Fiktive & Popkultur-Helden', en: 'Pop Culture & Fiction' },
+    name: {
+      de: 'Fiktive & Popkultur-Helden',
+      en: 'Pop Culture & Fiction',
+    },
     difficulty: 1,
     status: 'draft',
     entries: [
-      { de: 'Sherlock Holmes', en: 'Sherlock Holmes' },
-      { de: 'Hermine Granger', en: 'Hermione Granger' },
-      { de: 'Harry Potter', en: 'Harry Potter' },
-      { de: 'Pippi Langstrumpf', en: 'Pippi Longstocking' },
-      { de: 'Spider-Man', en: 'Spider-Man' },
-      { de: 'Yoda (Star Wars)', en: 'Yoda (Star Wars)' },
-      { de: 'Mulan', en: 'Mulan' },
-      { de: 'Robin Hood', en: 'Robin Hood' },
-      { de: 'Katniss Everdeen', en: 'Katniss Everdeen' },
-      { de: 'Frodo Beutlin', en: 'Frodo Baggins' },
-      { de: 'Simba (König der Löwen)', en: 'Simba (Lion King)' },
-      { de: 'Paddington Bär', en: 'Paddington Bear' },
-      { de: 'Olaf der Schneemann', en: 'Olaf the Snowman' },
-      { de: 'Aang (Avatar)', en: 'Aang (Avatar)' },
-      { de: 'Groot (Guardians)', en: 'Groot (Guardians)' },
-      { de: 'Super Mario', en: 'Super Mario' },
-      { de: 'Batman', en: 'Batman' },
-      { de: 'Elsa (Die Eiskönigin)', en: 'Elsa (Frozen)' },
-      { de: 'Shrek der Oger', en: 'Shrek' },
-      { de: 'SpongeBob Schwammkopf', en: 'SpongeBob SquarePants' },
-      { de: 'Pikachu (Pokémon)', en: 'Pikachu (Pokémon)' },
-      { de: 'Sonic der Igel', en: 'Sonic the Hedgehog' },
-      { de: 'Donald Duck', en: 'Donald Duck' },
-      { de: 'Asterix der Gallier', en: 'Asterix the Gaul' },
-      { de: 'Obelix', en: 'Obelix' },
-      { de: 'Peter Pan', en: 'Peter Pan' },
-      { de: 'Tarzan', en: 'Tarzan' },
-      { de: 'Luke Skywalker', en: 'Luke Skywalker' },
-      { de: 'Ron Weasley', en: 'Ron Weasley' },
-      { de: 'Gollum', en: 'Gollum' },
+      {
+        de: 'Sherlock Holmes',
+        en: 'Sherlock Holmes',
+      },
+      {
+        de: 'Hermine Granger',
+        en: 'Hermione Granger',
+      },
+      {
+        de: 'Harry Potter',
+        en: 'Harry Potter',
+      },
+      {
+        de: 'Pippi Langstrumpf',
+        en: 'Pippi Longstocking',
+      },
+      {
+        de: 'Spider-Man',
+        en: 'Spider-Man',
+      },
+      {
+        de: 'Yoda (Star Wars)',
+        en: 'Yoda (Star Wars)',
+      },
+      {
+        de: 'Mulan',
+        en: 'Mulan',
+      },
+      {
+        de: 'Robin Hood',
+        en: 'Robin Hood',
+      },
+      {
+        de: 'Katniss Everdeen',
+        en: 'Katniss Everdeen',
+      },
+      {
+        de: 'Frodo Beutlin',
+        en: 'Frodo Baggins',
+      },
+      {
+        de: 'Simba (König der Löwen)',
+        en: 'Simba (Lion King)',
+      },
+      {
+        de: 'Paddington Bär',
+        en: 'Paddington Bear',
+      },
+      {
+        de: 'Olaf der Schneemann',
+        en: 'Olaf the Snowman',
+      },
+      {
+        de: 'Aang (Avatar)',
+        en: 'Aang (Avatar)',
+      },
+      {
+        de: 'Groot (Guardians)',
+        en: 'Groot (Guardians)',
+      },
+      {
+        de: 'Super Mario',
+        en: 'Super Mario',
+      },
+      {
+        de: 'Batman',
+        en: 'Batman',
+      },
+      {
+        de: 'Elsa (Die Eiskönigin)',
+        en: 'Elsa (Frozen)',
+      },
+      {
+        de: 'Shrek der Oger',
+        en: 'Shrek',
+      },
+      {
+        de: 'SpongeBob Schwammkopf',
+        en: 'SpongeBob SquarePants',
+      },
+      {
+        de: 'Pikachu (Pokémon)',
+        en: 'Pikachu (Pokémon)',
+      },
+      {
+        de: 'Sonic der Igel',
+        en: 'Sonic the Hedgehog',
+      },
+      {
+        de: 'Donald Duck',
+        en: 'Donald Duck',
+      },
+      {
+        de: 'Asterix der Gallier',
+        en: 'Asterix the Gaul',
+      },
+      {
+        de: 'Obelix',
+        en: 'Obelix',
+      },
+      {
+        de: 'Peter Pan',
+        en: 'Peter Pan',
+      },
+      {
+        de: 'Tarzan',
+        en: 'Tarzan',
+      },
+      {
+        de: 'Luke Skywalker',
+        en: 'Luke Skywalker',
+      },
+      {
+        de: 'Ron Weasley',
+        en: 'Ron Weasley',
+      },
+      {
+        de: 'Gollum',
+        en: 'Gollum',
+      },
     ],
   },
   {
     id: 'persoenlichkeiten',
-    name: { de: 'Inspirierende Persönlichkeiten', en: 'Inspiring People' },
+    name: {
+      de: 'Inspirierende Persönlichkeiten',
+      en: 'Inspiring People',
+    },
     difficulty: 2,
     status: 'draft',
     entries: [
-      { de: 'Albert Einstein', en: 'Albert Einstein' },
-      { de: 'Marie Curie', en: 'Marie Curie' },
-      { de: 'Rosa Parks', en: 'Rosa Parks' },
-      { de: 'Leonardo da Vinci', en: 'Leonardo da Vinci' },
-      { de: 'Amelia Earhart', en: 'Amelia Earhart' },
-      { de: 'Nelson Mandela', en: 'Nelson Mandela' },
-      { de: 'Frida Kahlo', en: 'Frida Kahlo' },
-      { de: 'Isaac Newton', en: 'Isaac Newton' },
-      { de: 'Anne Frank', en: 'Anne Frank' },
-      { de: 'Jane Goodall', en: 'Jane Goodall' },
-      { de: 'Mahatma Gandhi', en: 'Mahatma Gandhi' },
-      { de: 'Astrid Lindgren', en: 'Astrid Lindgren' },
-      { de: 'Neil Armstrong', en: 'Neil Armstrong' },
-      { de: 'Florence Nightingale', en: 'Florence Nightingale' },
-      { de: 'Ada Lovelace', en: 'Ada Lovelace' },
-      { de: 'William Shakespeare', en: 'William Shakespeare' },
-      { de: 'Alexander von Humboldt', en: 'Alexander von Humboldt' },
-      { de: 'Thomas Edison', en: 'Thomas Edison' },
-      { de: 'Katherine Johnson (NASA)', en: 'Katherine Johnson (NASA)' },
-      { de: 'Christoph Kolumbus', en: 'Christopher Columbus' },
+      {
+        de: 'Albert Einstein',
+        en: 'Albert Einstein',
+      },
+      {
+        de: 'Marie Curie',
+        en: 'Marie Curie',
+      },
+      {
+        de: 'Rosa Parks',
+        en: 'Rosa Parks',
+      },
+      {
+        de: 'Leonardo da Vinci',
+        en: 'Leonardo da Vinci',
+      },
+      {
+        de: 'Amelia Earhart',
+        en: 'Amelia Earhart',
+      },
+      {
+        de: 'Nelson Mandela',
+        en: 'Nelson Mandela',
+      },
+      {
+        de: 'Frida Kahlo',
+        en: 'Frida Kahlo',
+      },
+      {
+        de: 'Isaac Newton',
+        en: 'Isaac Newton',
+      },
+      {
+        de: 'Anne Frank',
+        en: 'Anne Frank',
+      },
+      {
+        de: 'Jane Goodall',
+        en: 'Jane Goodall',
+      },
+      {
+        de: 'Mahatma Gandhi',
+        en: 'Mahatma Gandhi',
+      },
+      {
+        de: 'Astrid Lindgren',
+        en: 'Astrid Lindgren',
+      },
+      {
+        de: 'Neil Armstrong',
+        en: 'Neil Armstrong',
+      },
+      {
+        de: 'Florence Nightingale',
+        en: 'Florence Nightingale',
+      },
+      {
+        de: 'Ada Lovelace',
+        en: 'Ada Lovelace',
+      },
+      {
+        de: 'William Shakespeare',
+        en: 'William Shakespeare',
+      },
+      {
+        de: 'Alexander von Humboldt',
+        en: 'Alexander von Humboldt',
+      },
+      {
+        de: 'Thomas Edison',
+        en: 'Thomas Edison',
+      },
+      {
+        de: 'Katherine Johnson (NASA)',
+        en: 'Katherine Johnson (NASA)',
+      },
+      {
+        de: 'Christoph Kolumbus',
+        en: 'Christopher Columbus',
+      },
     ],
   },
   {
     id: 'tiere',
-    name: { de: 'Tiere', en: 'Animals' },
+    name: {
+      de: 'Tiere',
+      en: 'Animals',
+    },
     difficulty: 1,
     status: 'draft',
     entries: [
-      { de: 'Hund', en: 'Dog' },
-      { de: 'Katze', en: 'Cat' },
-      { de: 'Elefant', en: 'Elephant' },
-      { de: 'Giraffe', en: 'Giraffe' },
-      { de: 'Pinguin', en: 'Penguin' },
-      { de: 'Delfin', en: 'Dolphin' },
-      { de: 'Igel', en: 'Hedgehog' },
-      { de: 'Eichhörnchen', en: 'Squirrel' },
-      { de: 'Krokodil', en: 'Crocodile' },
-      { de: 'Känguru', en: 'Kangaroo' },
-      { de: 'Faultier', en: 'Sloth' },
-      { de: 'Eule', en: 'Owl' },
-      { de: 'Schmetterling', en: 'Butterfly' },
-      { de: 'Biene', en: 'Bee' },
-      { de: 'Hai', en: 'Shark' },
-      { de: 'Fledermaus', en: 'Bat' },
-      { de: 'Frosch', en: 'Frog' },
-      { de: 'Schildkröte', en: 'Turtle' },
-      { de: 'Pfau', en: 'Peacock' },
-      { de: 'Nilpferd', en: 'Hippo' },
-      { de: 'Flamingo', en: 'Flamingo' },
-      { de: 'Seepferdchen', en: 'Seahorse' },
-      { de: 'Wal', en: 'Whale' },
-      { de: 'Pferd', en: 'Horse' },
-      { de: 'Ameise', en: 'Ant' },
-      { de: 'Tintenfisch', en: 'Octopus' },
-      { de: 'Waschbär', en: 'Raccoon' },
-      { de: 'Papagei', en: 'Parrot' },
-      { de: 'Maulwurf', en: 'Mole' },
-      { de: 'Wolf', en: 'Wolf' },
-      { de: 'Chamäleon', en: 'Chameleon' },
-      { de: 'Honigdachs', en: 'Honey badger' },
-      { de: 'Koala', en: 'Koala' },
-      { de: 'Erdmännchen', en: 'Meerkat' },
-      { de: 'Löwe', en: 'Lion' },
-      { de: 'Brieftaube', en: 'Homing pigeon' },
-    ],
-  },
-  {
-    id: 'berufe',
-    name: { de: 'Berufe', en: 'Jobs' },
-    difficulty: 2,
-    status: 'draft',
-    entries: [
-      { de: 'Bäcker/in', en: 'Baker' },
-      { de: 'Pilot/in', en: 'Pilot' },
-      { de: 'Lehrer/in', en: 'Teacher' },
-      { de: 'Tierarzt/Tierärztin', en: 'Vet' },
-      { de: 'Busfahrer/in', en: 'Bus driver' },
-      { de: 'Friseur/in', en: 'Hairdresser' },
-      { de: 'Gärtner/in', en: 'Gardener' },
-      { de: 'Astronaut/in', en: 'Astronaut' },
-      { de: 'Koch/Köchin', en: 'Chef' },
-      { de: 'Postbote/Postbotin', en: 'Mail carrier' },
-      { de: 'Zahnarzt/Zahnärztin', en: 'Dentist' },
-      { de: 'Bibliothekar/in', en: 'Librarian' },
-      { de: 'Maler/in', en: 'Painter' },
-      { de: 'Schreiner/in', en: 'Carpenter' },
-      { de: 'Fotograf/in', en: 'Photographer' },
-      { de: 'Schauspieler/in', en: 'Actor' },
-      { de: 'Zirkusartist/in', en: 'Circus performer' },
-      { de: 'Landwirt/in', en: 'Farmer' },
-      { de: 'Kapitän/in', en: 'Ship captain' },
-      { de: 'Forscher/in', en: 'Scientist' },
-      { de: 'Journalist/in', en: 'Reporter' },
-      { de: 'Schornsteinfeger/in', en: 'Chimney sweep' },
-      { de: 'Imker/in', en: 'Beekeeper' },
-      { de: 'Lokführer/in', en: 'Train driver' },
-      { de: 'Rettungssanitäter/in', en: 'Paramedic' },
-      { de: 'Elektriker/in', en: 'Electrician' },
-      { de: 'Musiker/in', en: 'Musician' },
-      { de: 'Architekt/in', en: 'Architect' },
-      { de: 'Feuerwehrfrau/-mann', en: 'Firefighter' },
-      { de: 'Bauarbeiter/in', en: 'Construction worker' },
-    ],
-  },
-  {
-    id: 'orte',
-    name: { de: 'Orte', en: 'Places' },
-    difficulty: 3,
-    status: 'draft',
-    entries: [
-      { de: 'Strand', en: 'Beach' },
-      { de: 'Wüste', en: 'Desert' },
-      { de: 'Vulkan', en: 'Volcano' },
-      { de: 'Regenwald', en: 'Rainforest' },
-      { de: 'Nordpol', en: 'North Pole' },
-      { de: 'Schloss', en: 'Castle' },
-      { de: 'Leuchtturm', en: 'Lighthouse' },
-      { de: 'Insel', en: 'Island' },
-      { de: 'Höhle', en: 'Cave' },
-      { de: 'Wasserfall', en: 'Waterfall' },
-      { de: 'Bahnhof', en: 'Train station' },
-      { de: 'Flughafen', en: 'Airport' },
-      { de: 'Zirkus', en: 'Circus' },
-      { de: 'Weltraum', en: 'Outer space' },
-      { de: 'Mond', en: 'Moon' },
-      { de: 'Pyramide', en: 'Pyramid' },
-      { de: 'Zoo', en: 'Zoo' },
-      { de: 'Spielplatz', en: 'Playground' },
-      { de: 'Bauernhof', en: 'Farm' },
-      { de: 'Hafen', en: 'Harbor' },
-      { de: 'Gebirge', en: 'Mountains' },
-      { de: 'Eisberg', en: 'Iceberg' },
-      { de: 'Korallenriff', en: 'Coral reef' },
-      { de: 'Sumpf', en: 'Swamp' },
-      { de: 'Tunnel', en: 'Tunnel' },
-      { de: 'Brücke', en: 'Bridge' },
-      { de: 'Windmühle', en: 'Windmill' },
-      { de: 'Planetarium', en: 'Planetarium' },
-      { de: 'Savanne', en: 'Savanna' },
-      { de: 'Schwimmbad', en: 'Swimming pool' },
+      {
+        de: 'Hund',
+        en: 'Dog',
+      },
+      {
+        de: 'Katze',
+        en: 'Cat',
+      },
+      {
+        de: 'Elefant',
+        en: 'Elephant',
+      },
+      {
+        de: 'Giraffe',
+        en: 'Giraffe',
+      },
+      {
+        de: 'Pinguin',
+        en: 'Penguin',
+      },
+      {
+        de: 'Delfin',
+        en: 'Dolphin',
+      },
+      {
+        de: 'Igel',
+        en: 'Hedgehog',
+      },
+      {
+        de: 'Eichhörnchen',
+        en: 'Squirrel',
+      },
+      {
+        de: 'Krokodil',
+        en: 'Crocodile',
+      },
+      {
+        de: 'Känguru',
+        en: 'Kangaroo',
+      },
+      {
+        de: 'Faultier',
+        en: 'Sloth',
+      },
+      {
+        de: 'Eule',
+        en: 'Owl',
+      },
+      {
+        de: 'Schmetterling',
+        en: 'Butterfly',
+      },
+      {
+        de: 'Biene',
+        en: 'Bee',
+      },
+      {
+        de: 'Hai',
+        en: 'Shark',
+      },
+      {
+        de: 'Fledermaus',
+        en: 'Bat',
+      },
+      {
+        de: 'Frosch',
+        en: 'Frog',
+      },
+      {
+        de: 'Schildkröte',
+        en: 'Turtle',
+      },
+      {
+        de: 'Pfau',
+        en: 'Peacock',
+      },
+      {
+        de: 'Nilpferd',
+        en: 'Hippo',
+      },
+      {
+        de: 'Flamingo',
+        en: 'Flamingo',
+      },
+      {
+        de: 'Seepferdchen',
+        en: 'Seahorse',
+      },
+      {
+        de: 'Wal',
+        en: 'Whale',
+      },
+      {
+        de: 'Pferd',
+        en: 'Horse',
+      },
+      {
+        de: 'Ameise',
+        en: 'Ant',
+      },
+      {
+        de: 'Tintenfisch',
+        en: 'Octopus',
+      },
+      {
+        de: 'Waschbär',
+        en: 'Raccoon',
+      },
+      {
+        de: 'Papagei',
+        en: 'Parrot',
+      },
+      {
+        de: 'Maulwurf',
+        en: 'Mole',
+      },
+      {
+        de: 'Wolf',
+        en: 'Wolf',
+      },
+      {
+        de: 'Chamäleon',
+        en: 'Chameleon',
+      },
+      {
+        de: 'Honigdachs',
+        en: 'Honey badger',
+      },
+      {
+        de: 'Koala',
+        en: 'Koala',
+      },
+      {
+        de: 'Erdmännchen',
+        en: 'Meerkat',
+      },
+      {
+        de: 'Löwe',
+        en: 'Lion',
+      },
+      {
+        de: 'Brieftaube',
+        en: 'Homing pigeon',
+      },
     ],
   },
   {
     id: 'dinge',
-    name: { de: 'Dinge', en: 'Things' },
+    name: {
+      de: 'Dinge',
+      en: 'Things',
+    },
     difficulty: 2,
     status: 'draft',
     entries: [
-      { de: 'Regenschirm', en: 'Umbrella' },
-      { de: 'Fahrrad', en: 'Bicycle' },
-      { de: 'Taschenlampe', en: 'Flashlight' },
-      { de: 'Zahnbürste', en: 'Toothbrush' },
-      { de: 'Schlüssel', en: 'Key' },
-      { de: 'Brille', en: 'Glasses' },
-      { de: 'Kompass', en: 'Compass' },
-      { de: 'Lupe', en: 'Magnifying glass' },
-      { de: 'Rucksack', en: 'Backpack' },
-      { de: 'Seifenblase', en: 'Soap bubble' },
-      { de: 'Kerze', en: 'Candle' },
-      { de: 'Uhr', en: 'Clock' },
-      { de: 'Spiegel', en: 'Mirror' },
-      { de: 'Hängematte', en: 'Hammock' },
-      { de: 'Luftballon', en: 'Balloon' },
-      { de: 'Schere', en: 'Scissors' },
-      { de: 'Wecker', en: 'Alarm clock' },
-      { de: 'Trampolin', en: 'Trampoline' },
-      { de: 'Zelt', en: 'Tent' },
-      { de: 'Gitarre', en: 'Guitar' },
-      { de: 'Kühlschrank', en: 'Fridge' },
-      { de: 'Leiter', en: 'Ladder' },
-      { de: 'Fernglas', en: 'Binoculars' },
-      { de: 'Puzzle', en: 'Jigsaw puzzle' },
-      { de: 'Radiergummi', en: 'Eraser' },
-      { de: 'Sonnenbrille', en: 'Sunglasses' },
-      { de: 'Regenbogen', en: 'Rainbow' },
-      { de: 'Globus', en: 'Globe' },
-      { de: 'Schneemann', en: 'Snowman' },
-      { de: 'Federmäppchen', en: 'Pencil case' },
-    ],
-  },
-  {
-    id: 'sport',
-    name: { de: 'Sport', en: 'Sports' },
-    difficulty: 1,
-    status: 'draft',
-    entries: [
-      { de: 'Fußball', en: 'Football' },
-      { de: 'Schwimmen', en: 'Swimming' },
-      { de: 'Basketball', en: 'Basketball' },
-      { de: 'Tennis', en: 'Tennis' },
-      { de: 'Tischtennis', en: 'Table tennis' },
-      { de: 'Volleyball', en: 'Volleyball' },
-      { de: 'Turnen', en: 'Gymnastics' },
-      { de: 'Badminton', en: 'Badminton' },
-      { de: 'Leichtathletik', en: 'Athletics' },
-      { de: 'Skifahren', en: 'Skiing' },
-      { de: 'Eislaufen', en: 'Ice skating' },
-      { de: 'Klettern', en: 'Climbing' },
-      { de: 'Rudern', en: 'Rowing' },
-      { de: 'Judo', en: 'Judo' },
-      { de: 'Handball', en: 'Handball' },
-      { de: 'Hockey', en: 'Hockey' },
-      { de: 'Reiten', en: 'Horse riding' },
-      { de: 'Skateboarden', en: 'Skateboarding' },
-      { de: 'Radfahren', en: 'Cycling' },
-      { de: 'Wandern', en: 'Hiking' },
-      { de: 'Seilspringen', en: 'Jump rope' },
-      { de: 'Hochsprung', en: 'High jump' },
-      { de: 'Staffellauf', en: 'Relay race' },
-      { de: 'Tauziehen', en: 'Tug of war' },
-      { de: 'Kegeln', en: 'Bowling' },
-      { de: 'Surfen', en: 'Surfing' },
-      { de: 'Frisbee', en: 'Frisbee' },
-      { de: 'Inlineskaten', en: 'Inline skating' },
-      { de: 'Rugby', en: 'Rugby' },
-      { de: 'Schlittenfahren', en: 'Sledding' },
-    ],
-  },
-  {
-    id: 'fantasie',
-    name: { de: 'Fantasie', en: 'Fantasy' },
-    difficulty: 2,
-    status: 'draft',
-    entries: [
-      { de: 'Drache', en: 'Dragon' },
-      { de: 'Zauberer', en: 'Wizard' },
-      { de: 'Riese', en: 'Giant' },
-      { de: 'Meerjungfrau', en: 'Mermaid' },
-      { de: 'Roboter', en: 'Robot' },
-      { de: 'Fee', en: 'Fairy' },
-      { de: 'Einhorn', en: 'Unicorn' },
-      { de: 'Zwerg', en: 'Dwarf' },
-      { de: 'Troll', en: 'Troll' },
-      { de: 'Hexe', en: 'Witch' },
-      { de: 'Elf', en: 'Elf' },
-      { de: 'Kobold', en: 'Goblin' },
-      { de: 'Phönix', en: 'Phoenix' },
-      { de: 'Zentaur', en: 'Centaur' },
-      { de: 'Außerirdischer', en: 'Alien' },
-      { de: 'Prinzessin', en: 'Princess' },
-      { de: 'Ritter', en: 'Knight' },
-      { de: 'Pirat', en: 'Pirate' },
-      { de: 'Waldgeist', en: 'Forest spirit' },
-      { de: 'Sphinx', en: 'Sphinx' },
-      { de: 'Greif', en: 'Griffin' },
-      { de: 'Seeungeheuer', en: 'Sea monster' },
-      { de: 'Zeitreisender', en: 'Time traveler' },
-      { de: 'Superheld', en: 'Superhero' },
-      { de: 'Mumie', en: 'Mummy' },
-      { de: 'Kraken', en: 'Kraken' },
-      { de: 'Schlossgespenst', en: 'Castle ghost' },
-      { de: 'Märchenkönig', en: 'Fairy-tale king' },
-      { de: 'Hofnarr', en: 'Court jester' },
-      { de: 'Yeti', en: 'Yeti' },
+      {
+        de: 'Regenschirm',
+        en: 'Umbrella',
+      },
+      {
+        de: 'Fahrrad',
+        en: 'Bicycle',
+      },
+      {
+        de: 'Taschenlampe',
+        en: 'Flashlight',
+      },
+      {
+        de: 'Zahnbürste',
+        en: 'Toothbrush',
+      },
+      {
+        de: 'Schlüssel',
+        en: 'Key',
+      },
+      {
+        de: 'Brille',
+        en: 'Glasses',
+      },
+      {
+        de: 'Kompass',
+        en: 'Compass',
+      },
+      {
+        de: 'Lupe',
+        en: 'Magnifying glass',
+      },
+      {
+        de: 'Rucksack',
+        en: 'Backpack',
+      },
+      {
+        de: 'Seifenblase',
+        en: 'Soap bubble',
+      },
+      {
+        de: 'Kerze',
+        en: 'Candle',
+      },
+      {
+        de: 'Uhr',
+        en: 'Clock',
+      },
+      {
+        de: 'Spiegel',
+        en: 'Mirror',
+      },
+      {
+        de: 'Hängematte',
+        en: 'Hammock',
+      },
+      {
+        de: 'Luftballon',
+        en: 'Balloon',
+      },
+      {
+        de: 'Schere',
+        en: 'Scissors',
+      },
+      {
+        de: 'Wecker',
+        en: 'Alarm clock',
+      },
+      {
+        de: 'Trampolin',
+        en: 'Trampoline',
+      },
+      {
+        de: 'Zelt',
+        en: 'Tent',
+      },
+      {
+        de: 'Gitarre',
+        en: 'Guitar',
+      },
+      {
+        de: 'Kühlschrank',
+        en: 'Fridge',
+      },
+      {
+        de: 'Leiter',
+        en: 'Ladder',
+      },
+      {
+        de: 'Fernglas',
+        en: 'Binoculars',
+      },
+      {
+        de: 'Puzzle',
+        en: 'Jigsaw puzzle',
+      },
+      {
+        de: 'Radiergummi',
+        en: 'Eraser',
+      },
+      {
+        de: 'Sonnenbrille',
+        en: 'Sunglasses',
+      },
+      {
+        de: 'Regenbogen',
+        en: 'Rainbow',
+      },
+      {
+        de: 'Globus',
+        en: 'Globe',
+      },
+      {
+        de: 'Schneemann',
+        en: 'Snowman',
+      },
+      {
+        de: 'Federmäppchen',
+        en: 'Pencil case',
+      },
     ],
   },
 ];
 
 export const WEREWOLF_ROLES: WerewolfRole[] = [
-  { id: 'werwolf', name: { de: 'Werwolf', en: 'Werewolf' }, team: 'wolves', minPlayers: 6, wakesAtNight: true,
-    description: { de: 'Du gehörst zu den Werwölfen. Nachts wacht ihr gemeinsam auf und einigt euch lautlos auf eine Person aus dem Dorf, die ausscheidet. Am Tag spielst du mit, als wärst du ein ganz normaler Dorfbewohner. Die Werwölfe gewinnen, wenn sie nicht mehr in der Unterzahl sind.', en: 'You belong to the werewolves. At night you wake up together and silently agree on one villager who is out. During the day you act like a normal villager. The werewolves win when they are no longer outnumbered.' } },
-  { id: 'dorfbewohner', name: { de: 'Dorfbewohner', en: 'Villager' }, team: 'village', minPlayers: 6, wakesAtNight: false,
-    description: { de: 'Du hast keine besondere Fähigkeit und schläfst nachts. Am Tag hörst du genau zu, stellst Fragen und stimmst mit ab. Das Dorf gewinnt, wenn alle Werwölfe gefunden sind.', en: 'You have no special power and sleep through the night. During the day you listen closely, ask questions and vote. The village wins when all werewolves have been found.' } },
-  { id: 'seherin', name: { de: 'Seherin', en: 'Seer' }, team: 'village', minPlayers: 7, wakesAtNight: true,
-    description: { de: 'Jede Nacht darfst du auf eine Person zeigen. Die Spielleitung zeigt dir mit dem Daumen, ob sie ein Werwolf ist (Daumen hoch) oder nicht (Daumen runter). Nutze dein Wissen am Tag klug, ohne dich zu verraten.', en: 'Each night you may point at one person. The narrator shows you with a thumb whether that person is a werewolf (thumb up) or not (thumb down). Use your knowledge wisely during the day without giving yourself away.' } },
-  { id: 'hexe', name: { de: 'Hexe', en: 'Witch' }, team: 'village', minPlayers: 8, wakesAtNight: true,
-    description: { de: 'Du hast zwei Tränke, die du nur je einmal im ganzen Spiel einsetzen darfst: einen Heiltrank, der die Person rettet, auf die die Werwölfe gezeigt haben, und einen Schlaftrank, mit dem eine andere Person ausscheidet. Du darfst auch beide behalten.', en: 'You have two potions, each usable only once in the whole game: a healing potion that saves the person the werewolves pointed at, and a sleeping potion that puts another person out. You may also keep both.' } },
-  { id: 'jaeger', name: { de: 'Jäger', en: 'Hunter' }, team: 'village', minPlayers: 8, wakesAtNight: false,
-    description: { de: 'Du schläfst nachts. Wenn du aus dem Spiel ausscheidest, egal wie, darfst du sofort noch auf eine Person zeigen, die mit dir ausscheidet. Überlege gut, wen du triffst.', en: 'You sleep at night. When you leave the game, no matter how, you may immediately point at one more person who leaves with you. Think carefully about whom you choose.' } },
-  { id: 'beschuetzer', name: { de: 'Beschützer (Engel)', en: 'Protector (Angel)' }, team: 'village', minPlayers: 8, wakesAtNight: true,
-    description: { de: 'Jede Nacht wählst du eine Person, die in dieser Nacht geschützt ist. Dich selbst darfst du schützen. Dieselbe Person darfst du nicht zwei Nächte hintereinander schützen.', en: 'Each night you choose one person who is protected for that night. You may protect yourself. You may not protect the same person two nights in a row.' } },
-  { id: 'amor', name: { de: 'Amor', en: 'Cupid' }, team: 'village', minPlayers: 9, wakesAtNight: true,
-    description: { de: 'Nur in der ersten Nacht wachst du auf und zeigst auf zwei Personen, die ein Liebespaar werden. Die beiden wissen nun voneinander. Scheidet eine der beiden aus, scheidet auch die andere aus Kummer aus. Du darfst dich selbst wählen.', en: 'Only in the first night you wake up and point at two people who become a pair of friends in love. The two now know each other. If one of them leaves, the other leaves too out of sadness. You may choose yourself.' } },
-  { id: 'maedchen', name: { de: 'Kleines Mädchen', en: 'Little Girl' }, team: 'village', minPlayers: 8, wakesAtNight: true,
-    description: { de: 'Nachts, während die Werwölfe wach sind, darfst du heimlich blinzeln und spähen. Aber Vorsicht: Wenn die Werwölfe dich bemerken, scheidest du sofort anstelle des gewählten Opfers aus.', en: 'At night while werewolves are awake, you may secretly peek through your fingers. But beware: if werewolves catch you, you are eliminated instead of their victim.' } },
-  { id: 'dieb', name: { de: 'Dieb', en: 'Thief' }, team: 'neutral', minPlayers: 8, wakesAtNight: true,
-    description: { de: 'In der allerersten Nacht siehst du zwei verdeckte Extrakarten an und darfst deine Rolle gegen eine davon tauschen. Sind beide Werwölfe, musst du einen Werwolf nehmen.', en: 'On the very first night you look at two extra face-down cards and may swap your card with one. If both are werewolves, you must pick a werewolf.' } },
-  { id: 'urwolf', name: { de: 'Urwolf', en: 'Big Bad Wolf' }, team: 'wolves', minPlayers: 9, wakesAtNight: true,
-    description: { de: 'Du wachst mit den Werwölfen auf. Einmal im gesamten Spiel darfst du nach dem Opferzeichen die Faust heben: Das Opfer scheidet nicht aus, sondern wird infiziert und zum Mitwolf.', en: 'You wake with the werewolves. Once per game, you may raise your fist after an attack to infect the victim instead of eliminating them, turning them into a werewolf.' } },
-  { id: 'weisser-werwolf', name: { de: 'Weißer Werwolf', en: 'White Werewolf' }, team: 'neutral', minPlayers: 10, wakesAtNight: true,
-    description: { de: 'Du wachst nachts mit den normalen Werwölfen auf. Aber in jeder zweiten Nacht wachst du noch einmal allein auf und darfst einen deiner Mitwölfe ausschalten. Du gewinnst nur allein.', en: 'You wake with the regular werewolves. Every second night, you awaken alone and may eliminate a fellow wolf. You only win if you are the sole survivor.' } },
-  { id: 'dorfdepp', name: { de: 'Dorfdepp', en: 'Village Idiot' }, team: 'village', minPlayers: 8, wakesAtNight: false,
-    description: { de: 'Wenn das Dorf dich bei der Tag-Abstimmung lynchen will, deckst du deine Karte auf: Das Dorf verschont dich! Du lebst weiter, verlierst aber ab sofort dein Stimmrecht.', en: 'If the village votes to lynch you, reveal your card: the village spares you! You remain alive, but lose your vote for the remainder of the game.' } },
-  { id: 'suendenbock', name: { de: 'Sündenbock', en: 'Scapegoat' }, team: 'village', minPlayers: 8, wakesAtNight: false,
-    description: { de: 'Gibt es bei der Tag-Abstimmung einen Stimmengleichstand, scheidest automatisch du aus. Als Trost darfst du festlegen, wer am nächsten Tag überhaupt abstimmen darf.', en: 'If there is a tie in any village vote, you are automatically eliminated. You get to decide who is allowed to vote on the following day.' } },
-  { id: 'floetenspieler', name: { de: 'Flötenspieler', en: 'Pied Piper' }, team: 'neutral', minPlayers: 9, wakesAtNight: true,
-    description: { de: 'Jede Nacht verzauberst du zwei Personen. Die Spielleitung tippt sie an. Du gewinnst allein, sobald alle noch lebenden Spielenden im Dorf verzaubert sind.', en: 'Each night you enchant two players. You win alone as soon as all surviving village players are enchanted.' } },
-  { id: 'freimaurer', name: { de: 'Freimaurer (2 Personen)', en: 'Freemasons (2 players)' }, team: 'village', minPlayers: 8, wakesAtNight: true,
-    description: { de: 'Ihr seid zwei rechtschaffene Dorfbewohner. Nur in der ersten Nacht wacht ihr gemeinsam auf und erkennt einander. So habt ihr einen sicheren Verbündeten.', en: 'Two upright villagers. In night 1 only you wake together and recognize each other as trustworthy allies.' } },
-  { id: 'seherin-lehrling', name: { de: 'Seherin-Lehrling', en: 'Apprentice Seer' }, team: 'village', minPlayers: 8, wakesAtNight: false,
-    description: { de: 'Du schläfst zunächst wie ein Dorfbewohner. Scheidet die Seherin im Laufe des Spiels aus, erwachst du ab der folgenden Nacht und übernimmst ihre seherische Gabe.', en: 'You sleep like a regular villager. If the Seer is eliminated, you awaken on the following nights to inherit her power.' } },
+  {
+    id: 'werwolf',
+    name: {
+      de: 'Werwolf',
+      en: 'Werewolf',
+    },
+    team: 'wolves',
+    minPlayers: 6,
+    wakesAtNight: true,
+    description: {
+      de: 'Du gehörst zu den Werwölfen. Nachts wacht ihr gemeinsam auf und einigt euch lautlos auf eine Person aus dem Dorf, die ausscheidet. Am Tag spielst du mit, als wärst du ein ganz normaler Dorfbewohner. Die Werwölfe gewinnen, wenn sie nicht mehr in der Unterzahl sind.',
+      en: 'You belong to the werewolves. At night you wake up together and silently agree on one villager who is out. During the day you act like a normal villager. The werewolves win when they are no longer outnumbered.',
+    },
+  },
+  {
+    id: 'dorfbewohner',
+    name: {
+      de: 'Dorfbewohner',
+      en: 'Villager',
+    },
+    team: 'village',
+    minPlayers: 6,
+    wakesAtNight: false,
+    description: {
+      de: 'Du hast keine besondere Fähigkeit und schläfst nachts. Am Tag hörst du genau zu, stellst Fragen und stimmst mit ab. Das Dorf gewinnt, wenn alle Werwölfe gefunden sind.',
+      en: 'You have no special power and sleep through the night. During the day you listen closely, ask questions and vote. The village wins when all werewolves have been found.',
+    },
+  },
+  {
+    id: 'seherin',
+    name: {
+      de: 'Seherin',
+      en: 'Seer',
+    },
+    team: 'village',
+    minPlayers: 7,
+    wakesAtNight: true,
+    description: {
+      de: 'Jede Nacht darfst du auf eine Person zeigen. Die Spielleitung zeigt dir mit dem Daumen, ob sie ein Werwolf ist (Daumen hoch) oder nicht (Daumen runter). Nutze dein Wissen am Tag klug, ohne dich zu verraten.',
+      en: 'Each night you may point at one person. The narrator shows you with a thumb whether that person is a werewolf (thumb up) or not (thumb down). Use your knowledge wisely during the day without giving yourself away.',
+    },
+  },
+  {
+    id: 'hexe',
+    name: {
+      de: 'Hexe',
+      en: 'Witch',
+    },
+    team: 'village',
+    minPlayers: 8,
+    wakesAtNight: true,
+    description: {
+      de: 'Du hast zwei Tränke, die du nur je einmal im ganzen Spiel einsetzen darfst: einen Heiltrank, der die Person rettet, auf die die Werwölfe gezeigt haben, und einen Schlaftrank, mit dem eine andere Person ausscheidet. Du darfst auch beide behalten.',
+      en: 'You have two potions, each usable only once in the whole game: a healing potion that saves the person the werewolves pointed at, and a sleeping potion that puts another person out. You may also keep both.',
+    },
+  },
+  {
+    id: 'jaeger',
+    name: {
+      de: 'Jäger',
+      en: 'Hunter',
+    },
+    team: 'village',
+    minPlayers: 8,
+    wakesAtNight: false,
+    description: {
+      de: 'Du schläfst nachts. Wenn du aus dem Spiel ausscheidest, egal wie, darfst du sofort noch auf eine Person zeigen, die mit dir ausscheidet. Überlege gut, wen du triffst.',
+      en: 'You sleep at night. When you leave the game, no matter how, you may immediately point at one more person who leaves with you. Think carefully about whom you choose.',
+    },
+  },
+  {
+    id: 'beschuetzer',
+    name: {
+      de: 'Beschützer (Engel)',
+      en: 'Protector (Angel)',
+    },
+    team: 'village',
+    minPlayers: 8,
+    wakesAtNight: true,
+    description: {
+      de: 'Jede Nacht wählst du eine Person, die in dieser Nacht geschützt ist. Dich selbst darfst du schützen. Dieselbe Person darfst du nicht zwei Nächte hintereinander schützen.',
+      en: 'Each night you choose one person who is protected for that night. You may protect yourself. You may not protect the same person two nights in a row.',
+    },
+  },
+  {
+    id: 'amor',
+    name: {
+      de: 'Amor',
+      en: 'Cupid',
+    },
+    team: 'village',
+    minPlayers: 9,
+    wakesAtNight: true,
+    description: {
+      de: 'Nur in der ersten Nacht wachst du auf und zeigst auf zwei Personen, die ein Liebespaar werden. Die beiden wissen nun voneinander. Scheidet eine der beiden aus, scheidet auch die andere aus Kummer aus. Du darfst dich selbst wählen.',
+      en: 'Only in the first night you wake up and point at two people who become a pair of friends in love. The two now know each other. If one of them leaves, the other leaves too out of sadness. You may choose yourself.',
+    },
+  },
+  {
+    id: 'maedchen',
+    name: {
+      de: 'Kleines Mädchen',
+      en: 'Little Girl',
+    },
+    team: 'village',
+    minPlayers: 8,
+    wakesAtNight: true,
+    description: {
+      de: 'Nachts, während die Werwölfe wach sind, darfst du heimlich blinzeln und spähen. Aber Vorsicht: Wenn die Werwölfe dich bemerken, scheidest du sofort anstelle des gewählten Opfers aus.',
+      en: 'At night while werewolves are awake, you may secretly peek through your fingers. But beware: if werewolves catch you, you are eliminated instead of their victim.',
+    },
+  },
+  {
+    id: 'dieb',
+    name: {
+      de: 'Dieb',
+      en: 'Thief',
+    },
+    team: 'neutral',
+    minPlayers: 8,
+    wakesAtNight: true,
+    description: {
+      de: 'In der allerersten Nacht siehst du zwei verdeckte Extrakarten an und darfst deine Rolle gegen eine davon tauschen. Sind beide Werwölfe, musst du einen Werwolf nehmen.',
+      en: 'On the very first night you look at two extra face-down cards and may swap your card with one. If both are werewolves, you must pick a werewolf.',
+    },
+  },
+  {
+    id: 'urwolf',
+    name: {
+      de: 'Urwolf',
+      en: 'Big Bad Wolf',
+    },
+    team: 'wolves',
+    minPlayers: 9,
+    wakesAtNight: true,
+    description: {
+      de: 'Du wachst mit den Werwölfen auf. Einmal im gesamten Spiel darfst du nach dem Opferzeichen die Faust heben: Das Opfer scheidet nicht aus, sondern wird infiziert und zum Mitwolf.',
+      en: 'You wake with the werewolves. Once per game, you may raise your fist after an attack to infect the victim instead of eliminating them, turning them into a werewolf.',
+    },
+  },
+  {
+    id: 'weisser-werwolf',
+    name: {
+      de: 'Weißer Werwolf',
+      en: 'White Werewolf',
+    },
+    team: 'neutral',
+    minPlayers: 10,
+    wakesAtNight: true,
+    description: {
+      de: 'Du wachst nachts mit den normalen Werwölfen auf. Aber in jeder zweiten Nacht wachst du noch einmal allein auf und darfst einen deiner Mitwölfe ausschalten. Du gewinnst nur allein.',
+      en: 'You wake with the regular werewolves. Every second night, you awaken alone and may eliminate a fellow wolf. You only win if you are the sole survivor.',
+    },
+  },
+  {
+    id: 'dorfdepp',
+    name: {
+      de: 'Dorfdepp',
+      en: 'Village Idiot',
+    },
+    team: 'village',
+    minPlayers: 8,
+    wakesAtNight: false,
+    description: {
+      de: 'Wenn das Dorf dich bei der Tag-Abstimmung lynchen will, deckst du deine Karte auf: Das Dorf verschont dich! Du lebst weiter, verlierst aber ab sofort dein Stimmrecht.',
+      en: 'If the village votes to lynch you, reveal your card: the village spares you! You remain alive, but lose your vote for the remainder of the game.',
+    },
+  },
+  {
+    id: 'suendenbock',
+    name: {
+      de: 'Sündenbock',
+      en: 'Scapegoat',
+    },
+    team: 'village',
+    minPlayers: 8,
+    wakesAtNight: false,
+    description: {
+      de: 'Gibt es bei der Tag-Abstimmung einen Stimmengleichstand, scheidest automatisch du aus. Als Trost darfst du festlegen, wer am nächsten Tag überhaupt abstimmen darf.',
+      en: 'If there is a tie in any village vote, you are automatically eliminated. You get to decide who is allowed to vote on the following day.',
+    },
+  },
+  {
+    id: 'floetenspieler',
+    name: {
+      de: 'Flötenspieler',
+      en: 'Pied Piper',
+    },
+    team: 'neutral',
+    minPlayers: 9,
+    wakesAtNight: true,
+    description: {
+      de: 'Jede Nacht verzauberst du zwei Personen. Die Spielleitung tippt sie an. Du gewinnst allein, sobald alle noch lebenden Spielenden im Dorf verzaubert sind.',
+      en: 'Each night you enchant two players. You win alone as soon as all surviving village players are enchanted.',
+    },
+  },
+  {
+    id: 'freimaurer',
+    name: {
+      de: 'Freimaurer (2 Personen)',
+      en: 'Freemasons (2 players)',
+    },
+    team: 'village',
+    minPlayers: 8,
+    wakesAtNight: true,
+    description: {
+      de: 'Ihr seid zwei rechtschaffene Dorfbewohner. Nur in der ersten Nacht wacht ihr gemeinsam auf und erkennt einander. So habt ihr einen sicheren Verbündeten.',
+      en: 'Two upright villagers. In night 1 only you wake together and recognize each other as trustworthy allies.',
+    },
+  },
+  {
+    id: 'seherin-lehrling',
+    name: {
+      de: 'Seherin-Lehrling',
+      en: 'Apprentice Seer',
+    },
+    team: 'village',
+    minPlayers: 8,
+    wakesAtNight: false,
+    description: {
+      de: 'Du schläfst zunächst wie ein Dorfbewohner. Scheidet die Seherin im Laufe des Spiels aus, erwachst du ab der folgenden Nacht und übernimmst ihre seherische Gabe.',
+      en: 'You sleep like a regular villager. If the Seer is eliminated, you awaken on the following nights to inherit her power.',
+    },
+  },
 ];
 
 export const WEREWOLF_NARRATOR: NarratorStep[] = [
-  { id: 'setup-karten', phase: 'setup', seconds: undefined,
-    title: { de: 'Karten verteilen', en: 'Deal the cards' },
-    script: { de: 'Ich gebe jetzt jeder Person eine Karte. Schau sie dir heimlich an und zeig sie niemandem. Danach legst du sie verdeckt vor dich.', en: 'I am now giving everyone one card. Look at it in secret and show it to nobody. Then place it face down in front of you.' } },
-  { id: 'setup-augen', phase: 'setup', seconds: undefined,
-    title: { de: 'Augen schließen', en: 'Close your eyes' },
-    script: { de: 'Alle Spielenden setzen sich im Kreis hin. Wenn ich es sage, schließen alle die Augen und legen die Hände vor sich auf die Knie. Jetzt. Das Dorf geht schlafen. Alle Augen zu.', en: 'Everyone sits in a circle. When I say so, everyone closes their eyes and rests their hands on their knees. Now. The village goes to sleep. Everyone close your eyes.' } },
-  { id: 'night-dieb', phase: 'night', seconds: undefined,
-    title: { de: 'Nacht 1: Dieb', en: 'Night 1: Thief' },
-    script: { de: 'Nur in der ersten Nacht. Der Dieb erwacht und sieht sich die beiden Extrakarten an. Möchte er seine Rolle tauschen? Der Dieb schläft wieder ein.', en: 'First night only. The thief wakes and checks the two extra cards. Do they wish to swap roles? The thief goes back to sleep.' } },
-  { id: 'night-amor', phase: 'night', seconds: undefined,
-    title: { de: 'Nacht 1: Amor', en: 'Night 1: Cupid' },
-    script: { de: 'Nur in der ersten Nacht. Amor erwacht und zeigt auf zwei Personen, die ein Liebespaar werden. Ich tippe die beiden an.', en: 'First night only. Cupid wakes up and points at two people who become a pair in love. I will tap both of them on the shoulder.' } },
-  { id: 'night-amor-paar', phase: 'night', seconds: undefined,
-    title: { de: 'Nacht 1: Das Paar', en: 'Night 1: The pair' },
-    script: { de: 'Ihr zwei, die ich angetippt habe, öffnet kurz die Augen und schaut euch an. Jetzt schließt ihr sie wieder. Amor, schlaf wieder ein.', en: 'You two I tapped, open your eyes briefly and look at each other. Now close them again. Cupid, go back to sleep.' } },
-  { id: 'night-freimaurer', phase: 'night', seconds: undefined,
-    title: { de: 'Nacht 1: Freimaurer', en: 'Night 1: Freemasons' },
-    script: { de: 'Nur in der ersten Nacht. Die beiden Freimaurer erwachen, schauen sich kurz an und erkennen einander. Freimaurer, schlaft wieder ein.', en: 'First night only. The two freemasons awaken, look at each other and acknowledge their bond. Freemasons, go back to sleep.' } },
-  { id: 'night-beschuetzer', phase: 'night', seconds: undefined,
-    title: { de: 'Beschützer erwacht', en: 'Protector wakes' },
-    script: { de: 'Der Beschützer erwacht und zeigt auf die Person, die in dieser Nacht geschützt sein soll. Es darf nicht dieselbe sein wie in der Nacht davor.', en: 'The protector wakes up and points at the person who is to be protected tonight. It may not be the same person as last night.' } },
-  { id: 'night-beschuetzer-schlaf', phase: 'night', seconds: undefined,
-    title: { de: 'Beschützer schläft', en: 'Protector sleeps' },
-    script: { de: 'Der Beschützer schließt die Augen und schläft wieder ein.', en: 'The protector closes their eyes and goes back to sleep.' } },
-  { id: 'night-seherin', phase: 'night', seconds: undefined,
-    title: { de: 'Seherin erwacht', en: 'Seer wakes' },
-    script: { de: 'Die Seherin (oder ihr Lehrling) erwacht und zeigt auf eine Person. Ich zeige ihr mit dem Daumen, ob diese Person ein Werwolf ist: Daumen hoch heißt ja, Daumen runter heißt nein.', en: 'The seer (or apprentice) wakes up and points at one person. I show with my thumb whether they are a werewolf: thumb up means yes, thumb down means no.' } },
-  { id: 'night-seherin-schlaf', phase: 'night', seconds: undefined,
-    title: { de: 'Seherin schläft', en: 'Seer sleeps' },
-    script: { de: 'Die Seherin schließt die Augen und schläft wieder ein.', en: 'The seer closes their eyes and goes back to sleep.' } },
-  { id: 'night-werwoelfe', phase: 'night', seconds: undefined,
-    title: { de: 'Werwölfe erwachen', en: 'Werewolves wake' },
-    script: { de: 'Die Werwölfe erwachen und schauen sich still an. Zeigt gemeinsam auf eine Person aus dem Dorf, die ausscheiden soll. Achtung: Das kleine Mädchen darf heimlich spähen!', en: 'The werewolves wake and silently look at each other. Point together at one villager to eliminate. Watch out: the little girl may be peeking!' } },
-  { id: 'night-urwolf-infektion', phase: 'night', seconds: undefined,
-    title: { de: 'Urwolf-Wahl', en: 'Big Bad Wolf choice' },
-    script: { de: 'Falls der Urwolf im Spiel ist: Möchte er das Opfer infizieren statt töten? Er hebt jetzt die Faust. Wenn ja, tippe ich das Opfer an.', en: 'If the Big Bad Wolf is in game: Do you want to infect the victim instead of eliminating them? Raise your fist now.' } },
-  { id: 'night-werwoelfe-schlaf', phase: 'night', seconds: undefined,
-    title: { de: 'Werwölfe schlafen', en: 'Werewolves sleep' },
-    script: { de: 'Die Werwölfe haben ihre Wahl getroffen und schlafen wieder ein. Alle Augen zu.', en: 'The werewolves have made their choice and go back to sleep. All eyes closed.' } },
-  { id: 'night-weisser-werwolf', phase: 'night', seconds: undefined,
-    title: { de: 'Weißer Werwolf erwacht', en: 'White Werewolf wakes' },
-    script: { de: 'Jede zweite Nacht: Der Weiße Werwolf erwacht allein. Möchtest du einen deiner Mitwölfe ausschalten? Zeige auf ihn oder schüttle den Kopf. Er schläft wieder ein.', en: 'Every other night: The White Werewolf wakes alone. Do you want to eliminate a fellow wolf? Point at them or shake your head. Sleep.' } },
-  { id: 'night-hexe', phase: 'night', seconds: undefined,
-    title: { de: 'Hexe erwacht', en: 'Witch wakes' },
-    script: { de: 'Die Hexe erwacht. Ich zeige ihr, auf wen die Werwölfe gezeigt haben. Möchte sie diese Person mit dem Heiltrank retten? Dann zeigt sie auf sie. Möchte sie außerdem den Schlaftrank einsetzen? Dann zeigt sie auf eine andere Person. Sie darf auch nichts tun.', en: 'The witch wakes up. I show her whom the werewolves pointed at. Does she want to save that person with the healing potion? Then she points at them. Does she also want to use the sleeping potion? Then she points at someone else. She may also do nothing.' } },
-  { id: 'night-hexe-schlaf', phase: 'night', seconds: undefined,
-    title: { de: 'Hexe schläft', en: 'Witch sleeps' },
-    script: { de: 'Die Hexe schließt die Augen und schläft wieder ein.', en: 'The witch closes her eyes and goes back to sleep.' } },
-  { id: 'night-floetenspieler', phase: 'night', seconds: undefined,
-    title: { de: 'Flötenspieler erwacht', en: 'Pied Piper wakes' },
-    script: { de: 'Der Flötenspieler erwacht und zeigt auf zwei Personen, die er verzaubern möchte. Ich tippe die beiden an. Der Flötenspieler schläft wieder ein.', en: 'The pied piper awakens and points at two players to enchant. I tap both. The piper goes back to sleep.' } },
-  { id: 'day-morgen', phase: 'day', seconds: undefined,
-    title: { de: 'Der Morgen bricht an', en: 'Morning comes' },
-    script: { de: 'Der Morgen bricht an. Das Dorf erwacht, alle öffnen die Augen. Heute Nacht ist etwas passiert.', en: 'Morning comes. The village wakes up, everyone opens their eyes. Something happened in the night.' } },
-  { id: 'day-ansage', phase: 'day', seconds: undefined,
-    title: { de: 'Wer ist ausgeschieden?', en: 'Who is out?' },
-    script: { de: 'Diese Person ist in der Nacht ausgeschieden. Sie dreht ihre Karte um und zeigt, wer sie war. Wenn niemand ausgeschieden ist, sage ich: Diese Nacht ist niemand ausgeschieden.', en: 'This person left the game in the night. They turn their card over and show who they were. If nobody left, I say: Nobody left the game tonight.' } },
-  { id: 'day-jaeger', phase: 'day', seconds: undefined,
-    title: { de: 'Jäger zeigt', en: 'Hunter points' },
-    script: { de: 'Falls der Jäger ausgeschieden ist: Jäger, du darfst jetzt auf eine Person zeigen, die mit dir ausscheidet. Danach dreht auch diese Person ihre Karte um.', en: 'If the hunter has left the game: Hunter, you may now point at one person who leaves with you. Then that person also turns their card over.' } },
-  { id: 'day-diskussion', phase: 'day', seconds: undefined,
-    title: { de: 'Diskussion & Bürgermeister', en: 'Discussion & Mayor' },
-    script: { de: 'Jetzt darf das Dorf reden. Wer verhält sich seltsam? Wer sagt etwas, das nicht passt? Falls noch kein Bürgermeister gewählt wurde, stimmt zuerst über ihn ab.', en: 'Now the village may talk. Who acts strangely? If no Mayor was elected yet, hold the election first.' } },
-  { id: 'day-abstimmung', phase: 'day', seconds: undefined,
-    title: { de: 'Abstimmung', en: 'Vote' },
-    script: { de: 'Die Zeit ist um. Wir stimmen ab. Wenn ich bis drei zähle, zeigt alle gleichzeitig auf die Person, die ihr verdächtigt. Eins, zwei, drei.', en: 'Time is up. We vote. When I count to three, everyone points at the same time at the person they suspect. One, two, three.' } },
-  { id: 'day-ergebnis', phase: 'day', seconds: undefined,
-    title: { de: 'Ergebnis', en: 'Result' },
-    script: { de: 'Die Person mit den meisten Stimmen scheidet aus. Bei Gleichstand entscheidet die Stimme des Bürgermeisters (oder der Sündenbock scheidet aus!). Deckt der Dorfdepp seine Karte auf, überlebt er ohne Stimmrecht.', en: 'The player with most votes leaves. On a tie, the Mayor breaks it (or Scapegoat leaves!). If Village Idiot reveals his card, he survives without a vote.' } },
-  { id: 'day-naechste-nacht', phase: 'day', seconds: undefined,
-    title: { de: 'Nächste Nacht', en: 'Next night' },
-    script: { de: 'Wenn das Spiel weitergeht: Das Dorf geht wieder schlafen. Alle Augen zu. Weiter mit der nächsten Nacht.', en: 'If the game goes on: the village goes to sleep again. Everyone close your eyes. Continue with the next night.' } },
+  {
+    id: 'setup-karten',
+    phase: 'setup',
+    title: {
+      de: 'Karten verteilen',
+      en: 'Deal the cards',
+    },
+    script: {
+      de: 'Ich gebe jetzt jeder Person eine Karte. Schau sie dir heimlich an und zeig sie niemandem. Danach legst du sie verdeckt vor dich.',
+      en: 'I am now giving everyone one card. Look at it in secret and show it to nobody. Then place it face down in front of you.',
+    },
+  },
+  {
+    id: 'setup-augen',
+    phase: 'setup',
+    title: {
+      de: 'Augen schließen',
+      en: 'Close your eyes',
+    },
+    script: {
+      de: 'Alle Spielenden setzen sich im Kreis hin. Wenn ich es sage, schließen alle die Augen und legen die Hände vor sich auf die Knie. Jetzt. Das Dorf geht schlafen. Alle Augen zu.',
+      en: 'Everyone sits in a circle. When I say so, everyone closes their eyes and rests their hands on their knees. Now. The village goes to sleep. Everyone close your eyes.',
+    },
+  },
+  {
+    id: 'night-dieb',
+    phase: 'night',
+    title: {
+      de: 'Nacht 1: Dieb',
+      en: 'Night 1: Thief',
+    },
+    script: {
+      de: 'Nur in der ersten Nacht. Der Dieb erwacht und sieht sich die beiden Extrakarten an. Möchte er seine Rolle tauschen? Der Dieb schläft wieder ein.',
+      en: 'First night only. The thief wakes and checks the two extra cards. Do they wish to swap roles? The thief goes back to sleep.',
+    },
+  },
+  {
+    id: 'night-amor',
+    phase: 'night',
+    title: {
+      de: 'Nacht 1: Amor',
+      en: 'Night 1: Cupid',
+    },
+    script: {
+      de: 'Nur in der ersten Nacht. Amor erwacht und zeigt auf zwei Personen, die ein Liebespaar werden. Ich tippe die beiden an.',
+      en: 'First night only. Cupid wakes up and points at two people who become a pair in love. I will tap both of them on the shoulder.',
+    },
+  },
+  {
+    id: 'night-amor-paar',
+    phase: 'night',
+    title: {
+      de: 'Nacht 1: Das Paar',
+      en: 'Night 1: The pair',
+    },
+    script: {
+      de: 'Ihr zwei, die ich angetippt habe, öffnet kurz die Augen und schaut euch an. Jetzt schließt ihr sie wieder. Amor, schlaf wieder ein.',
+      en: 'You two I tapped, open your eyes briefly and look at each other. Now close them again. Cupid, go back to sleep.',
+    },
+  },
+  {
+    id: 'night-freimaurer',
+    phase: 'night',
+    title: {
+      de: 'Nacht 1: Freimaurer',
+      en: 'Night 1: Freemasons',
+    },
+    script: {
+      de: 'Nur in der ersten Nacht. Die beiden Freimaurer erwachen, schauen sich kurz an und erkennen einander. Freimaurer, schlaft wieder ein.',
+      en: 'First night only. The two freemasons awaken, look at each other and acknowledge their bond. Freemasons, go back to sleep.',
+    },
+  },
+  {
+    id: 'night-beschuetzer',
+    phase: 'night',
+    title: {
+      de: 'Beschützer erwacht',
+      en: 'Protector wakes',
+    },
+    script: {
+      de: 'Der Beschützer erwacht und zeigt auf die Person, die in dieser Nacht geschützt sein soll. Es darf nicht dieselbe sein wie in der Nacht davor.',
+      en: 'The protector wakes up and points at the person who is to be protected tonight. It may not be the same person as last night.',
+    },
+  },
+  {
+    id: 'night-beschuetzer-schlaf',
+    phase: 'night',
+    title: {
+      de: 'Beschützer schläft',
+      en: 'Protector sleeps',
+    },
+    script: {
+      de: 'Der Beschützer schließt die Augen und schläft wieder ein.',
+      en: 'The protector closes their eyes and goes back to sleep.',
+    },
+  },
+  {
+    id: 'night-seherin',
+    phase: 'night',
+    title: {
+      de: 'Seherin erwacht',
+      en: 'Seer wakes',
+    },
+    script: {
+      de: 'Die Seherin (oder ihr Lehrling) erwacht und zeigt auf eine Person. Ich zeige ihr mit dem Daumen, ob diese Person ein Werwolf ist: Daumen hoch heißt ja, Daumen runter heißt nein.',
+      en: 'The seer (or apprentice) wakes up and points at one person. I show with my thumb whether they are a werewolf: thumb up means yes, thumb down means no.',
+    },
+  },
+  {
+    id: 'night-seherin-schlaf',
+    phase: 'night',
+    title: {
+      de: 'Seherin schläft',
+      en: 'Seer sleeps',
+    },
+    script: {
+      de: 'Die Seherin schließt die Augen und schläft wieder ein.',
+      en: 'The seer closes their eyes and goes back to sleep.',
+    },
+  },
+  {
+    id: 'night-werwoelfe',
+    phase: 'night',
+    title: {
+      de: 'Werwölfe erwachen',
+      en: 'Werewolves wake',
+    },
+    script: {
+      de: 'Die Werwölfe erwachen und schauen sich still an. Zeigt gemeinsam auf eine Person aus dem Dorf, die ausscheiden soll. Achtung: Das kleine Mädchen darf heimlich spähen!',
+      en: 'The werewolves wake and silently look at each other. Point together at one villager to eliminate. Watch out: the little girl may be peeking!',
+    },
+  },
+  {
+    id: 'night-urwolf-infektion',
+    phase: 'night',
+    title: {
+      de: 'Urwolf-Wahl',
+      en: 'Big Bad Wolf choice',
+    },
+    script: {
+      de: 'Falls der Urwolf im Spiel ist: Möchte er das Opfer infizieren statt töten? Er hebt jetzt die Faust. Wenn ja, tippe ich das Opfer an.',
+      en: 'If the Big Bad Wolf is in game: Do you want to infect the victim instead of eliminating them? Raise your fist now.',
+    },
+  },
+  {
+    id: 'night-werwoelfe-schlaf',
+    phase: 'night',
+    title: {
+      de: 'Werwölfe schlafen',
+      en: 'Werewolves sleep',
+    },
+    script: {
+      de: 'Die Werwölfe haben ihre Wahl getroffen und schlafen wieder ein. Alle Augen zu.',
+      en: 'The werewolves have made their choice and go back to sleep. All eyes closed.',
+    },
+  },
+  {
+    id: 'night-weisser-werwolf',
+    phase: 'night',
+    title: {
+      de: 'Weißer Werwolf erwacht',
+      en: 'White Werewolf wakes',
+    },
+    script: {
+      de: 'Jede zweite Nacht: Der Weiße Werwolf erwacht allein. Möchtest du einen deiner Mitwölfe ausschalten? Zeige auf ihn oder schüttle den Kopf. Er schläft wieder ein.',
+      en: 'Every other night: The White Werewolf wakes alone. Do you want to eliminate a fellow wolf? Point at them or shake your head. Sleep.',
+    },
+  },
+  {
+    id: 'night-hexe',
+    phase: 'night',
+    title: {
+      de: 'Hexe erwacht',
+      en: 'Witch wakes',
+    },
+    script: {
+      de: 'Die Hexe erwacht. Ich zeige ihr, auf wen die Werwölfe gezeigt haben. Möchte sie diese Person mit dem Heiltrank retten? Dann zeigt sie auf sie. Möchte sie außerdem den Schlaftrank einsetzen? Dann zeigt sie auf eine andere Person. Sie darf auch nichts tun.',
+      en: 'The witch wakes up. I show her whom the werewolves pointed at. Does she want to save that person with the healing potion? Then she points at them. Does she also want to use the sleeping potion? Then she points at someone else. She may also do nothing.',
+    },
+  },
+  {
+    id: 'night-hexe-schlaf',
+    phase: 'night',
+    title: {
+      de: 'Hexe schläft',
+      en: 'Witch sleeps',
+    },
+    script: {
+      de: 'Die Hexe schließt die Augen und schläft wieder ein.',
+      en: 'The witch closes her eyes and goes back to sleep.',
+    },
+  },
+  {
+    id: 'night-floetenspieler',
+    phase: 'night',
+    title: {
+      de: 'Flötenspieler erwacht',
+      en: 'Pied Piper wakes',
+    },
+    script: {
+      de: 'Der Flötenspieler erwacht und zeigt auf zwei Personen, die er verzaubern möchte. Ich tippe die beiden an. Der Flötenspieler schläft wieder ein.',
+      en: 'The pied piper awakens and points at two players to enchant. I tap both. The piper goes back to sleep.',
+    },
+  },
+  {
+    id: 'day-morgen',
+    phase: 'day',
+    title: {
+      de: 'Der Morgen bricht an',
+      en: 'Morning comes',
+    },
+    script: {
+      de: 'Der Morgen bricht an. Das Dorf erwacht, alle öffnen die Augen. Heute Nacht ist etwas passiert.',
+      en: 'Morning comes. The village wakes up, everyone opens their eyes. Something happened in the night.',
+    },
+  },
+  {
+    id: 'day-ansage',
+    phase: 'day',
+    title: {
+      de: 'Wer ist ausgeschieden?',
+      en: 'Who is out?',
+    },
+    script: {
+      de: 'Diese Person ist in der Nacht ausgeschieden. Sie dreht ihre Karte um und zeigt, wer sie war. Wenn niemand ausgeschieden ist, sage ich: Diese Nacht ist niemand ausgeschieden.',
+      en: 'This person left the game in the night. They turn their card over and show who they were. If nobody left, I say: Nobody left the game tonight.',
+    },
+  },
+  {
+    id: 'day-jaeger',
+    phase: 'day',
+    title: {
+      de: 'Jäger zeigt',
+      en: 'Hunter points',
+    },
+    script: {
+      de: 'Falls der Jäger ausgeschieden ist: Jäger, du darfst jetzt auf eine Person zeigen, die mit dir ausscheidet. Danach dreht auch diese Person ihre Karte um.',
+      en: 'If the hunter has left the game: Hunter, you may now point at one person who leaves with you. Then that person also turns their card over.',
+    },
+  },
+  {
+    id: 'day-diskussion',
+    phase: 'day',
+    title: {
+      de: 'Diskussion & Bürgermeister',
+      en: 'Discussion & Mayor',
+    },
+    script: {
+      de: 'Jetzt darf das Dorf reden. Wer verhält sich seltsam? Wer sagt etwas, das nicht passt? Falls noch kein Bürgermeister gewählt wurde, stimmt zuerst über ihn ab.',
+      en: 'Now the village may talk. Who acts strangely? If no Mayor was elected yet, hold the election first.',
+    },
+  },
+  {
+    id: 'day-abstimmung',
+    phase: 'day',
+    title: {
+      de: 'Abstimmung',
+      en: 'Vote',
+    },
+    script: {
+      de: 'Die Zeit ist um. Wir stimmen ab. Wenn ich bis drei zähle, zeigt alle gleichzeitig auf die Person, die ihr verdächtigt. Eins, zwei, drei.',
+      en: 'Time is up. We vote. When I count to three, everyone points at the same time at the person they suspect. One, two, three.',
+    },
+  },
+  {
+    id: 'day-ergebnis',
+    phase: 'day',
+    title: {
+      de: 'Ergebnis',
+      en: 'Result',
+    },
+    script: {
+      de: 'Die Person mit den meisten Stimmen scheidet aus. Bei Gleichstand entscheidet die Stimme des Bürgermeisters (oder der Sündenbock scheidet aus!). Deckt der Dorfdepp seine Karte auf, überlebt er ohne Stimmrecht.',
+      en: 'The player with most votes leaves. On a tie, the Mayor breaks it (or Scapegoat leaves!). If Village Idiot reveals his card, he survives without a vote.',
+    },
+  },
+  {
+    id: 'day-naechste-nacht',
+    phase: 'day',
+    title: {
+      de: 'Nächste Nacht',
+      en: 'Next night',
+    },
+    script: {
+      de: 'Wenn das Spiel weitergeht: Das Dorf geht wieder schlafen. Alle Augen zu. Weiter mit der nächsten Nacht.',
+      en: 'If the game goes on: the village goes to sleep again. Everyone close your eyes. Continue with the next night.',
+    },
+  },
 ];
 
 export const WEREWOLF_VARIANTS: NoOneOutVariant[] = [
   {
     id: 'schlaf-version',
-    name: { de: 'Schlaf-Version', en: 'Sleep version' },
-    summary: { de: 'Die Werwölfe verzaubern eine Person in den Schlaf. Niemand scheidet aus, die Person setzt nur eine Runde aus und kehrt danach zurück.', en: 'The werewolves enchant one person into sleep. Nobody is out; the person just sits out one round and then returns.' },
+    name: {
+      de: 'Schlaf-Version',
+      en: 'Sleep version',
+    },
+    summary: {
+      de: 'Die Werwölfe verzaubern eine Person in den Schlaf. Niemand scheidet aus, die Person setzt nur eine Runde aus und kehrt danach zurück.',
+      en: 'The werewolves enchant one person into sleep. Nobody is out; the person just sits out one round and then returns.',
+    },
     rules: {
       de: [
         'Nachts zeigen die Werwölfe auf eine Person. Diese Person schläft ein und legt am Morgen den Kopf auf die Arme.|Tagsüber darf sie nicht reden, nicht zeigen und nicht abstimmen.|Ihre Karte bleibt verdeckt, niemand erfährt ihre Rolle.|In der nächsten Nacht wacht die Person ganz normal wieder auf und spielt mit.|Die Hexe kann mit dem Heiltrank verhindern, dass die Person einschläft.',
@@ -1655,8 +3721,14 @@ export const WEREWOLF_VARIANTS: NoOneOutVariant[] = [
   },
   {
     id: 'geisterrat',
-    name: { de: 'Geisterrat', en: 'Spirit council' },
-    summary: { de: 'Betroffene Spielende bleiben im Spiel und bilden einen stillen Geisterrat. Der Rat darf pro Runde ein Ja-Nein-Zeichen geben und hilft so dem Dorf.', en: 'Affected players stay in the game and form a silent spirit council. The council may give one yes-or-no signal per round and so helps the village.' },
+    name: {
+      de: 'Geisterrat',
+      en: 'Spirit council',
+    },
+    summary: {
+      de: 'Betroffene Spielende bleiben im Spiel und bilden einen stillen Geisterrat. Der Rat darf pro Runde ein Ja-Nein-Zeichen geben und hilft so dem Dorf.',
+      en: 'Affected players stay in the game and form a silent spirit council. The council may give one yes-or-no signal per round and so helps the village.',
+    },
     rules: {
       de: [
         'Wer nachts oder durch die Abstimmung betroffen ist, setzt sich in den Geisterrat am Rand des Kreises.|Der Geisterrat darf nicht sprechen und nicht abstimmen.|Einmal pro Tag stellt das Dorf dem Rat eine Ja-Nein-Frage, zum Beispiel: Ist Lena ein Werwolf?|Der Rat antwortet gemeinsam mit Daumen hoch oder Daumen runter. Wenn er sich nicht einig ist, zeigt er die flache Hand.|Der Rat darf nie die Rolle einer Karte verraten, nur Ja, Nein oder Unklar signalisieren.|Alle im Rat freuen sich mit, wenn ihr Team gewinnt.',
@@ -1668,8 +3740,14 @@ export const WEREWOLF_VARIANTS: NoOneOutVariant[] = [
   },
   {
     id: 'wiederkehr',
-    name: { de: 'Wiederkehr', en: 'Return' },
-    summary: { de: 'Betroffene Spielende kehren in der nächsten Runde zurück, nachdem sie eine kleine gemeinsame Aufgabe erledigt haben.', en: 'Affected players return in the next round after they have completed a small shared task.' },
+    name: {
+      de: 'Wiederkehr',
+      en: 'Return',
+    },
+    summary: {
+      de: 'Betroffene Spielende kehren in der nächsten Runde zurück, nachdem sie eine kleine gemeinsame Aufgabe erledigt haben.',
+      en: 'Affected players return in the next round after they have completed a small shared task.',
+    },
     rules: {
       de: [
         'Wer betroffen ist, geht an den Rand und löst zusammen mit den anderen Betroffenen eine kleine Aufgabe, zum Beispiel einen Zungenbrecher oder ein Rätsel.|Während sie das tun, spielen sie leise und stören die Diskussion nicht.|Schaffen sie die Aufgabe bis zum Ende der Runde, kehren sie in der nächsten Runde mit ihrer Rolle ins Spiel zurück.|Schaffen sie sie nicht, bekommt die Gruppe am Ende der Runde eine zweite Chance, sie gemeinsam zu lösen.|Die Rolle bleibt dabei immer geheim, bis das Spiel zu Ende ist.',
@@ -1682,16 +3760,52 @@ export const WEREWOLF_VARIANTS: NoOneOutVariant[] = [
 ];
 
 export const KILLER_ROLES: KillerRole[] = [
-  { id: 'zwinkerer', name: { de: 'Zwinkerer', en: 'Winker' }, description: { de: 'Du bist der oder die Geheime in der Runde. Du zwinkerst anderen Mitspielenden heimlich zu, ohne dass es jemand sieht. Wer von dir angezwinkert wird, wartet kurz und macht dann bei der Variante mit.', en: 'You are the secret one in the circle. You wink at other players secretly without anyone noticing. Whoever you wink at waits a moment and then follows the rule of the chosen variant.' } },
-  { id: 'detektiv', name: { de: 'Detektiv', en: 'Detective' }, description: { de: 'Du suchst den Zwinkerer. Du darfst genau drei Mal raten, wer es ist. Rate nur, wenn du dir sicher bist. Wenn du richtig liegst, gewinnt die Runde.', en: 'You are looking for the winker. You may guess exactly three times who it is. Only guess when you are fairly sure. If you are right, the group wins.' } },
-  { id: 'mitspieler', name: { de: 'Mitspieler', en: 'Player' }, description: { de: 'Du schaust dich aufmerksam um und tust so, als wäre nichts. Wirst du angezwinkert, folgst du der Regel der Variante. Du darfst dem Detektiv helfen, indem du Beobachtungen teilst.', en: 'You look around attentively and act as if nothing is going on. If someone winks at you, you follow the rule of the variant. You may help the detective by sharing what you noticed.' } },
+  {
+    id: 'zwinkerer',
+    name: {
+      de: 'Zwinkerer',
+      en: 'Winker',
+    },
+    description: {
+      de: 'Du bist der oder die Geheime in der Runde. Du zwinkerst anderen Mitspielenden heimlich zu, ohne dass es jemand sieht. Wer von dir angezwinkert wird, wartet kurz und macht dann bei der Variante mit.',
+      en: 'You are the secret one in the circle. You wink at other players secretly without anyone noticing. Whoever you wink at waits a moment and then follows the rule of the chosen variant.',
+    },
+  },
+  {
+    id: 'detektiv',
+    name: {
+      de: 'Detektiv',
+      en: 'Detective',
+    },
+    description: {
+      de: 'Du suchst den Zwinkerer. Du darfst genau drei Mal raten, wer es ist. Rate nur, wenn du dir sicher bist. Wenn du richtig liegst, gewinnt die Runde.',
+      en: 'You are looking for the winker. You may guess exactly three times who it is. Only guess when you are fairly sure. If you are right, the group wins.',
+    },
+  },
+  {
+    id: 'mitspieler',
+    name: {
+      de: 'Mitspieler',
+      en: 'Player',
+    },
+    description: {
+      de: 'Du schaust dich aufmerksam um und tust so, als wäre nichts. Wirst du angezwinkert, folgst du der Regel der Variante. Du darfst dem Detektiv helfen, indem du Beobachtungen teilst.',
+      en: 'You look around attentively and act as if nothing is going on. If someone winks at you, you follow the rule of the variant. You may help the detective by sharing what you noticed.',
+    },
+  },
 ];
 
 export const KILLER_VARIANTS: NoOneOutVariant[] = [
   {
     id: 'zeuge',
-    name: { de: 'Zeuge', en: 'Witness' },
-    summary: { de: 'Wer angezwinkert wird, wird zum Zeugen: Eine Runde lang darf diese Person nur zeigen und nicht sprechen, danach spielt sie wieder normal mit.', en: 'Whoever is winked at becomes a witness: for one round they may only point and not speak, then they rejoin normally.' },
+    name: {
+      de: 'Zeuge',
+      en: 'Witness',
+    },
+    summary: {
+      de: 'Wer angezwinkert wird, wird zum Zeugen: Eine Runde lang darf diese Person nur zeigen und nicht sprechen, danach spielt sie wieder normal mit.',
+      en: 'Whoever is winked at becomes a witness: for one round they may only point and not speak, then they rejoin normally.',
+    },
     rules: {
       de: [
         'Wirst du angezwinkert, zählst du innerlich bis fünf und sagst dann leise: Ich habe etwas gesehen.|Du bist jetzt ein Zeuge und darfst eine Runde lang nur mit dem Finger zeigen, nicht sprechen.|Du zeigst auf die Person, die du für den Zwinkerer hältst, oder auf niemanden.|Nach der Runde nimmst du die Hände wieder runter und spielst normal weiter.|Der Detektiv darf Zeugen beobachten, aber nicht fragen.',
@@ -1703,8 +3817,14 @@ export const KILLER_VARIANTS: NoOneOutVariant[] = [
   },
   {
     id: 'schlafmuetze',
-    name: { de: 'Schlafmütze', en: 'Sleepyhead' },
-    summary: { de: 'Wer angezwinkert wird, legt den Kopf für 30 Sekunden auf die Arme und kehrt dann zurück.', en: 'Whoever is winked at puts their head down for 30 seconds and then comes back.' },
+    name: {
+      de: 'Schlafmütze',
+      en: 'Sleepyhead',
+    },
+    summary: {
+      de: 'Wer angezwinkert wird, legt den Kopf für 30 Sekunden auf die Arme und kehrt dann zurück.',
+      en: 'Whoever is winked at puts their head down for 30 seconds and then comes back.',
+    },
     rules: {
       de: [
         'Wirst du angezwinkert, zählst du kurz bis fünf und legst dann den Kopf auf die Arme oder auf den Tisch.|Du bleibst 30 Sekunden still und schläfst nur zum Schein.|Nach 30 Sekunden hebst du den Kopf wieder und spielst normal weiter.|Wer schläft, darf nicht zeigen und nicht flüstern.|Eine Schlafmütze darf wieder angezwinkert werden, nachdem sie aufgewacht ist.',
