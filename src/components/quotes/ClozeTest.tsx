@@ -133,16 +133,16 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
         </p>
 
         {/* Difficulty switcher */}
-        <div className="flex items-center gap-1.5 bg-surface-2 p-1 rounded-control border border-border self-start sm:self-auto shrink-0">
+        <div className="flex items-center gap-1.5 bg-surface-2 p-1 rounded-full border border-border self-start sm:self-auto shrink-0">
           {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
             <button
               key={d}
               type="button"
               onClick={() => setDifficulty(d)}
-              className={`px-3 py-1.5 rounded-control text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all min-h-[36px] ${
                 difficulty === d
-                  ? 'bg-accent text-accent-contrast shadow-xs'
-                  : 'text-text-secondary hover:text-text'
+                  ? 'liquid-pill-primary border-white/20'
+                  : 'text-text-secondary hover:text-text cursor-pointer'
               }`}
             >
               {d === 'easy'

@@ -308,7 +308,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             <button
               type="button"
               onClick={() => setShowCompactFinder(!showCompactFinder)}
-              className="rounded-control bg-accent text-accent-contrast px-5 py-3.5 sm:py-4 shadow-sm hover:bg-accent-hover active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
+              className="liquid-pill-primary px-6 py-3.5 sm:py-4 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
             >
               <div className="min-w-0 pr-2">
                 <div className="font-bold text-sm sm:text-base text-accent-contrast tracking-tight">
@@ -324,7 +324,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             {/* Aktion 2: Zitate & Gebete */}
             <Link
               to="/quotes"
-              className="rounded-control bg-surface border border-border text-text px-5 py-3.5 sm:py-4 shadow-2xs hover:bg-surface-2 active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
+              className="liquid-pill-secondary px-6 py-3.5 sm:py-4 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
             >
               <div className="min-w-0 pr-2">
                 <div className="font-bold text-sm sm:text-base text-text group-hover:text-accent tracking-tight transition-colors">
@@ -835,13 +835,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             <div className="flex items-center gap-2 w-full sm:w-auto pt-1 sm:pt-0">
               <Link
                 to="/games"
-                className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-surface-2 hover:bg-surface-2/80 text-text text-xs font-semibold min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-full liquid-pill-secondary text-xs font-semibold min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {t.exploreGames}
               </Link>
               <Link
                 to="/quotes"
-                className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-bold min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-full liquid-pill-primary text-xs font-bold min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {t.exploreQuotes}
               </Link>

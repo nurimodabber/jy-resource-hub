@@ -198,7 +198,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
               <button
                 type="button"
                 onClick={() => setIsFilterOpen(true)}
-                className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text flex items-center gap-1 cursor-pointer"
+                className="px-3 py-1.5 rounded-full liquid-pill-secondary text-2xs font-semibold text-text flex items-center gap-1"
               >
                 <SlidersHorizontal className="w-3 h-3" />
                 <span>{L('Filter', 'Filters')}</span>

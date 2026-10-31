@@ -78,16 +78,16 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
         </p>
 
         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-          <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1.5 rounded-control text-text flex items-center">
+          <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1.5 rounded-full text-text flex items-center">
             <span>{wpm} WPM</span>
           </span>
 
-          <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-control border border-border">
+          <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-full border border-border">
             <button
               type="button"
               onClick={() => { setChunkSize(1); setCurrentIndex(0); }}
-              className={`px-3 py-1 rounded-control text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
-                chunkSize === 1 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary hover:text-text'
+              className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all min-h-[36px] ${
+                chunkSize === 1 ? 'liquid-pill-primary border-white/20' : 'text-text-secondary hover:text-text cursor-pointer'
               }`}
             >
               1W
@@ -95,8 +95,8 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={() => { setChunkSize(2); setCurrentIndex(0); }}
-              className={`px-3 py-1 rounded-control text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
-                chunkSize === 2 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary hover:text-text'
+              className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all min-h-[36px] ${
+                chunkSize === 2 ? 'liquid-pill-primary border-white/20' : 'text-text-secondary hover:text-text cursor-pointer'
               }`}
             >
               2W
@@ -144,7 +144,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={() => setShowFullText(!showFullText)}
-              className="px-3.5 py-2 bg-surface text-text hover:bg-surface-2 rounded-control text-xs font-semibold border border-border transition-colors shrink-0 cursor-pointer min-h-[44px]"
+              className="liquid-pill-secondary px-4 py-2 text-xs font-semibold shrink-0 min-h-[44px]"
             >
               <Eye className="w-3.5 h-3.5 inline mr-1" />
               <span>{showFullText ? (language === 'de' ? 'Verbergen' : 'Hide') : (language === 'de' ? 'Volltext prüfen' : 'Check text')}</span>
@@ -165,7 +165,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={handleTogglePlay}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-control text-xs font-semibold bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[44px]"
+              className="liquid-pill-primary px-6 py-2.5 text-xs font-semibold min-h-[44px] gap-2"
             >
               {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
               <span>{isPlaying ? (language === 'de' ? 'Pause' : 'Pause') : (language === 'de' ? 'Starten' : 'Start')}</span>
@@ -174,7 +174,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             <button
               type="button"
               onClick={handleReset}
-              className="p-2.5 rounded-control border border-border bg-surface text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="liquid-pill-secondary p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Reset"
             >
               <RotateCcw className="w-4 h-4" />

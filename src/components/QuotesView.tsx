@@ -821,10 +821,10 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     key={pill.id}
                     type="button"
                     onClick={() => setSelectedPhase(pill.id as typeof selectedPhase)}
-                    className={`shrink-0 px-3.5 py-1.5 rounded-control text-xs font-medium transition-all cursor-pointer min-h-[36px] flex items-center ${
+                    className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold min-h-[38px] flex items-center ${
                       isSelected
-                        ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
-                        : 'bg-surface hover:bg-surface-2 text-text-secondary hover:text-text border border-border/80'
+                        ? 'liquid-pill-primary border-white/20'
+                        : 'liquid-pill-secondary'
                     }`}
                   >
                     {pill.label}

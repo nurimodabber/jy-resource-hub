@@ -275,7 +275,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
               <button
                 type="button"
                 onClick={() => setShowSpoilers(!showSpoilers)}
-                className="px-2.5 py-1 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded-full liquid-pill-secondary text-2xs font-semibold text-text flex items-center gap-1.5 cursor-pointer"
               >
                 {showSpoilers ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 <span>{showSpoilers ? L('Begriffe verbergen', 'Hide terms') : L('Spielleiter-Lösung anzeigen', 'Show solutions')}</span>

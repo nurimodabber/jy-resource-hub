@@ -158,9 +158,9 @@ export const chipCls = (selected: boolean) =>
   }`;
 
 export const primaryBtn =
-  'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 rounded-control bg-accent text-accent-contrast font-semibold shadow-1 hover:bg-accent-hover disabled:opacity-50 transition-colors duration-150 ease-out border-0 cursor-pointer active:scale-[0.99]';
+  'liquid-pill-primary min-h-[48px] px-6 text-base font-semibold gap-2 select-none disabled:opacity-50 disabled:pointer-events-none';
 export const secondaryBtn =
-  'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-control bg-surface-2 text-text text-sm font-medium hover:bg-surface-2/80 disabled:opacity-50 transition-colors duration-150 ease-out border-0 cursor-pointer active:scale-[0.99]';
+  'liquid-pill-secondary min-h-[44px] px-5 text-sm font-medium gap-2 select-none disabled:opacity-50 disabled:pointer-events-none';
 
 export const JY_SAMPLE_NAMES = [
   'Musonda', 'Rose', 'Chishimba', 'Godwin',

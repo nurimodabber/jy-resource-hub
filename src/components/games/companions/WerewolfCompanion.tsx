@@ -532,7 +532,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
                 <select
                   value={mayorName || ''}
                   onChange={(e) => setMayorName(e.target.value || null)}
-                  className="px-2.5 py-1 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-bold text-text cursor-pointer focus:outline-hidden"
+                  className="px-3 py-1.5 rounded-full liquid-pill-secondary text-2xs font-bold text-text cursor-pointer focus:outline-hidden"
                 >
                   <option value="">{L('Bürgermeister wählen...', 'Select Mayor...')}</option>
                   {playerNames.map((p) => (
@@ -547,7 +547,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
               <button
                 type="button"
                 onClick={() => setShowRoleMaster(!showRoleMaster)}
-                className="px-2.5 py-1 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-bold text-text flex items-center gap-1 cursor-pointer"
+                className="px-3 py-1.5 rounded-full liquid-pill-secondary text-2xs font-bold text-text flex items-center gap-1 cursor-pointer"
                 title={L('Rollenübersicht ein-/ausblenden', 'Toggle roles master view')}
               >
                 {showRoleMaster ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}

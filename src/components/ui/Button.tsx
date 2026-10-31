@@ -19,20 +19,20 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   disabled,
   ...props
 }, ref) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-control transition-all duration-150 ease-out select-none outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.985] motion-reduce:active:scale-100 disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 cursor-pointer min-w-0 max-w-full overflow-hidden';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-full transition-all duration-150 ease-out select-none outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.985] motion-reduce:active:scale-100 disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 cursor-pointer min-w-0 max-w-full overflow-hidden';
 
   const sizeStyles = {
-    sm: 'text-xs px-3.5 py-2 min-h-[44px] gap-1.5',
-    md: 'text-sm px-4 py-2.5 min-h-[44px] gap-2',
-    lg: 'text-base px-5 py-3 min-h-[48px] gap-2.5',
+    sm: 'text-xs px-4 py-2 min-h-[44px] gap-1.5',
+    md: 'text-sm px-5 py-2.5 min-h-[44px] gap-2',
+    lg: 'text-base px-6 py-3 min-h-[48px] gap-2.5',
   };
 
   const variantStyles = {
-    primary: 'bg-accent hover:bg-accent-hover text-accent-contrast font-semibold shadow-1',
-    secondary: 'bg-surface-2 hover:bg-surface-2/80 text-text font-medium',
-    outline: 'bg-transparent hover:bg-surface-2 text-text border border-border',
-    ghost: 'bg-transparent hover:bg-surface-2 text-text',
-    danger: 'bg-danger hover:bg-danger/90 text-white font-semibold',
+    primary: 'liquid-pill-primary font-semibold',
+    secondary: 'liquid-pill-secondary font-medium',
+    outline: 'rounded-full bg-transparent hover:bg-surface-2 text-text border border-border',
+    ghost: 'rounded-full bg-transparent hover:bg-surface-2 text-text',
+    danger: 'liquid-pill-primary bg-danger hover:bg-danger/90 text-white font-semibold',
   };
 
   return (
