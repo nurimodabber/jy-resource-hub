@@ -117,7 +117,7 @@ export const ToggleSwitch: React.FC<{
       e.stopPropagation();
       onChange(!checked);
     }}
-    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-40 select-none p-0.5 ${
+    className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-hidden disabled:opacity-40 select-none p-0.5 ${
       checked ? 'bg-accent border border-accent' : 'bg-surface-2 border border-border-strong dark:border-border'
     }`}
   >
@@ -158,9 +158,9 @@ export const chipCls = (selected: boolean) =>
   }`;
 
 export const primaryBtn =
-  'liquid-pill-primary min-h-[48px] px-6 text-base font-semibold gap-2 select-none disabled:opacity-50 disabled:pointer-events-none';
+  'inline-flex items-center justify-center gap-2 min-h-[48px] px-5 rounded-control bg-accent text-accent-contrast font-semibold shadow-1 hover:bg-accent-hover disabled:opacity-50 transition-colors duration-150 ease-out border-0 cursor-pointer active:scale-[0.99]';
 export const secondaryBtn =
-  'liquid-pill-secondary min-h-[44px] px-5 text-sm font-medium gap-2 select-none disabled:opacity-50 disabled:pointer-events-none';
+  'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-control bg-surface-2 text-text text-sm font-medium hover:bg-surface-2/80 disabled:opacity-50 transition-colors duration-150 ease-out border-0 cursor-pointer active:scale-[0.99]';
 
 export const JY_SAMPLE_NAMES = [
   'Musonda', 'Rose', 'Chishimba', 'Godwin',

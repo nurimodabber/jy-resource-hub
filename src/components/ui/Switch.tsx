@@ -51,7 +51,7 @@ export const Switch: React.FC<SwitchProps> = ({
         disabled={disabled}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
-        className={`relative inline-flex items-center h-7 w-12 shrink-0 cursor-pointer rounded-chip transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+        className={`relative inline-flex items-center h-7 w-12 min-h-[28px] max-h-[28px] min-w-[48px] shrink-0 cursor-pointer rounded-chip transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
           checked ? 'bg-accent' : 'bg-surface-2 ring-1 ring-border'
         }`}
       >

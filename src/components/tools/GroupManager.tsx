@@ -176,7 +176,7 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
                 <button
                   type="button"
                   onClick={(e) => handleRemoveName(name, e)}
-                  className="p-1.5 rounded-control hover:bg-black/10 dark:hover:bg-white/10 text-text-tertiary hover:text-text cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center"
+                  className="p-1.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-text-tertiary hover:text-text cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center"
                   title={L('Namen löschen', 'Remove name')}
                   aria-label={`${name} ${L('löschen', 'remove')}`}
                 >

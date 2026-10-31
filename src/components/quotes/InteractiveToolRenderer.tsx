@@ -149,10 +149,10 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
                   key={tId}
                   type="button"
                   onClick={() => onSelectTool(tId)}
-                  className={`px-4 py-2 rounded-full text-xs whitespace-nowrap min-h-[44px] flex items-center gap-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 ${
                     isActive
-                      ? 'liquid-pill-primary border-white/20'
-                      : 'liquid-pill-secondary'
+                      ? 'bg-accent text-white font-semibold shadow-xs'
+                      : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-2/80 font-medium'
                   }`}
                   aria-pressed={isActive}
                 >

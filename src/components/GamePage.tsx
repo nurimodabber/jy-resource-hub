@@ -219,9 +219,9 @@ export const GamePage: React.FC<GamePageProps> = ({
                   <button
                     type="button"
                     onClick={() => switchMode('rules')}
-                    className={`relative flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-full text-xs font-bold transition-all cursor-pointer overflow-hidden ${
+                    className={`flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-full text-xs font-bold transition-all cursor-pointer ${
                       viewMode === 'rules'
-                        ? 'bg-surface text-text shadow-1 border border-border/40 before:content-[""] before:absolute before:inset-x-3 before:top-0 before:h-[1px] before:bg-gradient-to-r before:from-transparent before:via-white/70 dark:before:via-white/20 before:to-transparent'
+                        ? 'bg-surface text-text shadow-xs border border-border'
                         : 'text-text-secondary hover:text-text'
                     }`}
                   >
@@ -231,9 +231,9 @@ export const GamePage: React.FC<GamePageProps> = ({
                   <button
                     type="button"
                     onClick={() => switchMode('play')}
-                    className={`relative flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-full text-xs font-bold transition-all cursor-pointer overflow-hidden ${
+                    className={`flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-full text-xs font-bold transition-all cursor-pointer ${
                       viewMode === 'play'
-                        ? 'liquid-pill-primary'
+                        ? 'bg-accent text-accent-contrast shadow-xs'
                         : 'text-accent hover:text-accent-hover'
                     }`}
                   >

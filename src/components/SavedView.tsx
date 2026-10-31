@@ -242,7 +242,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
                         type="button"
                         onClick={(e) => onToggleFavorite(row.id, e)}
                         aria-pressed="true"
-                        className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs active:scale-90 motion-reduce:transform-none transition-all duration-150 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                        className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-full text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs active:scale-90 motion-reduce:transform-none transition-all duration-150 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                         aria-label={`${t.savedItems} entfernen: ${row.title}`}
                         title={isDe ? 'Aus Lesezeichen entfernen' : 'Remove from bookmarks'}
                       >

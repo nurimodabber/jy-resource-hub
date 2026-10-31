@@ -213,7 +213,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
               <button
                 type="button"
                 onClick={() => setIsPeeking(!isPeeking)}
-                className="liquid-pill-secondary flex items-center gap-1.5 px-4 py-2 text-xs font-medium min-h-[44px]"
+                className="flex items-center gap-1.5 px-3 py-2 border border-border bg-surface text-text text-xs font-medium rounded-control hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
                 title={isPeeking ? (language === 'de' ? 'Verbergen' : 'Hide') : (language === 'de' ? 'Kurz spicken' : 'Peek')}
               >
                 {isPeeking ? <EyeOff className="w-3.5 h-3.5 text-accent-text" /> : <Eye className="w-3.5 h-3.5" />}
@@ -224,7 +224,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
             <button
               type="button"
               onClick={handleReset}
-              className="liquid-pill-secondary p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 border border-border bg-surface text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
               title="Reset"
             >
               <RotateCcw className="w-3.5 h-3.5" />

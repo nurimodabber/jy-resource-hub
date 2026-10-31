@@ -339,7 +339,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                 type="button"
                 onClick={() => setPlayerCount(Math.max(3, playerCount - 1))}
                 disabled={playerCount <= 3}
-                className="w-9 h-9 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
+                className="w-9 h-9 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
                 aria-label={L('Weniger Personen', 'Fewer players')}
               >
                 −
@@ -351,7 +351,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                 type="button"
                 onClick={() => setPlayerCount(Math.min(30, playerCount + 1))}
                 disabled={playerCount >= 30}
-                className="w-9 h-9 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
+                className="w-9 h-9 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
                 aria-label={L('Mehr Personen', 'More players')}
               >
                 +

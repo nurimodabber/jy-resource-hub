@@ -139,10 +139,10 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
               key={d}
               type="button"
               onClick={() => setDifficulty(d)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all min-h-[36px] ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
                 difficulty === d
-                  ? 'liquid-pill-primary border-white/20'
-                  : 'text-text-secondary hover:text-text cursor-pointer'
+                  ? 'bg-accent text-accent-contrast shadow-xs'
+                  : 'text-text-secondary hover:text-text'
               }`}
             >
               {d === 'easy'

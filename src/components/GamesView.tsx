@@ -258,7 +258,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
             onClick={handleRandomGame}
             aria-label={language === 'de' ? 'Zufälliges Spiel' : 'Random game'}
             title={language === 'de' ? 'Zufälliges Spiel' : 'Random game'}
-            className="p-3 rounded-control bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            className="p-3 rounded-full bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
           >
             <Shuffle className="w-5 h-5" />
           </button>
@@ -294,7 +294,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
               type="button"
               onClick={() => updateFilters({ ...filters, q: undefined })}
               aria-label={L('Suche löschen', 'Clear search')}
-              className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-control flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>

@@ -258,7 +258,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               <button
                 type="button"
                 onClick={handleNativeInstall}
-                className="px-2.5 py-1.5 min-h-[44px] rounded-control bg-accent text-accent-contrast font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                className="px-2.5 py-1.5 min-h-[44px] rounded-full bg-accent text-accent-contrast font-bold text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {t.installAppCta}
               </button>
@@ -266,7 +266,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             <button
               type="button"
               onClick={handleDismissInstall}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-control text-text-secondary hover:text-text cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-accent"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-text-secondary hover:text-text cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-accent"
               aria-label={L('Hinweis schließen', 'Dismiss notice')}
             >
               <X className="w-4 h-4" />
@@ -308,7 +308,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             <button
               type="button"
               onClick={() => setShowCompactFinder(!showCompactFinder)}
-              className="liquid-pill-primary px-6 py-3.5 sm:py-4 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
+              className="rounded-full bg-accent text-accent-contrast px-5 py-3.5 sm:py-4 shadow-sm hover:bg-accent-hover active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
             >
               <div className="min-w-0 pr-2">
                 <div className="font-bold text-sm sm:text-base text-accent-contrast tracking-tight">
@@ -324,7 +324,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             {/* Aktion 2: Zitate & Gebete */}
             <Link
               to="/quotes"
-              className="liquid-pill-secondary px-6 py-3.5 sm:py-4 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
+              className="rounded-full bg-surface border border-border text-text px-5 py-3.5 sm:py-4 shadow-2xs hover:bg-surface-2 active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
             >
               <div className="min-w-0 pr-2">
                 <div className="font-bold text-sm sm:text-base text-text group-hover:text-accent tracking-tight transition-colors">
@@ -351,7 +351,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                     type="button"
                     onClick={() => setShowCompactFinder(false)}
                     aria-label={L('Spielfinder schließen', 'Close game finder')}
-                    className="text-text-tertiary hover:text-text min-w-[44px] min-h-[44px] flex items-center justify-center rounded-control text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                    className="text-text-tertiary hover:text-text min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                   >
                     ✕
                   </button>
@@ -387,7 +387,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                 <button
                   type="button"
                   onClick={handleSearchGames}
-                  className={`${primaryBtn} w-full min-h-[44px]`}
+                  className={`${primaryBtn} w-full rounded-full min-h-[44px]`}
                 >
                   <span>{L('Passende Spiele anzeigen', 'Show matching games')}</span>
                   <ArrowRight className="w-4 h-4" />
@@ -421,7 +421,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               <button
                 type="button"
                 onClick={(e) => onToggleFavorite?.(quote.id, e)}
-                className={`min-w-[44px] min-h-[44px] rounded-control flex items-center justify-center transition-all duration-150 active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all duration-150 active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:ring-2 focus-visible:ring-accent ${
                   favorites.includes(quote.id)
                     ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
                     : 'text-text-secondary hover:text-text hover:bg-surface-2'
@@ -437,7 +437,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               <button
                 type="button"
                 onClick={handleShareQuote}
-                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-control flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                 title={t.quoteShare}
                 aria-label={t.quoteShare}
               >
@@ -450,7 +450,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                   href={quoteSong.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-control flex items-center justify-center text-text-secondary hover:text-accent hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                  className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center text-text-secondary hover:text-accent hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                   title={language === 'de' ? `Lied „${quoteSong.title}“ auf bahaisongs.com anhören` : `Listen to song "${quoteSong.title}" on bahaisongs.com`}
                   aria-label={t.quoteSongAriaLabel}
                 >
@@ -725,9 +725,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                   onClick={(e) => handleUpdateLesson(-1, e)}
                   disabled={!bookProgress || bookProgress.lesson <= 1}
                   aria-label={L('Vorherige Lektion', 'Previous lesson')}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text disabled:opacity-30 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control transition-opacity"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text disabled:opacity-30 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-full transition-opacity"
                 >
-                  <span className="w-7 h-7 rounded-control bg-surface-2 hover:bg-surface-2/80 flex items-center justify-center">
+                  <span className="w-7 h-7 rounded-full bg-surface-2 hover:bg-surface-2/80 flex items-center justify-center">
                     <Minus className="w-3.5 h-3.5" />
                   </span>
                 </button>
@@ -736,9 +736,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                   onClick={(e) => handleUpdateLesson(1, e)}
                   disabled={!bookProgress || bookProgress.lesson >= activeBook.totalLessons}
                   aria-label={L('Nächste Lektion', 'Next lesson')}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text disabled:opacity-30 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-control transition-opacity"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text disabled:opacity-30 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-full transition-opacity"
                 >
-                  <span className="w-7 h-7 rounded-control bg-surface-2 hover:bg-surface-2/80 flex items-center justify-center">
+                  <span className="w-7 h-7 rounded-full bg-surface-2 hover:bg-surface-2/80 flex items-center justify-center">
                     <Plus className="w-3.5 h-3.5" />
                   </span>
                 </button>
@@ -755,7 +755,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               <button
                 type="button"
                 onClick={() => setIsSelectingBook(false)}
-                className="text-text-tertiary hover:text-text cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-accent rounded-control"
+                className="text-text-tertiary hover:text-text cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-accent rounded-full"
                 aria-label={L('Schließen', 'Close')}
               >
                 ✕
@@ -835,13 +835,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             <div className="flex items-center gap-2 w-full sm:w-auto pt-1 sm:pt-0">
               <Link
                 to="/games"
-                className="flex-1 sm:flex-none px-5 py-2.5 rounded-full liquid-pill-secondary text-xs font-semibold min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-accent"
+                className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-surface-2 hover:bg-surface-2/80 text-text text-xs font-semibold min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {t.exploreGames}
               </Link>
               <Link
                 to="/quotes"
-                className="flex-1 sm:flex-none px-5 py-2.5 rounded-full liquid-pill-primary text-xs font-bold min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-accent"
+                className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-bold min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {t.exploreQuotes}
               </Link>

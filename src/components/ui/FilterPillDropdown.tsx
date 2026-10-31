@@ -112,8 +112,8 @@ export function FilterPillDropdown<T = string | number | null>({
         aria-expanded={isOpen}
         className={`inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg select-none shrink-0 cursor-pointer ${
           isActive
-            ? 'liquid-pill-primary border-white/20'
-            : 'liquid-pill-secondary'
+            ? 'bg-accent text-accent-ink border-accent font-bold shadow-xs'
+            : 'bg-surface text-text-secondary border-border hover:border-text-secondary hover:text-text'
         }`}
       >
         {icon && <span className="shrink-0">{icon}</span>}
@@ -195,8 +195,8 @@ export function FilterPillButton({
       aria-label={ariaLabel || label}
       className={`inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all border outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg select-none shrink-0 snap-start cursor-pointer ${
         isActive
-          ? 'liquid-pill-primary border-white/20'
-          : 'liquid-pill-secondary'
+          ? 'bg-accent text-accent-ink border-accent font-bold shadow-xs'
+          : 'bg-surface text-text-secondary border-border hover:border-text-secondary hover:text-text'
       } ${className}`}
     >
       {icon && <span className="shrink-0">{icon}</span>}
