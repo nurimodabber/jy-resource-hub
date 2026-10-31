@@ -79,7 +79,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
       <div className="space-y-3">
         {/* Top meta line: Book & Section + discreet actions */}
         <div className="flex items-center justify-between gap-2">
-          <span className="text-2xs font-semibold uppercase tracking-wider text-accent truncate font-sans">
+          <span className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary group-hover:text-text-secondary truncate font-sans transition-colors">
             {metaTag}
           </span>
 
@@ -153,11 +153,11 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               href={song.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-accent transition-colors font-medium min-h-[38px] sm:min-h-[40px] py-1"
+              className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-accent transition-colors font-medium min-h-[38px] sm:min-h-[40px] py-1 group/song"
               aria-label={t.quoteSongAriaLabel}
               title={isDe ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
             >
-              <Music className="w-3.5 h-3.5 text-accent" />
+              <Music className="w-3.5 h-3.5 text-text-tertiary group-hover/song:text-accent transition-colors" />
               <span className="truncate max-w-[180px]">{song.title}</span>
             </a>
           )}

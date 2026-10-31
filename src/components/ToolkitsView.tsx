@@ -183,7 +183,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2">
-                  <Icon className="w-6 h-6 text-accent group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+                  <Icon className="w-6 h-6 text-text-tertiary group-hover:text-accent group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
                 </div>
 
                 <div>
@@ -196,7 +196,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
                 </div>
               </div>
 
-              <div className="pt-3 flex items-center justify-end text-xs text-accent font-semibold group-hover:translate-x-0.5 transition-transform duration-150">
+              <div className="pt-3 flex items-center justify-end text-xs text-text-secondary group-hover:text-accent font-semibold group-hover:translate-x-0.5 transition-all duration-150">
                 <span className="mr-1">{isDe ? 'Öffnen' : 'Open'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>

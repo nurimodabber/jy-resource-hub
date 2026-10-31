@@ -382,13 +382,13 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       {
         id: 'quotes' as ViewTab,
         label: t.tabQuotesRead,
-        icon: <BookOpen className="w-4 h-4 text-accent" />,
+        icon: <BookOpen className="w-4 h-4" />,
         count: effectiveSearch || activeFilterCount > 0 ? filteredQuotes.length : undefined,
       },
       {
         id: 'practice' as ViewTab,
         label: t.tabQuotesMemorise,
-        icon: <Zap className="w-4 h-4 text-accent fill-accent/20" />,
+        icon: <Zap className="w-4 h-4 fill-current/20" />,
       },
     ],
     [t.tabQuotesRead, t.tabQuotesMemorise, effectiveSearch, activeFilterCount, filteredQuotes.length]

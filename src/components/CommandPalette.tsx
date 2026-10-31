@@ -435,7 +435,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   <div className="flex items-center gap-3 min-w-0 pr-2">
                     <div
                       className={`w-9 h-9 rounded-control flex items-center justify-center shrink-0 transition-colors ${
-                        isSelected ? 'bg-accent text-accent-ink' : 'bg-accent-subtle text-accent-text'
+                        isSelected ? 'bg-accent text-accent-contrast shadow-2xs' : 'bg-surface-2 text-text-tertiary'
                       }`}
                     >
                       <Icon className="w-4 h-4" strokeWidth={1.75} />

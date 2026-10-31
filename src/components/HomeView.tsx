@@ -785,7 +785,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
       {/* 6. Zuletzt angesehen: Ansprechender Leerzustand & Verlaufskarten */}
       <section aria-label={L('Zuletzt angesehen', 'Recently viewed')} className="space-y-3">
         <h3 className="text-xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
-          <History className="w-3.5 h-3.5 text-accent" />
+          <History className="w-3.5 h-3.5 text-text-tertiary" />
           <span>{L('Zuletzt angesehen', 'Recently viewed')}</span>
         </h3>
         {recentViews.length > 0 ? (

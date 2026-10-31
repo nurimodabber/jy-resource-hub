@@ -111,11 +111,11 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
               href={song.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text-secondary hover:text-accent transition-colors focus-visible:ring-2 focus-visible:ring-accent"
               title={isDe ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
               aria-label={t.quoteSongAriaLabel}
             >
-              <Music className="w-4 h-4 text-accent" />
+              <Music className="w-4 h-4" />
             </a>
           )}
 
@@ -142,7 +142,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
       {/* 2. Main Sacred Text Reading Card (Calm surface, generous margin, Lora serif) */}
       <section className="bg-surface rounded-3xl border border-border/80 p-6 sm:p-12 lg:p-16 space-y-8 shadow-xs">
         <div className="flex items-center justify-between gap-3 text-xs text-text-tertiary">
-          <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent font-sans">
+          <span className="text-2xs font-semibold uppercase tracking-[0.14em] text-text-tertiary font-sans">
             {metaTag}
           </span>
         </div>

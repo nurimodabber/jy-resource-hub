@@ -405,7 +405,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             }}
             className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
           >
-            <Compass className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+            <Compass className="w-7 h-7 text-text-tertiary group-hover:text-accent mb-4 group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
             <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
               {L('Spiel', 'Game')}
             </h2>
@@ -422,7 +422,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             }}
             className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
           >
-            <HeartHandshake className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+            <HeartHandshake className="w-7 h-7 text-text-tertiary group-hover:text-accent mb-4 group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
             <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
               {L('Dienstprojekt', 'Service Project')}
             </h2>
@@ -439,7 +439,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             }}
             className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
           >
-            <Palette className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+            <Palette className="w-7 h-7 text-text-tertiary group-hover:text-accent mb-4 group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
             <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
               {L('Kreative Aktivität', 'Creative Activity')}
             </h2>
@@ -453,7 +453,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             onClick={() => setIsFeedbackOpen(true)}
             className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
           >
-            <MessageSquare className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+            <MessageSquare className="w-7 h-7 text-text-tertiary group-hover:text-accent mb-4 group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
             <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
               {L('Feedback & Ideen', 'Feedback & Ideas')}
             </h2>

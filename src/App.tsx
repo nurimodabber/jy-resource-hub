@@ -403,7 +403,8 @@ export const AppContent: React.FC = () => {
         }
       >
         <Suspense fallback={<RouteLoading />}>
-          <Routes>
+          <div key={location.pathname} className="animate-fade-in">
+            <Routes>
             <Route
               path="/"
               element={
@@ -581,6 +582,7 @@ export const AppContent: React.FC = () => {
             {/* Real 404 Route */}
             <Route path="*" element={<NotFoundView language={language} />} />
           </Routes>
+          </div>
         </Suspense>
       </main>
 
@@ -641,7 +643,7 @@ export const AppContent: React.FC = () => {
           </div>
 
           {/* Bottom Row: Cluster Copyright & Legal Links */}
-          <div className="flex flex-wrap items-center gap-x-5 sm:gap-x-6 gap-y-2 text-2xs sm:text-xs">
+          <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-2 text-2xs sm:text-xs">
             <span className="text-text-tertiary inline-flex items-center leading-normal py-0.5">
               {t.footerCluster}
             </span>
@@ -656,7 +658,7 @@ export const AppContent: React.FC = () => {
               to="/impressum"
               className="font-medium text-text hover:text-accent transition-colors inline-flex items-center leading-normal py-0.5"
             >
-              {t.impressumTitle}
+              {t.footerImpressum}
             </Link>
             <Link
               to="/datenschutz"

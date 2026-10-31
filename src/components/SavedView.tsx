@@ -193,7 +193,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
                     className="flex items-center justify-between p-3.5 sm:p-4 hover:bg-surface-2/60 transition-colors duration-150 ease-out group gap-3"
                   >
                     <Link to={row.href} className="flex items-start gap-3.5 flex-1 min-w-0">
-                      <div className="w-10 h-10 rounded-control bg-accent-subtle text-accent-text flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
+                      <div className="w-10 h-10 rounded-control bg-surface-2 text-text-tertiary group-hover:bg-accent-subtle group-hover:text-accent-text flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-all">
                         <Icon className="w-4.5 h-4.5" strokeWidth={1.75} />
                       </div>
 

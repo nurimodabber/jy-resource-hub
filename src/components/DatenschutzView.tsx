@@ -162,7 +162,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
                 variant="outline"
                 size="sm"
                 onClick={onOpenContact}
-                icon={<Mail className="w-3.5 h-3.5 text-accent" />}
+                icon={<Mail className="w-3.5 h-3.5" />}
                 iconPosition="left"
               >
                 {isDe ? 'Kontakt aufnehmen / E-Mail hinterlegen' : 'Open Contact Dialog'}
