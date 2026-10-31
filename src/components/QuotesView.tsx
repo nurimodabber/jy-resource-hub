@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
   Search, X, BookOpen, Layers, Sparkles, Heart,
-  ArrowLeft, ArrowRight, Play, Check, SlidersHorizontal, Zap, Music
+  ArrowLeft, ArrowRight, Play, Check, SlidersHorizontal, Zap, Music, Shuffle
 } from 'lucide-react';
 import { QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
@@ -325,6 +325,18 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     updateParams({ quote: prevQuote.id });
   };
 
+  const handleRandomQuote = () => {
+    const list = filteredQuotes.length > 0 ? filteredQuotes : QUOTES_DATA;
+    const randomIndex = Math.floor(Math.random() * list.length);
+    const randomQuote = list[randomIndex];
+    if (viewTab === 'practice') {
+      setPracticeQuote(randomQuote);
+      updateParams({ quote: randomQuote.id });
+    } else {
+      navigate(`/quotes/${randomQuote.id}`);
+    }
+  };
+
   // Filtered 50 Methods catalog with phase and app filters
   const filtered50Methods = useMemo(() => {
     return QUOTE_METHODS_DATA.filter((m) => {
@@ -365,6 +377,23 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     });
   }, [pickerSearch, language, isDe]);
 
+  const tabOptions = useMemo(
+    () => [
+      {
+        id: 'quotes' as ViewTab,
+        label: t.tabQuotesRead,
+        icon: <BookOpen className="w-4 h-4 text-accent" />,
+        count: effectiveSearch || activeFilterCount > 0 ? filteredQuotes.length : undefined,
+      },
+      {
+        id: 'practice' as ViewTab,
+        label: t.tabQuotesMemorise,
+        icon: <Zap className="w-4 h-4 text-accent fill-accent/20" />,
+      },
+    ],
+    [t.tabQuotesRead, t.tabQuotesMemorise, effectiveSearch, activeFilterCount, filteredQuotes.length]
+  );
+
   // If viewing a detail page, render QuoteDetail directly!
   if (activeDetailQuote) {
     return (
@@ -381,36 +410,60 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   return (
     <div className="space-y-6 max-w-6xl w-full mx-auto pb-20 animate-in fade-in duration-200">
       {/* 1. Header */}
-      <div className="space-y-5">
-        <div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
-            {t.tabQuotes}
-          </h1>
-          <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
-            {isDe
-              ? 'Heilige Zitate und Gebete zum Lesen, Reflektieren und Auswendiglernen.'
-              : 'Holy scripture verses and prayers for reading, reflection, and memorisation.'}
-          </p>
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-4">
+          <div>
+            <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+              {t.tabQuotes}
+            </h1>
+            <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-xl font-normal leading-relaxed">
+              {isDe
+                ? 'Heilige Zitate und Gebete zum Lesen, Reflektieren und Auswendiglernen.'
+                : 'Holy scripture verses and prayers for reading, reflection, and memorisation.'}
+            </p>
+          </div>
+
+          {/* Desktop: SegmentedControl + Random Quote Button placed on the right next to headline */}
+          <div className="hidden sm:flex items-center gap-2.5 shrink-0">
+            <SegmentedControl<ViewTab>
+              options={tabOptions}
+              value={viewTab}
+              onChange={handleTabChange}
+            />
+
+            <button
+              type="button"
+              onClick={handleRandomQuote}
+              aria-label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+              title={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+              className="p-3 rounded-full bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <Shuffle className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Top 2 Tabs SegmentedControl */}
-        <SegmentedControl<ViewTab>
-          options={[
-            {
-              id: 'quotes',
-              label: t.tabQuotesRead,
-              icon: <BookOpen className="w-4 h-4 text-accent" />,
-              count: (effectiveSearch || activeFilterCount > 0) ? filteredQuotes.length : undefined,
-            },
-            {
-              id: 'practice',
-              label: t.tabQuotesMemorise,
-              icon: <Zap className="w-4 h-4 text-accent fill-accent/20" />,
-            },
-          ]}
-          value={viewTab}
-          onChange={handleTabChange}
-        />
+        {/* Mobile: SegmentedControl with Random Quote Button to the right */}
+        <div className="sm:hidden flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <SegmentedControl<ViewTab>
+              options={tabOptions}
+              value={viewTab}
+              onChange={handleTabChange}
+              fullWidth
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleRandomQuote}
+            aria-label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+            title={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+            className="p-2.5 rounded-full bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <Shuffle className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* ========================================================================= */}
@@ -621,7 +674,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 </div>
 
                 {/* 2. Main Content: Holy text and attribution */}
-                <div className="p-5 sm:p-6 space-y-3">
+                <div className="p-5 sm:p-6 pb-3 space-y-2.5">
                   <p className="font-serif text-lg sm:text-xl md:text-2xl text-text leading-relaxed font-normal">
                     {isDe ? `»${practiceQuote.textDe}«` : `“${practiceQuote.textEn}”`}
                   </p>
@@ -631,7 +684,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 </div>
 
                 {/* 3. Action Toolbar: Navigation on left, Quick Actions on right */}
-                <div className="px-4 sm:px-6 py-3 bg-surface-2/20 border-t border-border/60 flex items-center justify-between gap-3 flex-wrap">
+                <div className="px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 flex-wrap">
                   {/* Left: Previous & Next Quote in Book Navigation */}
                   <div className="flex items-center gap-1.5">
                     <IconButton

@@ -17,8 +17,6 @@ import { TeamsTool } from './tools/TeamsTool';
 import { TimerTool } from './tools/TimerTool';
 import { CardsTool } from './tools/CardsTool';
 import { GroupManager } from './tools/GroupManager';
-import { loadPresentNames, loadGroupNames } from '../utils/groupNames';
-import { DISCUSSION_CARDS } from '../data/toolkits';
 
 interface ToolkitsViewProps {
   language: Language;
@@ -158,55 +156,14 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
     );
   }
 
-  const getActiveToolBadge = (id: string): string | null => {
-    try {
-      if (id === 'scoreboard') {
-        const stored = localStorage.getItem('jy_scoreboard_teams');
-        if (stored) {
-          const teams = JSON.parse(stored);
-          if (Array.isArray(teams)) {
-            const totalScore = teams.reduce((acc: number, item: { score?: number }) => acc + (item.score || 0), 0);
-            if (totalScore > 0) {
-              return `${totalScore} Pkt.`;
-            }
-          }
-        }
-        return isDe ? 'Stationen' : 'Stations';
-      }
-      if (id === 'teams') {
-        const present = loadPresentNames();
-        if (present.length > 0) {
-          return `${present.length} ${isDe ? 'anwesend' : 'present'}`;
-        }
-        return isDe ? 'Zufallsteams' : 'Random teams';
-      }
-      if (id === 'group') {
-        const all = loadGroupNames();
-        if (all.length > 0) {
-          return `${all.length} ${isDe ? 'Namen' : 'names'}`;
-        }
-        return isDe ? 'Namensliste' : 'Roster';
-      }
-      if (id === 'timer') {
-        return isDe ? 'Mit Signalton' : 'With chime';
-      }
-      if (id === 'cards') {
-        return `${DISCUSSION_CARDS.length} ${isDe ? 'Karten' : 'cards'}`;
-      }
-    } catch {
-      /* ignore */
-    }
-    return null;
-  };
-
   return (
-    <div className="max-w-5xl w-full mx-auto pb-24 space-y-8 animate-in fade-in duration-200">
+    <div className="max-w-5xl w-full mx-auto pb-24 space-y-6 sm:space-y-8 animate-in fade-in duration-200">
       {/* Header */}
       <div>
-        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
+        <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
           {t.tabTools}
         </h1>
-        <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
+        <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {L(
             'Praktische Werkzeuge live in der Gruppe. Alle teilen eine gemeinsame Namensliste.',
             'Handy tools live in the group. All share a single group presence list.'
@@ -218,7 +175,6 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         {TOOLS.map((x) => {
           const Icon = x.icon;
-          const activeBadge = getActiveToolBadge(x.id);
           return (
             <Link
               key={x.id}
@@ -228,11 +184,6 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2">
                   <Icon className="w-6 h-6 text-accent group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
-                  {activeBadge && (
-                    <span className="tabular-nums text-2xs font-bold uppercase tracking-[0.14em] text-accent truncate max-w-[140px]">
-                      {activeBadge}
-                    </span>
-                  )}
                 </div>
 
                 <div>

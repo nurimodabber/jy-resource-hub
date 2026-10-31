@@ -232,7 +232,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
       <header className="mb-6 sm:mb-8 flex items-start justify-between gap-4">
         <div>
           <div className="flex items-baseline gap-3.5 flex-wrap">
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
+            <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
               {t.tabGames}
             </h1>
             {hasActiveFilterOrSearch && (
@@ -243,7 +243,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
               </div>
             )}
           </div>
-          <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
+          <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
             {L(
               'Spiele für den Kreis, die Wiese und den Gruppenraum.',
               'Games for the circle, lawn, and group room.'

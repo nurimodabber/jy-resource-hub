@@ -102,7 +102,7 @@ export const GameCard: React.FC<GameCardProps> = ({
 
   return (
     <div
-      className={`group relative h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out p-5 sm:p-6 shadow-2xs ${
+      className={`group relative h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-4 pb-3.5 pt-3 sm:px-5 sm:pb-4 sm:pt-3.5 shadow-2xs ${
         !matchesGroup ? 'opacity-60 hover:opacity-100' : ''
       }`}
     >
@@ -122,7 +122,7 @@ export const GameCard: React.FC<GameCardProps> = ({
             <EnergyDots energyLevel={game.energyLevel} />
           </span>
         </div>
-        <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 mt-2 leading-relaxed relative z-[1]">
+        <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 mt-1.5 sm:mt-2 leading-relaxed relative z-[1]">
           {description}
         </p>
       </Link>
@@ -133,7 +133,7 @@ export const GameCard: React.FC<GameCardProps> = ({
         onClick={(e) => onToggleFavorite(game.id, e)}
         aria-pressed={isFavorite}
         aria-label={`${t.savedItems}: ${game.title[language]}`}
-        className={`absolute top-2.5 right-2.5 z-10 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+        className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
           isFavorite
             ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
             : 'text-text-tertiary hover:text-text hover:bg-surface-2'
@@ -143,13 +143,13 @@ export const GameCard: React.FC<GameCardProps> = ({
       </button>
 
       {/* Bottom row: Clean typography without pill badges */}
-      <div className="relative z-[1] pointer-events-none flex items-center justify-between gap-2 flex-wrap pt-3 mt-4 border-t border-border/40 text-xs text-text-secondary">
+      <div className="relative z-[1] pointer-events-none flex items-center justify-between gap-2 flex-wrap pt-2.5 mt-3 border-t border-border/40 text-xs text-text-secondary">
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
-          <span className="text-2xs font-bold uppercase tracking-[0.14em] text-accent">
+          <span className="text-2xs font-semibold text-accent">
             {categoryBadge}
           </span>
           {hasCompanion && (
-            <span className="inline-flex items-center gap-1 text-2xs font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-accent text-accent-contrast shadow-2xs">
+            <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent text-accent-contrast shadow-2xs">
               <Play className="w-2.5 h-2.5 fill-current" />
               <span>{language === 'de' ? 'Spielen' : 'Play'}</span>
             </span>

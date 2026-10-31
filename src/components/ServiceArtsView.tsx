@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, BookOpen, Tag, SlidersHorizontal } from 'lucide-react';
+import { Search, X, ArrowLeft, BookOpen, Tag, SlidersHorizontal, HeartHandshake, Palette, Sparkles } from 'lucide-react';
 import {
   Language,
   ActivityItem,
@@ -226,9 +226,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     return opts;
   }, [fixedKind, t, L]);
 
-  const activeCategoryOption = categoryOptions.find((o) => o.value === selectedSubCategory);
-  const activeCategoryLabel =
-    activeCategoryOption && activeCategoryOption.value !== 'all' ? activeCategoryOption.label : undefined;
+  const activeCategoryOption = categoryOptions.find((c) => c.value === selectedSubCategory);
+  const activeCategoryLabel = activeCategoryOption && activeCategoryOption.value !== 'all' ? activeCategoryOption.label : undefined;
 
   // 2. Book options
   const bookOptions = useMemo(() => {
@@ -327,7 +326,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       {/* 1. Header: H1, one sentence, count on search/filter */}
       <header className="mb-6 sm:mb-8">
         <div className="flex items-baseline gap-3.5 flex-wrap">
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
+          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {pageTitle}
           </h1>
           {hasActiveFilterOrSearch && (
@@ -338,7 +337,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
             </div>
           )}
         </div>
-        <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
+        <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {pageDesc}
         </p>
       </header>
@@ -404,34 +403,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
         </button>
       </div>
 
-      {/* Quick category chips row */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 mb-4 -mx-1 px-1">
-        {categoryOptions.map((opt) => {
-          const isSelected = selectedSubCategory === opt.value;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => {
-                const next = opt.value;
-                setSelectedSubCategory(next);
-                updateParams({ kategorie: next === 'all' ? null : next });
-              }}
-              className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer min-h-[36px] flex items-center ${
-                isSelected
-                  ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
-                  : 'bg-surface hover:bg-surface-2 text-text-secondary hover:text-text border border-border/80'
-              }`}
-            >
-              {opt.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* 3. Collapsible Filter Bar */}
+      {/* 2. & 3. Collapsible Filter Area: All filters visually identical in ONE line */}
       {showFilters && (
-        <div id="service-filters-drawer" className="mb-3 animate-in fade-in duration-150">
+        <div id="service-filters-drawer" className="mb-4 animate-in fade-in duration-150">
           <ScrollableFilterBar
             activeFilterCount={activeSheetFilterCount + (query ? 1 : 0)}
             onClearAll={handleClearAll}
@@ -450,11 +424,26 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               </div>
             )}
 
-            {/* 1. Art / Bereich Dropdown Pill */}
+            {/* 1. Bereich / Kunstform Dropdown Pill */}
             <FilterPillDropdown
-              label={fixedKind === 'kunst' ? L('Kunstform', 'Art form') : L('Art des Projekts', 'Type of activity')}
+              label={
+                fixedKind === 'dienst'
+                  ? L('Bereich', 'Area')
+                  : fixedKind === 'kunst'
+                  ? L('Kunstform', 'Art form')
+                  : L('Bereich', 'Area')
+              }
               activeLabel={activeCategoryLabel}
               isActive={selectedSubCategory !== 'all'}
+              icon={
+                fixedKind === 'dienst' ? (
+                  <HeartHandshake className="w-3.5 h-3.5 shrink-0" />
+                ) : fixedKind === 'kunst' ? (
+                  <Palette className="w-3.5 h-3.5 shrink-0" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                )
+              }
               options={categoryOptions}
               selectedValue={selectedSubCategory}
               onSelect={(val) => {

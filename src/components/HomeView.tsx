@@ -195,14 +195,22 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
     setIsSelectingBook(false);
   };
 
-  // Time-of-day greeting
-  const currentHour = new Date().getHours();
+  // Time-of-day greeting (re-evaluated on client time; updates periodically)
+  // Morning: 05:00 - 11:59 | Afternoon: 12:00 - 17:59 | Evening/Night: 18:00 - 04:59
+  const [currentHour, setCurrentHour] = useState(() => new Date().getHours());
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentHour(new Date().getHours());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   const baseGreeting =
-    currentHour < 11
-      ? (language === 'de' ? 'Guten Morgen' : 'Good morning')
-      : currentHour < 17
-      ? (language === 'de' ? 'Guten Tag' : 'Good afternoon')
-      : (language === 'de' ? 'Guten Abend' : 'Good evening');
+    currentHour >= 5 && currentHour < 12
+      ? t.greetingMorning
+      : currentHour >= 12 && currentHour < 18
+      ? t.greetingAfternoon
+      : t.greetingEvening;
   const fullGreeting = groupTitle ? `${baseGreeting}, ${groupTitle}` : baseGreeting;
 
   // Fixed selection for Service & Arts
@@ -268,16 +276,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
       )}
 
       {/* 2. Hero-Bereich: Noble Editorial Typografie & Pill-CTAs */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start pt-2">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Linke Spalte: Begrüßung & Datum (lg:col-span-7) */}
         <header className="lg:col-span-7 space-y-3">
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
+          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {fullGreeting}
           </h1>
           <p className="text-xs sm:text-sm text-text-secondary leading-relaxed max-w-xl">
             {L(
-              'Materialien, heilige Texte und Werkzeuge für deine Juniorjugendgruppe.',
-              'Materials, sacred scripture, and tools for your junior youth group.'
+              'Materialien, Zitate und Werkzeuge für deine Juniorjugendgruppe.',
+              'Materials, quotes, and tools for your junior youth group.'
             )}
           </p>
           {/* Dezente Datumszeile (Gregorianisch & Badí') */}
@@ -394,10 +402,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
       {quote && (
         <section
           aria-label={L('Zitat des Tages', 'Quote of the day')}
-          className="p-6 sm:p-8 rounded-card bg-surface border border-border/70 shadow-xs hover:shadow-1 transition-all duration-200 space-y-4 group"
+          className="px-6 pb-6 pt-3.5 sm:px-8 sm:pb-8 sm:pt-3.5 rounded-card bg-surface border border-border/70 shadow-xs hover:shadow-1 transition-all duration-200 space-y-4 group"
         >
           {/* Header Row: Feine Typografie-Kennzeichnung & Aktionen */}
-          <div className="flex items-center justify-between gap-3 border-b border-line pb-3">
+          <div className="flex items-center justify-between gap-3 border-b border-line pb-3 sm:pb-3.5">
             <span className="text-2xs font-semibold uppercase tracking-[0.18em] text-text-tertiary truncate">
               {L('Zitat des Tages', 'Quote of the day')}
               {quote.book[language] &&
@@ -586,9 +594,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           {sampleService && (
             <Link
               to={`/service/${sampleService.id}`}
-              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
+              className="flex flex-col justify-between px-4 pb-4 pt-2.5 sm:px-5 sm:pb-5 sm:pt-3 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
             >
-              <div className="space-y-2.5">
+              <div className="space-y-1 sm:space-y-1.5">
                 <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
                   <span className="font-semibold uppercase tracking-wider text-text-secondary">
                     {L('Dienstprojekt', 'Service Project')}
@@ -617,9 +625,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           {sampleArt && (
             <Link
               to={`/arts/${sampleArt.id}`}
-              className="flex flex-col justify-between p-4 sm:p-5 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
+              className="flex flex-col justify-between px-4 pb-4 pt-2.5 sm:px-5 sm:pb-5 sm:pt-3 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
             >
-              <div className="space-y-2.5">
+              <div className="space-y-1 sm:space-y-1.5">
                 <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
                   <span className="font-semibold uppercase tracking-wider text-text-secondary">
                     {L('Kunst & Theater', 'Arts & Drama')}

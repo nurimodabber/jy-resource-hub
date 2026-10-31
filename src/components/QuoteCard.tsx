@@ -64,7 +64,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   return (
     <article
       onClick={() => onSelectQuote(quote)}
-      className="break-inside-avoid bg-surface rounded-card border border-border/80 p-5 sm:p-6 mb-5 transition-all duration-200 ease-out hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-2xs"
+      className="break-inside-avoid bg-surface rounded-card border border-border/80 p-4 sm:p-5 mb-4 transition-all duration-200 ease-out hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-2xs"
       tabIndex={0}
       role="article"
       onKeyDown={(e) => {
@@ -76,20 +76,20 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         }
       }}
     >
-      <div className="space-y-3.5">
+      <div className="space-y-3">
         {/* Top meta line: Book & Section + discreet actions */}
         <div className="flex items-center justify-between gap-2">
           <span className="text-2xs font-semibold uppercase tracking-wider text-accent truncate font-sans">
             {metaTag}
           </span>
 
-          <div className="flex items-center gap-0.5 -mr-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-0.5 -mr-1 -my-1 sm:-my-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               onClick={(e) => onToggleFavorite(quote.id, e)}
               aria-pressed={isFavorite}
               aria-label={`${t.savedItems}: ${quote.source[language]}`}
-              className={`min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+              className={`min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
                 isFavorite
                   ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
                   : 'text-text-tertiary hover:text-text hover:bg-surface-2'
@@ -120,7 +120,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         </div>
 
         {/* Source underneath in text-secondary with authoritative library link */}
-        <div>
+        <div className="pt-0.5">
           <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium">
             —{' '}
             <a
@@ -144,7 +144,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
 
       {/* Bottom Action Row: calm, uncrowded and literary */}
       <div
-        className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between gap-3 relative text-xs"
+        className="mt-3.5 sm:mt-4 pt-0 flex items-center justify-between gap-3 relative text-xs"
         onClick={(e) => e.stopPropagation()}
       >
         <div>
@@ -153,7 +153,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               href={song.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-accent transition-colors font-medium min-h-[44px] py-1"
+              className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-accent transition-colors font-medium min-h-[38px] sm:min-h-[40px] py-1"
               aria-label={t.quoteSongAriaLabel}
               title={isDe ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
             >
@@ -168,9 +168,9 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           onClick={() => onPracticeQuote(quote)}
           aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
           title={isDe ? 'Auswendiglernen' : 'Memorise'}
-          className="w-11 h-11 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-control bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
         >
-          <Zap className="w-4.5 h-4.5 text-accent fill-accent/30" />
+          <Zap className="w-4 h-4 text-accent fill-accent/30" />
         </button>
       </div>
     </article>

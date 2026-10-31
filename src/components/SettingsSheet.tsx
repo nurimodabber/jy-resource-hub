@@ -8,8 +8,6 @@ import {
   Music,
   Users,
   ChevronRight,
-  Palette,
-  Globe,
   ShieldCheck,
 } from 'lucide-react';
 import { Language } from '../types';
@@ -90,11 +88,6 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={t.tabSettings}
-      description={
-        language === 'de'
-          ? 'App-Einstellungen, Gruppe & Datensicherung'
-          : 'App preferences, group & backup'
-      }
       position="bottom"
     >
       <div className="space-y-4 max-w-xl mx-auto pb-4">
@@ -106,9 +99,8 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             {/* Theme 4-segment selector */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-text flex items-center gap-2">
-                  <Palette className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
-                  <span>{t.settingsAppearance}</span>
+                <span className="font-semibold text-text">
+                  {t.settingsAppearance}
                 </span>
                 <span className="text-2xs font-medium text-text-secondary capitalize">
                   {theme === 'light'
@@ -140,9 +132,8 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             {/* Language 2-segment switch */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-text flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-accent shrink-0" strokeWidth={1.75} />
-                  <span>{t.settingsLanguage}</span>
+                <span className="font-semibold text-text">
+                  {t.settingsLanguage}
                 </span>
                 <span className="text-2xs font-medium text-text-secondary">
                   {language === 'de' ? 'Deutsch' : 'English'}

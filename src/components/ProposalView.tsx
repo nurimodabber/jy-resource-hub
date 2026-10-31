@@ -5,7 +5,7 @@ import {
   CheckCircle2,
   Copy,
   Mail,
-  Gamepad2,
+  Compass,
   HeartHandshake,
   Palette,
   Sparkles,
@@ -16,12 +16,14 @@ import {
   WifiOff,
   BookOpen,
   Image as ImageIcon,
+  MessageSquare,
 } from 'lucide-react';
 import { Language } from '../types';
 import { tr, Panel, Label, primaryBtn, secondaryBtn } from './tools/common';
 import { useToast } from '../context/ToastContext';
 import { JY_BOOKS } from '../utils/bookProgress';
 import { saveProposal } from '../utils/adminRevisions';
+import { FeedbackModal } from './FeedbackModal';
 
 export interface ProposalViewProps {
   language: Language;
@@ -74,6 +76,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [mailtoFallback, setMailtoFallback] = useState<string | null>(null);
   const [createdIssueUrl, setCreatedIssueUrl] = useState<string | null>(null);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const [mountTime] = useState(() => Date.now());
   const [isOnline, setIsOnline] = useState(() => (typeof navigator !== 'undefined' ? navigator.onLine : true));
@@ -335,10 +338,10 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             <span>{L('Zurück zu Schritt', 'Back to step')} {step - 1}</span>
           </button>
         )}
-        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.12]">
+        <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
           {L('Erfahrungen beitragen', 'Contribute')}
         </h1>
-        <p className="text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
+        <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {L(
             'Du hast ein Spiel oder Projekt, das fehlt? Teile erprobte Spiele, Dienstprojekte oder künstlerische Aktivitäten mit anderen Animatoren – alle Beiträge werden vor der Veröffentlichung geprüft.',
             "Have a game or project idea that's missing? Share proven games, service projects, or creative activities with other animators – all contributions are reviewed before publishing."
@@ -393,7 +396,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
 
       {/* Step 1: Type Selection */}
       {step === 1 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
           <button
             type="button"
             onClick={() => {
@@ -402,9 +405,9 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             }}
             className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
           >
-            <Gamepad2 className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+            <Compass className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
             <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
-              {L('Gruppenspiel', 'Group Game')}
+              {L('Spiel', 'Game')}
             </h2>
             <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
               {L('Kooperative Spiele, Kennenlernspiele oder lebhafte Energizer.', 'Cooperative games, icebreakers, or lively energizers.')}
@@ -442,6 +445,20 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             </h2>
             <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
               {L('Theater, Zeichnen, Musik oder Poesie für die Gruppe.', 'Drama, visual arts, music, or poetry for the group.')}
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsFeedbackOpen(true)}
+            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
+          >
+            <MessageSquare className="w-7 h-7 text-accent mb-4 group-hover:scale-105 transition-transform duration-200" strokeWidth={1.75} />
+            <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
+              {L('Feedback & Ideen', 'Feedback & Ideas')}
+            </h2>
+            <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
+              {L('Allgemeine Rückmeldungen, Ideen oder Probleme mitteilen.', 'Share general feedback, ideas, or report issues.')}
             </p>
           </button>
         </div>
@@ -1069,6 +1086,13 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
           </div>
         </Panel>
       )}
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        language={language}
+      />
     </div>
   );
 };

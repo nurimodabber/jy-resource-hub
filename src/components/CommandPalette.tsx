@@ -26,7 +26,6 @@ import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from '../data/artsPrompts';
 import { DEVOTIONAL_SONGS_DATA } from '../data/songs';
-import { Badge } from './ui/Badge';
 
 export interface CommandPaletteProps {
   isOpen: boolean;
@@ -364,8 +363,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         style={viewportHeight ? { maxHeight: `${viewportHeight}px`, outline: 'none' } : { outline: 'none' }}
       >
         {/* Input Bar (includes safe-top for notched phones) */}
-        <div className="flex items-center px-4 sm:px-6 py-3.5 sm:py-4 border-b border-line gap-2.5 sm:gap-3 bg-surface/60 backdrop-blur-xs sticky top-0 z-10 safe-top">
-          <Search className="w-5 h-5 text-text-tertiary shrink-0" strokeWidth={1.75} />
+        <div className="flex items-center px-4 sm:px-6 py-3.5 sm:py-4 border-b border-line gap-2.5 sm:gap-3 bg-surface/70 backdrop-blur-xs sticky top-0 z-10 safe-top">
+          <Search className="w-5 h-5 text-accent shrink-0" strokeWidth={2} />
           <input
             ref={inputRef}
             type="text"
@@ -391,13 +390,13 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 setQuery('');
                 inputRef.current?.focus();
               }}
-              className="p-1 rounded-full text-text-tertiary hover:text-text cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center"
+              className="p-1 rounded-full text-text-tertiary hover:text-text hover:bg-surface-2 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center transition-colors"
               aria-label="Suche löschen"
             >
               <X className="w-4 h-4" strokeWidth={1.75} />
             </button>
           ) : (
-            <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-control text-2xs tabular-nums bg-surface-2 text-text-tertiary">
+            <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-control text-2xs tabular-nums bg-surface-2 text-text-tertiary border border-line/60 font-mono font-medium">
               ESC
             </kbd>
           )}
@@ -413,7 +412,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
 
         {/* Results List */}
-        <div className="flex-1 overflow-y-auto overscroll-contain p-2 sm:p-3 custom-scrollbar divide-y divide-border/60">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-2 sm:p-2.5 space-y-1 custom-scrollbar">
           {results.length === 0 ? (
             <div className="py-12 text-center text-text-secondary text-sm">
               <p>{isDe ? `Keine Treffer für „${query}“.` : `No results for "${query}".`}</p>
@@ -427,34 +426,38 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   key={`${item.type}-${item.id}`}
                   onClick={() => handleSelect(item)}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`flex items-center justify-between p-3 rounded-control cursor-pointer transition-colors duration-100 ease-out ${
+                  className={`flex items-center justify-between p-2.5 sm:p-3 rounded-control cursor-pointer transition-all duration-100 ease-out ${
                     isSelected
-                      ? 'bg-surface-2 text-text'
-                      : 'hover:bg-surface-2/60 text-text-secondary'
+                      ? 'bg-accent/10 text-accent shadow-2xs'
+                      : 'hover:bg-surface-2/70 text-text-secondary'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0 pr-2">
-                    <div className="w-9 h-9 rounded-control bg-accent-subtle text-accent-text flex items-center justify-center shrink-0">
+                    <div
+                      className={`w-9 h-9 rounded-control flex items-center justify-center shrink-0 transition-colors ${
+                        isSelected ? 'bg-accent text-accent-ink' : 'bg-accent-subtle text-accent-text'
+                      }`}
+                    >
                       <Icon className="w-4 h-4" strokeWidth={1.75} />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-text truncate">
+                        <span className={`text-sm truncate ${isSelected ? 'font-bold text-text' : 'font-semibold text-text'}`}>
                           {item.title}
                         </span>
-                        <Badge category="neutral" size="sm">
+                        <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-surface-2 text-text-tertiary border border-border/60 shrink-0">
                           {item.groupName}
-                        </Badge>
+                        </span>
                       </div>
-                      <p className="text-xs text-text-tertiary truncate max-w-md mt-0.5">
+                      <p className="text-xs text-text-secondary truncate max-w-md mt-0.5">
                         {item.subtitle}
                       </p>
                     </div>
                   </div>
 
                   <ArrowRight
-                    className={`w-4 h-4 shrink-0 transition-opacity duration-150 ${
-                      isSelected ? 'opacity-100 text-accent' : 'opacity-0'
+                    className={`w-4 h-4 shrink-0 transition-all duration-150 ${
+                      isSelected ? 'opacity-100 text-accent translate-x-0.5' : 'opacity-0'
                     }`}
                     strokeWidth={1.75}
                   />

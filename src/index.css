@@ -4,49 +4,49 @@
 
 :root, [data-theme="light"] {
   color-scheme: light;
-  --glass-opacity: 0.82;
-  --glass-panel-opacity: 0.90;
+  --glass-opacity: 0.68;
+  --glass-panel-opacity: 0.80;
   --glass-blur: 20px;
   --glass-specular: 0.55;
-  /* Noble Editorial Light: Warm porcelain & deep ink */
-  --bg: #F9F8F5;
-  --bg-rgb: 249 248 245;
+  /* Designsystem frisch und freundlich per 00-design-system.md: helle kühle Flächen & Royal Blau */
+  --bg: #F7F9FC;
+  --bg-rgb: 247 249 252;
   --surface: #FFFFFF;
   --surface-rgb: 255 255 255;
-  --surface-2: #F2EFE9;
-  --surface-2-rgb: 242 239 233;
-  --surface-3: #E7E3D8;
-  --surface-3-rgb: 231 227 216;
+  --surface-2: #EEF2F8;
+  --surface-2-rgb: 238 242 248;
+  --surface-3: #E3E9F3;
+  --surface-3-rgb: 227 233 243;
   --surface-raised: #FFFFFF;
   --surface-raised-rgb: 255 255 255;
-  --line: #E8E4DA;
-  --line-rgb: 232 228 218;
-  --border: #E8E4DA;
-  --border-rgb: 232 228 218;
-  --border-strong: #D3CEBF;
-  --border-strong-rgb: 211 206 191;
-  --border-subtle: #F2EFE9;
-  --border-subtle-rgb: 242 239 233;
-  --fg: #141923;
-  --fg-rgb: 20 25 35;
-  --text: #141923;
-  --text-rgb: 20 25 35;
-  --fg-muted: #525E75;
-  --fg-muted-rgb: 82 94 117;
-  --text-secondary: #525E75;
-  --text-secondary-rgb: 82 94 117;
-  --text-tertiary: #7D889E;
-  --text-tertiary-rgb: 125 136 158;
+  --line: #E3E8F0;
+  --line-rgb: 227 232 240;
+  --border: #E3E8F0;
+  --border-rgb: 227 232 240;
+  --border-strong: #CBD5E1;
+  --border-strong-rgb: 203 213 225;
+  --border-subtle: #EEF2F8;
+  --border-subtle-rgb: 238 242 248;
+  --fg: #142033;
+  --fg-rgb: 20 32 51;
+  --text: #142033;
+  --text-rgb: 20 32 51;
+  --fg-muted: #4A5568;
+  --fg-muted-rgb: 74 85 104;
+  --text-secondary: #4A5568;
+  --text-secondary-rgb: 74 85 104;
+  --text-tertiary: #667085;
+  --text-tertiary-rgb: 102 112 133;
 
-  /* Accent: #1E3A5F (Noble Midnight Lapis, WCAG AAA 10.3:1) */
-  --accent: #1E3A5F;
-  --accent-rgb: 30 58 95;
-  --accent-hover: #162C48;
-  --accent-hover-rgb: 22 44 72;
-  --accent-subtle: #EBF1F8;
-  --accent-subtle-rgb: 235 241 248;
-  --accent-text: #18385E;
-  --accent-text-rgb: 24 56 94;
+  /* Accent: #1F6FEB (WCAG AA calibrated Royal Blue per design-system.md) */
+  --accent: #1F6FEB;
+  --accent-rgb: 31 111 235;
+  --accent-hover: #1859C4;
+  --accent-hover-rgb: 24 89 196;
+  --accent-subtle: #E8F0FE;
+  --accent-subtle-rgb: 232 240 254;
+  --accent-text: #1850B8;
+  --accent-text-rgb: 24 80 184;
   --accent-contrast: #FFFFFF;
   --accent-contrast-rgb: 255 255 255;
   --accent-ink: #FFFFFF;
@@ -137,39 +137,39 @@
 
 .dark, [data-theme="dark"] {
   color-scheme: dark;
-  --glass-opacity: 0.75;
-  --glass-panel-opacity: 0.85;
+  --glass-opacity: 0.62;
+  --glass-panel-opacity: 0.74;
   --glass-blur: 20px;
   --glass-specular: 0.12;
-  /* Noble Editorial Dark: Velvety midnight ink & warm parchment */
-  --bg: #0E1522;
-  --bg-rgb: 14 21 34;
-  --surface: #182232;
-  --surface-rgb: 24 34 50;
-  --surface-2: #202D42;
-  --surface-2-rgb: 32 45 66;
-  --surface-3: #283852;
-  --surface-3-rgb: 40 56 82;
-  --surface-raised: #223046;
-  --surface-raised-rgb: 34 48 70;
-  --line: #233249;
-  --line-rgb: 35 50 73;
-  --border: #233249;
-  --border-rgb: 35 50 73;
-  --border-strong: #334766;
-  --border-strong-rgb: 51 71 102;
-  --border-subtle: #1A2434;
-  --border-subtle-rgb: 26 36 52;
-  --fg: #ECE8DF;
-  --fg-rgb: 236 232 223;
-  --text: #ECE8DF;
-  --text-rgb: 236 232 223;
-  --fg-muted: #9DAEC4;
-  --fg-muted-rgb: 157 174 196;
-  --text-secondary: #9DAEC4;
-  --text-secondary-rgb: 157 174 196;
-  --text-tertiary: #6C7D95;
-  --text-tertiary-rgb: 108 125 149;
+  /* Designsystem frisch und freundlich: kühles Nachtblau & Eisblau per 00-design-system.md */
+  --bg: #0D131F;
+  --bg-rgb: 13 19 31;
+  --surface: #131C2A;
+  --surface-rgb: 19 28 42;
+  --surface-2: #1A2438;
+  --surface-2-rgb: 26 36 56;
+  --surface-3: #22304A;
+  --surface-3-rgb: 34 48 74;
+  --surface-raised: #1E2A3E;
+  --surface-raised-rgb: 30 42 62;
+  --line: #1F2C40;
+  --line-rgb: 31 44 64;
+  --border: #1F2C40;
+  --border-rgb: 31 44 64;
+  --border-strong: #2B3D59;
+  --border-strong-rgb: 43 61 89;
+  --border-subtle: #16202E;
+  --border-subtle-rgb: 22 32 46;
+  --fg: #EEF2FA;
+  --fg-rgb: 238 242 250;
+  --text: #EEF2FA;
+  --text-rgb: 238 242 250;
+  --fg-muted: #AAB6CC;
+  --fg-muted-rgb: 170 182 204;
+  --text-secondary: #AAB6CC;
+  --text-secondary-rgb: 170 182 204;
+  --text-tertiary: #8D9AB3;
+  --text-tertiary-rgb: 141 154 179;
 
   /* Accent: #6FA3FF per design-system.md */
   --accent: #6FA3FF;
@@ -313,21 +313,21 @@
 .tabular { font-variant-numeric: tabular-nums; }
 
 .glass-surface {
-  background-color: rgb(var(--surface-rgb) / var(--glass-opacity, 0.82));
+  background-color: rgb(var(--surface-rgb) / var(--glass-opacity, 0.68));
   backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
   -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
   box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.55));
 }
 
 .glass-surface-panel {
-  background-color: rgb(var(--surface-rgb) / var(--glass-panel-opacity, 0.90));
+  background-color: rgb(var(--surface-rgb) / var(--glass-panel-opacity, 0.80));
   backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
   -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(180%);
   box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.55)), 0 8px 32px 0 rgba(20, 32, 51, 0.08);
 }
 
 .glass-card {
-  background-color: rgb(var(--surface-rgb) / calc(var(--glass-opacity, 0.82) * 0.70 + 0.30));
+  background-color: rgb(var(--surface-rgb) / calc(var(--glass-opacity, 0.68) * 0.70 + 0.30));
   backdrop-filter: blur(calc(var(--glass-blur, 20px) * 0.5)) saturate(160%);
   -webkit-backdrop-filter: blur(calc(var(--glass-blur, 20px) * 0.5)) saturate(160%);
   border: 1px solid rgb(var(--border-rgb) / 0.8);

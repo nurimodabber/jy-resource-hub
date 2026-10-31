@@ -176,7 +176,7 @@ export const GamePage: React.FC<GamePageProps> = ({
           <header className="mb-4 sm:mb-5 space-y-2.5">
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase tracking-[0.12em] bg-accent-subtle/80 text-accent-text">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle/80 text-accent-text">
                   {categoryBadge}
                 </span>
               </div>
