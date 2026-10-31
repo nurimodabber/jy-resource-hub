@@ -571,6 +571,10 @@ export const AppContent: React.FC = () => {
               path="/vorschlagen"
               element={<ProposalView language={language} />}
             />
+            <Route
+              path="/feedback"
+              element={<Navigate to="/vorschlagen?feedback=true" replace />}
+            />
 
             <Route
               path="/admin"
@@ -622,50 +626,96 @@ export const AppContent: React.FC = () => {
       )}
 
       {!isAdminRoute && (
-      <footer className="short-content-pad border-t border-line mt-8 sm:mt-12 py-5 sm:py-6 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
-        <div className="max-w-[1200px] mx-auto px-4 sm:px-6 space-y-3 sm:space-y-3.5">
-          {/* Top Row: Brand & Status Pill */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 sm:gap-2.5">
-              <div className="w-6 h-6 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
-                <Logo className="w-3.5 h-3.5 text-accent" />
+      <footer className="short-content-pad border-t border-line mt-4 sm:mt-6 py-3 sm:py-3.5 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
+        <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
+          {/* Desktop Footer (alles in einer Zeile angeordnet) */}
+          <div className="hidden md:flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
+                <Logo className="w-3 h-3 text-accent" />
               </div>
-              <span className="font-bold text-sm tracking-tight text-text">
+              <span className="font-bold text-sm tracking-tight text-text whitespace-nowrap">
                 {t.siteTitle}
               </span>
               <span className="text-2xs text-text-tertiary select-none">
                 © {new Date().getFullYear()}
               </span>
+              <span className="text-border-strong select-none">·</span>
+              <span className="text-2xs text-text-tertiary whitespace-nowrap">
+                {t.footerCluster}
+              </span>
+              <span className="text-2xs font-medium text-text-secondary px-2.5 py-0.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0">
+                {t.footerExperimental}
+              </span>
             </div>
-            <span className="text-2xs font-medium text-text-secondary px-3 py-0.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0">
-              {t.footerExperimental}
-            </span>
+
+            <div className="flex items-center gap-5 text-2xs sm:text-xs">
+              <button
+                type="button"
+                onClick={() => setIsContactOpen(true)}
+                className="font-medium text-text hover:text-accent transition-colors cursor-pointer py-0.5"
+              >
+                {t.footerContact}
+              </button>
+              <Link
+                to="/impressum"
+                className="font-medium text-text hover:text-accent transition-colors py-0.5"
+              >
+                {t.footerImpressum}
+              </Link>
+              <Link
+                to="/datenschutz"
+                className="font-medium text-text hover:text-accent transition-colors py-0.5"
+              >
+                {t.footerDatenschutz}
+              </Link>
+            </div>
           </div>
 
-          {/* Bottom Row: Cluster Copyright & Legal Links */}
-          <div className="flex flex-wrap items-center gap-x-4 sm:gap-x-6 gap-y-2 text-2xs sm:text-xs">
-            <span className="text-text-tertiary inline-flex items-center leading-normal py-0.5">
-              {t.footerCluster}
-            </span>
-            <button
-              type="button"
-              onClick={() => setIsContactOpen(true)}
-              className="font-medium text-text hover:text-accent transition-colors cursor-pointer inline-flex items-center leading-normal py-0.5"
-            >
-              {t.footerContact}
-            </button>
-            <Link
-              to="/impressum"
-              className="font-medium text-text hover:text-accent transition-colors inline-flex items-center leading-normal py-0.5"
-            >
-              {t.footerImpressum}
-            </Link>
-            <Link
-              to="/datenschutz"
-              className="font-medium text-text hover:text-accent transition-colors inline-flex items-center leading-normal py-0.5"
-            >
-              {t.footerDatenschutz}
-            </Link>
+          {/* Mobile / Vertikal Footer:
+              - Tausche Experimentell mit Cluster Rhein Neckar
+              - Verschiebe Kontakt Impressum Datenschutz nach rechts
+              - Geringerer Abstand / kompaktere Größe, alle Elemente horizontal exakt auf gleicher Höhe */}
+          <div className="md:hidden space-y-2">
+            {/* Zeile 1: Brand links, Cluster Rhein-Neckar rechts */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <div className="w-4 h-4 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
+                  <Logo className="w-2.5 h-2.5 text-accent" />
+                </div>
+                <span className="font-bold text-xs tracking-tight text-text leading-none">
+                  {t.siteTitle}
+                </span>
+                <span className="text-2xs text-text-tertiary select-none leading-none">
+                  © {new Date().getFullYear()}
+                </span>
+              </div>
+              <span className="text-2xs text-text-tertiary font-medium shrink-0 leading-none">
+                {t.footerCluster}
+              </span>
+            </div>
+
+            {/* Zeile 2: Experimentell links, Kontakt / Impressum / Datenschutz rechts */}
+            <div className="flex items-center justify-between gap-3 text-2xs">
+              <span className="inline-flex items-center justify-center h-[22px] text-2xs font-medium text-text-secondary px-2.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0 leading-none">
+                {t.footerExperimental}
+              </span>
+              <div className="flex items-center gap-3.5 ml-auto font-medium text-text">
+                <button
+                  type="button"
+                  onClick={() => setIsContactOpen(true)}
+                  className="h-[22px] flex items-center hover:text-accent transition-colors cursor-pointer leading-none"
+                >
+                  {t.footerContact}
+                </button>
+                <Link to="/impressum" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
+                  {t.footerImpressum}
+                </Link>
+                <Link to="/datenschutz" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
+                  {t.footerDatenschutz}
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

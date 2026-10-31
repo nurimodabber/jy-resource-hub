@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, BookOpen, Tag, SlidersHorizontal, HeartHandshake, Palette, Sparkles } from 'lucide-react';
+import { Search, X, ArrowLeft, BookOpen, Tag, SlidersHorizontal, HeartHandshake, Palette } from 'lucide-react';
 import {
   Language,
   ActivityItem,
@@ -441,7 +441,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                 ) : fixedKind === 'kunst' ? (
                   <Palette className="w-3.5 h-3.5 shrink-0" />
                 ) : (
-                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                  <Tag className="w-3.5 h-3.5 shrink-0" />
                 )
               }
               options={categoryOptions}

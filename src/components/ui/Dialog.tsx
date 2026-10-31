@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { IconButton } from './IconButton';
 
@@ -23,6 +24,11 @@ export const Dialog: React.FC<DialogProps> = ({
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerElementRef = useRef<HTMLElement | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Store trigger element when dialog opens, return focus when it closes
   useEffect(() => {
@@ -86,7 +92,7 @@ export const Dialog: React.FC<DialogProps> = ({
     full: 'max-w-full m-2 sm:m-6',
   };
 
-  return (
+  const content = (
     <div
       className="fixed inset-0 z-60 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
       role="dialog"
@@ -143,4 +149,7 @@ export const Dialog: React.FC<DialogProps> = ({
       </div>
     </div>
   );
+
+  return mounted && typeof document !== 'undefined' ? createPortal(content, document.body) : content;
 };
+

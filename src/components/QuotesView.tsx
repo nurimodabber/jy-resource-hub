@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
-  Search, X, BookOpen, Layers, Sparkles, Heart,
+  Search, X, BookOpen, Layers, Tag, Heart,
   ArrowLeft, ArrowRight, Play, Check, SlidersHorizontal, Zap, Music, Shuffle
 } from 'lucide-react';
 import { QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
@@ -583,7 +583,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 label={isDe ? 'Thema' : 'Theme'}
                 activeLabel={activeTopicLabel}
                 isActive={selectedTopic !== 'all'}
-                icon={<Sparkles className="w-3.5 h-3.5 shrink-0" />}
+                icon={<Tag className="w-3.5 h-3.5 shrink-0" />}
                 options={topicOptions}
                 selectedValue={selectedTopic}
                 onSelect={(val) => {

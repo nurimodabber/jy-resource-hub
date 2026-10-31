@@ -19,7 +19,6 @@ import {
   Skeleton,
 } from './index';
 import {
-  Sparkles,
   Search,
   Check,
   Moon,
@@ -219,7 +218,7 @@ export const Gallery: React.FC = () => {
         <h2 className="text-2xl font-bold text-text">4. Buttons & IconButtons</h2>
         <Card variant="tile" className="space-y-6">
           <div className="flex flex-wrap items-center gap-3">
-            <Button variant="primary" size="lg" icon={<Sparkles className="w-4 h-4" strokeWidth={1.75} />}>
+            <Button variant="primary" size="lg" icon={<Check className="w-4 h-4" strokeWidth={1.75} />}>
               Primär Groß
             </Button>
             <Button variant="primary" size="md">

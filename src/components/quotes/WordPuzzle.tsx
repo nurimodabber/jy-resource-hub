@@ -64,18 +64,18 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.wordPuzzleSubtitle}</p>
-        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
+        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-control text-text self-start sm:self-auto shrink-0">
           {placedTiles.length} / {originalWords.length} {t.wordsRemaining}
         </span>
       </div>
 
       {/* Assembly Zone */}
-      <div className="bg-surface rounded-3xl border border-border p-5 sm:p-8 shadow-xs space-y-4">
+      <div className="bg-surface rounded-card border border-border p-5 sm:p-8 shadow-xs space-y-4">
         <span className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary block">
           {language === 'de' ? 'Zusammengesetzter Satz:' : 'Assembled Sentence:'}
         </span>
 
-        <div className="min-h-[110px] p-5 rounded-2xl bg-surface-2 border border-border flex flex-wrap items-center gap-2 font-serif text-lg sm:text-2xl text-text leading-relaxed">
+        <div className="min-h-[110px] p-5 rounded-card bg-surface-2 border border-border flex flex-wrap items-center gap-2 font-serif text-lg sm:text-2xl text-text leading-relaxed">
           {placedTiles.length === 0 ? (
             <span className="text-sm font-sans text-text-tertiary italic">
               {language === 'de' ? 'Klicke unten auf die Wort-Bausteine, um zu beginnen...' : 'Tap the word chips below to start assembling...'}
@@ -91,7 +91,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
                     setPlacedTiles((prev) => prev.filter((p) => p.id !== tile.id));
                     setAvailableTiles((prev) => [...prev, tile]);
                   }}
-                  className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer select-none inline-block font-serif text-base sm:text-xl ${
+                  className={`px-3 py-2 rounded-control transition-all cursor-pointer select-none inline-block font-serif text-base sm:text-xl min-h-[44px] ${
                     isSlotCorrect
                       ? 'bg-surface shadow-xs border border-border text-text'
                       : 'bg-danger/10 border border-danger/30 text-danger'
@@ -107,7 +107,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
 
         {/* Success Banner */}
         {isComplete && isCorrect && (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center gap-3 text-text animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center gap-3 text-text animate-in fade-in">
             <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
             <div className="text-xs">
               <strong className="font-semibold block text-success">{t.puzzleCompleted}</strong>
@@ -123,7 +123,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
               type="button"
               onClick={handleUndo}
               disabled={placedTiles.length === 0}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-control hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[44px]"
             >
               <Undo2 className="w-3.5 h-3.5" />
               <span>{t.undoWord}</span>
@@ -131,7 +131,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
             <button
               type="button"
               onClick={initializePuzzle}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-control hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>{t.resetPuzzle}</span>
@@ -145,7 +145,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
       </div>
 
       {/* Available Word Chips Pool */}
-      <div className="bg-surface rounded-3xl border border-border p-5 sm:p-6 shadow-xs space-y-3">
+      <div className="bg-surface rounded-card border border-border p-5 sm:p-6 shadow-xs space-y-3">
         <span className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary block">
           {t.clickTilePrompt}
         </span>
@@ -159,7 +159,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
               type="button"
               key={tile.id}
               onClick={() => handleTileClick(tile)}
-              className="px-3.5 py-2 bg-surface-2 hover:bg-surface-raised text-text text-xs font-medium rounded-lg border border-border shadow-xs  transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center"
+              className="px-3.5 py-2 bg-surface-2 hover:bg-surface-raised text-text text-xs font-medium rounded-control border border-border shadow-xs transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center"
             >
               {tile.word}
             </button>

@@ -12,7 +12,7 @@ import {
   Info,
   X,
   AlertCircle,
-  Sparkles,
+  Users,
 } from 'lucide-react';
 import { Language } from '../../../types';
 import {
@@ -317,7 +317,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
                 className="w-full flex items-center justify-between py-2 px-3 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-accent" />
+                  <Users className="w-3.5 h-3.5 text-accent" />
                   <span>{L('Weitere klassische Rollen', 'Additional classic roles')}</span>
                   {activeExtendedCount > 0 && (
                     <span className="text-2xs px-2 py-0.5 rounded-full bg-accent text-accent-contrast font-semibold">

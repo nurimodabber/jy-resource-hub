@@ -342,13 +342,13 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
             </Link>
           </div>
 
-          {/* Row 2: Version & Offline Readiness */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2.5 text-2xs text-text-tertiary">
-            <span>
+          {/* Row 2: Version & Offline Readiness (immer in der gleichen Zeile) */}
+          <div className="flex flex-row flex-wrap items-center justify-center gap-1.5 sm:gap-2.5 text-2xs text-text-tertiary">
+            <span className="whitespace-nowrap">
               {t.siteTitle} · {t.settingsVersion}
             </span>
-            <span className="hidden sm:inline text-border-strong select-none">·</span>
-            <div className="inline-flex items-center gap-1.5">
+            <span className="text-border-strong select-none">·</span>
+            <div className="inline-flex items-center gap-1.5 whitespace-nowrap">
               <span
                 className={`w-1.5 h-1.5 rounded-full ${isOfflineReady ? 'bg-emerald-500' : 'bg-emerald-500/80'} inline-block shrink-0`}
               />

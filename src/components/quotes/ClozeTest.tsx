@@ -139,7 +139,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
               key={d}
               type="button"
               onClick={() => setDifficulty(d)}
-              className={`px-3 py-1 rounded-lg text-2xs font-semibold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
                 difficulty === d
                   ? 'bg-accent text-accent-contrast shadow-xs'
                   : 'text-text-secondary hover:text-text'
@@ -156,7 +156,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
       </div>
 
       {/* Main Quote Canvas with Interactive Blanks */}
-      <div className="bg-surface rounded-3xl border border-border p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
         <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-3 font-serif text-lg sm:text-2xl leading-relaxed text-text text-center min-h-[140px]">
           {rawWords.map((word, idx) => {
             const isBlank = blankIndices.includes(idx);
@@ -187,7 +187,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                       setSelectedBlank(idx);
                     }
                   }}
-                  className={`min-w-[70px] sm:min-w-[90px] px-3 py-1 rounded-xl text-base sm:text-xl font-medium font-serif border transition-all cursor-pointer select-none inline-block ${
+                  className={`min-w-[70px] sm:min-w-[90px] px-3 py-1.5 rounded-control text-base sm:text-xl font-medium font-serif border transition-all cursor-pointer select-none inline-block min-h-[44px] ${
                     isSlotCorrect
                       ? 'bg-success/15 border-success/40 text-success font-semibold'
                       : isSlotWrong
@@ -210,7 +210,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
 
         {/* Success Banner */}
         {allFilled && isAllCorrect && (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-between gap-3 text-text animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
@@ -226,7 +226,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
             <button
               type="button"
               onClick={initBlanks}
-              className="px-3.5 py-1.5 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[44px]"
+              className="px-3.5 py-1.5 bg-accent text-accent-contrast rounded-control text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5 inline mr-1" />
               <span>{language === 'de' ? 'Noch einmal' : 'Play again'}</span>
@@ -242,7 +242,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                 type="button"
                 onClick={() => setIsChecked(true)}
                 disabled={!allFilled}
-                className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-lg hover:bg-accent-hover disabled:opacity-40 transition-colors shadow-xs cursor-pointer min-h-[44px]"
+                className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-contrast text-xs font-semibold rounded-control hover:bg-accent-hover disabled:opacity-40 transition-colors shadow-xs cursor-pointer min-h-[44px]"
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>{language === 'de' ? 'Prüfen' : 'Check'}</span>
@@ -253,7 +253,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
               type="button"
               onClick={handleHint}
               disabled={isAllCorrect || blankIndices.every((i) => !!filledWords[i])}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-control hover:bg-surface-2 disabled:opacity-30 transition-colors cursor-pointer min-h-[44px]"
               title={language === 'de' ? 'Ein Wort aufdecken' : 'Reveal one word'}
             >
               <HelpCircle className="w-3.5 h-3.5 text-accent-text" />
@@ -263,7 +263,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
             <button
               type="button"
               onClick={initBlanks}
-              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-lg hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-control hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>{language === 'de' ? 'Neu mischen' : 'Reset'}</span>
@@ -278,7 +278,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
 
       {/* Word Pool */}
       {!isAllCorrect && (
-        <div className="bg-surface rounded-3xl border border-border p-5 sm:p-6 shadow-xs space-y-3">
+        <div className="bg-surface rounded-card border border-border p-5 sm:p-6 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary block">
               {language === 'de' ? 'Wortspeicher (Klicken zum Einfügen):' : 'Word Pool (Click to insert):'}
@@ -301,7 +301,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                   type="button"
                   disabled={isExhausted}
                   onClick={() => handleSelectWordForBlank(word)}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-medium border shadow-xs transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center ${
+                  className={`px-3.5 py-2 rounded-control text-xs font-medium border shadow-xs transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center ${
                     isExhausted
                       ? 'opacity-30 border-border bg-surface-2 text-text-tertiary pointer-events-none'
                       : 'bg-surface-2 hover:bg-surface-raised border-border text-text  hover:border-accent'

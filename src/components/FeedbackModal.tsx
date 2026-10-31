@@ -120,7 +120,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
         'Hast du Ideen, Wünsche oder Anmerkungen zum Junior Youth Hub? Teile deine Gedanken mit uns.',
         'Do you have ideas, requests, or notes about the Junior Youth Hub? Share your thoughts with us.'
       )}
-      maxWidth="md"
+      maxWidth="lg"
     >
       {submitted ? (
         <div className="py-8 text-center space-y-3 animate-in fade-in">
@@ -144,7 +144,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
             <label className="block text-xs font-semibold text-text-secondary mb-2">
               {L('Kategorie', 'Category')}
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {categories.map((cat) => {
                 const Icon = cat.icon;
                 const isSelected = category === cat.id;
@@ -153,14 +153,14 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
                     key={cat.id}
                     type="button"
                     onClick={() => setCategory(cat.id)}
-                    className={`flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-control text-xs font-semibold border transition-all cursor-pointer ${
+                    className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-control text-xs font-semibold border transition-all cursor-pointer min-h-[48px] ${
                       isSelected
                         ? 'bg-accent/10 border-accent text-accent font-bold shadow-2xs'
                         : 'bg-surface border-border text-text-secondary hover:text-text hover:bg-surface-2'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isSelected ? 'text-accent' : 'text-text-tertiary'}`} />
-                    <span className="text-2xs truncate max-w-full">{cat.label}</span>
+                    <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-accent' : 'text-text-tertiary'}`} />
+                    <span className="text-xs text-center leading-tight">{cat.label}</span>
                   </button>
                 );
               })}
@@ -179,16 +179,25 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
               rows={4}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                  e.preventDefault();
+                  if (!isSubmitting && message.trim().length >= 5) {
+                    handleSubmit(e);
+                  }
+                }
+              }}
               placeholder={L(
                 'Was gefällt dir, was fehlt oder was könnte verbessert werden?',
                 'What do you like, what is missing, or what could be improved?'
               )}
-              className="w-full px-3 py-2.5 rounded-control bg-bg border border-border text-text text-sm placeholder:text-text-tertiary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent resize-y min-h-[96px]"
+              className="w-full px-3 py-2.5 rounded-control bg-bg border border-border text-text text-sm placeholder:text-text-tertiary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent resize-y min-h-[100px]"
               autoFocus
             />
-            <span className="text-2xs text-text-tertiary block mt-1">
-              {L('Mindestens 5 Zeichen.', 'At least 5 characters.')}
-            </span>
+            <div className="flex items-center justify-between text-2xs text-text-tertiary mt-1">
+              <span>{L('Mindestens 5 Zeichen.', 'At least 5 characters.')}</span>
+              <span className="hidden sm:inline">{L('Tipp: ⌘+Enter zum Absenden', 'Tip: ⌘+Enter to submit')}</span>
+            </div>
           </div>
 
           {/* Optional Author info */}
@@ -202,8 +211,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
                 type="text"
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
-                placeholder={L('z. B. Samira', 'e.g. Samira')}
-                className="w-full px-3 py-1.5 rounded-control bg-bg border border-border text-text text-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                placeholder={L('z. B. Musonda', 'e.g. Musonda')}
+                className="w-full px-3 py-2 rounded-control bg-bg border border-border text-text text-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent min-h-[40px]"
               />
             </div>
             <div>
@@ -216,7 +225,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
                 value={authorEmail}
                 onChange={(e) => setAuthorEmail(e.target.value)}
                 placeholder="name@beispiel.de"
-                className="w-full px-3 py-1.5 rounded-control bg-bg border border-border text-text text-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                className="w-full px-3 py-2 rounded-control bg-bg border border-border text-text text-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent min-h-[40px]"
               />
             </div>
           </div>

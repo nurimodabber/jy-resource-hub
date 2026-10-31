@@ -77,9 +77,9 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
       </div>
 
       {/* Main Card */}
-      <div className="bg-surface rounded-3xl border border-border p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
         {/* Quote Reference */}
-        <div className="p-5 rounded-2xl bg-surface-2 border border-border text-center space-y-2">
+        <div className="p-5 rounded-card bg-surface-2 border border-border text-center space-y-2">
           <p className="font-serif italic text-lg sm:text-2xl text-text leading-relaxed">
             „{quoteText}“
           </p>
@@ -100,7 +100,7 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
 
         {/* Record Beaten Announcement */}
         {isRecordBeaten && (
-          <div className="p-4 bg-accent-subtle border border-accent/20 rounded-2xl flex items-center justify-center gap-2 text-accent-text font-semibold text-xs animate-in fade-in">
+          <div className="p-4 bg-accent-subtle border border-accent/20 rounded-card flex items-center justify-center gap-2 text-accent-text font-semibold text-xs animate-in fade-in">
             <Trophy className="w-4 h-4" />
             <span>{t.recordBeaten} ({formatTime(elapsedMs)})</span>
           </div>
@@ -112,7 +112,7 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
             <button
               type="button"
               onClick={isRunning ? handleStop : handleStart}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer min-h-[44px] ${
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-control text-xs font-semibold shadow-xs transition-colors cursor-pointer min-h-[44px] ${
                 isRunning
                   ? 'bg-red-600 text-white hover:bg-red-700'
                   : 'bg-accent text-accent-contrast hover:bg-accent-hover'
@@ -125,7 +125,7 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
             <button
               type="button"
               onClick={handleReset}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-border bg-surface text-text text-xs font-medium hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-control border border-border bg-surface text-text text-xs font-medium hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>{t.resetTimer}</span>
@@ -142,7 +142,7 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
                   type="button"
                   key={sec}
                   onClick={() => setTargetSeconds(sec)}
-                  className={`px-3 py-1.5 rounded-lg text-2xs font-medium transition-colors cursor-pointer min-h-[44px] flex items-center justify-center ${
+                  className={`px-3 py-1.5 rounded-control text-xs font-medium transition-colors cursor-pointer min-h-[44px] flex items-center justify-center ${
                     targetSeconds === sec
                       ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                       : 'bg-surface-2 text-text-secondary hover:text-text border border-border'

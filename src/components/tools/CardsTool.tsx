@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Shuffle, ArrowLeft, ArrowRight, HelpCircle, 
-  ExternalLink, BookOpen, Sparkles
+  ExternalLink, BookOpen
 } from 'lucide-react';
 import { Language } from '../../types';
 import { DISCUSSION_CARDS } from '../../data/toolkits';
@@ -65,14 +65,13 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
   const deepening = useMemo(() => card?.deepeningQuestions[language] ?? [], [card, language]);
 
   const next = useCallback(() => {
-    setI((curr) => {
-      if (curr + 1 >= deck.length) {
-        setDeck(shuffle(filteredCards));
-        return 0;
-      }
-      return curr + 1;
-    });
-  }, [deck.length, filteredCards]);
+    if (i + 1 >= deck.length) {
+      setDeck(shuffle(filteredCards));
+      setI(0);
+    } else {
+      setI((curr) => curr + 1);
+    }
+  }, [i, deck.length, filteredCards]);
 
   const prev = useCallback(() => {
     setI((curr) => Math.max(0, curr - 1));
@@ -149,7 +148,7 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
               type="button"
               onClick={prev}
               disabled={i === 0}
-              className="p-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text disabled:opacity-30 cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center transition-colors"
+              className="p-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text disabled:opacity-30 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
               title={L('Vorherige Karte', 'Previous card')}
               aria-label={L('Vorherige Karte', 'Previous card')}
             >
@@ -162,7 +161,7 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
               type="button"
               onClick={next}
               disabled={deck.length <= 1}
-              className="p-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center transition-colors"
+              className="p-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
               title={L('Nächste Karte', 'Next card')}
               aria-label={L('Nächste Karte', 'Next card')}
             >
@@ -172,7 +171,7 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
             <button
               type="button"
               onClick={handleShuffle}
-              className="p-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center transition-colors ml-0.5"
+              className="p-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors ml-0.5"
               title={L('Neu mischen', 'Shuffle deck')}
               aria-label={L('Neu mischen', 'Shuffle deck')}
             >
@@ -182,7 +181,7 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
             <button
               type="button"
               onClick={() => setShowHelp(!showHelp)}
-              className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors cursor-pointer ${
+              className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[44px] min-w-[44px] transition-colors cursor-pointer ${
                 showHelp
                   ? 'bg-accent/15 border-accent text-accent'
                   : 'bg-surface-2 hover:bg-surface-raised border-border text-text-secondary hover:text-text'
@@ -236,8 +235,7 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
               >
                 {/* Meta pills: Theme & Book */}
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <span className="px-2.5 py-1 rounded-full bg-accent-subtle text-accent-text font-semibold inline-flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
+                  <span className="px-2.5 py-1 rounded-full bg-accent-subtle text-accent-text font-semibold inline-flex items-center">
                     {card.theme[language]}
                   </span>
                   {card.book && (
@@ -254,7 +252,7 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
                 </h2>
 
                 {/* Sacred Quote in Lora Serif font with clickable authoritative source */}
-                <div className="my-6 pl-5 border-l-2 border-accent/50 py-1.5 space-y-2">
+                <div className="my-6 py-1.5 space-y-2">
                   <blockquote className="font-serif text-lg sm:text-xl text-text leading-relaxed italic select-text">
                     {formattedQuote}
                   </blockquote>

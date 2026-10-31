@@ -7,7 +7,7 @@ import {
   Clock,
   MapPin,
   CheckCircle,
-  Sparkles,
+  HelpCircle,
   ShieldAlert,
   ChevronDown,
 } from 'lucide-react';
@@ -234,7 +234,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
             >
               <div className="min-w-0 flex-1 space-y-0.5">
                 <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-accent" />
+                  <HelpCircle className="w-3.5 h-3.5 text-accent" />
                   <span>{L('Spion-Hinweis', 'Spy Hint')}</span>
                 </span>
                 <p className="text-2xs text-text-tertiary">

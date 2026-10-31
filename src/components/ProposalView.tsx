@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
@@ -8,7 +9,6 @@ import {
   Compass,
   HeartHandshake,
   Palette,
-  Sparkles,
   Eye,
   Plus,
   Trash2,
@@ -70,13 +70,14 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
   const L = tr(language);
   const { showToast } = useToast();
 
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isPreview, setIsPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [mailtoFallback, setMailtoFallback] = useState<string | null>(null);
   const [createdIssueUrl, setCreatedIssueUrl] = useState<string | null>(null);
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(() => searchParams.get('feedback') === 'true');
 
   const [mountTime] = useState(() => Date.now());
   const [isOnline, setIsOnline] = useState(() => (typeof navigator !== 'undefined' ? navigator.onLine : true));
@@ -486,7 +487,6 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             /* Live Preview Card */
             <div className="space-y-4 animate-in fade-in duration-200">
               <div className="p-3 rounded-control bg-accent-subtle/50 text-accent-text text-xs font-semibold flex items-center gap-2">
-                <Sparkles className="w-4 h-4 shrink-0" />
                 <span>{L('So sieht der Beitrag später auf der Plattform aus:', 'This is how your contribution will appear on the platform:')}</span>
               </div>
 

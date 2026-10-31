@@ -80,13 +80,13 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.metronomeSubtitle}</p>
-        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
+        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-control text-text self-start sm:self-auto shrink-0">
           {bpm} BPM (4/4 Takt)
         </span>
       </div>
 
       {/* Main Studio Canvas with Pulsing Highlighting */}
-      <div className="bg-surface rounded-3xl border border-border p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
         {/* Visual Beat Indicator (4 dots) */}
         <div className="flex items-center justify-center gap-3 pb-2">
           {[0, 1, 2, 3].map((b) => {
@@ -130,7 +130,7 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
             <button
               type="button"
               onClick={() => setIsPlaying(!isPlaying)}
-              className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold rounded-lg bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold rounded-control bg-accent text-accent-contrast hover:bg-accent-hover transition-colors shadow-xs cursor-pointer min-h-[44px]"
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
               <span>{isPlaying ? t.stopMetronome : t.startMetronome}</span>
@@ -149,7 +149,7 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
             <button
               type="button"
               onClick={() => setIsAudioEnabled(!isAudioEnabled)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors cursor-pointer min-h-[44px] ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-control text-xs font-medium border transition-colors cursor-pointer min-h-[44px] ${
                 isAudioEnabled
                   ? 'bg-surface-2 border-border text-text font-semibold'
                   : 'border-border text-text-secondary hover:text-text'

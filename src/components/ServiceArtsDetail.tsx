@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   Bookmark,
   ChevronDown,
-  Sparkles,
 } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -191,7 +190,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
           </header>
 
           {/* Section 1: Was uns geleitet hat (Leitgedanke & Motivation) */}
-          <section className="mb-10 pl-5 border-l-2 border-accent/70 py-1">
+          <section className="mb-10 py-1">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-accent mb-2">
               {L('Was uns geleitet hat', 'What guided our initiative')}
             </h2>
@@ -257,7 +256,6 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
                 aria-expanded={isQuestionsOpen}
               >
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-accent" />
                   <h2 className="text-xs font-bold uppercase tracking-wider text-text">
                     {L('Reflexionsfragen im Kreis', 'Reflection questions for the circle')}
                   </h2>

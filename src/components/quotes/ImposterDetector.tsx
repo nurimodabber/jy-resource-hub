@@ -109,13 +109,13 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.imposterSubtitle}</p>
-        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
+        <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-control text-text self-start sm:self-auto shrink-0">
           {isResolved ? '100% Original' : (language === 'de' ? '1 Fehler versteckt' : '1 Decoy hidden')}
         </span>
       </div>
 
       {/* Main Reading Canvas */}
-      <div className="bg-surface rounded-3xl border border-border p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
         <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px]">
           {rawWords.map((word, idx) => {
             const isImposter = idx === imposterIndex;
@@ -127,7 +127,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
                 type="button"
                 key={idx}
                 onClick={() => handleWordClick(idx)}
-                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-xl font-serif text-xl sm:text-3xl ${
+                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-control font-serif text-xl sm:text-3xl ${
                   isImposter && isResolved
                     ? 'bg-success/15 text-success font-bold border border-success/30'
                     : isImposter && !isResolved
@@ -146,7 +146,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
 
         {/* Resolution Banner */}
         {isResolved ? (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-2xl flex items-center justify-between gap-3 text-text animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
@@ -160,7 +160,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
             <button
               type="button"
               onClick={generateImposter}
-              className="px-4 py-2 bg-accent text-accent-contrast rounded-xl text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[44px]"
+              className="px-4 py-2 bg-accent text-accent-contrast rounded-control text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[44px]"
             >
               {t.nextImposter}
             </button>
@@ -175,7 +175,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
             <button
               type="button"
               onClick={generateImposter}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-text hover:bg-surface-2 rounded-lg transition-colors border border-border cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs text-text hover:bg-surface-2 rounded-control transition-colors border border-border cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3 h-3" />
               <span>{t.nextImposter}</span>

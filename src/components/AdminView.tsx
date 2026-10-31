@@ -1635,7 +1635,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                   type="text"
                   value={setupDisplayName}
                   onChange={(e) => setSetupDisplayName(e.target.value)}
-                  placeholder="z. B. Nuri Milan Modabber"
+                  placeholder={L('z. B. Musonda Mwamba', 'e.g. Musonda Mwamba')}
                   className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
                   required
                   autoFocus
@@ -1650,7 +1650,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                   type="text"
                   value={loginUsername}
                   onChange={(e) => setLoginUsername(e.target.value)}
-                  placeholder="z. B. nuri@modabber.net"
+                  placeholder="animator@gemeinde.org"
                   className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
                   required
                 />
@@ -1725,7 +1725,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                     setLoginUsername(e.target.value);
                     setAuthError(null);
                   }}
-                  placeholder="z. B. nuri@modabber.net"
+                  placeholder="animator@gemeinde.org"
                   className="w-full px-3.5 py-2.5 rounded-control bg-bg border border-border text-sm text-text focus:outline-hidden focus:border-accent"
                   required
                   autoFocus
