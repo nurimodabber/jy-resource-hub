@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Play, Pause, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { Slider as GlisseSlider } from 'glisse';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
 
@@ -161,20 +162,20 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
             </button>
           </div>
 
-          {/* BPM Slider */}
+          {/* BPM Slider (Glisse Liquid Glass Slider) */}
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <span className="text-xs text-text-secondary font-medium whitespace-nowrap">
               {t.bpmLabel}:
             </span>
-            <input
-              type="range"
-              min="40"
-              max="120"
-              step="5"
-              value={bpm}
-              onChange={(e) => setBpm(Number(e.target.value))}
-              className="w-full sm:w-36 accent-accent"
-            />
+            <div className="w-full sm:w-36">
+              <GlisseSlider
+                min={40}
+                max={120}
+                step={5}
+                value={bpm}
+                onValueChange={(val) => setBpm(val)}
+              />
+            </div>
             <span className="text-xs tabular-nums font-semibold text-text w-8 text-right">
               {bpm}
             </span>

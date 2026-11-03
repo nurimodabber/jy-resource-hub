@@ -15,7 +15,7 @@ import {
   Timer,
   UserCheck,
   MessageSquareQuote,
-  Zap,
+  Brain,
   type LucideIcon,
 } from 'lucide-react';
 import { Language } from '../types';
@@ -249,7 +249,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           title: m.name[language],
           subtitle: m.summary[language],
           badge: isDe ? 'Methode' : 'Method',
-          icon: Zap,
+          icon: Brain,
         });
       }
     });
@@ -362,44 +362,45 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[80vh] glass-surface-panel search-palette-panel rounded-none sm:rounded-dialog shadow-2 border-0 sm:border sm:border-border overflow-hidden z-10 flex flex-col animate-in fade-in sm:zoom-in-95 duration-150 ease-out outline-none focus:outline-none"
         style={viewportHeight ? { maxHeight: `${viewportHeight}px`, outline: 'none' } : { outline: 'none' }}
       >
-        {/* Input Bar (includes safe-top for notched phones) */}
-        <div className="flex items-center px-4 sm:px-6 py-3.5 sm:py-4 border-b border-line gap-2.5 sm:gap-3 bg-surface/70 backdrop-blur-xs sticky top-0 z-10 safe-top">
-          <Search className="w-5 h-5 text-accent shrink-0" strokeWidth={2} />
-          <input
-            ref={inputRef}
-            type="text"
-            inputMode="search"
-            enterKeyHint="search"
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setSelectedIndex(0);
-            }}
-            placeholder={isDe ? 'Spiele, Zitate, Methoden, Dienst suchen...' : 'Search games, quotes, methods, service...'}
-            className="flex-1 bg-transparent text-base text-text placeholder:text-text-tertiary search-palette-input outline-none focus:outline-none ring-0 focus:ring-0 min-h-[36px]"
-            style={{ outline: 'none' }}
-          />
-          {query ? (
-            <button
-              type="button"
-              onClick={() => {
-                setQuery('');
-                inputRef.current?.focus();
+        {/* Input Bar (Liquid Glass Capsule with glow when selected) */}
+        <div className="flex items-center px-4 sm:px-6 py-3 sm:py-3.5 border-b border-line gap-2.5 sm:gap-3 bg-surface/80 backdrop-blur-md sticky top-0 z-10 safe-top">
+          <div className="flex-1 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full lg-glass bg-surface-2/60 border border-line focus-within:border-accent focus-within:bg-surface focus-within:ring-3 focus-within:ring-accent/20 transition-all shadow-2xs">
+            <Search className="w-4 h-4 text-accent shrink-0" strokeWidth={2} />
+            <input
+              ref={inputRef}
+              type="text"
+              inputMode="search"
+              enterKeyHint="search"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setSelectedIndex(0);
               }}
-              className="p-1 rounded-full text-text-tertiary hover:text-text hover:bg-surface-2 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center transition-colors"
-              aria-label="Suche löschen"
-            >
-              <X className="w-4 h-4" strokeWidth={1.75} />
-            </button>
-          ) : (
-            <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-control text-2xs tabular-nums bg-surface-2 text-text-tertiary border border-line/60 font-mono font-medium">
-              ESC
-            </kbd>
-          )}
+              placeholder={isDe ? 'Spiele, Zitate, Methoden, Dienst suchen...' : 'Search games, quotes, methods, service...'}
+              className="flex-1 bg-transparent text-sm sm:text-base text-text placeholder:text-text-tertiary outline-none focus:outline-none ring-0 focus:ring-0 min-h-[32px]"
+            />
+            {query ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  inputRef.current?.focus();
+                }}
+                className="p-1 rounded-full text-text-tertiary hover:text-text hover:bg-surface-2 cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center transition-colors"
+                aria-label="Suche löschen"
+              >
+                <X className="w-3.5 h-3.5" strokeWidth={2} />
+              </button>
+            ) : (
+              <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-2xs tabular-nums bg-surface/90 text-text-tertiary border border-line/70 font-mono font-medium shadow-2xs">
+                ESC
+              </kbd>
+            )}
+          </div>
 
           {/* Mobile Cancel Button */}
           <button

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Clock, Bookmark, Play } from 'lucide-react';
+import { Users, Clock, Bookmark, Play, Flame } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -102,7 +102,7 @@ export const GameCard: React.FC<GameCardProps> = ({
 
   return (
     <div
-      className={`group relative h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-4 pb-3.5 pt-3 sm:px-5 sm:pb-4 sm:pt-3.5 shadow-2xs ${
+      className={`group relative h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-3.5 pb-3.5 pt-3 sm:px-5 sm:pb-4 sm:pt-3.5 shadow-2xs ${
         !matchesGroup ? 'opacity-60 hover:opacity-100' : ''
       }`}
     >
@@ -110,16 +110,20 @@ export const GameCard: React.FC<GameCardProps> = ({
         to={`/games/${game.id}`}
         className="block flex-1 min-w-0 pr-10 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0"
       >
-        <div className="flex items-center gap-2 relative z-[1]">
+        <div className="flex items-center justify-between gap-2 relative z-[1]">
           <h3 className="font-serif text-lg font-medium text-text leading-snug truncate group-hover:text-accent transition-colors min-w-0 tracking-tight">
             {game.title[language]}
           </h3>
           <span
-            className="inline-flex items-center shrink-0"
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-2/80 border border-line/60 text-2xs text-text-tertiary shrink-0 shadow-2xs group-hover:border-accent/30 transition-colors"
             title={`${t.filterEnergy}: ${energyLabel}`}
             aria-label={`${t.filterEnergy}: ${energyLabel}`}
           >
+            <Flame className="w-3 h-3 text-amber-500 shrink-0" strokeWidth={2} />
             <EnergyDots energyLevel={game.energyLevel} />
+            <span className="text-[11px] font-medium text-text-secondary hidden min-[440px]:inline">
+              {energyLabel}
+            </span>
           </span>
         </div>
         <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 mt-1.5 sm:mt-2 leading-relaxed relative z-[1]">

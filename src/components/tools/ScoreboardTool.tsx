@@ -294,14 +294,14 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
   return (
     <>
       <div className="space-y-6">
-        {/* Action Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 bg-surface rounded-card border border-border p-2.5 sm:p-3 shadow-xs">
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        {/* Action Toolbar (All in one single un-wrapped line) */}
+        <div className="flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar py-0.5 w-full bg-surface rounded-card border border-border p-2 sm:p-2.5 shadow-xs">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={handleAddTeam}
               disabled={teams.length >= MAX_TEAMS}
-              className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 disabled:opacity-40"
+              className="px-2.5 sm:px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 disabled:opacity-40 whitespace-nowrap"
               title={teams.length >= MAX_TEAMS ? L('Maximal 8 Teams möglich', 'Maximum 8 teams reached') : L('Neues Team hinzufügen', 'Add new team')}
             >
               <Plus className="w-3.5 h-3.5" />
@@ -311,46 +311,47 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
               )}
             </button>
 
-            {hasImportableTeams && (
-              <button
-                type="button"
-                onClick={handleImportFromTeamsTool}
-                className="px-3 py-1.5 rounded-control bg-accent/10 hover:bg-accent/20 border border-accent/30 text-xs font-semibold text-accent transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5"
-                title={L('Teams aus letzter Gruppeneinteilung laden', 'Load teams from last team shuffle')}
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{L('Aus Gruppeneinteiler', 'From team builder')}</span>
-                <span className="sm:hidden">{L('Import', 'Import')}</span>
-              </button>
-            )}
-
             <button
               type="button"
               onClick={handleGenerateFromGroup}
-              className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5"
+              className="px-2.5 sm:px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 whitespace-nowrap"
+              title={L('Teams aus Namensliste der Gruppe bilden', 'Create teams from group member list')}
             >
               <Users className="w-3.5 h-3.5 text-text-secondary" />
               <span>{L('Aus Gruppe', 'From group')}</span>
             </button>
 
+            {hasImportableTeams && (
+              <button
+                type="button"
+                onClick={handleImportFromTeamsTool}
+                className="px-2.5 sm:px-3 py-1.5 rounded-control bg-accent/10 hover:bg-accent/20 border border-accent/30 text-xs font-semibold text-accent transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 whitespace-nowrap"
+                title={L('Teams aus letzter Gruppeneinteilung laden', 'Load teams from last team shuffle')}
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{L('Aus Einteiler', 'From divider')}</span>
+                <span className="sm:hidden">{L('Einteiler', 'Divider')}</span>
+              </button>
+            )}
+
             <button
               type="button"
               disabled={history.length === 0}
               onClick={handleUndo}
-              className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 disabled:opacity-40"
+              className="px-2.5 sm:px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 disabled:opacity-40 whitespace-nowrap"
               title={L('Rückgängig (Cmd/Ctrl+Z)', 'Undo (Cmd/Ctrl+Z)')}
             >
               <Undo2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{L('Rückgängig', 'Undo')}</span>
+              <span>{L('Rückgängig', 'Undo')}</span>
             </button>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             {/* Fullscreen Button */}
             <button
               type="button"
               onClick={handleEnterFullscreen}
-              className="px-3 py-1.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-semibold text-xs transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 shadow-xs"
+              className="px-2.5 sm:px-3 py-1.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-semibold text-xs transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 shadow-xs whitespace-nowrap"
               title={L('Vollbildmodus aktivieren', 'Enter full screen mode')}
             >
               <Maximize2 className="w-3.5 h-3.5" />
@@ -699,78 +700,44 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     )}
                   </div>
 
-                  {/* Bottom: Adaptive Controls */}
-                  {!isDense ? (
-                    /* Spacious controls (2 to 4 teams) */
-                    <div className="flex items-center gap-1.5 shrink-0 pt-1">
+                  {/* Bottom: Proportional, Balanced Controls */}
+                  <div className={`grid ${quickStep !== stepSize ? 'grid-cols-3' : 'grid-cols-2'} gap-1.5 sm:gap-2 w-full pt-1 shrink-0`}>
+                    {/* Deduct -1 */}
+                    <button
+                      type="button"
+                      disabled={team.score <= 0}
+                      onClick={() => adjustScore(team.id, -stepSize)}
+                      className="min-h-[44px] px-2 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised active:bg-surface-3 border border-border text-text font-bold text-xs sm:text-sm flex items-center justify-center gap-1 disabled:opacity-30 cursor-pointer active:scale-95 transition-transform"
+                      title={L(`-${stepSize} Punkte abziehen`, `Deduct -${stepSize} points`)}
+                    >
+                      <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>{stepSize}</span>
+                    </button>
+
+                    {/* Add +1 (Primary Accent) */}
+                    <button
+                      type="button"
+                      onClick={() => adjustScore(team.id, stepSize)}
+                      className="min-h-[44px] px-2 py-1.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-black text-xs sm:text-sm flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-transform cursor-pointer"
+                      title={L(`+${stepSize} Punkte hinzufügen`, `Add +${stepSize} points`)}
+                    >
+                      <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>{stepSize}</span>
+                    </button>
+
+                    {/* Add +quickStep (e.g. +5) */}
+                    {quickStep !== stepSize && (
                       <button
                         type="button"
-                        disabled={team.score <= 0}
-                        onClick={() => adjustScore(team.id, -stepSize)}
-                        className="px-3 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-xs flex items-center justify-center gap-1 disabled:opacity-30 cursor-pointer min-h-[44px] min-w-[44px]"
-                        title={L(`-${stepSize} Punkte abziehen`, `Deduct -${stepSize} points`)}
+                        onClick={() => adjustScore(team.id, quickStep)}
+                        className="min-h-[44px] px-2 py-1.5 rounded-control bg-accent/15 hover:bg-accent/25 active:bg-accent/30 border border-accent/30 text-accent font-bold text-xs sm:text-sm flex items-center justify-center gap-1 cursor-pointer active:scale-95 transition-transform"
+                        title={L(`+${quickStep} Punkte hinzufügen`, `Add +${quickStep} points`)}
                       >
-                        <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-                        <span>{stepSize}</span>
+                        <Plus className="w-3 h-3 stroke-[2.5]" />
+                        <span>{quickStep}</span>
                       </button>
-
-                      <button
-                        type="button"
-                        onClick={() => adjustScore(team.id, stepSize)}
-                        className="flex-1 py-2 px-3 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-black text-sm sm:text-base flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-transform cursor-pointer min-h-[44px]"
-                        title={L(`+${stepSize} Punkte hinzufügen`, `Add +${stepSize} points`)}
-                      >
-                        <Plus className="w-4 h-4 stroke-[3]" />
-                        <span>{stepSize}</span>
-                      </button>
-
-                      {quickStep !== stepSize && (
-                        <button
-                          type="button"
-                          onClick={() => adjustScore(team.id, quickStep)}
-                          className="px-3 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-xs flex items-center justify-center gap-0.5 cursor-pointer min-h-[44px] min-w-[44px]"
-                          title={L(`+${quickStep} Punkte hinzufügen`, `Add +${quickStep} points`)}
-                        >
-                          <Plus className="w-3 h-3 stroke-[2.5]" />
-                          <span>{quickStep}</span>
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    /* Compact single-row controls (5 to 8 teams: space-efficient with 44px touch targets) */
-                    <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 pt-1">
-                      <button
-                        type="button"
-                        disabled={team.score <= 0}
-                        onClick={() => adjustScore(team.id, -stepSize)}
-                        className="w-11 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-xs flex items-center justify-center disabled:opacity-30 cursor-pointer shrink-0"
-                        title={L(`-${stepSize} Punkte abziehen`, `Deduct -${stepSize} points`)}
-                      >
-                        <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => adjustScore(team.id, stepSize)}
-                        className="flex-1 min-h-[44px] px-2 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-black text-xs sm:text-sm flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-transform cursor-pointer"
-                        title={L(`+${stepSize} Punkte hinzufügen`, `Add +${stepSize} points`)}
-                      >
-                        <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                        <span>{stepSize}</span>
-                      </button>
-
-                      {quickStep !== stepSize && (
-                        <button
-                          type="button"
-                          onClick={() => adjustScore(team.id, quickStep)}
-                          className="w-11 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-xs flex items-center justify-center cursor-pointer shrink-0"
-                          title={L(`+${quickStep} Punkte hinzufügen`, `Add +${quickStep} points`)}
-                        >
-                          <span>+{quickStep}</span>
-                        </button>
-                      )}
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               );
             })}

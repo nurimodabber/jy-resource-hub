@@ -151,8 +151,8 @@ function setEnv(overrides = {}) {
   for (const [k, v] of Object.entries(overrides)) if (v === undefined) delete process.env[k];
 }
 
-async function call(handler, { method = 'POST', body, token, origin, ip = '1.2.3.4' } = {}) {
-  const headers = { host: 'juju-hub.vercel.app', 'x-forwarded-for': ip };
+async function call(handler, { method = 'POST', body, token, origin, ip = '1.2.3.4', extraHeaders = {} } = {}) {
+  const headers = { host: 'juju-hub.vercel.app', 'x-forwarded-for': ip, ...extraHeaders };
   if (token) headers.authorization = `Bearer ${token}`;
   if (origin) headers.origin = origin;
   const req = { method, headers, body, socket: {}, url: '/api/sync' };
@@ -376,6 +376,34 @@ const listed = r.data.issues.find((i) => i.number === created.number);
 check(listed?.contactEmail === 'ana@example.org' && !listed.body.includes('jy-contact'), 'reviewers see the decrypted contact');
 r = await call(submit, { body: { type: 'spiel' }, origin: 'https://evil.example' });
 check(r.status === 403, 'cross-origin submission → 403');
+
+r = await call(submit, {
+  body: {
+    type: 'feedback',
+    title: 'Feedback mit Kontakt',
+    summary: 'Sehr tolles Tool, weiter so!',
+    authorName: 'Feedbacker',
+    authorEmail: 'feedback@example.org',
+    clientTimestamp: Date.now() - 10000,
+  },
+  ip: '9.9.9.10',
+});
+const createdFeedback = fake.createdIssues.at(-1);
+check(r.data?.ok && createdFeedback && !createdFeedback.body.includes('feedback@example.org'), 'feedback issue never leaks email in plaintext');
+check(/<!--\s*jy-contact:/.test(createdFeedback.body), 'feedback contact stored encrypted');
+
+r = await call(submit, { body: { type: 'spiel' }, extraHeaders: { 'sec-fetch-site': 'cross-site' } });
+check(r.status === 403, 'sec-fetch-site cross-site submit → 403');
+r = await call(sync, { body: { action: 'session' }, extraHeaders: { 'sec-fetch-site': 'cross-site' } });
+check(r.status === 403, 'sec-fetch-site cross-site sync → 403');
+
+console.log('\n— OpenGraph image security (api/og.ts)');
+const og = await loadHandler('api/og.ts');
+r = await call(og, { method: 'GET' });
+check(r.headers['content-type']?.includes('image/svg+xml'), 'og serves svg');
+check(r.headers['content-security-policy']?.includes("default-src 'none'"), 'og sets strict svg csp');
+check(r.headers['x-content-type-options'] === 'nosniff', 'og sets nosniff');
+check(r.headers['x-frame-options'] === 'DENY', 'og sets x-frame-options');
 
 fs.rmSync(tmp, { recursive: true, force: true });
 console.log(`\n${passes} passed, ${failures} failed`);

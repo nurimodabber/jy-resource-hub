@@ -9,6 +9,10 @@ import {
   Users,
   ChevronRight,
   ShieldCheck,
+  Sun,
+  Moon,
+  Monitor,
+  Globe,
 } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -118,9 +122,9 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               </div>
               <SegmentedControl
                 options={[
-                  { id: 'light', label: language === 'de' ? 'Hell' : 'Light' },
-                  { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark' },
-                  { id: 'system', label: language === 'de' ? 'System' : 'System' },
+                  { id: 'light', label: language === 'de' ? 'Hell' : 'Light', icon: <Sun className="w-3.5 h-3.5" /> },
+                  { id: 'dark', label: language === 'de' ? 'Dunkel' : 'Dark', icon: <Moon className="w-3.5 h-3.5" /> },
+                  { id: 'system', label: language === 'de' ? 'System' : 'System', icon: <Monitor className="w-3.5 h-3.5" /> },
                 ]}
                 value={theme}
                 onChange={(v) => setTheme(v as Theme)}
@@ -141,8 +145,8 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               </div>
               <SegmentedControl
                 options={[
-                  { id: 'de', label: 'Deutsch' },
-                  { id: 'en', label: 'English' },
+                  { id: 'de', label: 'Deutsch', icon: <Globe className="w-3.5 h-3.5" /> },
+                  { id: 'en', label: 'English', icon: <Globe className="w-3.5 h-3.5" /> },
                 ]}
                 value={language}
                 onChange={(v) => setLanguage(v as Language)}

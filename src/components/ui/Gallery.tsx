@@ -245,6 +245,12 @@ export const Gallery: React.FC = () => {
             <Button variant="danger" size="md">
               Gefahr
             </Button>
+            <Button variant="glass" size="md">
+              Liquid Glass
+            </Button>
+            <Button variant="glass-filled" size="md">
+              Liquid Glass Filled
+            </Button>
             <Button variant="secondary" size="md" disabled>
               Deaktiviert
             </Button>

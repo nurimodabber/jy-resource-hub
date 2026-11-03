@@ -33,6 +33,12 @@ type ToolDef = {
   Component?: React.FC<{ language: Language }>;
 };
 
+const GROUP_LABELS: Record<'ideas' | 'group' | 'run', [string, string]> = {
+  ideas: ['Gespräch & Reflexion', 'Discussion & Reflection'],
+  group: ['Gruppe & Namen', 'Group & Names'],
+  run: ['Ablauf & Spiele', 'Session & Flow'],
+};
+
 const GroupManagerToolWrapper: React.FC<{ language: Language }> = ({ language }) => (
   <div className="space-y-4">
     <GroupManager language={language} compact={false} />
@@ -179,11 +185,16 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
             <Link
               key={x.id}
               to={x.customHref || `/tools/${x.id}`}
-              className="group p-5 sm:p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent min-h-[160px] sm:min-h-[175px] shadow-2xs cursor-pointer relative"
+              className="group p-5 sm:p-6 rounded-card bg-surface/90 hover:bg-surface border border-line/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-xs transition-all duration-200 ease-out flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent min-h-[160px] sm:min-h-[175px] shadow-2xs cursor-pointer relative"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-2">
-                  <Icon className="w-6 h-6 text-text-tertiary group-hover:text-accent group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
+                  <div className="w-10 h-10 rounded-xl bg-surface-2/80 flex items-center justify-center text-text-tertiary group-hover:text-accent group-hover:bg-accent-subtle transition-all duration-200">
+                    <Icon className="w-5 h-5" strokeWidth={1.75} />
+                  </div>
+                  <span className="text-2xs font-semibold px-2.5 py-0.5 rounded-full bg-surface-2/80 text-text-tertiary group-hover:text-accent group-hover:bg-accent-subtle transition-colors">
+                    {GROUP_LABELS[x.group][isDe ? 0 : 1]}
+                  </span>
                 </div>
 
                 <div>

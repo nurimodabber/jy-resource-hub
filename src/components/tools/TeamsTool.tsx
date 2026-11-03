@@ -6,7 +6,6 @@ import {
   Copy,
   Check,
   HelpCircle,
-  ArrowRightLeft,
   Award,
   Users,
   User,
@@ -25,6 +24,7 @@ import {
   parseNames,
 } from '../../utils/groupNames';
 import { tr, Panel } from './common';
+import { SegmentedControl } from '../ui/SegmentedControl';
 
 const pairKey = (a: string, b: string) => [a, b].sort().join('||');
 
@@ -84,44 +84,68 @@ const repeats = (teams: string[][], seen: Record<string, number>) => {
 
 const TEAM_THEMES = [
   {
-    border: 'border-blue-500/30',
-    badge: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
+    name: 'blue',
+    bg: 'bg-blue-500/[0.03] dark:bg-blue-500/[0.08]',
+    border: 'border-blue-500/25 dark:border-blue-500/35',
+    badge: 'bg-blue-500/12 text-blue-600 dark:text-blue-400 border-blue-500/25',
     dot: 'bg-blue-500',
+    initialBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
   },
   {
-    border: 'border-amber-500/30',
-    badge: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
+    name: 'amber',
+    bg: 'bg-amber-500/[0.03] dark:bg-amber-500/[0.08]',
+    border: 'border-amber-500/25 dark:border-amber-500/35',
+    badge: 'bg-amber-500/12 text-amber-600 dark:text-amber-400 border-amber-500/25',
     dot: 'bg-amber-500',
+    initialBg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
   },
   {
-    border: 'border-emerald-500/30',
-    badge: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+    name: 'emerald',
+    bg: 'bg-emerald-500/[0.03] dark:bg-emerald-500/[0.08]',
+    border: 'border-emerald-500/25 dark:border-emerald-500/35',
+    badge: 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400 border-emerald-500/25',
     dot: 'bg-emerald-500',
+    initialBg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
   },
   {
-    border: 'border-rose-500/30',
-    badge: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30',
+    name: 'rose',
+    bg: 'bg-rose-500/[0.03] dark:bg-rose-500/[0.08]',
+    border: 'border-rose-500/25 dark:border-rose-500/35',
+    badge: 'bg-rose-500/12 text-rose-600 dark:text-rose-400 border-rose-500/25',
     dot: 'bg-rose-500',
+    initialBg: 'bg-rose-500/15 text-rose-600 dark:text-rose-400',
   },
   {
-    border: 'border-purple-500/30',
-    badge: 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30',
+    name: 'purple',
+    bg: 'bg-purple-500/[0.03] dark:bg-purple-500/[0.08]',
+    border: 'border-purple-500/25 dark:border-purple-500/35',
+    badge: 'bg-purple-500/12 text-purple-600 dark:text-purple-400 border-purple-500/25',
     dot: 'bg-purple-500',
+    initialBg: 'bg-purple-500/15 text-purple-600 dark:text-purple-400',
   },
   {
-    border: 'border-cyan-500/30',
-    badge: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/30',
+    name: 'cyan',
+    bg: 'bg-cyan-500/[0.03] dark:bg-cyan-500/[0.08]',
+    border: 'border-cyan-500/25 dark:border-cyan-500/35',
+    badge: 'bg-cyan-500/12 text-cyan-700 dark:text-cyan-300 border-cyan-500/25',
     dot: 'bg-cyan-500',
+    initialBg: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300',
   },
   {
-    border: 'border-orange-500/30',
-    badge: 'bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30',
+    name: 'orange',
+    bg: 'bg-orange-500/[0.03] dark:bg-orange-500/[0.08]',
+    border: 'border-orange-500/25 dark:border-orange-500/35',
+    badge: 'bg-orange-500/12 text-orange-600 dark:text-orange-400 border-orange-500/25',
     dot: 'bg-orange-500',
+    initialBg: 'bg-orange-500/15 text-orange-600 dark:text-orange-400',
   },
   {
-    border: 'border-indigo-500/30',
-    badge: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
+    name: 'indigo',
+    bg: 'bg-indigo-500/[0.03] dark:bg-indigo-500/[0.08]',
+    border: 'border-indigo-500/25 dark:border-indigo-500/35',
+    badge: 'bg-indigo-500/12 text-indigo-600 dark:text-indigo-400 border-indigo-500/25',
     dot: 'bg-indigo-500',
+    initialBg: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400',
   },
 ];
 
@@ -581,32 +605,15 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
           <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
             {L('Einteilungsmethode', 'Division method')}
           </label>
-          <div className="bg-surface-2 p-1 rounded-control flex items-center border border-border">
-            <button
-              type="button"
-              onClick={() => setSplitMode('byCount')}
-              className={`flex-1 py-2 px-3 rounded-control text-xs sm:text-sm font-bold transition-all cursor-pointer min-h-[40px] flex items-center justify-center gap-1.5 ${
-                splitMode === 'byCount'
-                  ? 'bg-surface text-text shadow-xs border border-border'
-                  : 'text-text-secondary hover:text-text'
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              <span>{L('Anzahl Teams', 'Number of Teams')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSplitMode('bySize')}
-              className={`flex-1 py-2 px-3 rounded-control text-xs sm:text-sm font-bold transition-all cursor-pointer min-h-[40px] flex items-center justify-center gap-1.5 ${
-                splitMode === 'bySize'
-                  ? 'bg-surface text-text shadow-xs border border-border'
-                  : 'text-text-secondary hover:text-text'
-              }`}
-            >
-              <User className="w-4 h-4" />
-              <span>{L('Personen pro Team', 'People per Team')}</span>
-            </button>
-          </div>
+          <SegmentedControl<'byCount' | 'bySize'>
+            fullWidth
+            value={splitMode}
+            onChange={(mode) => setSplitMode(mode)}
+            options={[
+              { id: 'byCount', label: L('Anzahl Teams', 'Number of Teams'), icon: <Users className="w-4 h-4" /> },
+              { id: 'bySize', label: L('Personen pro Team', 'People per Team'), icon: <User className="w-4 h-4" /> },
+            ]}
+          />
         </div>
 
         {/* Number Selector: Stepper + Quick Number Chips */}
@@ -822,27 +829,38 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
           </div>
 
           {/* Teams Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {result.map((team, teamIdx) => {
               const theme = TEAM_THEMES[teamIdx % TEAM_THEMES.length];
+              const isMovingFromThisTeam = movingPerson?.fromTeam === teamIdx;
+
               return (
-                <Panel key={teamIdx} className={`p-4 space-y-3 border ${theme.border}`}>
-                  <div className="flex items-center justify-between border-b border-border/50 pb-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-2.5 h-2.5 rounded-full ${theme.dot}`} />
-                      <span className="text-xs font-extrabold text-text uppercase tracking-wider">
+                <div
+                  key={teamIdx}
+                  className={`rounded-card p-4 sm:p-5 border transition-all duration-200 bg-surface shadow-2xs ${theme.border} ${theme.bg}`}
+                >
+                  {/* Team Card Header */}
+                  <div className="flex items-center justify-between pb-3 border-b border-border/50">
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${theme.badge}`}>
+                        {teamIdx + 1}
+                      </div>
+                      <h4 className="text-sm font-bold text-text tracking-tight">
                         {label(teamIdx)}
-                      </span>
+                      </h4>
                     </div>
-                    <span className={`text-2xs font-bold px-2 py-0.5 rounded-full border ${theme.badge}`}>
-                      {team.length} {L('Personen', 'people')}
+                    <span className={`text-2xs font-bold px-2.5 py-0.5 rounded-full border ${theme.badge}`}>
+                      {team.length} {team.length === 1 ? L('Person', 'person') : L('Personen', 'people')}
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  {/* Members Roster */}
+                  <div className="pt-3 space-y-1.5">
                     {team.map((person) => {
                       const isSelected =
                         movingPerson?.person === person && movingPerson?.fromTeam === teamIdx;
+                      const initial = person.trim().charAt(0).toUpperCase();
+
                       return (
                         <div key={person} className="relative">
                           <button
@@ -854,69 +872,69 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                                 setMovingPerson({ person, fromTeam: teamIdx });
                               }
                             }}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control font-bold text-xs border transition-all cursor-pointer min-h-[36px] ${
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-control text-xs font-semibold border transition-all cursor-pointer min-h-[40px] text-left ${
                               isSelected
-                                ? 'bg-accent text-accent-contrast border-accent ring-2 ring-accent'
-                                : 'bg-surface-2 hover:bg-surface-raised text-text border-border'
+                                ? 'bg-accent text-accent-contrast border-accent ring-2 ring-accent shadow-xs'
+                                : 'bg-surface hover:bg-surface-raised border-border/80 text-text hover:border-accent/30'
                             }`}
-                            title={L('Tippen, um Person zu verschieben', 'Tap to move person')}
+                            title={L('Tippen, um in anderes Team zu verschieben', 'Tap to move to another team')}
                           >
-                            <span>{person}</span>
-                            <ArrowRightLeft
-                              className={`w-3 h-3 ${
-                                isSelected ? 'text-accent-contrast' : 'text-text-tertiary'
-                              }`}
-                            />
-                          </button>
-
-                          {/* Inline Destination Picker Popover */}
-                          {isSelected && (
-                            <div className="absolute top-full left-0 mt-1.5 z-30 p-2.5 rounded-card glass-surface border border-border shadow-2 space-y-2 min-w-[190px]">
-                              <div className="flex items-center justify-between px-1">
-                                <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-                                  {L('Verschieben nach:', 'Move to:')}
-                                </p>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setMovingPerson(null);
-                                  }}
-                                  className="text-text-tertiary hover:text-text p-0.5 rounded cursor-pointer"
-                                  title={L('Abbrechen', 'Cancel')}
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
-                              </div>
-                              <div className="grid grid-cols-1 gap-1">
-                                {result.map((_, targetIdx) => {
-                                  if (targetIdx === teamIdx) return null;
-                                  const targetTheme =
-                                    TEAM_THEMES[targetIdx % TEAM_THEMES.length];
-                                  return (
-                                    <button
-                                      key={targetIdx}
-                                      type="button"
-                                      onClick={() =>
-                                        movePersonToTeam(person, teamIdx, targetIdx)
-                                      }
-                                      className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-accent hover:text-accent-contrast text-xs font-semibold text-text text-left transition-colors cursor-pointer flex items-center gap-2 min-h-[36px]"
-                                    >
-                                      <span
-                                        className={`w-2 h-2 rounded-full ${targetTheme.dot}`}
-                                      />
-                                      <span>{label(targetIdx)}</span>
-                                    </button>
-                                  );
-                                })}
-                              </div>
+                            <div className="flex items-center gap-2.5 truncate">
+                              <span
+                                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                                  isSelected ? 'bg-white/20 text-white' : theme.initialBg
+                                }`}
+                                aria-hidden="true"
+                              >
+                                {initial}
+                              </span>
+                              <span className="truncate">{person}</span>
                             </div>
-                          )}
+                            <span className="text-2xs text-text-tertiary font-normal shrink-0 pl-1">
+                              {isSelected ? L('Ausgewählt', 'Selected') : L('Verschieben', 'Move')}
+                            </span>
+                          </button>
                         </div>
                       );
                     })}
                   </div>
-                </Panel>
+
+                  {/* Inline Destination Picker */}
+                  {isMovingFromThisTeam && movingPerson && (
+                    <div className="mt-3 p-3 rounded-control bg-surface-2/90 border border-accent/40 shadow-xs space-y-2 animate-in fade-in zoom-in-95 duration-150">
+                      <div className="flex items-center justify-between text-2xs">
+                        <span className="font-bold text-text truncate pr-2">
+                          „{movingPerson.person}“ {L('verschieben nach:', 'move to:')}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setMovingPerson(null)}
+                          className="text-text-tertiary hover:text-text p-0.5 rounded cursor-pointer shrink-0"
+                          aria-label={L('Abbrechen', 'Cancel')}
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {result.map((_, targetIdx) => {
+                          if (targetIdx === teamIdx) return null;
+                          const targetTheme = TEAM_THEMES[targetIdx % TEAM_THEMES.length];
+                          return (
+                            <button
+                              key={targetIdx}
+                              type="button"
+                              onClick={() => movePersonToTeam(movingPerson.person, teamIdx, targetIdx)}
+                              className="px-2.5 py-1.5 rounded-control bg-surface hover:bg-accent hover:text-accent-contrast border border-border text-xs font-semibold text-text text-left transition-colors cursor-pointer flex items-center gap-2 min-h-[36px]"
+                            >
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${targetTheme.dot}`} />
+                              <span className="truncate">{label(targetIdx)}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>

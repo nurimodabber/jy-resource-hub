@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
-  ArrowLeft, ArrowRight, Bookmark, Music, ExternalLink, Zap
+  ArrowLeft, ArrowRight, Bookmark, Music, ExternalLink, Brain
 } from 'lucide-react';
 import { QuoteItem, Language } from '../types';
 import { QUOTES_DATA } from '../data/quotes';
@@ -102,7 +102,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
             title={isDe ? 'Auswendiglernen' : 'Memorise'}
             aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
           >
-            <Zap className="w-4.5 h-4.5 text-accent fill-accent/30" />
+            <Brain className="w-4.5 h-4.5 text-accent" />
           </button>
 
           {/* Song (if available) */}

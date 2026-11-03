@@ -13,6 +13,7 @@ import { Language } from '../../types';
 import { useLocalState } from '../../hooks/useLocalState';
 import { useWakeLock } from '../../hooks/useWakeLock';
 import { tr, Panel, primaryBtn, secondaryBtn, chipCls } from './common';
+import { SegmentedControl } from '../ui/SegmentedControl';
 
 const PRESETS = [60, 120, 180, 300, 600, 900];
 
@@ -191,34 +192,25 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
 
       {/* Mode Switcher & Top Utility Row */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 p-1 bg-surface-2 rounded-control">
-          <button
-            type="button"
-            onClick={() => {
-              setRunning(false);
-              setTimerMode('standard');
+        <SegmentedControl<'standard' | 'interval'>
+          size="sm"
+          value={timerMode}
+          onChange={(mode) => {
+            setRunning(false);
+            setTimerMode(mode);
+            if (mode === 'standard') {
               setRemaining(total);
-            }}
-            className={chipCls(timerMode === 'standard')}
-          >
-            <Clock className="w-3.5 h-3.5 inline mr-1" />
-            <span>{L('Countdown', 'Countdown')}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setRunning(false);
-              setTimerMode('interval');
+            } else {
               setIntervalPhase('work');
               setCurrentRound(1);
               setRemaining(intervalWork);
-            }}
-            className={chipCls(timerMode === 'interval')}
-          >
-            <Repeat className="w-3.5 h-3.5 inline mr-1" />
-            <span>{L('Intervall', 'Intervals')}</span>
-          </button>
-        </div>
+            }
+          }}
+          options={[
+            { id: 'standard', label: L('Countdown', 'Countdown'), icon: <Clock className="w-3.5 h-3.5" /> },
+            { id: 'interval', label: L('Intervall', 'Intervals'), icon: <Repeat className="w-3.5 h-3.5" /> },
+          ]}
+        />
 
         <div className="flex items-center gap-1.5">
           <button

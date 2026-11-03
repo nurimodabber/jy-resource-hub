@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bookmark, Music, ExternalLink, Zap } from 'lucide-react';
+import { Bookmark, Music, ExternalLink, Brain } from 'lucide-react';
 import { QuoteItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getQuoteSong } from '../data/quoteSongs';
@@ -64,7 +64,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   return (
     <article
       onClick={() => onSelectQuote(quote)}
-      className="break-inside-avoid bg-surface rounded-card border border-border/80 p-4 sm:p-5 mb-4 transition-all duration-200 ease-out hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-2xs"
+      className="break-inside-avoid bg-surface rounded-card border border-border/80 p-3.5 sm:p-5 mb-3.5 sm:mb-4 transition-all duration-200 ease-out hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 cursor-pointer flex flex-col justify-between group focus-within:ring-2 focus-within:ring-accent relative shadow-2xs"
       tabIndex={0}
       role="article"
       onKeyDown={(e) => {
@@ -170,7 +170,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           title={isDe ? 'Auswendiglernen' : 'Memorise'}
           className="w-10 h-10 min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-control bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
         >
-          <Zap className="w-4 h-4 text-accent fill-accent/30" />
+          <Brain className="w-4 h-4 text-accent" />
         </button>
       </div>
     </article>

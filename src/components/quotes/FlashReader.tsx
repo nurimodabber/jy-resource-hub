@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Play, Pause, RotateCcw, Eye, CheckCircle2 } from 'lucide-react';
+import { Slider as GlisseSlider } from 'glisse';
 import { QuoteItem, Language } from '../../types';
 
 interface FlashReaderProps {
@@ -181,20 +182,20 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
             </button>
           </div>
 
-          {/* Speed range */}
+          {/* Speed range (Glisse Liquid Glass Slider) */}
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <span className="text-xs text-text-secondary font-medium whitespace-nowrap">
               {language === 'de' ? 'Tempo:' : 'Speed:'}
             </span>
-            <input
-              type="range"
-              min="100"
-              max="350"
-              step="20"
-              value={wpm}
-              onChange={(e) => setWpm(Number(e.target.value))}
-              className="w-full sm:w-36 accent-accent"
-            />
+            <div className="w-full sm:w-36">
+              <GlisseSlider
+                min={100}
+                max={350}
+                step={20}
+                value={wpm}
+                onValueChange={(val) => setWpm(val)}
+              />
+            </div>
             <span className="text-xs tabular-nums font-semibold text-text w-16 text-right">
               {wpm} wpm
             </span>

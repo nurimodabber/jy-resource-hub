@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
   Search, X, BookOpen, Layers, Tag, Heart,
-  ArrowLeft, ArrowRight, Play, Check, SlidersHorizontal, Zap, Music, Shuffle
+  ArrowLeft, ArrowRight, Play, Check, SlidersHorizontal, Brain, Music, Shuffle
 } from 'lucide-react';
 import { QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
@@ -388,7 +388,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       {
         id: 'practice' as ViewTab,
         label: t.tabQuotesMemorise,
-        icon: <Zap className="w-4 h-4 fill-current/20" />,
+        icon: <Brain className="w-4 h-4" />,
       },
     ],
     [t.tabQuotesRead, t.tabQuotesMemorise, effectiveSearch, activeFilterCount, filteredQuotes.length]
@@ -492,7 +492,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     : 'Search quotes by text, theme, or source...'
                 }
                 aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-                className="w-full h-11 pl-10 pr-11 rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
+                className="w-full h-11 pl-10 pr-11 rounded-full lg-glass bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
               />
               {localSearch && (
                 <button
@@ -657,7 +657,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 <div className="px-4 sm:px-6 py-3 bg-surface-2/40 border-b border-border/60 flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex items-center gap-2 flex-wrap min-w-0">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle text-accent-text shrink-0">
-                      <Zap className="w-3.5 h-3.5 fill-accent/30" />
+                      <Brain className="w-3.5 h-3.5" />
                       <span>{isDe ? 'Ausgewählt zum Üben' : 'Selected for practice'}</span>
                     </span>
                     <span className="text-border-strong text-xs hidden sm:inline" aria-hidden="true">·</span>
@@ -791,7 +791,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   onChange={(e) => setMethodSearch(e.target.value)}
                   placeholder={isDe ? 'Methoden durchsuchen...' : 'Search methods...'}
                   aria-label={isDe ? 'Methoden durchsuchen' : 'Search methods'}
-                  className="w-full h-11 pl-10 pr-10 text-sm rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
+                  className="w-full h-11 pl-10 pr-10 text-sm rounded-full lg-glass bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
                 />
                 {methodSearch && (
                   <button
@@ -809,11 +809,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             {/* Phase & Web-App Filter Chips */}
             <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
               {[
-                { id: 'all', label: isDe ? 'Alle Methoden (50)' : 'All methods (50)' },
-                { id: 'apps', label: isDe ? 'Interaktive Web-Apps (11)' : 'Interactive Web-Apps (11)' },
-                { id: 'phase-1', label: isDe ? '1. Annähern & Rhythmus' : '1. Rhythm & Flow' },
-                { id: 'phase-2', label: isDe ? '2. Einprägen & Festigen' : '2. Memorise & Anchor' },
-                { id: 'phase-3', label: isDe ? '3. Meistern & Rezitieren' : '3. Master & Recite' },
+                { id: 'all', label: isDe ? 'Alle (50)' : 'All (50)' },
+                { id: 'apps', label: isDe ? 'Web-Apps (11)' : 'Web Apps (11)' },
+                { id: 'phase-1', label: isDe ? '1. Lernen' : '1. Learn' },
+                { id: 'phase-2', label: isDe ? '2. Einprägen' : '2. Memorize' },
+                { id: 'phase-3', label: isDe ? '3. Meistern' : '3. Master' },
               ].map((pill) => {
                 const isSelected = selectedPhase === pill.id;
                 return (
@@ -865,12 +865,12 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                               <span>{isDe ? 'Web-App' : 'Web App'}</span>
                             </span>
                           ) : (
-                            <span className="px-2.5 py-0.5 rounded-chip text-2xs font-medium bg-surface-2 text-text-secondary border border-border/70">
+                            <span className="px-2.5 py-0.5 rounded-full text-2xs font-medium bg-surface-2 text-text-secondary border border-border/70">
                               {method.phase === 1
-                                ? isDe ? 'Phase 1: Annähern' : 'Phase 1: Approach'
+                                ? isDe ? '1. Lernen' : '1. Learn'
                                 : method.phase === 2
-                                ? isDe ? 'Phase 2: Einprägen' : 'Phase 2: Memorise'
-                                : isDe ? 'Phase 3: Meistern' : 'Phase 3: Master'}
+                                ? isDe ? '2. Einprägen' : '2. Memorize'
+                                : isDe ? '3. Meistern' : '3. Master'}
                             </span>
                           )}
                           <span className="text-2xs text-text-secondary">{method.durationMinutes}</span>
@@ -995,7 +995,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               onChange={(e) => setPickerSearch(e.target.value)}
               placeholder={isDe ? 'Zitate durchsuchen...' : 'Search quotes...'}
               aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-              className="w-full h-11 pl-10 pr-3 text-sm rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
+              className="w-full h-11 pl-10 pr-3 text-sm rounded-full lg-glass bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
             />
           </div>
 

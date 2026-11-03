@@ -99,7 +99,7 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
   return (
     <section 
       aria-label={currentMethod?.name[language] || (isDe ? 'Interaktive Web-App' : 'Interactive Web-App')}
-      className="bg-surface rounded-3xl border border-accent/40 p-4 sm:p-6 shadow-sm space-y-4 animate-in fade-in duration-200"
+      className="bg-surface/90 lg-glass rounded-3xl border border-accent/40 p-4 sm:p-6 shadow-sm space-y-4 animate-in fade-in duration-200"
     >
       {/* Tool Header */}
       <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
@@ -149,10 +149,10 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
                   key={tId}
                   type="button"
                   onClick={() => onSelectTool(tId)}
-                  className={`px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-colors min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  className={`px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
                     isActive
-                      ? 'bg-accent text-white font-semibold shadow-xs'
-                      : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-2/80 font-medium'
+                      ? 'lg-glass bg-accent text-white font-semibold shadow-xs border border-white/20'
+                      : 'bg-surface-2/80 text-text-secondary hover:text-text hover:bg-surface-2 font-medium border border-line/60'
                   }`}
                   aria-pressed={isActive}
                 >

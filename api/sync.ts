@@ -179,9 +179,9 @@ function publicAccount(acc: StoredAccount) {
 // ---------------------------------------------------------------------------------------------
 
 function timingSafeEqualStr(a: string, b: string): boolean {
-  const ba = Buffer.from(a);
-  const bb = Buffer.from(b);
-  return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
+  const ha = crypto.createHash('sha256').update(String(a)).digest();
+  const hb = crypto.createHash('sha256').update(String(b)).digest();
+  return crypto.timingSafeEqual(ha, hb);
 }
 
 function pbkdf2Hex(password: string, salt: string, iterations: number): string {
@@ -471,7 +471,7 @@ function mergeProposals(remote: any[], incoming: unknown, actor: StoredAccount):
 /** Submitter emails are only for reviewers. */
 function proposalsFor(actor: StoredAccount, proposals: any[]): any[] {
   if (actor.permissions.canReviewProposals) return proposals;
-  return proposals.map(({ authorEmail: _omit, ...rest }) => rest);
+  return proposals.map(({ authorEmail: _omit1, email: _omit2, contactEmail: _omit3, ...rest }) => rest);
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -582,6 +582,8 @@ function sendJson(res: ServerResponse, status: number, payload: Record<string, u
 
 /** Browsers always send Origin on cross-site POSTs; same-origin requests from the admin UI pass. */
 function isSameOrigin(req: IncomingMessage): boolean {
+  const secFetchSite = req.headers['sec-fetch-site'];
+  if (secFetchSite === 'cross-site') return false;
   const origin = req.headers.origin;
   if (!origin) return true;
   try {
@@ -592,7 +594,8 @@ function isSameOrigin(req: IncomingMessage): boolean {
 }
 
 function clientIp(req: IncomingMessage): string {
-  return String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
+  const realIp = typeof req.headers['x-real-ip'] === 'string' && req.headers['x-real-ip'].trim();
+  return realIp || String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
 }
 
 async function readBody(req: IncomingMessage & { body?: any }): Promise<any> {
@@ -653,6 +656,8 @@ async function handleGet(res: ServerResponse): Promise<void> {
         // Older submissions put contact details into the draft; never serve them publicly.
         delete parsedDraft.authorEmail;
         delete parsedDraft.email;
+        delete parsedDraft.contactEmail;
+        delete parsedDraft.contact;
       }
 
       if (isDeleted) {
@@ -785,7 +790,7 @@ async function actionSyncState(ctx: Ctx) {
 
 async function actionRequestAccount({ req, res, body }: Ctx) {
   if (rateLimited(`request:${clientIp(req)}`, 5, 60 * 60_000)) return sendJson(res, 429, { ok: false, code: 'limit' });
-  const displayName = String(body.displayName || '').trim().slice(0, 80);
+  const displayName = String(body.displayName || '').replace(/[\r\n]/g, ' ').trim().slice(0, 80);
   const email = String(body.email || '').trim().toLowerCase().slice(0, 120);
   const message = String(body.message || '').trim().slice(0, 400);
   if (displayName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return sendJson(res, 400, { ok: false, code: 'invalid' });

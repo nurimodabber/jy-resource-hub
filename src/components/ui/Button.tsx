@@ -1,7 +1,8 @@
 import React from 'react';
+import { Button as GlisseButton } from 'glisse';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'glass' | 'glass-filled';
   size?: 'sm' | 'md' | 'lg';
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
@@ -19,6 +20,28 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   disabled,
   ...props
 }, ref) => {
+  // Liquid Glass Button using Glisse physics & refraction shaders
+  if (variant === 'glass' || variant === 'glass-filled') {
+    const isFilled = variant === 'glass-filled';
+    return (
+      <GlisseButton
+        ref={ref}
+        variant={isFilled ? 'filled' : 'glass'}
+        tint={isFilled ? '#1F6FEB' : undefined}
+        disabled={disabled || isLoading}
+        icon={icon && iconPosition === 'left' && !isLoading ? <span className="shrink-0">{icon}</span> : undefined}
+        className={`font-medium min-h-[44px] transition-all select-none ${className}`}
+        {...props}
+      >
+        {isLoading ? (
+          <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
+        ) : null}
+        <span className="min-w-0 truncate">{children}</span>
+        {icon && iconPosition === 'right' && !isLoading && <span className="shrink-0 ml-1">{icon}</span>}
+      </GlisseButton>
+    );
+  }
+
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-control transition-all duration-150 ease-out select-none outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:scale-[0.985] motion-reduce:active:scale-100 disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100 cursor-pointer min-w-0 max-w-full overflow-hidden';
 
   const sizeStyles = {

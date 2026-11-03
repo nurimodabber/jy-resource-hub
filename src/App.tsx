@@ -399,7 +399,7 @@ export const AppContent: React.FC = () => {
         className={
           isAdminRoute
             ? 'flex-1 w-full focus:outline-hidden'
-            : 'short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 short:py-4 pb-24 md:pb-8 focus:outline-hidden'
+            : 'short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8 short:py-4 pb-24 md:pb-8 focus:outline-hidden'
         }
       >
         <Suspense fallback={<RouteLoading />}>

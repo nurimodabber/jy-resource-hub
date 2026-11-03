@@ -70,6 +70,14 @@ const containsUrl = (str: string = ''): boolean => {
 
 export default async function handler(req: IncomingMessage & { body?: any }, res: ServerResponse) {
   // Same-origin only (no CORS): the form lives on this site.
+  const secFetchSite = req.headers['sec-fetch-site'];
+  if (secFetchSite === 'cross-site') {
+    res.statusCode = 403;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: 'Forbidden' }));
+    return;
+  }
+
   const origin = req.headers.origin;
   if (origin) {
     let sameHost = false;
@@ -140,8 +148,9 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       return;
     }
 
-    // Rate limiting by IP
-    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    // Rate limiting by IP (prefer trusted proxy header x-real-ip)
+    const realIp = typeof req.headers['x-real-ip'] === 'string' && req.headers['x-real-ip'].trim();
+    const clientIp = realIp || (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
     if (!checkRateLimit(clientIp)) {
       res.statusCode = 429;
       res.setHeader('Content-Type', 'application/json');
@@ -268,7 +277,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
 ### Neues Feedback: ${title}
 
 **Art:** Feedback  
-**Eingereicht von:** ${authorName || 'Anonym'} ${authorEmail ? `(${authorEmail})` : ''}  
+**Eingereicht von:** ${authorName || 'Anonym'}${authorEmail ? ' (Kontakt liegt der Redaktion vor)' : ''}  
 **Datum:** ${new Date().toLocaleDateString('de-DE')}  
 
 ---

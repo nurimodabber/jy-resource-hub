@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { RotateCcw, HelpCircle, CheckCircle2, Award, Keyboard } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
+import { SegmentedControl } from '../ui/SegmentedControl';
 
 interface TypeRecallProps {
   quote: QuoteItem;
@@ -113,30 +114,15 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
         </p>
 
         {/* Mode Selector */}
-        <div className="flex items-center gap-1.5 bg-surface-2 p-1 rounded-full border border-border self-start sm:self-auto shrink-0">
-          <button
-            type="button"
-            onClick={() => setMode('initials')}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
-              mode === 'initials'
-                ? 'bg-accent text-accent-contrast shadow-xs'
-                : 'text-text-secondary hover:text-text'
-            }`}
-          >
-            {language === 'de' ? 'Anfangsbuchstaben (Speed)' : 'Initials (Fast)'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('full')}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
-              mode === 'full'
-                ? 'bg-accent text-accent-contrast shadow-xs'
-                : 'text-text-secondary hover:text-text'
-            }`}
-          >
-            {language === 'de' ? 'Vollständiger Text' : 'Full Text'}
-          </button>
-        </div>
+        <SegmentedControl<TypingMode>
+          size="sm"
+          value={mode}
+          onChange={(newMode) => setMode(newMode)}
+          options={[
+            { id: 'initials', label: language === 'de' ? 'Anfangsbuchstaben (Speed)' : 'Initials (Fast)' },
+            { id: 'full', label: language === 'de' ? 'Vollständiger Text' : 'Full Text' },
+          ]}
+        />
       </div>
 
       {/* Main Typing Canvas */}

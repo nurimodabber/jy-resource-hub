@@ -9,6 +9,7 @@ import {
   MapPin,
   Play,
   BookOpen,
+  Flame,
 } from 'lucide-react';
 import { Game, Language } from '../types';
 import { GAMES_DATA } from '../data/games';
@@ -18,6 +19,7 @@ import { Button } from './ui/Button';
 import { IconButton } from './ui/IconButton';
 import { GameCard, EnergyDots } from './GameCard';
 import { ShareMenu } from './ui/ShareMenu';
+import { SegmentedControl } from './ui/SegmentedControl';
 import { tr } from './tools/common';
 
 // Companion Components
@@ -185,10 +187,12 @@ export const GamePage: React.FC<GamePageProps> = ({
                   {game.title[language]}
                 </h1>
                 <span
-                  className="inline-flex items-center shrink-0"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 border border-border/80 text-xs font-medium text-text-secondary shadow-2xs shrink-0"
                   title={`${t.filterEnergy}: ${energyLabel}`}
                   aria-label={`${t.filterEnergy}: ${energyLabel}`}
                 >
+                  <Flame className="w-3.5 h-3.5 text-amber-500 shrink-0" strokeWidth={2} />
+                  <span>{energyLabel}</span>
                   <EnergyDots energyLevel={game.energyLevel} size="md" />
                 </span>
               </div>
@@ -215,32 +219,23 @@ export const GamePage: React.FC<GamePageProps> = ({
             {/* Seamless Mode Switcher (Anleitung vs Jetzt spielen) */}
             {hasCompanion && (
               <div className="pt-2 print:hidden">
-                <div className="inline-flex items-center p-1 rounded-full bg-surface-2 border border-border">
-                  <button
-                    type="button"
-                    onClick={() => switchMode('rules')}
-                    className={`flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-full text-xs font-bold transition-all cursor-pointer ${
-                      viewMode === 'rules'
-                        ? 'bg-surface text-text shadow-xs border border-border'
-                        : 'text-text-secondary hover:text-text'
-                    }`}
-                  >
-                    <BookOpen className="w-3.5 h-3.5" />
-                    <span>{L('Anleitung lesen', 'Read instructions')}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => switchMode('play')}
-                    className={`flex items-center gap-1.5 px-4 py-1.5 min-h-[38px] rounded-full text-xs font-bold transition-all cursor-pointer ${
-                      viewMode === 'play'
-                        ? 'bg-accent text-accent-contrast shadow-xs'
-                        : 'text-accent hover:text-accent-hover'
-                    }`}
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>{L('Jetzt spielen', 'Play now')}</span>
-                  </button>
-                </div>
+                <SegmentedControl<'rules' | 'play'>
+                  options={[
+                    {
+                      id: 'rules',
+                      label: L('Anleitung lesen', 'Read instructions'),
+                      icon: <BookOpen className="w-3.5 h-3.5" />,
+                    },
+                    {
+                      id: 'play',
+                      label: L('Jetzt spielen', 'Play now'),
+                      icon: <Play className="w-3.5 h-3.5 fill-current" />,
+                    },
+                  ]}
+                  value={viewMode}
+                  onChange={(val) => switchMode(val)}
+                  size="sm"
+                />
               </div>
             )}
 
