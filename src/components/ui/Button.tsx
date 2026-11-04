@@ -29,14 +29,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
         variant={isFilled ? 'filled' : 'glass'}
         tint={isFilled ? '#1F6FEB' : undefined}
         disabled={disabled || isLoading}
-        icon={icon && iconPosition === 'left' && !isLoading ? <span className="shrink-0">{icon}</span> : undefined}
+        icon={icon && iconPosition === 'left' && !isLoading ? <span className="shrink-0 inline-flex">{icon}</span> : undefined}
         className={`font-medium min-h-[44px] transition-all select-none ${className}`}
         {...props}
       >
         {isLoading ? (
           <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
         ) : null}
-        <span className="min-w-0 truncate">{children}</span>
+        {/* Ohne Text keine leere Hülle: glisse erkennt nur bei children == null den runden Nur-Icon-Knopf. */}
+        {children != null && children !== false ? <span className="min-w-0 truncate">{children}</span> : null}
         {icon && iconPosition === 'right' && !isLoading && <span className="shrink-0 ml-1">{icon}</span>}
       </GlisseButton>
     );
@@ -79,3 +80,23 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
 });
 
 Button.displayName = 'Button';
+
+/**
+ * Runder Glas-Knopf nur mit Icon, für schwebende Bedienelemente (Kopfzeile, Seitenkopf).
+ * Glas-Regel: siehe AGENTS.md. 44 px Touch-Ziel statt der 40 px von glisse.
+ */
+export const GlassIconButton = React.forwardRef<
+  HTMLButtonElement,
+  Omit<ButtonProps, 'variant' | 'children' | 'icon'> & { label: string; icon: React.ReactNode }
+>(({ label, icon, className = '', ...props }, ref) => (
+  <Button
+    ref={ref}
+    variant="glass"
+    icon={icon}
+    aria-label={label}
+    title={label}
+    className={`!w-11 !h-11 !min-w-[44px] !p-0 shrink-0 text-text ${className}`}
+    {...props}
+  />
+));
+GlassIconButton.displayName = 'GlassIconButton';

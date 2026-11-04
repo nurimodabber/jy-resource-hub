@@ -39,18 +39,10 @@ export const ToolHeader: React.FC<{
       </div>
     </div>
 
-    {/* Mobile compact view (< sm) */}
+    {/* Mobile compact view (< sm): Zurück sitzt als Glas-Knopf in der Kopfzeile */}
     <div className="sm:hidden flex items-center justify-between gap-2 min-h-[44px]">
       <div className="flex items-center gap-1.5 min-w-0">
-        <button
-          type="button"
-          onClick={onBack}
-          className="-ml-2 p-2 min-h-[44px] min-w-[44px] rounded-control text-text-secondary hover:text-text hover:bg-surface-2 transition-colors duration-150 ease-out flex items-center justify-center shrink-0 cursor-pointer"
-          aria-label={backLabel}
-        >
-          <ArrowLeft className="w-5 h-5" strokeWidth={2} />
-        </button>
-        <h1 className="text-lg font-bold tracking-tight text-text truncate">
+        <h1 className="text-2xl font-bold tracking-tight text-text truncate">
           {title}
         </h1>
       </div>

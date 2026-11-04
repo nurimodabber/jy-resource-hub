@@ -12,7 +12,7 @@ import { getQuoteSong } from '../data/quoteSongs';
 import { SegmentedControl } from './ui/SegmentedControl';
 import { Sheet } from './ui/Sheet';
 import { Dialog } from './ui/Dialog';
-import { Button } from './ui/Button';
+import { Button, GlassIconButton } from './ui/Button';
 import { IconButton } from './ui/IconButton';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
 import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
@@ -448,15 +448,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               onChange={handleTabChange}
             />
 
-            <button
-              type="button"
+            <GlassIconButton
+              label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+              icon={<Shuffle className="w-5 h-5" strokeWidth={1.9} />}
               onClick={handleRandomQuote}
-              aria-label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
-              title={isDe ? 'Zufälliges Zitat' : 'Random quote'}
-              className="p-3 rounded-full bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              <Shuffle className="w-5 h-5" />
-            </button>
+            />
           </div>
         </div>
 
@@ -471,15 +467,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             />
           </div>
 
-          <button
-            type="button"
+          <GlassIconButton
+            label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+            icon={<Shuffle className="w-5 h-5" strokeWidth={1.9} />}
             onClick={handleRandomQuote}
-            aria-label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
-            title={isDe ? 'Zufälliges Zitat' : 'Random quote'}
-            className="p-2.5 rounded-full bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <Shuffle className="w-5 h-5" />
-          </button>
+          />
         </div>
       </div>
 

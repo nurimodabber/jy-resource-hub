@@ -7,8 +7,7 @@ import { QuoteItem, Language } from '../types';
 import { QUOTES_DATA } from '../data/quotes';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getQuoteSong } from '../data/quoteSongs';
-import { Button } from './ui/Button';
-import { IconButton } from './ui/IconButton';
+import { Button, GlassIconButton } from './ui/Button';
 import { ShareMenu } from './ui/ShareMenu';
 import { isPrayerQuote, formatQuoteSection } from './QuoteCard';
 import { getBahaiLibraryUrl } from '../utils/libraryLinks';
@@ -83,51 +82,41 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
   return (
     <div className="max-w-4xl w-full mx-auto space-y-6 pb-28 pt-2 animate-in fade-in duration-200">
       {/* 1. Top Header Navigation & Action Bar */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-end md:justify-between gap-3">
+        {/* Mobil übernimmt der Glas-Zurück-Knopf in der Kopfzeile */}
         <Button
           variant="secondary"
           icon={<ArrowLeft className="w-4 h-4 shrink-0" />}
           onClick={onBack}
-          className="min-h-[44px] whitespace-nowrap"
+          className="hidden md:inline-flex min-h-[44px] whitespace-nowrap"
         >
           {t.backToQuotes}
         </Button>
 
         <div className="flex items-center gap-1.5 shrink-0">
           {/* Symmetrical Auswendiglernen Button in top action bar */}
-          <button
-            type="button"
+          <GlassIconButton
+            label={isDe ? 'Auswendiglernen' : 'Memorise'}
+            icon={<Brain className="w-[18px] h-[18px]" strokeWidth={1.9} />}
             onClick={() => navigate(`/quotes?tab=practice&quote=${activeQuote.id}`)}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-control border border-border bg-surface hover:bg-surface-2 text-accent transition-all active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-            title={isDe ? 'Auswendiglernen' : 'Memorise'}
-            aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
-          >
-            <Brain className="w-4.5 h-4.5 text-accent" />
-          </button>
+          />
 
           {/* Song (if available) */}
           {song && (
-            <a
-              href={song.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-control border border-border bg-surface hover:bg-surface-2 text-text-secondary hover:text-accent transition-colors focus-visible:ring-2 focus-visible:ring-accent"
-              title={isDe ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
-              aria-label={t.quoteSongAriaLabel}
-            >
-              <Music className="w-4 h-4" />
-            </a>
+            <GlassIconButton
+              label={isDe ? `Lied „${song.title}“ auf bahaisongs.com anhören` : `Listen to song "${song.title}" on bahaisongs.com`}
+              icon={<Music className="w-[18px] h-[18px]" strokeWidth={1.9} />}
+              onClick={() => window.open(song.url, '_blank', 'noopener,noreferrer')}
+            />
           )}
 
           {/* Bookmark Button */}
-          <IconButton
+          <GlassIconButton
             label={isFavorite ? t.savedItems : (isDe ? 'Merken' : 'Save')}
-            variant={isFavorite ? 'secondary' : 'outline'}
-            className={`min-h-[44px] min-w-[44px] ${isFavorite ? 'text-accent bg-accent-subtle/80 border-accent/30' : 'text-text-secondary'}`}
+            aria-pressed={isFavorite}
+            icon={<Bookmark className={`w-[18px] h-[18px] ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.9} />}
             onClick={(e) => onToggleFavorite(activeQuote.id, e)}
-          >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
-          </IconButton>
+          />
 
           {/* Compact Share Menu: Text kopieren / Link kopieren */}
           <ShareMenu
@@ -135,6 +124,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
             urlToCopy={quoteUrl}
             language={language}
             align="right"
+            glass
           />
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Share2, Copy, Link as LinkIcon, Check } from 'lucide-react';
 import { IconButton } from './IconButton';
+import { GlassIconButton } from './Button';
 import { useToast } from '../../context/ToastContext';
 import { Language } from '../../types';
 
@@ -20,6 +21,8 @@ export interface ShareMenuProps {
   direction?: 'up' | 'down';
   /** Optional callback after a successful copy */
   onShare?: () => void;
+  /** Runder Glas-Knopf, nur im Seitenkopf (Glas-Regel in AGENTS.md) */
+  glass?: boolean;
 }
 
 export const ShareMenu: React.FC<ShareMenuProps> = ({
@@ -31,6 +34,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
   align = 'left',
   direction = 'down',
   onShare,
+  glass = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
@@ -101,6 +105,16 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
 
   return (
     <div className={`relative inline-block ${className}`} onClick={(e) => e.stopPropagation()}>
+      {glass ? (
+        <GlassIconButton
+          ref={buttonRef}
+          label={triggerLabel}
+          icon={<Share2 className="w-[18px] h-[18px]" strokeWidth={1.9} />}
+          onClick={() => setIsOpen((prev) => !prev)}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+        />
+      ) : (
       <IconButton
         ref={buttonRef}
         label={triggerLabel}
@@ -113,6 +127,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
       >
         <Share2 className="w-4 h-4" />
       </IconButton>
+      )}
 
       {isOpen && (
         <div

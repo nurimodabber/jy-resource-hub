@@ -15,8 +15,7 @@ import { Game, Language } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { useAdminData } from '../context/AdminDataContext';
 import { UI_TRANSLATIONS } from '../data/translations';
-import { Button } from './ui/Button';
-import { IconButton } from './ui/IconButton';
+import { Button, GlassIconButton } from './ui/Button';
 import { GameCard, EnergyDots } from './GameCard';
 import { ShareMenu } from './ui/ShareMenu';
 import { SegmentedControl } from './ui/SegmentedControl';
@@ -142,10 +141,11 @@ export const GamePage: React.FC<GamePageProps> = ({
   return (
     <article className="max-w-6xl w-full mx-auto pb-32 lg:pb-16 pt-2">
       {/* Top Header Navigation: Back button links to /games, right has subtle Share & Bookmark buttons */}
-      <div className="flex items-center justify-between gap-4 mb-4 print:hidden">
+      <div className="flex items-center justify-end md:justify-between gap-4 mb-4 print:hidden">
+        {/* Mobil übernimmt der Glas-Zurück-Knopf in der Kopfzeile */}
         <Link
           to="/games"
-          className="inline-flex items-center gap-1.5 -ml-2 px-3 min-h-[44px] rounded-control text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+          className="hidden md:inline-flex items-center gap-1.5 -ml-2 px-3 min-h-[44px] rounded-control text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-2 transition-colors focus-visible:ring-2 focus-visible:ring-accent"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{t.backToGamesOverview}</span>
@@ -153,20 +153,19 @@ export const GamePage: React.FC<GamePageProps> = ({
 
         {/* Subtile Share & Lesezeichen Buttons rechts im Header (nur mobil, auf Desktop in der Aktionen-Sidebar) */}
         <div className="flex items-center gap-1.5 shrink-0 lg:hidden">
-          <IconButton
+          <GlassIconButton
             label={isFavorite ? t.savedItems : L('Merken', 'Save')}
-            variant={isFavorite ? 'secondary' : 'outline'}
-            className={`min-h-[44px] min-w-[44px] ${isFavorite ? 'text-accent bg-accent-subtle/80 border-accent/30' : 'text-text-secondary'}`}
+            aria-pressed={isFavorite}
+            icon={<Bookmark className={`w-[18px] h-[18px] ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.9} />}
             onClick={(e) => onToggleFavorite(game.id, e)}
-          >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
-          </IconButton>
+          />
 
           <ShareMenu
             textToCopy={gameRulesText}
             urlToCopy={gameUrl}
             language={language}
             align="right"
+            glass
           />
         </div>
       </div>

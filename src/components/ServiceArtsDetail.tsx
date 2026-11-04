@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { GlassIconButton } from './ui/Button';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -7,7 +8,6 @@ import {
 } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
-import { IconButton } from './ui/IconButton';
 import { getBookById } from '../utils/bookProgress';
 import { ShareMenu } from './ui/ShareMenu';
 import { tr } from './tools/common';
@@ -90,31 +90,30 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
   return (
     <article className="max-w-4xl mx-auto pb-20">
       {/* 1. Header Toolbar */}
-      <div className="flex items-center justify-between gap-3 mb-6 print:hidden">
+      <div className="flex items-center justify-end md:justify-between gap-3 mb-4 md:mb-6 print:hidden">
+        {/* Mobil übernimmt der Glas-Zurück-Knopf in der Kopfzeile */}
         <Link
           to={backUrl}
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-text-secondary hover:text-text px-2.5 py-1.5 rounded-control hover:bg-surface-2 transition-colors min-h-[44px]"
+          className="hidden md:inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-text-secondary hover:text-text px-2.5 py-1.5 rounded-control hover:bg-surface-2 transition-colors min-h-[44px]"
         >
           <ArrowLeft className="w-4 h-4 shrink-0" />
           <span>{backLabel}</span>
         </Link>
 
-        <div className="flex items-center gap-1 shrink-0">
-          <IconButton
+        <div className="flex items-center gap-1.5 shrink-0">
+          <GlassIconButton
             label={isFavorite ? t.savedItems : L('Merken', 'Bookmark')}
-            variant={isFavorite ? 'secondary' : 'outline'}
-            size="md"
-            className={`min-w-[44px] min-h-[44px] ${isFavorite ? 'text-accent bg-accent-subtle/80 border-accent/30' : 'text-text-secondary'}`}
+            aria-pressed={isFavorite}
+            icon={<Bookmark className={`w-[18px] h-[18px] ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.9} />}
             onClick={(e) => onToggleFavorite(activity.id, e)}
-          >
-            <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
-          </IconButton>
+          />
 
           <ShareMenu
             textToCopy={shareText}
             urlToCopy={currentUrl}
             language={language}
             align="right"
+            glass
           />
         </div>
       </div>
