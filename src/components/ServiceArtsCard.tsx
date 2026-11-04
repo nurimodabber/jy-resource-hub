@@ -44,7 +44,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
     ? t.artFormVisual
     : t.artFormMural;
 
-  const { tone } = activityTone(activity);
+  const { tone, icon: CategoryIcon } = activityTone(activity);
 
   const description = isService
     ? (activity.guidedBy ? activity.guidedBy[language] : activity.objective[language])
@@ -94,8 +94,10 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
       <div className="space-y-1 sm:space-y-1.5 flex-1 min-w-0">
         {/* Top row: category or general theme on left, duration + bookmark on right */}
         <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-          {/* Nur die Kategorie als gedämpfter Farbtext, kein Icon (eins von beiden reicht) */}
-          <span className="text-xs font-semibold tone-text truncate min-w-0">{categoryLabel}</span>
+          {/* Kategorie nur als Icon (gedämpfter Kategorie-Ton); Name bleibt als title und für Screenreader */}
+          <span className="inline-flex items-center justify-center w-8 h-8 -ml-1.5 shrink-0" title={categoryLabel}>
+            <CategoryIcon className="w-5 h-5 tone-text" strokeWidth={1.75} role="img" aria-label={categoryLabel} />
+          </span>
 
           <div className="flex items-center gap-1.5 -mr-1.5 -my-2 sm:-my-2.5 shrink-0 relative z-10" onClick={(e) => e.stopPropagation()}>
             {durationText && (

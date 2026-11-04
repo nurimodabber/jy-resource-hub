@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Clock, Bookmark, Play } from 'lucide-react';
+import { Users, Clock, Bookmark, Play, Flame } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getGameIcon } from '../data/gameIcons';
@@ -124,7 +124,7 @@ export const GameCard: React.FC<GameCardProps> = ({
       </button>
 
       {/* Untere Zeile: nur Personen, Minuten, Energie (Kategorie steckt in den Filtern) */}
-      <div className="relative z-[1] pointer-events-none flex flex-row-reverse items-center justify-between gap-2 flex-wrap pt-2.5 mt-3 border-t border-border/40 text-xs text-text-secondary">
+      <div className="relative z-[1] pointer-events-none flex flex-row-reverse items-center justify-between gap-2 flex-wrap mt-2.5 text-xs text-text-secondary">
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
           {hasCompanion && (
             <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent text-accent-contrast shadow-2xs">
@@ -158,7 +158,8 @@ export const GameCard: React.FC<GameCardProps> = ({
 
           <span className="text-border" aria-hidden="true">·</span>
 
-          <span className="inline-flex items-center" title={`${t.filterEnergy}: ${energyLabel}`}>
+          <span className="inline-flex items-center gap-1" title={`${t.filterEnergy}: ${energyLabel}`}>
+            <Flame className="w-3 h-3 text-amber-500 shrink-0" strokeWidth={2} aria-hidden="true" />
             <EnergyDots energyLevel={game.energyLevel} />
             <span className="sr-only">{t.filterEnergy}: {energyLabel}</span>
           </span>

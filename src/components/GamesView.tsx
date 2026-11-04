@@ -393,12 +393,14 @@ export const GamesView: React.FC<GamesViewProps> = ({
         </div>
       )}
 
-      {/* Live count */}
+      {/* Live count: only while searching/filtering; the unfiltered "29 Spiele" line was noise */}
+      {(totalActiveFilterCount > 0 || !!filters.q) && (
       <div className="flex items-center justify-between gap-3 text-xs text-text-secondary pt-0.5 pb-2">
         <span className="font-medium">
           {filteredGames.length} {filteredGames.length === 1 ? (language === 'de' ? 'Spiel gefunden' : 'game found') : (language === 'de' ? 'Spiele gefunden' : 'games found')}
         </span>
       </div>
+      )}
 
       {/* 4. Games Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}
       <h2 className="sr-only">{t.tabGames}</h2>
