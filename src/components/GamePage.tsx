@@ -195,7 +195,7 @@ export const GamePage: React.FC<GamePageProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-3.5 flex-wrap pt-1">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text text-balance leading-[1.12]">
+                <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text text-balance leading-[1.12]">
                   {game.title[language]}
                 </h1>
                 <span
@@ -298,17 +298,14 @@ export const GamePage: React.FC<GamePageProps> = ({
                 <h2 className="text-xs font-bold text-text-tertiary mb-2.5">
                   {t.rulesTitle}
                 </h2>
-                <ol className="space-y-3">
+                {/* Plain list with hairlines instead of one card per step (fewer frames inside frames) */}
+                <ol className="divide-y divide-line/70">
                   {game.rules[language].map((rule, idx) => {
                     const isChecked = checkedSteps.has(idx);
                     return (
                       <li
                         key={idx}
-                        className={`flex items-start gap-3 p-3.5 rounded-card border transition-all ${
-                          isChecked
-                            ? 'bg-surface-2/60 border-border opacity-70'
-                            : 'bg-surface border-border hover:border-border-strong'
-                        }`}
+                        className={`flex items-start gap-3 py-3.5 transition-opacity ${isChecked ? 'opacity-60' : ''}`}
                       >
                         <button
                           type="button"

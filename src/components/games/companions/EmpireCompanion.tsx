@@ -226,7 +226,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
       {phase === 'setup' && (
         <div className="space-y-4 text-left w-full max-w-2xl pb-16 md:pb-0">
           {/* 1. Spacious Left-Aligned Category Hero Card */}
-          <Panel className="p-6 sm:p-8 space-y-5 text-left">
+          <Panel className="space-y-5 text-left">
             {/* Top Toolbar: Symmetrical Buttons in One Line, Random on the Far Right */}
             <div className="flex items-center justify-between gap-2.5 w-full flex-nowrap">
               <div className="flex items-center gap-2 flex-nowrap">
@@ -470,7 +470,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
             {passIndex + 1} / {playerCount} {L('Personen', 'players')}
           </p>
 
-          <Panel className="p-6 sm:p-8 space-y-5 text-center">
+          <Panel className="space-y-5 text-center">
             {!cardRevealed ? (
               <div className="space-y-4 py-6">
                 <p className="text-xs font-semibold text-text-secondary">
@@ -568,7 +568,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
           </div>
 
           {/* Reading Card */}
-          <Panel className="p-8 sm:p-12 space-y-4 min-h-[220px] flex flex-col justify-center items-center">
+          <Panel className="space-y-4 min-h-[220px] flex flex-col justify-center items-center">
             <p className="text-2xs font-bold text-text-tertiary break-words max-w-md">
               {activeCategoryTitle}
             </p>

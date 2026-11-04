@@ -113,7 +113,7 @@ export const PsychiatristCompanion: React.FC<PsychiatristCompanionProps> = ({ la
       </div>
 
       {/* Main Rule Card: Left-aligned, generous typography */}
-      <Panel className="p-6 sm:p-8 space-y-4 text-left">
+      <Panel className="space-y-4 text-left">
         {isConcealed ? (
           <div className="space-y-2 py-4 text-center">
             <EyeOff className="w-8 h-8 text-text-tertiary mx-auto opacity-60" />

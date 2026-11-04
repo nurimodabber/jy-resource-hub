@@ -91,7 +91,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
       {phase === 'setup' && (
         <div className="space-y-5 text-left w-full max-w-2xl pb-16 md:pb-0">
           {/* Player Count & Names */}
-          <Panel className="p-5 sm:p-6 space-y-4">
+          <Panel className="space-y-4">
             <PlayerSetupSection
               language={language}
               playerCount={playerCount}
@@ -240,7 +240,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
       {phase === 'play' && (
         <div className="space-y-6 text-left w-full max-w-2xl">
           {/* Rules Reminder Card */}
-          <Panel className="p-4 sm:p-5 space-y-2">
+          <Panel className="space-y-2">
             <h4 className="text-xs font-bold text-text">
               {L('Regeln & Ablauf:', 'Rules & Flow:')}
             </h4>

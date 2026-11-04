@@ -143,7 +143,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
       {/* Header */}
       <div>
         <div className="flex items-baseline gap-3.5 flex-wrap">
-          <h1 className="text-[32px] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {t.savedItems}
           </h1>
           {favorites.length > 0 && (

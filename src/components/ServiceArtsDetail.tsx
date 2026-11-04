@@ -195,7 +195,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
               )}
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text text-balance leading-[1.14]">
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text text-balance leading-[1.14]">
               {activity.title[language]}
             </h1>
 
@@ -211,7 +211,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
             <h2 className="text-xs font-semibold text-accent mb-2">
               {L('Was uns geleitet hat', 'What guided our initiative')}
             </h2>
-            <p className="text-lg sm:text-xl text-text leading-relaxed">
+            <p className="font-serif text-lg sm:text-xl text-text leading-relaxed italic">
               „{objectiveText}“
             </p>
           </section>
@@ -236,7 +236,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
                   key={idx}
                   className="flex items-start gap-4 p-4 sm:p-5 rounded-card border border-border/80 bg-surface hover:bg-surface-2/40 transition-colors shadow-2xs"
                 >
-                  <span className="text-lg font-bold text-accent shrink-0 w-6 text-center tabular-nums leading-none mt-0.5">
+                  <span className="font-serif text-lg font-bold text-accent shrink-0 w-6 text-center tabular-nums leading-none mt-0.5">
                     {idx + 1}
                   </span>
                   <div className="flex-1 min-w-0">

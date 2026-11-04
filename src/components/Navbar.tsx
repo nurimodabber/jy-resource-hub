@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bookmark, Settings, PlusCircle, ArrowLeft } from 'lucide-react';
+import { Search, Bookmark, Settings, ArrowLeft } from 'lucide-react';
 import { Glass } from 'glisse';
 import { Logo } from './Logo';
 import { GlassIconButton } from './ui/Button';
@@ -15,7 +15,7 @@ interface NavbarProps {
   onOpenSettings: () => void;
 }
 
-type NavId = 'games' | 'quotes' | 'projects' | 'tools';
+type NavId = 'games' | 'quotes' | 'projects' | 'tools' | 'vorschlagen';
 
 // Dieselben vier Bereiche wie in der unteren Leiste. „Projekte“ = Dienst + Kunst auf einer Seite.
 export const NAV_ITEMS: { id: NavId; href: string; key: TKey }[] = [
@@ -23,10 +23,11 @@ export const NAV_ITEMS: { id: NavId; href: string; key: TKey }[] = [
   { id: 'quotes', href: '/quotes', key: 'tabQuotes' },
   { id: 'projects', href: '/service', key: 'tabProjects' },
   { id: 'tools', href: '/tools', key: 'tabTools' },
+  { id: 'vorschlagen', href: '/vorschlagen', key: 'tabProposalShort' },
 ];
 
 const toNavId = (tab: NavTab): NavId | null =>
-  tab === 'service' || tab === 'arts' ? 'projects' : tab === 'games' || tab === 'quotes' || tab === 'tools' ? tab : null;
+  tab === 'service' || tab === 'arts' ? 'projects' : tab === 'games' || tab === 'quotes' || tab === 'tools' || tab === 'vorschlagen' ? tab : null;
 
 const SECTION_TITLE_KEY: Partial<Record<NavTab, TKey>> = {
   games: 'tabGames',
@@ -225,13 +226,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             )}
           </div>
-          <GlassIconButton
-            label={t.tabProposalShort}
-            icon={<PlusCircle className="w-[18px] h-[18px]" strokeWidth={1.9} />}
-            onClick={() => navigate('/vorschlagen')}
-            aria-current={activeTab === 'vorschlagen' ? 'page' : undefined}
-            className="hidden md:inline-flex"
-          />
           <GlassIconButton
             label={t.tabSettings}
             icon={<Settings className="w-[18px] h-[18px]" strokeWidth={1.9} />}

@@ -98,7 +98,7 @@ export const GameCard: React.FC<GameCardProps> = ({
         <div className="flex items-center justify-between gap-2 relative z-[1]">
           <div className="flex items-center gap-3 min-w-0">
             <IconTile icon={getGameIcon(game.id)} />
-            <h3 className="text-lg font-semibold text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors min-w-0 tracking-tight">
+            <h3 className="font-serif text-lg font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors min-w-0 tracking-tight">
               {game.title[language]}
             </h3>
           </div>

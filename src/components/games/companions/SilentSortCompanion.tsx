@@ -113,7 +113,7 @@ export const SilentSortCompanion: React.FC<SilentSortCompanionProps> = ({ langua
       </div>
 
       {/* Main Sort Criteria Card: Left-aligned, generous typography */}
-      <Panel className="p-6 sm:p-8 space-y-4 text-left">
+      <Panel className="space-y-4 text-left">
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-2xs font-semibold text-text-secondary">
           <VolumeX className="w-3.5 h-3.5 text-accent shrink-0" />
           <span>{L('Schweigend sortieren – nur Gesten & Blicke', 'Silent sorting – gestures and eye contact only')}</span>

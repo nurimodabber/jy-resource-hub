@@ -105,7 +105,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
       {phase === 'setup' && (
         <div className="space-y-5 text-left w-full max-w-2xl pb-16 md:pb-0">
           {/* Player Count & Names */}
-          <Panel className="p-5 sm:p-6 space-y-4">
+          <Panel className="space-y-4">
             <PlayerSetupSection
               language={language}
               playerCount={playerCount}
@@ -176,7 +176,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
           </div>
 
           {/* Rollen-Konfiguration */}
-          <Panel className="p-5 sm:p-6 space-y-4">
+          <Panel className="space-y-4">
             <div className="flex items-center justify-between gap-4 py-1 border-b border-border/50">
               <div className="min-w-0 flex-1 space-y-0.5">
                 <p className="font-bold text-xs text-text">{L('Anzahl Täter (Mörder)', 'Culprit count')}</p>
@@ -349,7 +349,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
           </div>
 
           {/* Facilitator Reveal Section */}
-          <Panel className="p-5 sm:p-6 space-y-4">
+          <Panel className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-text">
                 {L('Auflösung für Spielleitung', 'Facilitator Solution')}

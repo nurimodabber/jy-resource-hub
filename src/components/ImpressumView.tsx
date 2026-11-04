@@ -30,7 +30,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
           <div className="w-12 h-12 rounded-2xl bg-accent-subtle text-accent-text flex items-center justify-center mb-4">
             <Shield className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-text tracking-tight">
             {isDe ? 'Impressum' : 'Legal Notice (Impressum)'}
           </h1>
           <p className="text-sm text-text-secondary mt-1">

@@ -321,7 +321,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       {/* 1. Header: H1, one sentence, count on search/filter */}
       <header className="mb-6 sm:mb-8">
         <div className="flex items-baseline gap-3.5 flex-wrap">
-          <h1 className="text-[32px] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {pageTitle}
           </h1>
           {hasActiveFilterOrSearch && (
@@ -340,8 +340,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
             <SegmentedControl<'dienst' | 'kunst'>
               fullWidth
               options={[
-                { id: 'dienst', label: L('Dienst', 'Service'), count: activeServiceProjects.length },
-                { id: 'kunst', label: L('Kunst', 'Arts'), count: activeArtsPrompts.length },
+                { id: 'dienst', label: L('Dienst', 'Service') },
+                { id: 'kunst', label: L('Kunst', 'Arts') },
               ]}
               value={fixedKind}
               onChange={(val) => {

@@ -18,7 +18,7 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({ language }) => {
       </div>
 
       <span className="text-xs font-bold text-accent">404 Error</span>
-      <h1 className="text-3xl sm:text-4xl font-bold text-text mt-2 mb-3">
+      <h1 className="text-3xl sm:text-4xl font-serif font-bold text-text mt-2 mb-3">
         {isDe ? 'Seite nicht gefunden' : 'Page Not Found'}
       </h1>
       <p className="text-sm sm:text-base text-text-secondary max-w-md mx-auto mb-8">

@@ -10,17 +10,11 @@ import {
   Palette,
   HeartHandshake,
   History,
-  Timer as TimerIcon,
-  Users as UsersIcon,
-  MessageSquareQuote,
-  Award,
   BookOpen,
   Plus,
-  Minus,
   Music,
   Share2,
-  Wrench,
-} from 'lucide-react';
+  } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { QUOTES_DATA } from '../data/quotes';
@@ -33,15 +27,7 @@ import { shareResource } from '../utils/share';
 import { loadRecentViews } from '../utils/recentViews';
 import { loadGroupTitle } from '../utils/groupNames';
 import { getBadiDate } from '../utils/badiCalendar';
-import {
-  loadBookProgress,
-  saveBookProgress,
-  getBookById,
-  JY_BOOKS,
-  type BookProgress,
-} from '../utils/bookProgress';
 import { tr, Panel, Label, Stepper, ChoiceChips, primaryBtn } from './tools/common';
-import { ArrowLink } from './ui/ArrowLink';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -173,27 +159,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
     });
   }, [language]);
 
-  // Book progress state
-  const [bookProgress, setBookProgress] = useState<BookProgress | null>(() => loadBookProgress());
-  const [isSelectingBook, setIsSelectingBook] = useState(false);
-  const activeBook = bookProgress ? getBookById(bookProgress.bookId) : null;
-
-  const handleUpdateLesson = (delta: number, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!bookProgress || !activeBook) return;
-    const nextLesson = Math.max(1, Math.min(activeBook.totalLessons, bookProgress.lesson + delta));
-    const updated: BookProgress = { ...bookProgress, lesson: nextLesson };
-    saveBookProgress(updated);
-    setBookProgress(updated);
-  };
-
-  const handleSelectBook = (bookId: string) => {
-    const updated: BookProgress = { bookId, lesson: 1 };
-    saveBookProgress(updated);
-    setBookProgress(updated);
-    setIsSelectingBook(false);
-  };
 
   // Time-of-day greeting (re-evaluated on client time; updates periodically)
   // Morning: 05:00 - 11:59 | Afternoon: 12:00 - 17:59 | Evening/Night: 18:00 - 04:59
@@ -212,10 +177,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
       ? t.greetingAfternoon
       : t.greetingEvening;
   const fullGreeting = groupTitle ? `${baseGreeting}, ${groupTitle}` : baseGreeting;
-
-  // Fixed selection for Service & Arts
-  const sampleService = SERVICE_PROJECTS_DATA[0];
-  const sampleArt = ARTS_PROMPTS_DATA[0];
 
   const { showToast } = useToast();
 
@@ -279,15 +240,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Linke Spalte: Begrüßung & Datum (lg:col-span-7) */}
         <header className="lg:col-span-7 space-y-3">
-          <h1 className="text-[32px] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {fullGreeting}
           </h1>
-          <p className="text-xs sm:text-sm text-text-secondary leading-relaxed max-w-xl">
-            {L(
-              'Materialien, Zitate und Werkzeuge für deine Juniorjugendgruppe.',
-              'Materials, quotes, and tools for your junior youth group.'
-            )}
-          </p>
           {/* Dezente Datumszeile (Gregorianisch & Badí') */}
           <div className="flex flex-wrap items-center gap-2 pt-1 text-2xs sm:text-xs text-text-tertiary">
             <span className="font-medium text-text-secondary">{gregorianFormatted}</span>
@@ -519,312 +474,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           </Link>
         </section>
       )}
-
-      {/* 4. Werkzeug-Bereich: Taktile Instrumente */}
-      <section aria-label={t.tabTools} className="space-y-3.5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-text tracking-tight">
-              {t.tabTools}
-            </h2>
-            <p className="text-xs text-text-tertiary">
-              {L('Live-Helfer für die Gruppe', 'Live tools for the group')}
-            </p>
-          </div>
-          <ArrowLink to="/tools">
-            {L('Alle Werkzeuge', 'All tools')}
-          </ArrowLink>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <Link
-            to="/tools/timer"
-            className="p-4 sm:p-5 rounded-card bg-surface border border-border/80 hover:-translate-y-1 hover:shadow-2 transition-all duration-200 group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-xs min-h-[110px]"
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
-                {L('Timer', 'Timer')}
-              </span>
-              <TimerIcon className="w-4 h-4 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text tabular-nums">
-              05:00
-            </div>
-            <p className="text-2xs text-text-secondary mt-1">
-              {L('Timer & Signalton', 'Timer & chime')}
-            </p>
-          </Link>
-
-          <Link
-            to="/tools/teams"
-            className="p-4 sm:p-5 rounded-card bg-surface border border-border/80 hover:-translate-y-1 hover:shadow-2 transition-all duration-200 group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-xs min-h-[110px]"
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
-                {L('Gruppen', 'Groups')}
-              </span>
-              <UsersIcon className="w-4 h-4 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text tabular-nums">
-              2 Teams
-            </div>
-            <p className="text-2xs text-text-secondary mt-1">
-              {L('Faire Zufallsteams', 'Fair random teams')}
-            </p>
-          </Link>
-
-          <Link
-            to="/tools/cards"
-            className="p-4 sm:p-5 rounded-card bg-surface border border-border/80 hover:-translate-y-1 hover:shadow-2 transition-all duration-200 group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-xs min-h-[110px]"
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
-                {L('Gespräch', 'Cards')}
-              </span>
-              <MessageSquareQuote className="w-4 h-4 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text tabular-nums">
-              {L('Karten', 'Cards')}
-            </div>
-            <p className="text-2xs text-text-secondary mt-1">
-              {L('Fragen für den Kreis', 'Circle questions')}
-            </p>
-          </Link>
-
-          <Link
-            to="/tools/scoreboard"
-            className="p-4 sm:p-5 rounded-card bg-surface border border-border/80 hover:-translate-y-1 hover:shadow-2 transition-all duration-200 group flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent shadow-xs min-h-[110px]"
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-semibold text-text-secondary group-hover:text-text transition-colors">
-                {L('Stand', 'Score')}
-              </span>
-              <Award className="w-4 h-4 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text tabular-nums">
-              Punkte
-            </div>
-            <p className="text-2xs text-text-secondary mt-1">
-              {L('Stationen & Runden', 'Stations & rounds')}
-            </p>
-          </Link>
-        </div>
-      </section>
-
-      {/* 4. Dienst & Kunst: Karten mit visueller Kennung und Section-Links ohne Umbruch */}
-      <section aria-label={L('Dienst & Kunst', 'Service & Arts')} className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-text tracking-tight">
-              {L('Dienst & Kunst', 'Service & Arts')}
-            </h2>
-            <p className="text-xs text-text-tertiary">
-              {L('Gemeinwohlorientierte Aktionen und kreativer Ausdruck', 'Community service and creative expression')}
-            </p>
-          </div>
-          <div className="flex items-center gap-1">
-            <ArrowLink to="/service">
-              {L('Dienst', 'Service')}
-            </ArrowLink>
-            <span className="text-border select-none" aria-hidden="true">·</span>
-            <ArrowLink to="/arts">
-              {L('Kunst', 'Creative')}
-            </ArrowLink>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          {/* Service Project Card */}
-          {sampleService && (
-            <Link
-              to={`/service/${sampleService.id}`}
-              className="flex flex-col justify-between px-4 pb-4 pt-2.5 sm:px-5 sm:pb-5 sm:pt-3 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
-            >
-              <div className="space-y-1 sm:space-y-1.5">
-                <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-                  <span className="font-semibold text-text-secondary">
-                    {L('Dienstprojekt', 'Service Project')}
-                  </span>
-                  <span className="font-medium tabular-nums">
-                    {sampleService.durationMin}–{sampleService.durationMax} {L('Min', 'min')}
-                  </span>
-                </div>
-                <h3 className="font-bold text-text text-base transition-colors">
-                  {sampleService.title[language]}
-                </h3>
-                <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
-                  {sampleService.objective[language]}
-                </p>
-              </div>
-              <div className="pt-3 mt-3 border-t border-line flex items-center justify-between text-xs text-text-tertiary">
-                <span>{sampleService.groupSize.min}–{sampleService.groupSize.max} {L('Personen', 'people')}</span>
-                <span className="font-semibold text-text-secondary group-hover:text-text group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
-                </span>
-              </div>
-            </Link>
-          )}
-
-          {/* Arts Prompt Card */}
-          {sampleArt && (
-            <Link
-              to={`/arts/${sampleArt.id}`}
-              className="flex flex-col justify-between px-4 pb-4 pt-2.5 sm:px-5 sm:pb-5 sm:pt-3 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
-            >
-              <div className="space-y-1 sm:space-y-1.5">
-                <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-                  <span className="font-semibold text-text-secondary">
-                    {L('Kunst & Theater', 'Arts & Drama')}
-                  </span>
-                  <span className="font-medium tabular-nums">
-                    {sampleArt.durationMin}–{sampleArt.durationMax} {L('Min', 'min')}
-                  </span>
-                </div>
-                <h3 className="font-bold text-text text-base transition-colors">
-                  {sampleArt.title[language]}
-                </h3>
-                <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
-                  {sampleArt.description[language]}
-                </p>
-              </div>
-              <div className="pt-3 mt-3 border-t border-line flex items-center justify-between text-xs text-text-tertiary">
-                <span>{sampleArt.groupSize.min}–{sampleArt.groupSize.max} {L('Personen', 'people')}</span>
-                <span className="font-semibold text-text-secondary group-hover:text-text group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
-                </span>
-              </div>
-            </Link>
-          )}
-        </div>
-      </section>
-
-      {/* 5. Dein Bereich: 3 Kacheln mit 44px+ Touch-Zielen */}
-      <section aria-label={L('Dein Bereich', 'Your workspace')} className="space-y-3">
-        <h2 className="text-base sm:text-lg font-bold text-text tracking-tight">
-          {L('Dein Bereich', 'Your workspace')}
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Kachel 1: Werkzeuge */}
-          <Link
-            to="/tools"
-            className="flex items-center gap-3.5 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
-          >
-            <Wrench className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-text text-sm truncate transition-colors">
-                {t.tabTools}
-              </p>
-              <p className="text-xs text-text-secondary mt-0.5 truncate">
-                {L('Timer, Teams, Rollen und mehr', 'Timer, teams, roles and more')}
-              </p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-text shrink-0" />
-          </Link>
-
-          {/* Kachel 2: Gemerkt */}
-          <Link
-            to="/saved"
-            className="flex items-center gap-3.5 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
-          >
-            <Bookmark className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-text text-sm truncate transition-colors">
-                {t.savedItems}
-              </p>
-              <p className="text-xs text-text-secondary mt-0.5 tabular-nums">
-                {favorites.length > 0
-                  ? `${favorites.length} ${L('gemerkte Inhalte', 'saved items')}`
-                  : L('Spiele, Zitate und Projekte merken', 'Save items for later')}
-              </p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-text-tertiary group-hover:text-text shrink-0" />
-          </Link>
-
-          {/* Kachel 3: Buch-Fortschritt mit mindestens 44px Touch-Zielen */}
-          <div className="flex items-center justify-between gap-2 p-4 rounded-card border border-border bg-surface hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group shadow-1">
-            <div className="flex items-center gap-3.5 min-w-0 flex-1">
-              <BookOpen className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors shrink-0" />
-              <div className="flex-1 min-w-0">
-                <button
-                  type="button"
-                  onClick={() => setIsSelectingBook(!isSelectingBook)}
-                  className="font-bold text-text text-sm truncate text-left block w-full transition-colors cursor-pointer min-h-[44px] flex flex-col justify-center focus-visible:ring-2 focus-visible:ring-accent rounded-control"
-                >
-                  <span className="truncate">{activeBook ? activeBook.title[language] : L('Juniorjugend-Buch', 'JY Book')}</span>
-                  <span className="text-xs text-text-secondary font-normal">
-                    {activeBook
-                      ? `${L('Lektion', 'Lesson')} ${bookProgress?.lesson || 1} / ${activeBook.totalLessons}`
-                      : L('Buch auswählen', 'Select book')}
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            {/* Stepper buttons mit Mindest-Touch-Größe 44px */}
-            {activeBook && (
-              <div className="flex items-center gap-0.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={(e) => handleUpdateLesson(-1, e)}
-                  disabled={!bookProgress || bookProgress.lesson <= 1}
-                  aria-label={L('Vorherige Lektion', 'Previous lesson')}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text disabled:opacity-30 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-full transition-opacity"
-                >
-                  <span className="w-7 h-7 rounded-full bg-surface-2 hover:bg-surface-2/80 flex items-center justify-center">
-                    <Minus className="w-3.5 h-3.5" />
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => handleUpdateLesson(1, e)}
-                  disabled={!bookProgress || bookProgress.lesson >= activeBook.totalLessons}
-                  aria-label={L('Nächste Lektion', 'Next lesson')}
-                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-text disabled:opacity-30 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent rounded-full transition-opacity"
-                >
-                  <span className="w-7 h-7 rounded-full bg-surface-2 hover:bg-surface-2/80 flex items-center justify-center">
-                    <Plus className="w-3.5 h-3.5" />
-                  </span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Buch-Auswahl Popover/Drawer */}
-        {isSelectingBook && (
-          <div className="p-4 rounded-card border border-border bg-surface-2 space-y-2 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between text-xs font-bold text-text mb-2">
-              <span>{L('Aktuelles Juniorjugend-Buch wählen:', 'Select current book:')}</span>
-              <button
-                type="button"
-                onClick={() => setIsSelectingBook(false)}
-                className="text-text-tertiary hover:text-text cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-accent rounded-full"
-                aria-label={L('Schließen', 'Close')}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {JY_BOOKS.map((b) => (
-                <button
-                  key={b.id}
-                  type="button"
-                  onClick={() => handleSelectBook(b.id)}
-                  className={`p-3 rounded-control border text-left text-xs transition-colors cursor-pointer min-h-[44px] flex flex-col justify-center focus-visible:ring-2 focus-visible:ring-accent ${
-                    bookProgress?.bookId === b.id
-                      ? 'bg-accent/15 border-accent text-accent font-bold'
-                      : 'bg-surface border-border text-text hover:border-text-secondary'
-                  }`}
-                >
-                  <span className="block truncate font-medium">{b.title[language]}</span>
-                  <span className="text-2xs text-text-tertiary">{b.totalLessons} {L('Lektionen', 'lessons')}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
 
       {/* 6. Zuletzt angesehen: Ansprechender Leerzustand & Verlaufskarten */}
       <section aria-label={L('Zuletzt angesehen', 'Recently viewed')} className="space-y-3">

@@ -366,7 +366,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             <span>{L('Zurück zu Schritt', 'Back to step')} {step - 1}</span>
           </button>
         )}
-        <h1 className="text-[32px] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+        <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
           {L('Erfahrungen beitragen', 'Contribute')}
         </h1>
         <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
@@ -517,7 +517,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                 <span>{L('So sieht der Beitrag später auf der Plattform aus:', 'This is how your contribution will appear on the platform:')}</span>
               </div>
 
-              <Panel className="p-6 sm:p-8 space-y-6">
+              <Panel className="space-y-6">
                 {formData.imageUrl && (
                   <div className="overflow-hidden rounded-card border border-border aspect-16/9 bg-surface-2 -mx-6 -mt-6 sm:-mx-8 sm:-mt-8 mb-6">
                     <img src={formData.imageUrl} alt="Vorschau" className="w-full h-full object-cover" />
@@ -1059,7 +1059,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
 
       {/* Step 3: Confirmation */}
       {step === 3 && (
-        <Panel className="p-8 sm:p-12 text-center space-y-6 animate-in fade-in duration-200">
+        <Panel className="text-center space-y-6 animate-in fade-in duration-200">
           <div className="w-16 h-16 rounded-full bg-success/15 text-success mx-auto flex items-center justify-center">
             <CheckCircle2 className="w-8 h-8" />
           </div>

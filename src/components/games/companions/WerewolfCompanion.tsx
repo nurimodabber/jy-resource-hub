@@ -193,7 +193,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
       {phase === 'setup' && (
         <div className="space-y-5 text-left w-full max-w-2xl pb-16 md:pb-0">
           {/* 1. Spielende & Namen */}
-          <Panel className="p-5 sm:p-6 space-y-4">
+          <Panel className="space-y-4">
             <PlayerSetupSection
               language={language}
               playerCount={playerCount}
@@ -210,7 +210,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
           </Panel>
 
           {/* 2. Rollen-Konfiguration */}
-          <Panel className="p-5 sm:p-6 space-y-4">
+          <Panel className="space-y-4">
             <div className="flex items-center justify-between pb-1 border-b border-border/50">
               <h3 className="text-xs font-bold text-text">
                 {L('Rollen im Spiel', 'Roles in game')}
@@ -608,7 +608,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
           )}
 
           {/* Main Narrator Script Card */}
-          <Panel className="p-6 sm:p-10 space-y-4 min-h-[220px] flex flex-col justify-center">
+          <Panel className="space-y-4 min-h-[220px] flex flex-col justify-center">
             <h3 className="text-base sm:text-lg font-bold text-accent">
               {currentNarratorStep.title[language]}
             </h3>

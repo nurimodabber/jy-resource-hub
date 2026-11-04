@@ -555,7 +555,7 @@ const WerewolfGame: React.FC<{ language: Language; names: string[] }> = ({ langu
           {step?.phase === 'night' ? L('Nachtphase', 'Night Phase') : L('Tagphase', 'Day Phase')} · {stepIdx + 1} / {steps.length}
         </span>
         <h2 className="text-2xl font-bold text-text">{step?.title[language]}</h2>
-        <p className="text-xl sm:text-2xl leading-relaxed text-text italic max-w-lg mx-auto">
+        <p className="text-xl sm:text-2xl leading-relaxed text-text font-serif italic max-w-lg mx-auto">
           „{step?.script[language]}“
         </p>
       </Panel>

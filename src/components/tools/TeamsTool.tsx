@@ -483,7 +483,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
     // Unten Platz für das schwebende Aktions-Dock (mobil), damit es nie Inhalt verdeckt
     <div className="space-y-4 pb-24 md:pb-0">
       {/* 1. WER IST DA? Namen eintippen oder Liste einfügen */}
-      <Panel className="p-4 sm:p-5 space-y-4">
+      <Panel className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-base font-semibold text-text">
             {L('Wer ist da?', "Who's here?")}{' '}
@@ -636,7 +636,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
       </Panel>
 
       {/* 2. EINTEILUNG: Methode + großer Stepper */}
-      <Panel className="p-4 sm:p-5 space-y-5">
+      <Panel className="space-y-5">
         <h2 className="text-base font-semibold text-text">{L('Einteilung', 'Division')}</h2>
         <SegmentedControl<'byCount' | 'bySize'>
           fullWidth

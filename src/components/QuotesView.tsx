@@ -431,7 +431,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-4">
           <div>
-            <h1 className="text-[32px] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+            <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
               {t.tabQuotes}
             </h1>
             <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-xl font-normal leading-relaxed">
@@ -870,7 +870,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                         </div>
                       </div>
 
-                      <h3 className="text-base sm:text-lg font-semibold text-text group-hover:text-accent transition-colors leading-snug">
+                      <h3 className="font-serif text-base sm:text-lg font-medium text-text group-hover:text-accent transition-colors leading-snug">
                         {method.name[language]}
                       </h3>
 

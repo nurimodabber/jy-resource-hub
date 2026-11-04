@@ -135,13 +135,13 @@ export const StoryStarterCompanion: React.FC<StoryStarterCompanionProps> = ({ la
         onTouchEnd={handleTouchEnd}
         className="touch-pan-y"
       >
-        <Panel className="p-6 sm:p-8 space-y-4 text-left">
+        <Panel className="space-y-4 text-left">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2 border border-border text-2xs font-semibold text-text-secondary">
             <BookOpen className="w-3.5 h-3.5 text-accent shrink-0" strokeWidth={2} />
             <span>{genreLabels[current?.genre || 'everyday']?.[language] || L('Satzanfang', 'Story starter')}</span>
           </div>
 
-          <div className="text-2xl sm:text-3xl font-bold text-text tracking-tight leading-relaxed break-words">
+          <div className="text-2xl sm:text-3xl font-bold text-text tracking-tight leading-relaxed font-serif break-words">
             „{current?.text[language]}“
           </div>
 

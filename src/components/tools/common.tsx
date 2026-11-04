@@ -32,7 +32,7 @@ export const ToolHeader: React.FC<{
       </button>
       <div className="flex items-start justify-between gap-4 mt-1">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text">{title}</h1>
+          <h1 className="font-serif text-[28px] sm:text-3xl font-medium tracking-tight text-text">{title}</h1>
           {subtitle && <p className="text-sm text-text-secondary mt-1 max-w-prose">{subtitle}</p>}
         </div>
         {actions}
@@ -42,7 +42,7 @@ export const ToolHeader: React.FC<{
     {/* Mobile compact view (< sm): Zurück sitzt als Glas-Knopf in der Kopfzeile */}
     <div className="sm:hidden flex items-center justify-between gap-2 min-h-[44px]">
       <div className="flex items-center gap-1.5 min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight text-text truncate">
+        <h1 className="font-serif text-[28px] sm:text-3xl font-medium tracking-tight text-text truncate">
           {title}
         </h1>
       </div>
@@ -52,7 +52,9 @@ export const ToolHeader: React.FC<{
 );
 
 export const Panel: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`bg-surface shadow-1 rounded-card p-5 sm:p-6 border-0 ${className}`}>{children}</div>
+  // A section, not a card: tools used to stack framed panels with framed controls inside.
+  // Consecutive panels are separated by a hairline; the controls keep their own shape.
+  <section className={`py-5 sm:py-6 border-t border-line/70 first:border-t-0 first:pt-0 ${className}`}>{children}</section>
 );
 
 export const Label: React.FC<{ children: React.ReactNode; htmlFor?: string }> = ({ children, htmlFor }) => (

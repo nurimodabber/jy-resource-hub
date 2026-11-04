@@ -109,7 +109,7 @@ export const Sheet: React.FC<SheetProps> = ({
             >
               <div>
                 {title && (
-                  <h2 id={titleId} className="text-xl sm:text-2xl font-semibold tracking-tight text-text">
+                  <h2 id={titleId} className="font-serif text-xl sm:text-2xl font-medium tracking-tight text-text">
                     {title}
                   </h2>
                 )}

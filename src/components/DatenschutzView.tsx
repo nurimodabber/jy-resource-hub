@@ -77,7 +77,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
           <div className="w-12 h-12 rounded-2xl bg-success/10 text-success flex items-center justify-center mb-4">
             <ShieldCheck className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-text tracking-tight">
             {isDe ? 'Datenschutzerklärung' : 'Privacy Policy'}
           </h1>
           <p className="text-sm text-text-secondary mt-1">

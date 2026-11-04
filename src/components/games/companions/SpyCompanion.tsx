@@ -189,7 +189,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
       {/* =================================================================== */}
       {phase === 'setup' && (
         <div className="space-y-5 text-left w-full max-w-2xl pb-16 md:pb-0">
-          <Panel className="p-5 sm:p-6 space-y-4">
+          <Panel className="space-y-4">
             {/* 1. Spielende & Namen */}
             <PlayerSetupSection
               language={language}
@@ -416,7 +416,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
         <div className="space-y-6 text-left w-full max-w-2xl">
           {/* Active Round Timer Card (if enabled) */}
           {timerEnabled && (
-            <Panel className="p-6 text-center space-y-4">
+            <Panel className="text-center space-y-4">
               <div className="flex items-center justify-center gap-2 text-xs font-bold text-text-tertiary">
                 <Clock className="w-4 h-4 text-accent" />
                 <span>{L('Runden-Timer', 'Round Timer')}</span>

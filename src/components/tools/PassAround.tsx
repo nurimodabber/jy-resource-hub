@@ -91,7 +91,7 @@ export const PassAround: React.FC<Props> = ({
       </p>
 
       {/* Main Card Panel (High-contrast, strictly isolated) */}
-      <Panel className="min-h-[300px] flex flex-col items-center justify-between text-center p-6 sm:p-8 relative">
+      <Panel className="min-h-[300px] flex flex-col items-center justify-between text-center relative">
         {!shown ? (
           <div className="my-auto space-y-4 w-full">
             <p className="text-xs font-semibold text-text-secondary">
