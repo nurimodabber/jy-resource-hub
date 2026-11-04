@@ -304,16 +304,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             aria-label={L('Haupteinstiege', 'Main navigation')}
             className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-2.5 sm:gap-3"
           >
-            {/* Aktion 1: Spiel finden (Liquid Glass Pill Button) */}
+            {/* Aktion 1: Spiel finden (die eine gefüllte Hauptaktion, solide) */}
             <button
               type="button"
               onClick={() => setShowCompactFinder(!showCompactFinder)}
-              className="relative overflow-hidden rounded-full lg-glass bg-accent text-accent-contrast px-5 py-3.5 sm:py-4 shadow-md hover:bg-accent-hover active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px] border border-white/25"
+              className="relative overflow-hidden rounded-full bg-accent text-accent-contrast px-5 py-3.5 sm:py-4 shadow-md hover:bg-accent-hover active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px] border border-white/25"
             >
-              <span
-                className="absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 to-transparent pointer-events-none rounded-t-full"
-                aria-hidden="true"
-              />
               <div className="min-w-0 pr-2 relative z-10">
                 <div className="font-bold text-sm sm:text-base text-accent-contrast tracking-tight">
                   {L('Spiel finden', 'Find a game')}
@@ -325,15 +321,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               <ArrowRight className="w-4 h-4 text-accent-contrast/95 group-hover:translate-x-1 transition-transform shrink-0 relative z-10" />
             </button>
 
-            {/* Aktion 2: Zitate & Gebete (Liquid Glass Pill Button) */}
+            {/* Aktion 2: Zitate & Gebete (solide, sekundär) */}
             <Link
               to="/quotes"
-              className="relative overflow-hidden rounded-full lg-glass bg-surface/80 border border-line text-text px-5 py-3.5 sm:py-4 shadow-sm hover:bg-surface-2/90 active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
+              className="relative overflow-hidden rounded-full bg-surface border border-line text-text px-5 py-3.5 sm:py-4 shadow-sm hover:bg-surface-2/90 active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
             >
-              <span
-                className="absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/90 dark:via-white/30 to-transparent pointer-events-none rounded-t-full"
-                aria-hidden="true"
-              />
               <div className="min-w-0 pr-2 relative z-10">
                 <div className="font-bold text-sm sm:text-base text-text group-hover:text-accent tracking-tight transition-colors">
                   {L('Zitate & Gebete', 'Quotes & Prayers')}

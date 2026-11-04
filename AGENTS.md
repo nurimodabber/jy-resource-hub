@@ -18,6 +18,15 @@ React 18, TypeScript, Vite 6, Tailwind CSS v3, react-router-dom 7, lucide-react.
 7. **Barrierefreiheit:** Kontrast mindestens WCAG AA (4,5:1 Text, 3:1 Bedienelemente), Touch-Ziele mindestens 44 px, sichtbarer Fokus, `prefers-reduced-motion` respektieren, jede Funktion per Tastatur erreichbar.
 8. **Kein KI-Look:** keine Verläufe, kein Glühen, keine Emojis als Dekoration, keine Pillen-Beschriftungen über Überschriften („✨ Neu“), keine Karten in Karten, keine Fantasie-Namen für Funktionen. **Ausnahme Glas (Entscheidung des Inhabers, 2026-11-04):** Flüssigglas kommt ausschließlich aus der Bibliothek `glisse` (TabBar, Button `variant="glass"` transparent, Glass, Slider, Switch). Glas-Knöpfe sind immer die transparente Variante `glass`.
 
+## Glas-Regel (Variante „Ruhig und klar“)
+Glas nur für Bedienelemente, die über dem Inhalt schweben. Alles im Inhalt ist solide.
+- **Glas:** untere Tab-Leiste, Kopfzeile, schwebende Aktions-Docks (z. B. „Teams bilden“) und runde Icon-Knöpfe im Seitenkopf (Zurück, Merken, Teilen, Mischen, Auswendiglernen, Lied). Glas-Knöpfe sind immer glisse `Button` mit `variant="glass"`; für runde Icon-Knöpfe nimm `GlassIconButton` aus `src/components/ui/Button.tsx` (44 px). Das Menü oben rechts ist glisse `Menu`.
+- **Solide:** Karten, Formulare, Suchfelder, Filter, Listenzeilen, Werkzeug-Bedienelemente, Stepper, Umschalter (`SegmentedControl` aus `ui/`), Schalter (solide Spur, Akzent wenn an). Keine `lg-glass`-Klasse und keine Glanzlinien im Inhalt.
+- **Eine Hauptaktion pro Ansicht:** genau ein gefüllter Akzent-Knopf, solide (nicht Glas). Alles andere ist sekundär (`surface-2`).
+- **Dock-Position:** schwebende Docks bekommen die Klasse `.jy-action-dock` (sitzt über `.jy-tabbar-dock`, inkl. Safe Area) und werden per `createPortal` in `document.body` gerendert. Grund: Der Seiten-Wrapper animiert mit `transform`, dann wäre `position: fixed` relativ zum Wrapper statt zum Bildschirm.
+- **Farbe bei Dienst/Kunst:** ein gedämpfter Ton pro Kategorie (`--cat-*-fg/-bg`, `.tone-*` in `src/index.css`, Zuordnung in `src/data/activityTones.ts`), nur in der Icon-Kachel und im Kategorie-Text. Karten bleiben weiß, Hover hebt nur den Schatten.
+- **Spiel-Icons:** `src/data/gameIcons.ts` (ein lucide-Icon pro Spiel-ID), immer einfarbig in der neutralen `IconTile`.
+
 ## Designsystem (verbindlich, Details in `prompts/00-design-system.md`)
 Richtung „frisch und freundlich“: helle kühle Flächen, eine kräftige blaue Akzentfarbe, große Rundungen (Karten 20 px, Bedienelemente 14 px, Chips voll rund), weiche Flächen statt harter Linien, großzügiger Weißraum, eine Sans-Schrift (Figtree), Serif nur für heilige Texte. Alle Werte stehen als CSS-Variablen in `src/index.css` und werden in `tailwind.config.js` referenziert. Kein Bauteil enthält feste Farb- oder Radiuswerte.
 

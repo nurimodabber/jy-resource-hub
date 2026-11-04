@@ -286,7 +286,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
             }
             placeholder={L('Spiel suchen...', 'Search games...')}
             aria-label={L('Spiel suchen', 'Search games')}
-            className="w-full h-11 pl-10 pr-11 rounded-full lg-glass bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
+            className="w-full h-11 pl-10 pr-11 rounded-full bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
           />
           {filters.q && (
             <button

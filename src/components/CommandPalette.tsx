@@ -364,7 +364,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       >
         {/* Input Bar (Liquid Glass Capsule with glow when selected) */}
         <div className="flex items-center px-4 sm:px-6 py-3 sm:py-3.5 border-b border-line gap-2.5 sm:gap-3 bg-surface/80 backdrop-blur-md sticky top-0 z-10 safe-top">
-          <div className="flex-1 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full lg-glass bg-surface-2/60 border border-line focus-within:border-accent focus-within:bg-surface focus-within:ring-3 focus-within:ring-accent/20 transition-all shadow-2xs">
+          <div className="flex-1 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-surface-2/60 border border-line focus-within:border-accent focus-within:bg-surface focus-within:ring-3 focus-within:ring-accent/20 transition-all shadow-2xs">
             <Search className="w-4 h-4 text-accent shrink-0" strokeWidth={2} />
             <input
               ref={inputRef}

@@ -208,7 +208,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
                     </span>
                   </div>
 
-                  <div className="bg-surface/90 lg-glass rounded-card border border-line/75 shadow-2xs divide-y divide-line/60 overflow-hidden">
+                  <div className="bg-surface/90 rounded-card border border-line/75 shadow-2xs divide-y divide-line/60 overflow-hidden">
                     {groups[g].map((row) => {
                       const RowIcon = row.icon;
                       return (

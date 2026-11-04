@@ -501,7 +501,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     : 'Search quotes by text, theme, or source...'
                 }
                 aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-                className="w-full h-11 pl-10 pr-11 rounded-full lg-glass bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
+                className="w-full h-11 pl-10 pr-11 rounded-full bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
               />
               {localSearch && (
                 <button
@@ -800,7 +800,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   onChange={(e) => setMethodSearch(e.target.value)}
                   placeholder={isDe ? 'Methoden durchsuchen...' : 'Search methods...'}
                   aria-label={isDe ? 'Methoden durchsuchen' : 'Search methods'}
-                  className="w-full h-11 pl-10 pr-10 text-sm rounded-full lg-glass bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
+                  className="w-full h-11 pl-10 pr-10 text-sm rounded-full bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
                 />
                 {methodSearch && (
                   <button
@@ -1004,7 +1004,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               onChange={(e) => setPickerSearch(e.target.value)}
               placeholder={isDe ? 'Zitate durchsuchen...' : 'Search quotes...'}
               aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
-              className="w-full h-11 pl-10 pr-3 text-sm rounded-full lg-glass bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
+              className="w-full h-11 pl-10 pr-3 text-sm rounded-full bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
             />
           </div>
 
