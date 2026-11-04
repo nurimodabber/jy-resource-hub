@@ -29,6 +29,7 @@ const ImpressumView = lazy(() => import('./components/ImpressumView').then(m => 
 const DatenschutzView = lazy(() => import('./components/DatenschutzView').then(m => ({ default: m.DatenschutzView })));
 const SavedView = lazy(() => import('./components/SavedView').then(m => ({ default: m.SavedView })));
 const GalleryView = lazy(() => import('./components/ui/Gallery').then(m => ({ default: m.Gallery })));
+const CardComparisonView = lazy(() => import('./components/CardComparisonView').then(m => ({ default: m.CardComparisonView })));
 const ProposalView = lazy(() => import('./components/ProposalView').then(m => ({ default: m.ProposalView })));
 const AdminView = lazy(() => import('./components/AdminView').then(m => ({ default: m.AdminView })));
 const SettingsSheet = lazy(() => import('./components/SettingsSheet').then(m => ({ default: m.SettingsSheet })));
@@ -595,6 +596,8 @@ export const AppContent: React.FC = () => {
             />
 
             <Route path="/_design" element={<GalleryView />} />
+            <Route path="/compare" element={<CardComparisonView language={language} />} />
+            <Route path="/vergleich" element={<CardComparisonView language={language} />} />
 
             {/* Real 404 Route */}
             <Route path="*" element={<NotFoundView language={language} />} />

@@ -72,6 +72,7 @@ export const GameCard: React.FC<GameCardProps> = ({
   userGroupSize,
 }) => {
   const t = UI_TRANSLATIONS[language];
+  const isDe = language === 'de';
   const energyLabel =
     game.energyLevel === 'high'
       ? t.filterHighEnergy
@@ -87,34 +88,23 @@ export const GameCard: React.FC<GameCardProps> = ({
 
   return (
     <div
-      className={`group relative h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-3.5 pb-3.5 pt-3 sm:px-5 sm:pb-4 sm:pt-3.5 shadow-2xs ${
+      className={`group relative overflow-hidden h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-3.5 pb-3.5 pt-3.5 sm:px-5 sm:pb-4 sm:pt-4 shadow-2xs ${
         !matchesGroup ? 'opacity-60 hover:opacity-100' : ''
       }`}
     >
-      <Link
-        to={`/games/${game.id}`}
-        className="block flex-1 min-w-0 pr-10 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0"
-      >
-        <div className="flex items-center justify-between gap-2 relative z-[1]">
-          <div className="flex items-center gap-3 min-w-0">
-            <IconTile icon={getGameIcon(game.id)} />
-            <h3 className="font-serif text-lg font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors min-w-0 tracking-tight">
-              {game.title[language]}
-            </h3>
-          </div>
-        </div>
-        <p className="text-xs sm:text-sm text-text-secondary line-clamp-1 mt-1.5 sm:mt-2 leading-relaxed relative z-[1]">
-          {description}
-        </p>
-      </Link>
+      {/* Subtle Top-Right Ambient Glow in Blue / Accent (Normed for Games page) */}
+      <div
+        className="pointer-events-none absolute -top-12 -right-12 w-44 h-44 rounded-full blur-2xl opacity-10 dark:opacity-20 transition-opacity"
+        style={{ background: 'radial-gradient(circle, rgb(var(--accent-rgb)) 0%, transparent 70%)' }}
+      />
 
-      {/* Top right bookmark button: touch target min 44x44px, stays above stretched link */}
+      {/* Top-Right Bookmark Button */}
       <button
         type="button"
         onClick={(e) => onToggleFavorite(game.id, e)}
         aria-pressed={isFavorite}
         aria-label={`${t.savedItems}: ${game.title[language]}`}
-        className={`absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+        className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
           isFavorite
             ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
             : 'text-text-tertiary hover:text-text hover:bg-surface-2'
@@ -123,45 +113,67 @@ export const GameCard: React.FC<GameCardProps> = ({
         <Bookmark className={`w-4 h-4 transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
       </button>
 
-      {/* Untere Zeile: nur Personen, Minuten, Energie (Kategorie steckt in den Filtern) */}
-      <div className="relative z-[1] pointer-events-none flex flex-row-reverse items-center justify-between gap-2 flex-wrap mt-2.5 text-xs text-text-secondary">
-        <div className="flex items-center gap-2 shrink-0 flex-wrap">
-          {hasCompanion && (
-            <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent text-accent-contrast shadow-2xs">
-              <Play className="w-2.5 h-2.5 fill-current" />
-              <span>{language === 'de' ? 'Spielen' : 'Play'}</span>
-            </span>
-          )}
+      {/* Main Content Area (Stretched Link for accessibility) */}
+      <Link
+        to={`/games/${game.id}`}
+        className="block flex-1 min-w-0 pr-10 sm:pr-12 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0 mb-4"
+      >
+        <div className="flex items-center gap-3 mb-2 relative z-[1]">
+          <IconTile icon={getGameIcon(game.id)} size="sm" />
+          <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors min-w-0 tracking-tight">
+            {game.title[language]}
+          </h3>
         </div>
+        {description && (
+          <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed relative z-[1] max-w-[60ch]">
+            {description}
+          </p>
+        )}
+      </Link>
 
-        <div className="flex items-center gap-2.5 shrink-0 text-2xs sm:text-xs text-text-tertiary font-medium">
+      {/* Full-bleed Footer Divider with Group Size & Duration */}
+      <div className="relative z-[1] pointer-events-none -mx-3.5 -mb-3.5 px-3.5 py-3 sm:-mx-5 sm:-mb-4 sm:px-5 sm:py-3.5 border-t border-border/60 bg-surface-2/40 mt-auto flex items-center justify-between text-xs text-text-tertiary">
+        {/* Left: Group size & Duration */}
+        <div className="flex items-center gap-2 truncate">
           <div
-            className="inline-flex items-center gap-1 shrink-0"
+            className="inline-flex items-center gap-1.5 shrink-0"
             title={`${t.filterGroupSize}: ${game.groupSize.min}–${game.groupSize.max} ${t.peopleSuffix}`}
           >
             <Users className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
             <span className="sr-only">{t.filterGroupSize}: </span>
-            <span>{game.groupSize.min}–{game.groupSize.max}</span>
-            <span className="sr-only"> {t.peopleSuffix}</span>
+            <span>{game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}</span>
           </div>
 
           <span className="text-border" aria-hidden="true">·</span>
 
           <div
-            className="inline-flex items-center gap-1 shrink-0"
+            className="inline-flex items-center gap-1.5 shrink-0"
             title={`${t.filterDuration}: ${game.durationMinutes}`}
           >
             <Clock className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
             <span className="sr-only">{t.filterDuration}: </span>
             <span>{game.durationMinutes}</span>
           </div>
+        </div>
 
-          <span className="text-border" aria-hidden="true">·</span>
-
-          <span className="inline-flex items-center gap-1" title={`${t.filterEnergy}: ${energyLabel}`}>
+        {/* Right: Companion Play Badge + Energy Tag */}
+        <div className="flex items-center gap-2 shrink-0">
+          {hasCompanion && (
+            <span
+              className="w-7 h-7 min-w-[28px] min-h-[28px] inline-flex items-center justify-center rounded-full bg-accent text-accent-contrast shadow-2xs shrink-0"
+              title={isDe ? 'Interaktiver Spielbegleiter vorhanden' : 'Interactive companion available'}
+              aria-label={isDe ? 'Interaktiver Spielbegleiter vorhanden' : 'Interactive companion available'}
+            >
+              <Play className="w-3 h-3 fill-current ml-0.5" />
+            </span>
+          )}
+          <span
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-2 border border-border/60 text-2xs font-medium text-text-secondary"
+            title={`${t.filterEnergy}: ${energyLabel}`}
+          >
             <Flame className="w-3 h-3 text-amber-500 shrink-0" strokeWidth={2} aria-hidden="true" />
-            <EnergyDots energyLevel={game.energyLevel} />
-            <span className="sr-only">{t.filterEnergy}: {energyLabel}</span>
+            <span>{energyLabel}</span>
+            <EnergyDots energyLevel={game.energyLevel} className="ml-0.5" />
           </span>
         </div>
       </div>

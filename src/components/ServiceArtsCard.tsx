@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bookmark, BookOpen } from 'lucide-react';
+import { Bookmark, Users, Clock } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getBookById } from '../utils/bookProgress';
-import { activityTone } from '../data/activityTones';
 
 interface ServiceArtsCardProps {
   activity: ActivityItem;
@@ -22,29 +21,6 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
   const t = UI_TRANSLATIONS[language];
   const isDe = language === 'de';
   const isService = activity.kind === 'dienst';
-
-  // Subtitle / category
-  const categoryLabel = isService
-    ? activity.category === 'environmental'
-      ? t.catEnvironmental
-      : activity.category === 'neighborhood'
-      ? t.catNeighborhood
-      : activity.category === 'intergenerational'
-      ? t.catIntergenerational
-      : activity.category === 'children'
-      ? t.catChildren
-      : activity.category === 'institutional'
-      ? t.catInstitutional
-      : t.catCreative
-    : activity.artForm === 'drama'
-    ? t.artFormDrama
-    : activity.artForm === 'music_poetry'
-    ? t.artFormMusicPoetry
-    : activity.artForm === 'visual_arts'
-    ? t.artFormVisual
-    : t.artFormMural;
-
-  const { tone, icon: CategoryIcon } = activityTone(activity);
 
   const description = isService
     ? (activity.guidedBy ? activity.guidedBy[language] : activity.objective[language])
@@ -66,21 +42,36 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
     ? activity.duration[language]
     : undefined;
 
-  // Setting text (indoor / outdoor info)
-  const settingText =
-    activity.setting === 'draussen'
-      ? isDe ? 'Draußen' : 'Outdoors'
-      : activity.setting === 'drinnen'
-      ? isDe ? 'Drinnen' : 'Indoors'
-      : isDe ? 'Drinnen & draußen' : 'Indoors & outdoors';
-
   const targetUrl = isService ? `/service/${activity.id}` : `/arts/${activity.id}`;
 
   return (
-    <div className={`tone-${tone} group relative flex flex-col justify-between px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-4 rounded-card bg-surface border border-border/80 hover:shadow-2 transition-shadow duration-200 ease-out shadow-2xs h-full`}>
+    <div
+      className="group relative overflow-hidden flex flex-col justify-between rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out shadow-2xs h-full px-3.5 pb-3.5 pt-3.5 sm:px-5 sm:pb-4 sm:pt-4"
+    >
+      {/* Subtle Top-Right Ambient Glow in Blue / Accent */}
+      <div
+        className="pointer-events-none absolute -top-12 -right-12 w-44 h-44 rounded-full blur-2xl opacity-10 dark:opacity-20 transition-opacity"
+        style={{ background: 'radial-gradient(circle, rgb(var(--accent-rgb)) 0%, transparent 70%)' }}
+      />
+
+      {/* Top-Right Bookmark Button */}
+      <button
+        type="button"
+        onClick={(e) => onToggleFavorite(activity.id, e)}
+        aria-pressed={isFavorite}
+        aria-label={`${t.savedItems}: ${activity.title[language]}`}
+        className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+          isFavorite
+            ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
+            : 'text-text-tertiary hover:text-text hover:bg-surface-2'
+        }`}
+      >
+        <Bookmark className={`w-4 h-4 transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
+      </button>
+
       {/* Optional image preview if imageUrl is present */}
       {activity.imageUrl && (
-        <div className="mb-3 -mx-4 -mt-2.5 sm:-mx-5 sm:-mt-3 overflow-hidden rounded-t-card border-b border-border aspect-16/9 bg-surface-2 relative pointer-events-none">
+        <div className="mb-3 -mx-3.5 -mt-3.5 sm:-mx-5 sm:-mt-4 overflow-hidden rounded-t-card border-b border-border aspect-16/9 bg-surface-2 relative pointer-events-none">
           <img
             src={activity.imageUrl}
             alt={activity.title[language]}
@@ -90,70 +81,62 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         </div>
       )}
 
-      {/* Main content body matching Home page layout */}
-      <div className="space-y-1 sm:space-y-1.5 flex-1 min-w-0">
-        {/* Top row: category or general theme on left, duration + bookmark on right */}
-        <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-          {/* Kategorie nur als Icon (gedämpfter Kategorie-Ton); Name bleibt als title und für Screenreader */}
-          <span className="inline-flex items-center justify-center w-8 h-8 -ml-1.5 shrink-0" title={categoryLabel}>
-            <CategoryIcon className="w-5 h-5 tone-text" strokeWidth={1.75} role="img" aria-label={categoryLabel} />
-          </span>
+      {/* Clickable title & description via stretched Link */}
+      <Link
+        to={targetUrl}
+        className="block group/link flex-1 min-w-0 pr-10 sm:pr-12 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0 mb-4"
+      >
+        <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors tracking-tight mb-1.5 sm:mb-2">
+          {activity.title[language]}
+        </h3>
+        {description && (
+          <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed relative z-[1] max-w-[60ch]">
+            {description}
+          </p>
+        )}
+      </Link>
 
-          <div className="flex items-center gap-1.5 -mr-1.5 -my-2 sm:-my-2.5 shrink-0 relative z-10" onClick={(e) => e.stopPropagation()}>
+      {/* Full-bleed Footer: Dienst = group size & duration; Kunst = Buch unten links (ohne Icon), Dauer rechts */}
+      <div className="relative z-[1] pointer-events-none -mx-3.5 -mb-3.5 px-3.5 py-3 sm:-mx-5 sm:-mb-4 sm:px-5 sm:py-3.5 border-t border-border/60 bg-surface-2/40 mt-auto flex items-center justify-between text-xs text-text-tertiary">
+        {isService ? (
+          <div className="flex items-center gap-2 truncate">
+            <div className="inline-flex items-center gap-1.5 shrink-0">
+              <Users className="w-3.5 h-3.5 text-text-tertiary" />
+              <span>{activity.groupSize.min}–{activity.groupSize.max} {isDe ? 'Personen' : 'people'}</span>
+            </div>
             {durationText && (
-              <span className="font-medium tabular-nums text-text-tertiary text-2xs mr-0.5">
-                {durationText}
-              </span>
+              <>
+                <span className="text-border" aria-hidden="true">·</span>
+                <div className="inline-flex items-center gap-1.5 shrink-0">
+                  <Clock className="w-3.5 h-3.5 text-text-tertiary" />
+                  <span>{durationText}</span>
+                </div>
+              </>
             )}
-            <button
-              type="button"
-              onClick={(e) => onToggleFavorite(activity.id, e)}
-              aria-pressed={isFavorite}
-              aria-label={`${t.savedItems}: ${activity.title[language]}`}
-              className={`min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
-                isFavorite
-                  ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
-                  : 'text-text-tertiary hover:text-text hover:bg-surface-2'
-              }`}
-            >
-              <Bookmark className={`w-4 h-4 transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
-            </button>
+            {bookTitle && (
+              <>
+                <span className="text-border" aria-hidden="true">·</span>
+                <span className="truncate text-2xs text-text-secondary">
+                  {bookTitle}{lessonNumber ? ` · L. ${lessonNumber}` : ''}
+                </span>
+              </>
+            )}
           </div>
-        </div>
-
-        {/* Clickable title & description */}
-        <Link
-          to={targetUrl}
-          className="block group/link focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0"
-        >
-          <h3 className="font-bold text-text text-base leading-snug line-clamp-2 mt-1 relative z-[1] tracking-tight">
-            {activity.title[language]}
-          </h3>
-          {description && (
-            <p className="text-xs text-text-secondary line-clamp-2 mt-1 sm:mt-1.5 leading-relaxed relative z-[1]">
-              {description}
-            </p>
-          )}
-        </Link>
-      </div>
-
-      {/* Bottom row: group size on left, indoor / outdoor info on bottom right */}
-      <div className="pt-3 mt-3 border-t border-line flex items-center justify-between text-xs text-text-tertiary relative z-[1] pointer-events-none">
-        <div className="flex items-center gap-1.5 truncate">
-          <span>{activity.groupSize.min}–{activity.groupSize.max} {isDe ? 'Personen' : 'people'}</span>
-          {bookTitle && (
-            <>
-              <span className="text-border" aria-hidden="true">·</span>
-              <span className="inline-flex items-center gap-1 truncate text-2xs text-text-secondary">
-                <BookOpen className="w-3 h-3 text-text-tertiary shrink-0" />
+        ) : (
+          <>
+            <div className="flex items-center gap-2 truncate text-text-secondary text-2xs sm:text-xs min-w-0 font-medium">
+              {bookTitle && (
                 <span className="truncate">{bookTitle}{lessonNumber ? ` · L. ${lessonNumber}` : ''}</span>
-              </span>
-            </>
-          )}
-        </div>
-        <span className="font-semibold text-text-secondary shrink-0 ml-2">
-          {settingText}
-        </span>
+              )}
+            </div>
+            {durationText && (
+              <div className="inline-flex items-center gap-1.5 shrink-0 text-text-tertiary text-2xs sm:text-xs ml-auto">
+                <Clock className="w-3.5 h-3.5 text-text-tertiary" />
+                <span>{durationText}</span>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
