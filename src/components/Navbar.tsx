@@ -139,7 +139,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Logo className="w-8 h-8 shrink-0" />
               {/* Section pages already open with a large heading; repeating it up here was noise. */}
               {!sectionTitle && (
-                <span className="font-semibold text-base tracking-tight text-text truncate">{t.siteTitle}</span>
+                <span className="font-serif font-medium text-lg tracking-tight text-text truncate">{t.siteTitle}</span>
               )}
             </Link>
           )}
@@ -152,7 +152,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           aria-label={`${t.siteTitle} – ${t.tabHome}`}
         >
           <Logo className="w-8 h-8 short:w-6 short:h-6 shrink-0" />
-          <span className="font-bold text-base tracking-tight text-text whitespace-nowrap">{t.siteTitle}</span>
+          <span className="font-serif font-medium text-lg tracking-tight text-text whitespace-nowrap">{t.siteTitle}</span>
         </Link>
 
         {/* Mitte (ab Tablet): vier Bereiche */}

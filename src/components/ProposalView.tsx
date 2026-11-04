@@ -18,6 +18,7 @@ import {
   Image as ImageIcon,
   MessageSquare,
 } from 'lucide-react';
+import { FadedIconTile } from './ui/FadedIconTile';
 import { Language } from '../types';
 import { tr, Panel, Label, primaryBtn, secondaryBtn } from './tools/common';
 import { useToast } from '../context/ToastContext';
@@ -378,7 +379,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       </div>
 
       {/* Mobile Step Indicator */}
-      <div className="sm:hidden flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface border border-border" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
+      <div className="sm:hidden flex items-center justify-between gap-3" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
         <div>
           <span className="text-2xs font-extrabold text-accent block">
             {L(`Schritt ${step} von 3`, `Step ${step} of 3`)}
@@ -422,73 +423,13 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
         </span>
       </div>
 
-      {/* Step 1: Type Selection */}
+      {/* Step 1: Type Selection — same tiles as "Projekte & mehr", 2 × 2 so it fits one phone screen */}
       {step === 1 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-          <button
-            type="button"
-            onClick={() => {
-              updateField('type', 'spiel');
-              setStep(2);
-            }}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
-          >
-            <Compass className="w-7 h-7 text-text-tertiary group-hover:text-accent mb-4 group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
-            <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
-              {L('Spiel', 'Game')}
-            </h2>
-            <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
-              {L('Kooperative Spiele, Kennenlernspiele oder lebhafte Energizer.', 'Cooperative games, icebreakers, or lively energizers.')}
-            </p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              updateField('type', 'dienst');
-              setStep(2);
-            }}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
-          >
-            <HeartHandshake className="w-7 h-7 text-text-tertiary group-hover:text-accent mb-4 group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
-            <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
-              {L('Dienstprojekt', 'Service Project')}
-            </h2>
-            <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
-              {L('Gemeinwohlorientierte Aktionen in Nachbarschaft oder Natur.', 'Community service actions in the neighborhood or nature.')}
-            </p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              updateField('type', 'kunst');
-              setStep(2);
-            }}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
-          >
-            <Palette className="w-7 h-7 text-text-tertiary group-hover:text-accent mb-4 group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
-            <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
-              {L('Kreative Aktivität', 'Creative Activity')}
-            </h2>
-            <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
-              {L('Theater, Zeichnen, Musik oder Poesie für die Gruppe.', 'Drama, visual arts, music, or poetry for the group.')}
-            </p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsFeedbackOpen(true)}
-            className="flex flex-col items-start p-6 rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 text-left group cursor-pointer shadow-2xs"
-          >
-            <MessageSquare className="w-7 h-7 text-text-tertiary group-hover:text-accent mb-4 group-hover:scale-105 transition-all duration-200" strokeWidth={1.75} />
-            <h2 className="text-base font-bold text-text group-hover:text-accent transition-colors tracking-tight">
-              {L('Feedback & Ideen', 'Feedback & Ideas')}
-            </h2>
-            <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
-              {L('Allgemeine Rückmeldungen, Ideen oder Probleme mitteilen.', 'Share general feedback, ideas, or report issues.')}
-            </p>
-          </button>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          <FadedIconTile Icon={Compass} title={L('Spiel', 'Game')} sub={L('Kooperativ, Kennenlernen, Energizer', 'Cooperative, icebreaker, energizer')} onClick={() => { updateField('type', 'spiel'); setStep(2); }} className="min-h-[112px] sm:min-h-[128px]" />
+          <FadedIconTile Icon={HeartHandshake} title={L('Dienstprojekt', 'Service project')} sub={L('Nachbarschaft oder Natur', 'Neighbourhood or nature')} onClick={() => { updateField('type', 'dienst'); setStep(2); }} className="min-h-[112px] sm:min-h-[128px]" />
+          <FadedIconTile Icon={Palette} title={L('Kreative Aktivität', 'Creative activity')} sub={L('Theater, Kunst, Musik, Poesie', 'Drama, art, music, poetry')} onClick={() => { updateField('type', 'kunst'); setStep(2); }} className="min-h-[112px] sm:min-h-[128px]" />
+          <FadedIconTile Icon={MessageSquare} title={L('Feedback & Ideen', 'Feedback & ideas')} sub={L('Rückmeldung oder Problem', 'Feedback or an issue')} onClick={() => setIsFeedbackOpen(true)} className="min-h-[112px] sm:min-h-[128px]" />
         </div>
       )}
 

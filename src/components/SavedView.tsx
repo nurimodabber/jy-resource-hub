@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { quoteAuthor } from '../utils/quoteAuthor';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Bookmark,
@@ -75,7 +76,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
         return {
           id: q.id,
           title: isDe ? `»${text}«` : `“${text}”`,
-          attribution: `— ${q.source[language]}${q.book[language] ? ` · ${q.book[language]}` : ''}`,
+          attribution: `— ${quoteAuthor(q.source[language])}`,
           href: `/quotes/${q.id}`,
           icon: BookOpen,
           isQuote: true,

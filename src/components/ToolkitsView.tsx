@@ -1,17 +1,17 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { Link, useNavigate, useParams, Navigate } from 'react-router-dom';
+import { useNavigate, useParams, Navigate } from 'react-router-dom';
 import {
   Users,
   Timer,
   MessageSquareQuote,
   Award,
   UserCheck,
-  ArrowRight,
   LucideIcon,
 } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { tr, ToolHeader } from './tools/common';
+import { FadedIconTile } from './ui/FadedIconTile';
 // Each tool loads only when opened; the overview page needs none of them.
 const ScoreboardTool = lazy(() => import('./tools/ScoreboardTool').then((m) => ({ default: m.ScoreboardTool })));
 const TeamsTool = lazy(() => import('./tools/TeamsTool').then((m) => ({ default: m.TeamsTool })));
@@ -32,12 +32,6 @@ type ToolDef = {
   group: 'group' | 'run' | 'ideas';
   customHref?: string;
   Component?: React.ComponentType<{ language: Language }>;
-};
-
-const GROUP_LABELS: Record<'ideas' | 'group' | 'run', [string, string]> = {
-  ideas: ['Gespräch & Reflexion', 'Discussion & Reflection'],
-  group: ['Gruppe & Namen', 'Group & Names'],
-  run: ['Ablauf & Spiele', 'Session & Flow'],
 };
 
 const GroupManagerToolWrapper: React.FC<{ language: Language }> = ({ language }) => (
@@ -180,43 +174,11 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
         </p>
       </div>
 
-      {/* Raster (Grid) of Tools - 2 cols on mobile, 3 cols on tablet/desktop */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        {TOOLS.map((x) => {
-          const Icon = x.icon;
-          return (
-            <Link
-              key={x.id}
-              to={x.customHref || `/tools/${x.id}`}
-              className="group p-5 sm:p-6 rounded-card bg-surface/90 hover:bg-surface border border-line/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-xs transition-all duration-200 ease-out flex flex-col justify-between focus-visible:ring-2 focus-visible:ring-accent min-h-[160px] sm:min-h-[175px] shadow-2xs cursor-pointer relative"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="w-10 h-10 rounded-xl bg-surface-2/80 flex items-center justify-center text-text-tertiary group-hover:text-accent group-hover:bg-accent-subtle transition-all duration-200">
-                    <Icon className="w-5 h-5" strokeWidth={1.75} />
-                  </div>
-                  <span className="text-2xs font-semibold px-2.5 py-0.5 rounded-full bg-surface-2/80 text-text-tertiary group-hover:text-accent group-hover:bg-accent-subtle transition-colors">
-                    {GROUP_LABELS[x.group][isDe ? 0 : 1]}
-                  </span>
-                </div>
-
-                <div>
-                  <h2 className="font-serif text-lg font-medium text-text group-hover:text-accent transition-colors leading-snug tracking-tight">
-                    {x.title[isDe ? 0 : 1]}
-                  </h2>
-                  <p className="text-xs sm:text-sm text-text-secondary mt-2 leading-relaxed line-clamp-2">
-                    {x.desc[isDe ? 0 : 1]}
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-3 flex items-center justify-end text-xs text-text-secondary group-hover:text-accent font-semibold group-hover:translate-x-0.5 transition-all duration-150">
-                <span className="mr-1">{isDe ? 'Öffnen' : 'Open'}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </Link>
-          );
-        })}
+      {/* Tools as tiles: title + faded icon, no description, no category pill */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+        {TOOLS.map((x) => (
+          <FadedIconTile key={x.id} to={x.customHref || `/tools/${x.id}`} Icon={x.icon} title={x.title[isDe ? 0 : 1]} />
+        ))}
       </div>
     </div>
   );

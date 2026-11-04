@@ -1,4 +1,5 @@
 import React from 'react';
+import { quoteAuthor } from '../utils/quoteAuthor';
 import { Bookmark, Music, ExternalLink, Brain } from 'lucide-react';
 import { QuoteItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -135,7 +136,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               }
               className="hover:text-accent hover:underline inline-flex items-center gap-1 transition-colors group/src focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-accent rounded-xs"
             >
-              <span>{quote.source[language]}</span>
+              <span>{quoteAuthor(quote.source[language])}</span>
               <ExternalLink className="w-3 h-3 opacity-0 group-hover/src:opacity-80 transition-opacity shrink-0" />
             </a>
           </p>

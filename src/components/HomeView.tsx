@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { quoteAuthor } from '../utils/quoteAuthor';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Compass,
@@ -27,6 +28,7 @@ import { shareResource } from '../utils/share';
 import { loadRecentViews } from '../utils/recentViews';
 import { loadGroupTitle } from '../utils/groupNames';
 import { getBadiDate } from '../utils/badiCalendar';
+import { FadedIconTile } from './ui/FadedIconTile';
 import { tr, Panel, Label, Stepper, ChoiceChips, primaryBtn } from './tools/common';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -380,19 +382,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               sub: L('Idee einreichen', 'Share an idea'),
             },
           ].map(({ to, Icon, title, sub }) => (
-            <Link
-              key={to}
-              to={to}
-              className="group flex flex-col items-start gap-2.5 p-3 sm:p-4 rounded-card bg-surface border border-border/80 shadow-xs hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 motion-reduce:transform-none focus-visible:ring-2 focus-visible:ring-accent min-h-[112px]"
-            >
-              <span className="w-11 h-11 sm:w-12 sm:h-12 rounded-[14px] bg-surface-2 text-text-secondary flex items-center justify-center shrink-0">
-                <Icon className="w-[22px] h-[22px]" strokeWidth={1.9} aria-hidden="true" />
-              </span>
-              <span className="min-w-0 w-full">
-                <span className="block font-bold text-sm sm:text-base text-text tracking-tight truncate">{title}</span>
-                <span className="block text-2xs sm:text-xs text-text-secondary truncate">{sub}</span>
-              </span>
-            </Link>
+            <FadedIconTile key={to} to={to} Icon={Icon} title={title} sub={sub} />
           ))}
         </div>
       </section>
@@ -469,7 +459,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             </blockquote>
 
             <cite className="not-italic text-xs sm:text-sm text-text-secondary font-serif italic block mt-3">
-              — {quote.source[language]}
+              — {quoteAuthor(quote.source[language])}
             </cite>
           </Link>
         </section>
