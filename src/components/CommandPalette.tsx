@@ -363,8 +363,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         style={viewportHeight ? { maxHeight: `${viewportHeight}px`, outline: 'none' } : { outline: 'none' }}
       >
         {/* Input Bar (Liquid Glass Capsule with glow when selected) */}
-        <div className="flex items-center px-4 sm:px-6 py-3 sm:py-3.5 border-b border-line gap-2.5 sm:gap-3 bg-surface/80 backdrop-blur-md sticky top-0 z-10 safe-top">
-          <div className="flex-1 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-surface-2/60 border border-line focus-within:border-accent focus-within:bg-surface focus-within:ring-3 focus-within:ring-accent/20 transition-all shadow-2xs">
+        <div className="flex items-center px-4 sm:px-6 py-3 sm:py-3.5 border-b border-line gap-2.5 sm:gap-3 bg-surface/80 backdrop-blur-md sticky top-0 z-10 pt-[calc(env(safe-area-inset-top)+14px)] sm:pt-3.5">
+          <div className="flex-1 flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-surface-2/60 border border-line focus-within:bg-surface transition-all shadow-2xs">
             <Search className="w-4 h-4 text-accent shrink-0" strokeWidth={2} />
             <input
               ref={inputRef}
@@ -469,9 +469,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         </div>
 
         {/* Footer info bar */}
-        <div className="px-4 py-2.5 bg-surface-2/60 border-t border-border flex items-center justify-between text-2xs text-text-tertiary">
-          <span>{results.length} {isDe ? 'Ergebnisse' : 'results'}</span>
-          <div className="hidden sm:flex items-center gap-3">
+        <div className="hidden sm:flex px-4 py-2.5 bg-surface-2/60 border-t border-border items-center justify-end text-2xs text-text-tertiary">
+          <div className="flex items-center gap-3">
             <span>↑↓ {isDe ? 'Navigieren' : 'Navigate'}</span>
             <span>↵ {isDe ? 'Auswählen' : 'Select'}</span>
             <span>ESC {isDe ? 'Schließen' : 'Close'}</span>
