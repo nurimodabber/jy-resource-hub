@@ -5,7 +5,6 @@ import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getBookById } from '../utils/bookProgress';
 import { activityTone } from '../data/activityTones';
-import { IconTile } from './ui/IconTile';
 
 interface ServiceArtsCardProps {
   activity: ActivityItem;
@@ -45,7 +44,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
     ? t.artFormVisual
     : t.artFormMural;
 
-  const { tone, icon } = activityTone(activity);
+  const { tone } = activityTone(activity);
 
   const description = isService
     ? (activity.guidedBy ? activity.guidedBy[language] : activity.objective[language])
@@ -95,10 +94,8 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
       <div className="space-y-1 sm:space-y-1.5 flex-1 min-w-0">
         {/* Top row: category or general theme on left, duration + bookmark on right */}
         <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-          <span className="flex items-center gap-2.5 min-w-0">
-            <IconTile icon={icon} size="sm" toneClass="tone-tile" />
-            <span className="text-xs font-semibold tone-text truncate">{categoryLabel}</span>
-          </span>
+          {/* Nur die Kategorie als gedämpfter Farbtext, kein Icon (eins von beiden reicht) */}
+          <span className="text-xs font-semibold tone-text truncate min-w-0">{categoryLabel}</span>
 
           <div className="flex items-center gap-1.5 -mr-1.5 -my-2 sm:-my-2.5 shrink-0 relative z-10" onClick={(e) => e.stopPropagation()}>
             {durationText && (

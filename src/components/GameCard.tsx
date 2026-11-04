@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Clock, Bookmark, Play, Flame } from 'lucide-react';
+import { Users, Clock, Bookmark, Play } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getGameIcon } from '../data/gameIcons';
@@ -72,23 +72,6 @@ export const GameCard: React.FC<GameCardProps> = ({
   userGroupSize,
 }) => {
   const t = UI_TRANSLATIONS[language];
-  const categoryBadge = React.useMemo(() => {
-    switch (game.purpose) {
-      case 'kennenlernen':
-        return language === 'de' ? 'Kennenlernen' : 'Icebreaker';
-      case 'zusammenarbeit':
-        return language === 'de' ? 'Zusammenarbeit' : 'Cooperation';
-      case 'ruhe':
-        return language === 'de' ? 'Fokus & Konzentration' : 'Focus & Calm';
-      case 'energie':
-        return language === 'de' ? 'Bewegung & Dynamik' : 'Movement & Action';
-      case 'raten':
-        return language === 'de' ? 'Raten & Denken' : 'Guessing & Logic';
-      default:
-        return language === 'de' ? 'Gruppenspiel' : 'Group Game';
-    }
-  }, [game.purpose, language]);
-
   const energyLabel =
     game.energyLevel === 'high'
       ? t.filterHighEnergy
@@ -119,19 +102,8 @@ export const GameCard: React.FC<GameCardProps> = ({
               {game.title[language]}
             </h3>
           </div>
-          <span
-            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-2/80 border border-line/60 text-2xs text-text-tertiary shrink-0 shadow-2xs group-hover:border-accent/30 transition-colors"
-            title={`${t.filterEnergy}: ${energyLabel}`}
-            aria-label={`${t.filterEnergy}: ${energyLabel}`}
-          >
-            <Flame className="w-3 h-3 text-amber-500 shrink-0" strokeWidth={2} />
-            <EnergyDots energyLevel={game.energyLevel} />
-            <span className="text-[11px] font-medium text-text-secondary hidden min-[440px]:inline">
-              {energyLabel}
-            </span>
-          </span>
         </div>
-        <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 mt-1.5 sm:mt-2 leading-relaxed relative z-[1]">
+        <p className="text-xs sm:text-sm text-text-secondary line-clamp-1 mt-1.5 sm:mt-2 leading-relaxed relative z-[1]">
           {description}
         </p>
       </Link>
@@ -151,12 +123,9 @@ export const GameCard: React.FC<GameCardProps> = ({
         <Bookmark className={`w-4 h-4 transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
       </button>
 
-      {/* Bottom row: Clean typography without pill badges */}
-      <div className="relative z-[1] pointer-events-none flex items-center justify-between gap-2 flex-wrap pt-2.5 mt-3 border-t border-border/40 text-xs text-text-secondary">
+      {/* Untere Zeile: nur Personen, Minuten, Energie (Kategorie steckt in den Filtern) */}
+      <div className="relative z-[1] pointer-events-none flex flex-row-reverse items-center justify-between gap-2 flex-wrap pt-2.5 mt-3 border-t border-border/40 text-xs text-text-secondary">
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
-          <span className="text-2xs font-semibold text-accent">
-            {categoryBadge}
-          </span>
           {hasCompanion && (
             <span className="inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full bg-accent text-accent-contrast shadow-2xs">
               <Play className="w-2.5 h-2.5 fill-current" />
@@ -186,6 +155,13 @@ export const GameCard: React.FC<GameCardProps> = ({
             <span className="sr-only">{t.filterDuration}: </span>
             <span>{game.durationMinutes}</span>
           </div>
+
+          <span className="text-border" aria-hidden="true">·</span>
+
+          <span className="inline-flex items-center" title={`${t.filterEnergy}: ${energyLabel}`}>
+            <EnergyDots energyLevel={game.energyLevel} />
+            <span className="sr-only">{t.filterEnergy}: {energyLabel}</span>
+          </span>
         </div>
       </div>
     </div>
