@@ -1,5 +1,5 @@
 /**
- * Append-only Revision Engine & Non-Destructive Versioning for JY Hub
+ * Append-only Revision Engine & Non-Destructive Versioning for Juju Hub
  *
  * Guarantees:
  * 1. Physical DELETE is impossible — all deletions are soft-deletes (`action: 'soft_delete'`).

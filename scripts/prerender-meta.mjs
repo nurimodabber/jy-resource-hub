@@ -51,7 +51,7 @@ async function run() {
     {
       path: '/',
       priority: '1.0',
-      title: 'Junior Youth Hub — Spiele, Zitate und Werkzeuge für Animatoren',
+      title: 'Juju Hub — Spiele, Zitate und Werkzeuge für Animatoren',
       description:
         "Spiele, heilige Zitate, Dienst- und Kunstprojekte, Treffen-Planer und Live-Werkzeuge für Animatoren von Bahá'í-Juniorjugendgruppen.",
       ogType: 'website',
@@ -59,7 +59,7 @@ async function run() {
       jsonLd: {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'Junior Youth Hub',
+        name: 'Juju Hub',
         url: SITE_ORIGIN,
         inLanguage: ['de', 'en'],
         description:
@@ -74,7 +74,7 @@ async function run() {
     {
       path: '/games',
       priority: '0.9',
-      title: 'Spiele — Junior Youth Hub',
+      title: 'Spiele — Juju Hub',
       description:
         'Erprobte Gruppenspiele für 11- bis 15-Jährige nach Wirkung, Energielevel, Gruppengröße und Material filtern.',
       ogType: 'website',
@@ -83,7 +83,7 @@ async function run() {
     {
       path: '/quotes',
       priority: '0.9',
-      title: 'Zitate — Junior Youth Hub',
+      title: 'Zitate — Juju Hub',
       description:
         "Kanonische Bahá'í-Zitate und Gebete nach Jugendbuch und Thema mit interaktiven Lernmethoden.",
       ogType: 'website',
@@ -92,7 +92,7 @@ async function run() {
     {
       path: '/treffen',
       priority: '0.9',
-      title: 'Treffen planen — Junior Youth Hub',
+      title: 'Treffen planen — Juju Hub',
       description:
         'Gruppentreffen, Andachten und Camp-Abende mit Zeitplan und Packliste planen und live begleiten.',
       ogType: 'website',
@@ -101,7 +101,7 @@ async function run() {
     {
       path: '/service',
       priority: '0.8',
-      title: 'Dienstprojekte — Junior Youth Hub',
+      title: 'Dienstprojekte — Juju Hub',
       description:
         'Gemeindedienst-Projekte und Aktionen für Juniorjugendgruppen und Camps.',
       ogType: 'website',
@@ -110,7 +110,7 @@ async function run() {
     {
       path: '/arts',
       priority: '0.8',
-      title: 'Kreative Kunst — Junior Youth Hub',
+      title: 'Kreative Kunst — Juju Hub',
       description:
         'Kreative Ausdrucks-Impulse, Theater, Musik und bildende Kunst für Juniorjugendgruppen.',
       ogType: 'website',
@@ -119,7 +119,7 @@ async function run() {
     {
       path: '/service-arts',
       priority: '0.7',
-      title: 'Dienst & Kunst — Junior Youth Hub',
+      title: 'Dienst & Kunst — Juju Hub',
       description:
         'Gemeindedienst-Projekte und kreative Ausdrucks-Impulse für Juniorjugendgruppen und Camps.',
       ogType: 'website',
@@ -128,7 +128,7 @@ async function run() {
     {
       path: '/tools',
       priority: '0.8',
-      title: 'Werkzeuge — Junior Youth Hub',
+      title: 'Werkzeuge — Juju Hub',
       description:
         'Live-Werkzeuge für die Gruppe: Teams, Timer, Punktetafel, Gesprächskarten und Namensliste.',
       ogType: 'website',
@@ -137,7 +137,7 @@ async function run() {
     {
       path: '/saved',
       priority: '0.6',
-      title: 'Gemerkt — Junior Youth Hub',
+      title: 'Gemerkt — Juju Hub',
       description: 'Deine gespeicherten Spiele, heiligen Zitate und Projekte auf diesem Gerät.',
       ogType: 'website',
       ogQuery: 'type=section&title=Gemerkt',
@@ -145,24 +145,24 @@ async function run() {
     {
       path: '/vorschlagen',
       priority: '0.8',
-      title: 'Beitragen — Junior Youth Hub',
+      title: 'Beitragen — Juju Hub',
       description:
-        'Du hast ein Spiel oder Projekt, das fehlt? Teile ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Junior Youth Hub.',
+        'Du hast ein Spiel oder Projekt, das fehlt? Teile ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Juju Hub.',
       ogType: 'website',
       ogQuery: 'type=section&title=Beitragen',
     },
     {
       path: '/impressum',
       priority: '0.3',
-      title: 'Impressum — Junior Youth Hub',
-      description: 'Angaben gemäß § 5 DDG für den Junior Youth Hub.',
+      title: 'Impressum — Juju Hub',
+      description: 'Angaben gemäß § 5 DDG für den Juju Hub.',
       ogType: 'website',
       ogQuery: 'type=section&title=Impressum',
     },
     {
       path: '/datenschutz',
       priority: '0.3',
-      title: 'Datenschutzerklärung — Junior Youth Hub',
+      title: 'Datenschutzerklärung — Juju Hub',
       description: 'Datenschutz nach DSGVO: Keine Cookies, kein Tracking, 100 % lokale Speicherung.',
       ogType: 'website',
       ogQuery: 'type=section&title=Datenschutz',
@@ -170,7 +170,7 @@ async function run() {
     {
       path: '/admin',
       priority: '0.1',
-      title: 'Admin-Dashboard — Junior Youth Hub',
+      title: 'Admin-Dashboard — Juju Hub',
       description: 'Revisionssichere Verwaltung von Spielen, Kategorien und Vorschlägen.',
       ogType: 'website',
       ogQuery: 'type=section&title=Admin',
@@ -189,7 +189,7 @@ async function run() {
     routes.push({
       path: `/games/${game.id}`,
       priority: '0.8',
-      title: `${game.title.de} – Spiel (${sizeStr}, ${game.durationMinutes}) | Junior Youth Hub`,
+      title: `${game.title.de} – Spiel (${sizeStr}, ${game.durationMinutes}) | Juju Hub`,
       description: `${game.summary.de} ${game.idea.de}`,
       ogType: 'article',
       ogQuery: q.toString(),
@@ -220,7 +220,7 @@ async function run() {
     routes.push({
       path: `/quotes/${quote.id}`,
       priority: '0.8',
-      title: `${quote.theme.de} – Zitat (${quote.source.de}) | Junior Youth Hub`,
+      title: `${quote.theme.de} – Zitat (${quote.source.de}) | Juju Hub`,
       description: `„${quote.textDe}“ — ${quote.source.de} (${quote.book.de})`,
       ogType: 'article',
       ogQuery: q.toString(),
@@ -258,7 +258,7 @@ async function run() {
     routes.push({
       path: dedicatedPath,
       priority: '0.7',
-      title: `${act.title.de} – ${kindLabel} (${sizeStr}) | Junior Youth Hub`,
+      title: `${act.title.de} – ${kindLabel} (${sizeStr}) | Juju Hub`,
       description: desc,
       ogType: 'article',
       ogQuery: q.toString(),
@@ -266,7 +266,7 @@ async function run() {
     routes.push({
       path: `/service-arts/${act.id}`,
       priority: '0.6',
-      title: `${act.title.de} – ${kindLabel} (${sizeStr}) | Junior Youth Hub`,
+      title: `${act.title.de} – ${kindLabel} (${sizeStr}) | Juju Hub`,
       description: desc,
       ogType: 'article',
       ogQuery: q.toString(),
@@ -283,7 +283,7 @@ async function run() {
     routes.push({
       path: `/tools/${toolId}`,
       priority: '0.7',
-      title: `${tName} – Werkzeug | Junior Youth Hub`,
+      title: `${tName} – Werkzeug | Juju Hub`,
       description: tDesc,
       ogType: 'website',
       ogQuery: q.toString(),
@@ -332,10 +332,10 @@ ${routes
 
     const buildStaticRootShell = (r) => {
       const cleanHeading = r.title
-        .replace(/\s*[—|]\s*Junior Youth Hub.*$/, '')
+        .replace(/\s*[—|]\s*Juju Hub.*$/, '')
         .replace(/\s*–\s*(Spiel|Zitat|Dienstprojekt|Kunst & Ausdruck|Werkzeug).*$/, '');
       const leadText = `${r.description} Entwickelt für Animatoren von Bahá’í-Juniorjugendgruppen (11 bis 15 Jahre) zur Vorbereitung am Laptop und für den unmittelbaren Live-Einsatz auf dem Smartphone in der Gruppe – inklusive Offline-Unterstützung, Filterung nach Gruppengröße und Energielevel sowie interaktiven Werkzeuge für Treffen und Camps.`;
-      return `<div id="root"><div class="min-h-screen bg-bg text-text flex flex-col"><header class="sticky top-0 z-40 h-16 bg-surface border-b border-border flex items-center px-4 sm:px-6"><span class="font-bold text-base text-text">Junior Youth Hub</span></header><main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-28"><div class="max-w-4xl mx-auto space-y-6"><section class="space-y-3"><h1 class="text-2xl sm:text-3xl font-bold text-text tracking-tight">${escapeHtml(cleanHeading)}</h1><p class="text-base sm:text-lg text-text leading-relaxed">${escapeHtml(leadText)}</p></section></div></main></div></div>`;
+      return `<div id="root"><div class="min-h-screen bg-bg text-text flex flex-col"><header class="sticky top-0 z-40 h-16 bg-surface border-b border-border flex items-center px-4 sm:px-6"><span class="font-bold text-base text-text">Juju Hub</span></header><main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-28"><div class="max-w-4xl mx-auto space-y-6"><section class="space-y-3"><h1 class="text-2xl sm:text-3xl font-bold text-text tracking-tight">${escapeHtml(cleanHeading)}</h1><p class="text-base sm:text-lg text-text leading-relaxed">${escapeHtml(leadText)}</p></section></div></main></div></div>`;
     };
 
     const buildRouteHtml = (r) => {
@@ -424,7 +424,7 @@ ${routes
     // Generate dist/404.html for real HTTP 404 responses on Vercel
     const notFoundHtml = buildRouteHtml({
       path: '/404',
-      title: 'Seite nicht gefunden — Junior Youth Hub',
+      title: 'Seite nicht gefunden — Juju Hub',
       description: 'Die gewünschte Ressource oder Seite existiert nicht oder wurde verschoben.',
       ogType: 'website',
       ogQuery: 'type=section&title=404+Seite+nicht+gefunden',

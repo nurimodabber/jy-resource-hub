@@ -1540,7 +1540,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 <Logo className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-lg font-extrabold text-text tracking-tight">Junior Youth Hub</h1>
+                <h1 className="text-lg font-extrabold text-text tracking-tight">Juju Hub</h1>
                 <p className="text-xs text-text-secondary">
                   {isInitialSetup
                     ? L('Redaktions-Portal · Zugang anfragen', 'Editorial Portal · Request Access')
@@ -1882,7 +1882,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
               <Logo className="w-5 h-5 text-accent" />
             </div>
             <div className="leading-tight">
-              <div className="font-extrabold text-sm text-text tracking-tight">Junior Youth Hub</div>
+              <div className="font-extrabold text-sm text-text tracking-tight">Juju Hub</div>
               <div className="text-xs text-text-tertiary">{L('Portal', 'Portal')}</div>
             </div>
           </div>

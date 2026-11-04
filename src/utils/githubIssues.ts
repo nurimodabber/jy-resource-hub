@@ -1,5 +1,5 @@
 /**
- * GitHub Issues Integration for Community Proposals in JY Hub Admin
+ * GitHub Issues Integration for Community Proposals in Juju Hub Admin
  * 
  * Interacts with the GitHub REST API to fetch issues created by users or community
  * members via the submission form (api/submit.ts) or directly on GitHub.

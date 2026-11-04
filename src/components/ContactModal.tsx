@@ -68,13 +68,13 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
   };
 
   const generateMailtoUrl = () => {
-    const subject = encodeURIComponent(`[Junior Youth Hub] ${getTopicLabel(topic)}`);
+    const subject = encodeURIComponent(`[Juju Hub] ${getTopicLabel(topic)}`);
     const bodyLines = [
       message.trim() || (language === 'de' ? '(Deine Nachricht hier)' : '(Your message here)'),
       '',
       '---',
       userEmail.trim() ? `${language === 'de' ? 'Absender E-Mail' : 'Sender Email'}: ${userEmail.trim()}` : '',
-      `${language === 'de' ? 'Kontext' : 'Context'}: Junior Youth Hub (${language === 'de' ? 'Cluster Rhein-Neckar · Experimentell' : 'Cluster Rhein-Neckar · Experimental'})`,
+      `${language === 'de' ? 'Kontext' : 'Context'}: Juju Hub (${language === 'de' ? 'Cluster Rhein-Neckar · Experimentell' : 'Cluster Rhein-Neckar · Experimental'})`,
     ].filter(Boolean);
 
     const body = encodeURIComponent(bodyLines.join('\n'));
@@ -84,7 +84,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
   const handleCopyMessage = async () => {
     const fullText = [
       `An: ${CONTACT_EMAILS.join(', ')}`,
-      `Betreff: [Junior Youth Hub] ${getTopicLabel(topic)}`,
+      `Betreff: [Juju Hub] ${getTopicLabel(topic)}`,
       '',
       message.trim(),
       '',

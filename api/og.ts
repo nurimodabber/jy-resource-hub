@@ -35,7 +35,7 @@ const wrapText = (text: string, maxCharsPerLine: number, maxLines: number): stri
 
 export function renderOgSvg(params: URLSearchParams): string {
   const type = params.get('type') || 'home';
-  const rawTitle = params.get('title') || 'Junior Youth Hub';
+  const rawTitle = params.get('title') || 'Juju Hub';
   const rawSubtitle =
     params.get('subtitle') ||
     'Spiele, heilige Zitate, Dienst & Kunst, Treffen und Werkzeuge für Animatoren';
@@ -96,7 +96,7 @@ export function renderOgSvg(params: URLSearchParams): string {
 
   <!-- Footer Branding -->
   <circle cx="106" cy="542" r="8" fill="#6FA3FF"/>
-  <text x="124" y="548" fill="#A3B1CA" font-family="'Figtree', -apple-system, sans-serif" font-size="18" font-weight="600">Junior Youth Hub · juju-hub.vercel.app</text>
+  <text x="124" y="548" fill="#A3B1CA" font-family="'Figtree', -apple-system, sans-serif" font-size="18" font-weight="600">Juju Hub · juju-hub.vercel.app</text>
 </svg>`;
 }
 

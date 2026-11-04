@@ -117,8 +117,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
       onClose={onClose}
       title={L('Feedback abgeben', 'Share Feedback')}
       description={L(
-        'Hast du Ideen, Wünsche oder Anmerkungen zum Junior Youth Hub? Teile deine Gedanken mit uns.',
-        'Do you have ideas, requests, or notes about the Junior Youth Hub? Share your thoughts with us.'
+        'Hast du Ideen, Wünsche oder Anmerkungen zum Juju Hub? Teile deine Gedanken mit uns.',
+        'Do you have ideas, requests, or notes about the Juju Hub? Share your thoughts with us.'
       )}
       maxWidth="lg"
     >

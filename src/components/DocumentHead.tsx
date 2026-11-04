@@ -54,16 +54,16 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
 
     if (pathname === '/' || pathname === '/home') {
       title = isDe
-        ? 'Junior Youth Hub — Spiele, Zitate und Werkzeuge für Animatoren'
-        : 'Junior Youth Hub — Games, quotes and tools for animators';
+        ? 'Juju Hub — Spiele, Zitate und Werkzeuge für Animatoren'
+        : 'Juju Hub — Games, quotes and tools for animators';
       ogParams.set('type', 'home');
-      ogParams.set('title', 'Junior Youth Hub');
+      ogParams.set('title', 'Juju Hub');
       ogParams.set('subtitle', isDe ? 'Spiele · Heilige Zitate · Werkzeuge' : 'Games · Sacred Quotes · Tools');
 
       jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'Junior Youth Hub',
+        name: 'Juju Hub',
         url: origin,
         inLanguage: ['de', 'en'],
         description,
@@ -74,7 +74,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         },
       };
     } else if (pathname === '/games') {
-      title = isDe ? 'Spiele — Junior Youth Hub' : 'Games — Junior Youth Hub';
+      title = isDe ? 'Spiele — Juju Hub' : 'Games — Juju Hub';
       description = isDe
         ? 'Erprobte Gruppenspiele für 11- bis 15-Jährige nach Wirkung, Energielevel, Gruppengröße und Material filtern.'
         : 'Field-tested group games for ages 11–15 filtered by purpose, energy level, group size, and materials.';
@@ -88,8 +88,8 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         const gTitle = game.title[language];
         const sizeStr = `${game.groupSize.min}–${game.groupSize.max} ${isDe ? 'Pers.' : 'ppl'}`;
         title = isDe
-          ? `${gTitle} – Spiel (${sizeStr}, ${game.durationMinutes}) | Junior Youth Hub`
-          : `${gTitle} – Game (${sizeStr}, ${game.durationMinutes}) | Junior Youth Hub`;
+          ? `${gTitle} – Spiel (${sizeStr}, ${game.durationMinutes}) | Juju Hub`
+          : `${gTitle} – Game (${sizeStr}, ${game.durationMinutes}) | Juju Hub`;
         description = `${game.summary[language]} ${game.idea[language]}`;
         ogType = 'article';
         ogParams.set('type', 'game');
@@ -113,10 +113,10 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
           })),
         };
       } else {
-        title = isDe ? 'Spiel nicht gefunden — Junior Youth Hub' : 'Game not found — Junior Youth Hub';
+        title = isDe ? 'Spiel nicht gefunden — Juju Hub' : 'Game not found — Juju Hub';
       }
     } else if (pathname === '/quotes') {
-      title = isDe ? 'Zitate — Junior Youth Hub' : 'Quotes — Junior Youth Hub';
+      title = isDe ? 'Zitate — Juju Hub' : 'Quotes — Juju Hub';
       description = isDe
         ? 'Kanonische Bahá\'í-Zitate und Gebete nach Jugendbuch und Thema mit interaktiven Lernmethoden.'
         : 'Canonical Bahá\'í quotes and prayers by book and topic with interactive memorisation tools.';
@@ -132,8 +132,8 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         const qText = isDe ? quote.textDe : quote.textEn;
         const qBook = quote.book[language];
         title = isDe
-          ? `${qTheme} – Zitat (${qSource}) | Junior Youth Hub`
-          : `${qTheme} – Quote (${qSource}) | Junior Youth Hub`;
+          ? `${qTheme} – Zitat (${qSource}) | Juju Hub`
+          : `${qTheme} – Quote (${qSource}) | Juju Hub`;
         description = `„${qText}“ — ${qSource} (${qBook})`;
         ogType = 'article';
         ogParams.set('type', 'quote');
@@ -158,10 +158,10 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
           inLanguage: language,
         };
       } else {
-        title = isDe ? 'Zitat nicht gefunden — Junior Youth Hub' : 'Quote not found — Junior Youth Hub';
+        title = isDe ? 'Zitat nicht gefunden — Juju Hub' : 'Quote not found — Juju Hub';
       }
     } else if (pathname === '/service') {
-      title = isDe ? 'Dienstprojekte — Junior Youth Hub' : 'Service Projects — Junior Youth Hub';
+      title = isDe ? 'Dienstprojekte — Juju Hub' : 'Service Projects — Juju Hub';
       description = isDe
         ? 'Gemeindedienst-Projekte und Aktionen für Juniorjugendgruppen und Camps.'
         : 'Community service projects and action ideas for junior youth groups and camps.';
@@ -175,7 +175,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         const aTitle = activity.title[language];
         const kindLabel = isDe ? 'Dienstprojekt' : 'Service Project';
         const sizeStr = `${activity.groupSize.min}–${activity.groupSize.max} ${isDe ? 'Pers.' : 'ppl'}`;
-        title = `${aTitle} – ${kindLabel} (${sizeStr}) | Junior Youth Hub`;
+        title = `${aTitle} – ${kindLabel} (${sizeStr}) | Juju Hub`;
         description = activity.objective[language];
         ogType = 'article';
         ogParams.set('type', 'activity');
@@ -183,10 +183,10 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         ogParams.set('title', aTitle);
         ogParams.set('subtitle', `${kindLabel} · ${sizeStr}`);
       } else {
-        title = isDe ? 'Dienstprojekt nicht gefunden — Junior Youth Hub' : 'Service project not found — Junior Youth Hub';
+        title = isDe ? 'Dienstprojekt nicht gefunden — Juju Hub' : 'Service project not found — Juju Hub';
       }
     } else if (pathname === '/arts') {
-      title = isDe ? 'Kreative Kunst — Junior Youth Hub' : 'Creative Arts — Junior Youth Hub';
+      title = isDe ? 'Kreative Kunst — Juju Hub' : 'Creative Arts — Juju Hub';
       description = isDe
         ? 'Kreative Ausdrucks-Impulse, Theater, Musik und bildende Kunst für Juniorjugendgruppen.'
         : 'Creative arts prompts, drama, music and visual arts for junior youth groups.';
@@ -200,7 +200,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         const aTitle = activity.title[language];
         const kindLabel = isDe ? 'Kreative Kunst' : 'Creative Arts';
         const sizeStr = `${activity.groupSize.min}–${activity.groupSize.max} ${isDe ? 'Pers.' : 'ppl'}`;
-        title = `${aTitle} – ${kindLabel} (${sizeStr}) | Junior Youth Hub`;
+        title = `${aTitle} – ${kindLabel} (${sizeStr}) | Juju Hub`;
         description = activity.description[language];
         ogType = 'article';
         ogParams.set('type', 'activity');
@@ -208,10 +208,10 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         ogParams.set('title', aTitle);
         ogParams.set('subtitle', `${kindLabel} · ${sizeStr}`);
       } else {
-        title = isDe ? 'Kunst-Impuls nicht gefunden — Junior Youth Hub' : 'Creative art prompt not found — Junior Youth Hub';
+        title = isDe ? 'Kunst-Impuls nicht gefunden — Juju Hub' : 'Creative art prompt not found — Juju Hub';
       }
     } else if (pathname === '/service-arts') {
-      title = isDe ? 'Dienst & Kunst — Junior Youth Hub' : 'Service & Arts — Junior Youth Hub';
+      title = isDe ? 'Dienst & Kunst — Juju Hub' : 'Service & Arts — Juju Hub';
       description = isDe
         ? 'Gemeindedienst-Projekte und kreative Ausdrucks-Impulse für Juniorjugendgruppen und Camps.'
         : 'Community service projects and creative arts prompts for junior youth groups and camps.';
@@ -229,7 +229,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
             ? isDe ? 'Dienstprojekt' : 'Service Project'
             : isDe ? 'Kunst & Ausdruck' : 'Arts & Drama';
         const sizeStr = `${activity.groupSize.min}–${activity.groupSize.max} ${isDe ? 'Pers.' : 'ppl'}`;
-        title = `${aTitle} – ${kindLabel} (${sizeStr}) | Junior Youth Hub`;
+        title = `${aTitle} – ${kindLabel} (${sizeStr}) | Juju Hub`;
         description = activity.kind === 'dienst' ? activity.objective[language] : activity.description[language];
         ogType = 'article';
         ogParams.set('type', 'activity');
@@ -237,10 +237,10 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         ogParams.set('title', aTitle);
         ogParams.set('subtitle', `${kindLabel} · ${sizeStr}`);
       } else {
-        title = isDe ? 'Projekt nicht gefunden — Junior Youth Hub' : 'Project not found — Junior Youth Hub';
+        title = isDe ? 'Projekt nicht gefunden — Juju Hub' : 'Project not found — Juju Hub';
       }
     } else if (pathname === '/tools') {
-      title = isDe ? 'Werkzeuge — Junior Youth Hub' : 'Tools — Junior Youth Hub';
+      title = isDe ? 'Werkzeuge — Juju Hub' : 'Tools — Juju Hub';
       description = isDe
         ? 'Live-Werkzeuge für die Gruppe: Teams, Timer, Punktetafel, Gesprächskarten und Namensliste.'
         : 'Live tools for the group: Teams, timer, scoreboard, conversation cards and member list.';
@@ -253,45 +253,45 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
       if (toolMeta) {
         const [tName, tDesc] = toolMeta[language];
         title = isDe
-          ? `${tName} – Werkzeug | Junior Youth Hub`
-          : `${tName} – Tool | Junior Youth Hub`;
+          ? `${tName} – Werkzeug | Juju Hub`
+          : `${tName} – Tool | Juju Hub`;
         description = tDesc;
         ogParams.set('type', 'tool');
         ogParams.set('id', toolId);
         ogParams.set('title', tName);
         ogParams.set('subtitle', tDesc);
       } else {
-        title = isDe ? 'Werkzeuge — Junior Youth Hub' : 'Tools — Junior Youth Hub';
+        title = isDe ? 'Werkzeuge — Juju Hub' : 'Tools — Juju Hub';
       }
     } else if (pathname === '/saved') {
-      title = isDe ? 'Gemerkt — Junior Youth Hub' : 'Saved — Junior Youth Hub';
+      title = isDe ? 'Gemerkt — Juju Hub' : 'Saved — Juju Hub';
       description = isDe
         ? 'Deine gespeicherten Spiele, heiligen Zitate und Projekte auf diesem Gerät.'
         : 'Your saved games, sacred scripture quotes and projects on this device.';
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Gemerkte Inhalte' : 'Saved Items');
     } else if (pathname === '/vorschlagen') {
-      title = isDe ? 'Beitragen — Junior Youth Hub' : 'Contribute — Junior Youth Hub';
+      title = isDe ? 'Beitragen — Juju Hub' : 'Contribute — Juju Hub';
       description = isDe
-        ? 'Teile ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Junior Youth Hub.'
-        : 'Contribute a field-tested group game, service project or arts prompt for the Junior Youth Hub.';
+        ? 'Teile ein erprobtes Gruppenspiel, Dienstprojekt oder einen Kunst-Impuls für den Juju Hub.'
+        : 'Contribute a field-tested group game, service project or arts prompt for the Juju Hub.';
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Beitragen' : 'Contribute');
     } else if (pathname === '/impressum') {
-      title = isDe ? 'Impressum — Junior Youth Hub' : 'Legal Notice — Junior Youth Hub';
-      description = 'Angaben gemäß § 5 DDG für den Junior Youth Hub.';
+      title = isDe ? 'Impressum — Juju Hub' : 'Legal Notice — Juju Hub';
+      description = 'Angaben gemäß § 5 DDG für den Juju Hub.';
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Impressum' : 'Legal Notice');
     } else if (pathname === '/datenschutz') {
-      title = isDe ? 'Datenschutzerklärung — Junior Youth Hub' : 'Privacy Policy — Junior Youth Hub';
+      title = isDe ? 'Datenschutzerklärung — Juju Hub' : 'Privacy Policy — Juju Hub';
       description = 'Datenschutz nach DSGVO: Keine Cookies, kein Tracking, 100 % lokale Speicherung auf deinem Gerät.';
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Datenschutzerklärung' : 'Privacy Policy');
     } else if (pathname === '/_design') {
-      title = 'Designsystem — Junior Youth Hub';
-      description = 'Komponenten-Galerie und Design-Tokens des Junior Youth Hub.';
+      title = 'Designsystem — Juju Hub';
+      description = 'Komponenten-Galerie und Design-Tokens des Juju Hub.';
     } else {
-      title = isDe ? 'Seite nicht gefunden — Junior Youth Hub' : 'Page not found — Junior Youth Hub';
+      title = isDe ? 'Seite nicht gefunden — Juju Hub' : 'Page not found — Juju Hub';
       description = isDe
         ? 'Die angeforderte Seite wurde nicht gefunden.'
         : 'The requested page could not be found.';
@@ -314,7 +314,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
 
     setMetaTag('name', 'description', description);
     setMetaTag('property', 'og:type', ogType);
-    setMetaTag('property', 'og:site_name', 'Junior Youth Hub');
+    setMetaTag('property', 'og:site_name', 'Juju Hub');
     setMetaTag('property', 'og:title', title);
     setMetaTag('property', 'og:description', description);
     setMetaTag('property', 'og:url', canonicalUrl);

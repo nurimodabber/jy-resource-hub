@@ -79,7 +79,7 @@ let totalViolations = 0;
 let totalChecks = 0;
 
 console.log('='.repeat(70));
-console.log('  WCAG AA CONTRAST AUDIT REPORT (Junior Youth Hub v2 Tokens)');
+console.log('  WCAG AA CONTRAST AUDIT REPORT (Juju Hub v2 Tokens)');
 console.log('='.repeat(70));
 
 for (const [mode, tokens] of Object.entries(PALETTES)) {

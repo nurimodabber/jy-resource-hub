@@ -2,7 +2,7 @@ import { Language } from '../types';
 
 const de = {
     // Brand & Navigation
-    siteTitle: 'Junior Youth Hub',
+    siteTitle: 'Juju Hub',
     siteSubtitle: 'Praxisressourcen für Jugendgruppen & Freizeiten',
     tabHome: 'Start',
     tabGames: 'Spiele',
@@ -591,7 +591,7 @@ export type TKey = keyof typeof de;
 
 const en: Record<TKey, string> = {
     // Brand & Navigation
-    siteTitle: 'Junior Youth Hub',
+    siteTitle: 'Juju Hub',
     siteSubtitle: 'Practical resources for youth groups and camps',
     tabHome: 'Home',
     tabGames: 'Games',

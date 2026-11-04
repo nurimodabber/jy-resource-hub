@@ -12,7 +12,7 @@ export interface QuoteSongMapping {
 }
 
 /**
- * Verified mappings between Quotes in Junior Youth Hub and songs on Bahá'í Songs (bahaisongs.com).
+ * Verified mappings between Quotes in Juju Hub and songs on Bahá'í Songs (bahaisongs.com).
  * Includes both German and English intonations.
  */
 export const QUOTE_SONGS_MAP: Record<string, QuoteSongMapping> = {

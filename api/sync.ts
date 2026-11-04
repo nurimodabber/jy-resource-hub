@@ -368,7 +368,7 @@ function ghHeaders(): Record<string, string> {
   return {
     Accept: 'application/vnd.github.v3+json',
     Authorization: `token ${process.env.GITHUB_TOKEN}`,
-    'User-Agent': 'JY-Hub-Admin',
+    'User-Agent': 'Juju Hub-Admin',
     'Content-Type': 'application/json',
   };
 }
@@ -507,7 +507,7 @@ function escapeHtml(value: string): string {
 async function sendEmail(params: { to: string; subject: string; text: string; html: string }): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return false;
-  const from = process.env.EMAIL_FROM || 'Junior Youth Hub <onboarding@resend.dev>';
+  const from = process.env.EMAIL_FROM || 'Juju Hub <onboarding@resend.dev>';
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -532,7 +532,7 @@ function buildApprovalEmail(displayName: string, email: string, role: string) {
   const text = [
     `Hallo ${displayName},`,
     '',
-    'dein Zugang zum Redaktionsportal des Junior Youth Hub ist freigegeben. Du kannst dich jetzt anmelden.',
+    'dein Zugang zum Redaktionsportal des Juju Hub ist freigegeben. Du kannst dich jetzt anmelden.',
     `Benutzername: ${email}`,
     'Passwort: das Passwort, das du bei deiner Anfrage gewählt hast.',
     `Rolle: ${roleLabel.de}`,
@@ -544,7 +544,7 @@ function buildApprovalEmail(displayName: string, email: string, role: string) {
     '',
     `Hello ${displayName},`,
     '',
-    'your access to the Junior Youth Hub editorial portal is approved. You can sign in now.',
+    'your access to the Juju Hub editorial portal is approved. You can sign in now.',
     `Username: ${email}`,
     'Password: the password you chose when you requested access.',
     `Role: ${roleLabel.en}`,
@@ -555,18 +555,18 @@ function buildApprovalEmail(displayName: string, email: string, role: string) {
   const name = escapeHtml(displayName);
   const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#1b2430;max-width:520px">
 <p>Hallo ${name},</p>
-<p>dein Zugang zum Redaktionsportal des Junior Youth Hub ist freigegeben. Du kannst dich jetzt anmelden.</p>
+<p>dein Zugang zum Redaktionsportal des Juju Hub ist freigegeben. Du kannst dich jetzt anmelden.</p>
 <p>Benutzername: <strong>${escapeHtml(email)}</strong><br>Passwort: das Passwort, das du bei deiner Anfrage gewählt hast.<br>Rolle: ${escapeHtml(roleLabel.de)}</p>
 <p><a href="${loginUrl}" style="display:inline-block;padding:12px 20px;border-radius:12px;background:#1d4ed8;color:#ffffff;text-decoration:none;font-weight:bold">Zum Redaktionsportal</a></p>
 <p style="color:#5b6573">Du hast keinen Zugang angefragt? Dann ignoriere diese E-Mail.</p>
 <hr style="border:none;border-top:1px solid #d9dee5;margin:24px 0">
 <p>Hello ${name},</p>
-<p>your access to the Junior Youth Hub editorial portal is approved. You can sign in now.</p>
+<p>your access to the Juju Hub editorial portal is approved. You can sign in now.</p>
 <p>Username: <strong>${escapeHtml(email)}</strong><br>Password: the password you chose when you requested access.<br>Role: ${escapeHtml(roleLabel.en)}</p>
 <p><a href="${loginUrl}">Open the editorial portal</a></p>
 <p style="color:#5b6573">You did not request access? Then please ignore this email.</p>
 </div>`;
-  return { subject: 'Dein Zugang ist freigegeben / Your access is approved – Junior Youth Hub', text, html };
+  return { subject: 'Dein Zugang ist freigegeben / Your access is approved – Juju Hub', text, html };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -623,7 +623,7 @@ function bearer(req: IncomingMessage): string {
 
 async function handleGet(res: ServerResponse): Promise<void> {
   const repo = process.env.GITHUB_REPO || 'nurimodabber/jy-resource-hub';
-  const headers: Record<string, string> = { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'JY-Hub-Sync-Worker' };
+  const headers: Record<string, string> = { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'Juju Hub-Sync-Worker' };
   if (process.env.GITHUB_TOKEN) headers.Authorization = `token ${process.env.GITHUB_TOKEN}`;
   const empty = { approvedGames: [], approvedCategories: [], approvedServiceProjects: [], approvedArtsPrompts: [], deletedIds: [] };
   try {

@@ -10,7 +10,7 @@ interface LogoProps {
 export const Logo: React.FC<LogoProps> = ({
   className = 'w-6 h-6',
   size,
-  alt = 'Junior Youth Hub Logo',
+  alt = 'Juju Hub Logo',
 }) => {
   return (
     <img
