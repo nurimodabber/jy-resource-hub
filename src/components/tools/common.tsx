@@ -271,7 +271,7 @@ export const PlayerSetupSection: React.FC<{
       {/* 1. Player Count Row */}
       <div className="flex items-center justify-between gap-4 py-2 border-b border-border/50">
         <div className="min-w-0 flex-1 space-y-0.5">
-          <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
+          <span className="text-xs font-bold text-text flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 text-accent" />
             <span>{countLabel || L('Spielende', 'Players')}</span>
           </span>
@@ -321,7 +321,7 @@ export const PlayerSetupSection: React.FC<{
         {isExpanded && (
           <div className="mt-2.5 pt-2 border-t border-border/50 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-2xs font-bold uppercase tracking-wider text-text-secondary">
+              <span className="text-2xs font-bold text-text-secondary">
                 {L('Einzelne Namen bearbeiten:', 'Edit individual names:')}
               </span>
               {hasGroupNames && onResetToGroup && (

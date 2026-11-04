@@ -280,7 +280,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
       {!isAllCorrect && (
         <div className="bg-surface rounded-card border border-border p-5 sm:p-6 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary block">
+            <span className="text-2xs font-semibold text-text-tertiary block">
               {language === 'de' ? 'Wortspeicher (Klicken zum Einfügen):' : 'Word Pool (Click to insert):'}
             </span>
             <span className="text-2xs text-text-tertiary">

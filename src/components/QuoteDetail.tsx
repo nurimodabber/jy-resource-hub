@@ -132,7 +132,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
       {/* 2. Main Sacred Text Reading Card (Calm surface, generous margin, Lora serif) */}
       <section className="bg-surface rounded-3xl border border-border/80 p-6 sm:p-12 lg:p-16 space-y-8 shadow-xs">
         <div className="flex items-center justify-between gap-3 text-xs text-text-tertiary">
-          <span className="text-2xs font-semibold uppercase tracking-[0.14em] text-text-tertiary font-sans">
+          <span className="text-2xs font-semibold text-text-tertiary font-sans">
             {metaTag}
           </span>
         </div>

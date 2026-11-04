@@ -143,7 +143,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
       {/* Header */}
       <div>
         <div className="flex items-baseline gap-3.5 flex-wrap">
-          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+          <h1 className="text-[32px] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {t.savedItems}
           </h1>
           {favorites.length > 0 && (
@@ -201,7 +201,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
                   <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
                       <SectionIcon className="w-4 h-4 text-accent" strokeWidth={1.75} />
-                      <h2 className="text-xs font-bold text-text uppercase tracking-wider">{labels[g]}</h2>
+                      <h2 className="text-xs font-bold text-text">{labels[g]}</h2>
                     </div>
                     <span className="text-xs text-text-tertiary tabular-nums font-semibold">
                       {groups[g].length}

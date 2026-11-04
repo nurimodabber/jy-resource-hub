@@ -114,7 +114,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
             <MessageSquare className="w-4 h-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold text-text uppercase tracking-wider">
+            <p className="text-xs font-bold text-text">
               {L('Individuelle Initiative · Cluster Rhein-Neckar', 'Individual Initiative · Cluster Rhein-Neckar')}
             </p>
             <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">
@@ -130,7 +130,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
         <div className="p-4 rounded-2xl bg-surface border border-border space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+              <p className="text-xs font-semibold text-text-tertiary">
                 {L('Direkte Kontaktadressen', 'Direct contact addresses')}
               </p>
               <p className="font-mono text-xs sm:text-sm font-semibold text-text select-all mt-0.5">

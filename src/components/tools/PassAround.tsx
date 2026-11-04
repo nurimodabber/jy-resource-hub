@@ -86,7 +86,7 @@ export const PassAround: React.FC<Props> = ({
         ))}
       </div>
 
-      <p className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary tabular-nums text-center">
+      <p className="text-2xs font-semibold text-text-tertiary tabular-nums text-center">
         {stepIdx + 1} / {players.length} {L('Personen', 'players')}
       </p>
 
@@ -94,7 +94,7 @@ export const PassAround: React.FC<Props> = ({
       <Panel className="min-h-[300px] flex flex-col items-center justify-between text-center p-6 sm:p-8 relative">
         {!shown ? (
           <div className="my-auto space-y-4 w-full">
-            <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
+            <p className="text-xs font-semibold text-text-secondary">
               {hiddenHint ? hiddenHint(playerName) : L('Gib das Handy an', 'Hand the phone to')}
             </p>
             <h3 className="text-3xl sm:text-4xl font-extrabold text-text tracking-tight">
@@ -117,7 +117,7 @@ export const PassAround: React.FC<Props> = ({
           </div>
         ) : (
           <div className="my-auto space-y-5 w-full animate-in zoom-in-95 duration-150">
-            <span className="text-2xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-chip bg-accent-subtle text-accent-text inline-block">
+            <span className="text-2xs font-bold px-2.5 py-1 rounded-chip bg-accent-subtle text-accent-text inline-block">
               {playerName}
             </span>
 

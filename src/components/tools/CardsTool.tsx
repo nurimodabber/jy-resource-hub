@@ -280,7 +280,7 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
                 {/* Deepening Questions */}
                 {deepening.length > 0 && (
                   <div className="pt-6 border-t border-border space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-text-secondary">
+                    <p className="text-xs font-bold text-text-secondary">
                       {L('Zum Vertiefen im Kreis', 'To go deeper in the circle')}
                     </p>
                     <ul className="space-y-2.5 text-sm sm:text-base text-text-secondary leading-relaxed">

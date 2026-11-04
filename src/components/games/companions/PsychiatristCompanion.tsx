@@ -129,7 +129,7 @@ export const PsychiatristCompanion: React.FC<PsychiatristCompanionProps> = ({ la
           </div>
         ) : (
           <div className="space-y-3">
-            <span className="text-2xs font-bold uppercase tracking-wider text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20 inline-block">
+            <span className="text-2xs font-bold text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20 inline-block">
               {L('Geheime Gruppenregel', 'Secret group rule')} · {L('Stufe', 'Level')} {current?.difficulty}
             </span>
 

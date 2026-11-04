@@ -134,7 +134,7 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
 
       {!compact && (
         <div>
-          <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary mb-1">
+          <label className="block text-2xs font-bold text-text-tertiary mb-1">
             {L('Gruppenname (optional, für Startseite)', 'Group name (optional, for home page)')}
           </label>
           <input

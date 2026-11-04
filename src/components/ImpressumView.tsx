@@ -30,7 +30,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
           <div className="w-12 h-12 rounded-2xl bg-accent-subtle text-accent-text flex items-center justify-center mb-4">
             <Shield className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-text tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text tracking-tight">
             {isDe ? 'Impressum' : 'Legal Notice (Impressum)'}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
@@ -42,7 +42,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
 
         {/* 1. Status: Individuelle Initiative & Erprobungsschwerpunkt Rhein-Neckar */}
         <section className="p-4 sm:p-5 rounded-2xl bg-surface-2 border border-border-subtle space-y-2.5">
-          <div className="flex items-center gap-2 text-accent-text font-bold text-xs uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-accent-text font-bold text-xs">
             <AlertCircle className="w-4 h-4" />
             <span>{isDe ? 'Rechtlicher Status & Regionaler Fokus' : 'Legal Status & Regional Focus'}</span>
           </div>

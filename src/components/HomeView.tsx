@@ -279,7 +279,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Linke Spalte: Begrüßung & Datum (lg:col-span-7) */}
         <header className="lg:col-span-7 space-y-3">
-          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+          <h1 className="text-[32px] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {fullGreeting}
           </h1>
           <p className="text-xs sm:text-sm text-text-secondary leading-relaxed max-w-xl">
@@ -450,7 +450,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         >
           {/* Header Row: Feine Typografie-Kennzeichnung & Aktionen */}
           <div className="flex items-center justify-between gap-3 border-b border-line pb-3 sm:pb-3.5">
-            <span className="text-2xs font-semibold uppercase tracking-[0.18em] text-text-tertiary truncate">
+            <span className="text-2xs font-semibold text-text-tertiary truncate">
               {L('Zitat des Tages', 'Quote of the day')}
               {quote.book[language] &&
               !/gebete?\s*(&|und|\+)?\s*andacht/i.test(quote.book[language]) &&
@@ -642,7 +642,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             >
               <div className="space-y-1 sm:space-y-1.5">
                 <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-                  <span className="font-semibold uppercase tracking-wider text-text-secondary">
+                  <span className="font-semibold text-text-secondary">
                     {L('Dienstprojekt', 'Service Project')}
                   </span>
                   <span className="font-medium tabular-nums">
@@ -673,7 +673,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             >
               <div className="space-y-1 sm:space-y-1.5">
                 <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-                  <span className="font-semibold uppercase tracking-wider text-text-secondary">
+                  <span className="font-semibold text-text-secondary">
                     {L('Kunst & Theater', 'Arts & Drama')}
                   </span>
                   <span className="font-medium tabular-nums">
@@ -828,7 +828,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
 
       {/* 6. Zuletzt angesehen: Ansprechender Leerzustand & Verlaufskarten */}
       <section aria-label={L('Zuletzt angesehen', 'Recently viewed')} className="space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-text-tertiary flex items-center gap-1.5">
+        <h3 className="text-xs font-bold text-text-tertiary flex items-center gap-1.5">
           <History className="w-3.5 h-3.5 text-text-tertiary" />
           <span>{L('Zuletzt angesehen', 'Recently viewed')}</span>
         </h3>

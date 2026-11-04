@@ -440,7 +440,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-center gap-2">
                     <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${theme.dot}`} />
-                    <span className={`text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${theme.badge}`}>
+                    <span className={`text-2xs font-bold px-2 py-0.5 rounded-full border ${theme.badge}`}>
                       {L(`Team ${idx + 1}`, `Team ${idx + 1}`)}
                     </span>
                   </div>
@@ -646,7 +646,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                   <div className="relative shrink-0 flex items-center justify-between gap-1 w-full">
                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
                       <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${theme.dot}`} />
-                      <span className={`text-2xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0 ${theme.badge}`}>
+                      <span className={`text-2xs font-bold px-1.5 py-0.5 rounded-full border shrink-0 ${theme.badge}`}>
                         {L(`Team ${idx + 1}`, `Team ${idx + 1}`)}
                       </span>
                       <input

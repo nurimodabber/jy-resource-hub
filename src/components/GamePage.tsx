@@ -195,7 +195,7 @@ export const GamePage: React.FC<GamePageProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-3.5 flex-wrap pt-1">
-                <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text text-balance leading-[1.12]">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text text-balance leading-[1.12]">
                   {game.title[language]}
                 </h1>
                 <span
@@ -271,7 +271,7 @@ export const GamePage: React.FC<GamePageProps> = ({
             <>
               {/* Section 1: Idee */}
               <section className="mb-5 sm:mb-6">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-text-tertiary mb-1.5">
+                <h2 className="text-xs font-bold text-text-tertiary mb-1.5">
                   {t.ideaTitle}
                 </h2>
                 <p className="text-sm sm:text-base text-text leading-relaxed">
@@ -282,7 +282,7 @@ export const GamePage: React.FC<GamePageProps> = ({
               {/* Section 2: Material */}
               {!hasNoMaterials && (
                 <section className="mb-5 sm:mb-6">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-text-tertiary mb-1.5">
+                  <h2 className="text-xs font-bold text-text-tertiary mb-1.5">
                     {t.materialsTitle}
                   </h2>
                   <ul className="list-disc pl-5 space-y-1 text-xs sm:text-sm text-text">
@@ -295,7 +295,7 @@ export const GamePage: React.FC<GamePageProps> = ({
 
               {/* Section 3: Ablauf mit Checkboxen */}
               <section className="mb-6 sm:mb-8">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-text-tertiary mb-2.5">
+                <h2 className="text-xs font-bold text-text-tertiary mb-2.5">
                   {t.rulesTitle}
                 </h2>
                 <ol className="space-y-3">
@@ -404,7 +404,7 @@ export const GamePage: React.FC<GamePageProps> = ({
         {/* Right Column: Sticky Action Bar on Desktop */}
         <aside className="hidden lg:block lg:col-span-4 sticky top-24 print:hidden">
           <div className="p-5 rounded-card bg-surface border border-border shadow-1 space-y-3">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-text-tertiary">
+            <h2 className="text-sm font-bold text-text-tertiary">
               {L('Aktionen', 'Actions')}
             </h2>
 

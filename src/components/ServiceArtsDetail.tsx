@@ -195,7 +195,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
               )}
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text text-balance leading-[1.14]">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text text-balance leading-[1.14]">
               {activity.title[language]}
             </h1>
 
@@ -208,10 +208,10 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
 
           {/* Section 1: Was uns geleitet hat (Leitgedanke & Motivation) */}
           <section className="mb-10 py-1">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-accent mb-2">
+            <h2 className="text-xs font-semibold text-accent mb-2">
               {L('Was uns geleitet hat', 'What guided our initiative')}
             </h2>
-            <p className="font-serif text-lg sm:text-xl text-text leading-relaxed italic">
+            <p className="text-lg sm:text-xl text-text leading-relaxed">
               „{objectiveText}“
             </p>
           </section>
@@ -219,7 +219,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
           {/* Section 2: Wie die Idee lebendig wurde (Erfahrungsbericht & Orientierung) */}
           <section className="mb-8">
             <div className="mb-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-text-tertiary">
+              <h2 className="text-xs font-bold text-text-tertiary">
                 {L('Wie die Idee lebendig wurde (Erfahrungsbericht)', 'How the idea took shape (Case study)')}
               </h2>
               <p className="text-xs text-text-secondary italic mt-1">
@@ -236,7 +236,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
                   key={idx}
                   className="flex items-start gap-4 p-4 sm:p-5 rounded-card border border-border/80 bg-surface hover:bg-surface-2/40 transition-colors shadow-2xs"
                 >
-                  <span className="font-serif text-lg font-bold text-accent shrink-0 w-6 text-center tabular-nums leading-none mt-0.5">
+                  <span className="text-lg font-bold text-accent shrink-0 w-6 text-center tabular-nums leading-none mt-0.5">
                     {idx + 1}
                   </span>
                   <div className="flex-1 min-w-0">
@@ -252,7 +252,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
           {/* Section 3: Material & Vorbereitung (nur wenn nötig) */}
           {!hasNoMaterials && (
             <section className="mb-8">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-text-tertiary mb-2">
+              <h2 className="text-xs font-bold text-text-tertiary mb-2">
                 {t.materialsTitle}
               </h2>
               <ul className="list-disc pl-5 space-y-1.5 text-sm sm:text-base text-text leading-relaxed">
@@ -273,7 +273,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
                 aria-expanded={isQuestionsOpen}
               >
                 <div className="flex items-center gap-2">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-text">
+                  <h2 className="text-xs font-bold text-text">
                     {L('Reflexionsfragen im Kreis', 'Reflection questions for the circle')}
                   </h2>
                 </div>
@@ -312,7 +312,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
                 className="w-full flex items-center justify-between text-left print:hidden cursor-pointer"
                 aria-expanded={isTipsOpen}
               >
-                <h2 className="text-xs font-bold uppercase tracking-wider text-text">
+                <h2 className="text-xs font-bold text-text">
                   {t.animatorTipsTitle}
                 </h2>
                 <ChevronDown

@@ -366,7 +366,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             <span>{L('Zurück zu Schritt', 'Back to step')} {step - 1}</span>
           </button>
         )}
-        <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+        <h1 className="text-[32px] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
           {L('Erfahrungen beitragen', 'Contribute')}
         </h1>
         <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
@@ -380,7 +380,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       {/* Mobile Step Indicator */}
       <div className="sm:hidden flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface border border-border" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
         <div>
-          <span className="text-2xs font-extrabold uppercase tracking-wider text-accent block">
+          <span className="text-2xs font-extrabold text-accent block">
             {L(`Schritt ${step} von 3`, `Step ${step} of 3`)}
           </span>
           <span className="text-sm font-bold text-text">
@@ -497,7 +497,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
         <div className="space-y-6">
           {/* Form / Preview Toggle */}
           <div className="flex items-center justify-between border-b border-border pb-3">
-            <span className="text-xs font-bold text-text uppercase tracking-wider">
+            <span className="text-xs font-bold text-text">
               {formData.type === 'spiel' ? L('Neues Spiel beitragen', 'Contribute a game') : formData.type === 'dienst' ? L('Neues Dienstprojekt beitragen', 'Contribute a service project') : L('Kreative Aktivität beitragen', 'Contribute a creative activity')}
             </span>
             <button
@@ -525,7 +525,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                 )}
                 <div>
                   <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                    <span className="px-2.5 py-0.5 rounded-chip text-2xs font-extrabold uppercase tracking-wider bg-accent-subtle text-accent-text">
+                    <span className="px-2.5 py-0.5 rounded-chip text-2xs font-extrabold bg-accent-subtle text-accent-text">
                       {formData.type === 'spiel' ? 'Spiel' : formData.type === 'dienst' ? 'Dienstprojekt' : 'Kunst & Ausdruck'} · Entwurf
                     </span>
                     {formData.relatedBook && (
@@ -558,7 +558,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-text uppercase tracking-wider">{L('Ablauf', 'Steps')}</h3>
+                  <h3 className="text-sm font-bold text-text">{L('Ablauf', 'Steps')}</h3>
                   <ol className="space-y-2 text-sm text-text-secondary">
                     {formData.steps.filter(Boolean).map((s, idx) => (
                       <li key={idx} className="flex items-start gap-2.5">
@@ -726,7 +726,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                 <div className="pt-3 border-t border-border space-y-3">
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-accent" />
-                    <span className="text-xs font-bold text-text uppercase tracking-wider">
+                    <span className="text-xs font-bold text-text">
                       {L('Juniorjugend-Buch & Lektion (optional)', 'Junior Youth Book & Lesson (optional)')}
                     </span>
                   </div>
@@ -777,7 +777,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                 <div className="pt-3 border-t border-border space-y-2">
                   <div className="flex items-center gap-2">
                     <ImageIcon className="w-4 h-4 text-accent" />
-                    <span className="text-xs font-bold text-text uppercase tracking-wider">
+                    <span className="text-xs font-bold text-text">
                       {L('Bild-Link / Foto verlinken (optional)', 'Image link / Photo (optional)')}
                     </span>
                   </div>
@@ -903,7 +903,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
               {/* Service/Arts specific inputs */}
               {(formData.type === 'dienst' || formData.type === 'kunst') && (
                 <Panel className="space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-accent-text">
+                  <h3 className="text-xs font-bold text-accent-text">
                     {L('Zusatzangaben für Projekt & Reflexion', 'Project & reflection details')}
                   </h3>
                   <div>

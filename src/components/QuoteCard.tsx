@@ -79,7 +79,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
       <div className="space-y-3">
         {/* Top meta line: Book & Section + discreet actions */}
         <div className="flex items-center justify-between gap-2">
-          <span className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary group-hover:text-text-secondary truncate font-sans transition-colors">
+          <span className="text-2xs font-semibold text-text-tertiary group-hover:text-text-secondary truncate font-sans transition-colors">
             {metaTag}
           </span>
 

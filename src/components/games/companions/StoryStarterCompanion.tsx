@@ -141,7 +141,7 @@ export const StoryStarterCompanion: React.FC<StoryStarterCompanionProps> = ({ la
             <span>{genreLabels[current?.genre || 'everyday']?.[language] || L('Satzanfang', 'Story starter')}</span>
           </div>
 
-          <div className="text-2xl sm:text-3xl font-bold text-text tracking-tight leading-relaxed font-serif break-words">
+          <div className="text-2xl sm:text-3xl font-bold text-text tracking-tight leading-relaxed break-words">
             „{current?.text[language]}“
           </div>
 

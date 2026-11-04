@@ -110,7 +110,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
           {/* Pack Selection Grouped by Difficulty */}
           <div className="space-y-3.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-text uppercase tracking-wider block">
+              <label className="text-xs font-bold text-text block">
                 {L('Themenpaket wählen', 'Choose Topic Pack')}
               </label>
               <span className="text-2xs text-text-tertiary">
@@ -120,7 +120,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
 
             {/* Level 1: Leicht */}
             <div className="space-y-1.5">
-              <span className="text-2xs font-bold uppercase tracking-wider text-accent block px-0.5">
+              <span className="text-2xs font-bold text-accent block px-0.5">
                 {L('Stufe 1: Leicht & Bekannt', 'Level 1: Easy & Familiar')}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -149,7 +149,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
 
             {/* Level 2: Mittel & Herausfordernd */}
             <div className="space-y-1.5 pt-1">
-              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary block px-0.5">
+              <span className="text-2xs font-bold text-text-tertiary block px-0.5">
                 {L('Stufe 2: Knifflig & Inspirierend', 'Level 2: Challenging & Thoughtful')}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -212,7 +212,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
 
             return (
               <div className="space-y-4 py-4 text-center w-full">
-                <span className="text-2xs font-bold uppercase tracking-wider text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20">
+                <span className="text-2xs font-bold text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20">
                   {L('Begriff für', 'Term for')} {p}
                 </span>
 
@@ -241,7 +241,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
         <div className="space-y-6 text-left w-full max-w-2xl">
           {/* Rules Reminder Card */}
           <Panel className="p-4 sm:p-5 space-y-2">
-            <h4 className="text-xs font-bold text-text uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-text">
               {L('Regeln & Ablauf:', 'Rules & Flow:')}
             </h4>
             <ul className="text-xs text-text-secondary space-y-1.5 pl-4 list-disc">
@@ -269,7 +269,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
           {/* Facilitator Spoilers Toggle & Status List */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-text uppercase tracking-wider">
+              <span className="text-xs font-bold text-text">
                 {L('Übersicht & Fortschritt', 'Overview & Progress')}
               </span>
               <button

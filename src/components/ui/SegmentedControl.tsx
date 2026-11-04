@@ -76,11 +76,6 @@ export function SegmentedControl<T extends string = string>({
             width: `${indicator.width}px`,
           }}
         >
-          {/* Subtle liquid specular reflection line on top */}
-          <span
-            className="absolute inset-x-2.5 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/90 dark:via-white/30 to-transparent pointer-events-none rounded-t-full"
-            aria-hidden="true"
-          />
         </div>
       )}
 

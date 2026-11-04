@@ -200,7 +200,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
         <div className="space-y-4">
           <Panel className="text-center py-8 sm:py-12 relative space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-2xs font-bold uppercase tracking-wider text-accent-text">
+              <span className="text-2xs font-bold text-accent-text">
                 {cursor + 1} / {pool.length}
               </span>
               <button
@@ -222,7 +222,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
                   {current.hint[language]}
                 </p>
                 <div className="pt-3">
-                  <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary block mb-1">
+                  <span className="text-2xs font-bold text-text-tertiary block mb-1">
                     {L('Beispiele', 'Examples')}:
                   </span>
                   <div className="flex flex-wrap justify-center gap-1.5 max-w-md mx-auto">
@@ -279,7 +279,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
         <div className="space-y-4">
           {current && (
             <div className="p-4 rounded-card bg-accent-subtle border border-accent/20">
-              <span className="text-2xs font-bold uppercase tracking-wider text-accent-text block mb-0.5">
+              <span className="text-2xs font-bold text-accent-text block mb-0.5">
                 {L('Aktuelle Kategorie', 'Current Category')}
               </span>
               <p className="text-base font-bold text-accent-text">{current.prompt[language]}</p>
@@ -342,7 +342,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
       {step === 'read' && (
         <div className="space-y-4">
           <Panel className="text-center py-12 sm:py-16 space-y-4">
-            <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary tabular-nums">
+            <p className="text-2xs font-bold text-text-tertiary tabular-nums">
               {readOrder.length ? `${readIdx + 1} / ${readOrder.length}` : ''}
             </p>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-text tracking-tight max-w-lg mx-auto">
@@ -425,7 +425,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
               {/* Whose turn banner */}
               <Panel className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">
+                  <span className="text-xs font-bold text-text-secondary">
                     {L('Wer ist am Zug?', 'Whose turn?')}
                   </span>
                 </div>

@@ -123,7 +123,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
 
           {/* Spiel-Art: Zwinkern vs Händedruck vs Im Dunkeln */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-text uppercase tracking-wider block">
+            <label className="text-xs font-bold text-text block">
               {L('Aktion des Täters', 'Culprit Action')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -217,7 +217,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
 
           {/* Niemand-scheidet-aus Varianten */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-text uppercase tracking-wider block">
+            <label className="text-xs font-bold text-text block">
               {L('Variante, wenn man getroffen wird', 'When tagged')}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -277,7 +277,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
 
             return (
               <div className="space-y-4 py-4 text-center w-full">
-                <span className="text-2xs font-bold uppercase tracking-wider text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20">
+                <span className="text-2xs font-bold text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20">
                   {p}
                 </span>
 
@@ -312,7 +312,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
           {/* Status Box */}
           <div className="p-4 sm:p-5 rounded-card bg-surface border border-border space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-text uppercase tracking-wider">
+              <span className="text-xs font-bold text-text">
                 {hasDetective ? L('Detektiv-Rateversuche', 'Detective Guesses') : L('Status', 'Status')}
               </span>
               {hasDetective && (
@@ -351,7 +351,7 @@ export const KillerCompanion: React.FC<KillerCompanionProps> = ({ language }) =>
           {/* Facilitator Reveal Section */}
           <Panel className="p-5 sm:p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-text uppercase tracking-wider">
+              <h3 className="text-xs font-bold text-text">
                 {L('Auflösung für Spielleitung', 'Facilitator Solution')}
               </h3>
               <button

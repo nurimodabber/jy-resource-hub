@@ -170,7 +170,7 @@ const SpyGame: React.FC<{ language: Language; names: string[] }> = ({ language, 
         renderCard={(i) =>
           i === deal.spy ? (
             <div className="p-6 rounded-card bg-accent-subtle border border-accent/30 space-y-2">
-              <span className="text-2xs font-bold uppercase tracking-wider text-accent-text">{L('Geheime Rolle', 'Secret Role')}</span>
+              <span className="text-2xs font-bold text-accent-text">{L('Geheime Rolle', 'Secret Role')}</span>
               <p className="text-3xl font-extrabold text-accent-text">{L('Du bist der Spion!', 'You are the spy!')}</p>
               <p className="text-xs text-text-secondary mt-2">
                 {L('Du kennst den Ort nicht. Höre aufmerksam zu und versuche herauszufinden, wo ihr seid, ohne dich zu verraten.', 'You do not know the location. Listen carefully and deduce it without blowing your cover.')}
@@ -178,7 +178,7 @@ const SpyGame: React.FC<{ language: Language; names: string[] }> = ({ language, 
             </div>
           ) : (
             <div className="p-6 rounded-card bg-surface-2 border border-border space-y-2">
-              <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">{L('Geheimer Ort', 'Secret Location')}</span>
+              <span className="text-2xs font-bold text-text-tertiary">{L('Geheimer Ort', 'Secret Location')}</span>
               <p className="text-3xl font-extrabold text-text">{deal.location}</p>
               <p className="text-xs text-text-secondary mt-2">
                 {L('Deine Rolle', 'Your role')}: <strong className="text-text">{deal.roles[i % deal.roles.length]}</strong>
@@ -197,7 +197,7 @@ const SpyGame: React.FC<{ language: Language; names: string[] }> = ({ language, 
       {/* Timer & Round Status */}
       <Panel className="text-center py-6 space-y-4">
         <div>
-          <span className="text-2xs font-bold uppercase tracking-wider text-accent-text">
+          <span className="text-2xs font-bold text-accent-text">
             {L('Die Runde läuft', 'The round is on')}
           </span>
           <div className="text-5xl sm:text-6xl font-sans font-extrabold text-text tabular-nums my-2">
@@ -221,7 +221,7 @@ const SpyGame: React.FC<{ language: Language; names: string[] }> = ({ language, 
 
       {/* Voting Helper ("Abstimmungshilfe") */}
       <Panel className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-text">
+        <h4 className="text-xs font-bold text-text">
           {L('Abstimmungshilfe: Wer wird verdächtigt?', 'Voting Helper: Who is accused?')}
         </h4>
         <div className="flex flex-wrap gap-2">
@@ -332,7 +332,7 @@ const WhoAmIGame: React.FC<{ language: Language; names: string[] }> = ({ languag
         onDone={() => setDone(true)}
         renderCard={(i) => (
           <div className="p-6 rounded-card bg-surface-2 border border-border">
-            <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary mb-1">
+            <p className="text-2xs font-bold text-text-tertiary mb-1">
               {L('Der Begriff für den Zettel auf der Stirn', 'The term for their forehead')}
             </p>
             <p className="text-3xl font-extrabold text-text">{deal[i]}</p>
@@ -416,7 +416,7 @@ const WerewolfGame: React.FC<{ language: Language; names: string[] }> = ({ langu
     return (
       <div className="space-y-4">
         <Panel className="space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-text">
+          <h4 className="text-xs font-bold text-text">
             {L('Schnellkonfiguration der Rollen', 'Quick Role Setup')}
           </h4>
 
@@ -514,7 +514,7 @@ const WerewolfGame: React.FC<{ language: Language; names: string[] }> = ({ langu
           const role = WEREWOLF_ROLES.find((r) => r.id === cards[i]);
           return (
             <div className="p-6 rounded-card bg-surface-2 border border-border space-y-2">
-              <p className="text-2xs font-bold uppercase tracking-wider text-accent-text">
+              <p className="text-2xs font-bold text-accent-text">
                 {role?.team === 'wolves' ? (language === 'de' ? 'Wölfe' : 'Wolves') : (language === 'de' ? 'Dorfbewohner' : 'Villagers')}
               </p>
               <p className="text-3xl font-extrabold text-text">{role?.name[language]}</p>
@@ -551,11 +551,11 @@ const WerewolfGame: React.FC<{ language: Language; names: string[] }> = ({ langu
 
       {/* Large Narrator Card */}
       <Panel className="py-8 sm:py-12 text-center space-y-4">
-        <span className="text-2xs font-bold uppercase tracking-wider text-text-tertiary">
+        <span className="text-2xs font-bold text-text-tertiary">
           {step?.phase === 'night' ? L('Nachtphase', 'Night Phase') : L('Tagphase', 'Day Phase')} · {stepIdx + 1} / {steps.length}
         </span>
         <h2 className="text-2xl font-bold text-text">{step?.title[language]}</h2>
-        <p className="text-xl sm:text-2xl leading-relaxed text-text font-serif italic max-w-lg mx-auto">
+        <p className="text-xl sm:text-2xl leading-relaxed text-text italic max-w-lg mx-auto">
           „{step?.script[language]}“
         </p>
       </Panel>

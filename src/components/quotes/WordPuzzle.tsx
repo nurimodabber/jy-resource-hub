@@ -71,7 +71,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
 
       {/* Assembly Zone */}
       <div className="bg-surface rounded-card border border-border p-5 sm:p-8 shadow-xs space-y-4">
-        <span className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary block">
+        <span className="text-2xs font-semibold text-text-tertiary block">
           {language === 'de' ? 'Zusammengesetzter Satz:' : 'Assembled Sentence:'}
         </span>
 
@@ -146,7 +146,7 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
 
       {/* Available Word Chips Pool */}
       <div className="bg-surface rounded-card border border-border p-5 sm:p-6 shadow-xs space-y-3">
-        <span className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary block">
+        <span className="text-2xs font-semibold text-text-tertiary block">
           {t.clickTilePrompt}
         </span>
 

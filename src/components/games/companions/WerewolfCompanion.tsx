@@ -212,7 +212,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
           {/* 2. Rollen-Konfiguration */}
           <Panel className="p-5 sm:p-6 space-y-4">
             <div className="flex items-center justify-between pb-1 border-b border-border/50">
-              <h3 className="text-xs font-bold text-text uppercase tracking-wider">
+              <h3 className="text-xs font-bold text-text">
                 {L('Rollen im Spiel', 'Roles in game')}
               </h3>
               <span className="text-2xs font-semibold text-text-tertiary">
@@ -466,7 +466,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
 
             return (
               <div className="space-y-4 py-3 text-center w-full">
-                <span className="text-2xs font-bold uppercase tracking-wider text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20">
+                <span className="text-2xs font-bold text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20">
                   {p}
                 </span>
 
@@ -480,7 +480,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
                   <div className="text-3xl sm:text-4xl font-black tracking-tight mb-2">
                     {role.name[language]}
                   </div>
-                  <span className="text-2xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10">
+                  <span className="text-2xs font-bold px-2 py-0.5 rounded-full bg-white/10">
                     {role.team === 'wolves'
                       ? L('Team Werwölfe', 'Werewolf Team')
                       : role.team === 'neutral'
@@ -506,7 +506,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
           {/* Top Bar: Phase Badge & Step Counter & Mayor & Master Toggle */}
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span
-              className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5 ${
+              className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 ${
                 currentNarratorStep.phase === 'night'
                   ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
                   : currentNarratorStep.phase === 'day'
@@ -567,7 +567,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
           {showRoleMaster && (
             <div className="p-4 rounded-card bg-surface-2 border border-border space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-2xs font-bold uppercase tracking-wider text-accent">
+                <span className="text-2xs font-bold text-accent">
                   {L('Geheime Spielleiter-Übersicht:', 'Secret Roles Master View:')}
                 </span>
                 <span className="text-2xs text-text-tertiary">
@@ -609,7 +609,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
 
           {/* Main Narrator Script Card */}
           <Panel className="p-6 sm:p-10 space-y-4 min-h-[220px] flex flex-col justify-center">
-            <h3 className="text-base sm:text-lg font-bold text-accent uppercase tracking-wider">
+            <h3 className="text-base sm:text-lg font-bold text-accent">
               {currentNarratorStep.title[language]}
             </h3>
             <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-text leading-snug">

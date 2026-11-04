@@ -208,7 +208,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
             {/* 3. Spione (Imposters) */}
             <div className="flex items-center justify-between gap-4 py-2 border-b border-border/50">
               <div className="min-w-0 flex-1 space-y-0.5">
-                <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
+                <span className="text-xs font-bold text-text flex items-center gap-1.5">
                   <ShieldAlert className="w-3.5 h-3.5 text-accent" />
                   <span>{L('Spione', 'Spies')}</span>
                 </span>
@@ -233,7 +233,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
               className="flex items-center justify-between gap-4 py-2 border-b border-border/50 cursor-pointer select-none"
             >
               <div className="min-w-0 flex-1 space-y-0.5">
-                <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
+                <span className="text-xs font-bold text-text flex items-center gap-1.5">
                   <HelpCircle className="w-3.5 h-3.5 text-accent" />
                   <span>{L('Spion-Hinweis', 'Spy Hint')}</span>
                 </span>
@@ -257,7 +257,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
                 className="flex items-center justify-between gap-4 cursor-pointer select-none"
               >
                 <div className="min-w-0 flex-1 space-y-0.5">
-                  <span className="text-xs font-bold text-text uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-text flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-accent" />
                     <span>{L('Runden-Timer', 'Round Timer')}</span>
                   </span>
@@ -297,7 +297,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
             {/* 6. Kategorien Dropdown */}
             <div className="pt-2 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-text uppercase tracking-wider">
+                <span className="text-xs font-bold text-text">
                   {L('Kategorien', 'Categories')}
                 </span>
                 <span className="text-2xs text-text-tertiary">
@@ -354,7 +354,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
               <div className="space-y-4 py-2 text-center w-full">
                 {isSpy ? (
                   <div className="space-y-3.5 p-6 rounded-card bg-surface-2 border border-accent/40 text-text">
-                    <span className="text-xs font-bold uppercase tracking-wider text-accent block">
+                    <span className="text-xs font-bold text-accent block">
                       {L('Deine geheime Rolle', 'Your Secret Role')}
                     </span>
                     <h3 className="text-2xl sm:text-3xl font-black text-text tracking-tight">
@@ -377,7 +377,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
                 ) : (
                   <div className="space-y-4 p-6 rounded-card bg-surface-2 border border-border text-text">
                     <div className="space-y-1">
-                      <span className="text-2xs font-bold uppercase tracking-wider text-accent flex items-center justify-center gap-1">
+                      <span className="text-2xs font-bold text-accent flex items-center justify-center gap-1">
                         <MapPin className="w-3.5 h-3.5" />
                         <span>{L('Geheimer Ort', 'Secret Location')}</span>
                       </span>
@@ -387,7 +387,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
                     </div>
 
                     <div className="pt-2 border-t border-border/50">
-                      <span className="text-2xs font-semibold text-text-tertiary uppercase tracking-wider block mb-1">
+                      <span className="text-2xs font-semibold text-text-tertiary block mb-1">
                         {L('Deine Rolle', 'Your Role')}
                       </span>
                       <p className="text-base font-bold text-text">
@@ -417,7 +417,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
           {/* Active Round Timer Card (if enabled) */}
           {timerEnabled && (
             <Panel className="p-6 text-center space-y-4">
-              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-text-tertiary">
+              <div className="flex items-center justify-center gap-2 text-xs font-bold text-text-tertiary">
                 <Clock className="w-4 h-4 text-accent" />
                 <span>{L('Runden-Timer', 'Round Timer')}</span>
               </div>
@@ -505,7 +505,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
           <div className="p-5 rounded-card bg-surface-2 border border-border space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-xs font-bold text-text uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-text">
                   {L('Auflösung der Runde', 'Round Solution')}
                 </h4>
                 <p className="text-2xs text-text-tertiary">

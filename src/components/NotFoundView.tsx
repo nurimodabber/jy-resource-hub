@@ -17,8 +17,8 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({ language }) => {
         <HelpCircle className="w-8 h-8" />
       </div>
 
-      <span className="text-xs font-bold uppercase tracking-wider text-accent">404 Error</span>
-      <h1 className="text-3xl sm:text-4xl font-serif font-bold text-text mt-2 mb-3">
+      <span className="text-xs font-bold text-accent">404 Error</span>
+      <h1 className="text-3xl sm:text-4xl font-bold text-text mt-2 mb-3">
         {isDe ? 'Seite nicht gefunden' : 'Page Not Found'}
       </h1>
       <p className="text-sm sm:text-base text-text-secondary max-w-md mx-auto mb-8">
@@ -51,7 +51,7 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({ language }) => {
       </div>
 
       <div className="p-6 rounded-2xl bg-surface border border-border-subtle text-left">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-text-tertiary mb-3">
+        <h2 className="text-xs font-semibold text-text-tertiary mb-3">
           {isDe ? 'Beliebte Bereiche' : 'Popular Destinations'}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">

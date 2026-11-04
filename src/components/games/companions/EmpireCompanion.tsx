@@ -304,7 +304,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                 {/* Exactly 2 Examples in a Single Clean Line */}
                 {selectedCat.examples?.[language]?.length > 0 && (
                   <div className="pt-3.5 border-t border-border/40 flex items-center gap-2 flex-nowrap overflow-hidden text-2xs sm:text-xs text-text-tertiary">
-                    <span className="font-semibold uppercase tracking-wider shrink-0 text-text-tertiary">
+                    <span className="font-semibold shrink-0 text-text-tertiary">
                       {L('Beispiele:', 'e.g.')}
                     </span>
                     {selectedCat.examples[language].slice(0, 2).map((ex, i) => (
@@ -466,14 +466,14 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
             ))}
           </div>
 
-          <p className="text-2xs font-semibold uppercase tracking-wider text-text-tertiary tabular-nums">
+          <p className="text-2xs font-semibold text-text-tertiary tabular-nums">
             {passIndex + 1} / {playerCount} {L('Personen', 'players')}
           </p>
 
           <Panel className="p-6 sm:p-8 space-y-5 text-center">
             {!cardRevealed ? (
               <div className="space-y-4 py-6">
-                <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                <p className="text-xs font-semibold text-text-secondary">
                   {L('Gib das Handy an:', 'Hand the phone to:')}
                 </p>
                 <h3 className="text-3xl sm:text-4xl font-black text-text tracking-tight">
@@ -496,7 +496,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
             ) : (
               <div className="space-y-4 text-left py-2">
                 <div className="text-center pb-2 border-b border-border/50">
-                  <p className="text-2xs font-bold uppercase text-accent tracking-wider">
+                  <p className="text-2xs font-bold text-accent">
                     {L(`Person ${passIndex + 1} von ${playerCount}`, `Player ${passIndex + 1} of ${playerCount}`)}
                   </p>
                   <p className="text-base sm:text-lg font-bold text-text mt-1 leading-snug break-words">
@@ -557,7 +557,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
         <div className="space-y-6 max-w-xl mx-auto text-center">
           {/* Header indicator */}
           <div className="flex items-center justify-between px-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20">
+            <span className="text-xs font-bold text-accent px-2.5 py-1 rounded-full bg-accent/15 border border-accent/20">
               {readRound === 1
                 ? L('Vorlesen – Runde 1 von 2', 'Reading – Round 1 of 2')
                 : L('Vorlesen – Runde 2 von 2', 'Reading – Round 2 of 2')}
@@ -569,7 +569,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
 
           {/* Reading Card */}
           <Panel className="p-8 sm:p-12 space-y-4 min-h-[220px] flex flex-col justify-center items-center">
-            <p className="text-2xs font-bold uppercase tracking-wider text-text-tertiary break-words max-w-md">
+            <p className="text-2xs font-bold text-text-tertiary break-words max-w-md">
               {activeCategoryTitle}
             </p>
             <div className="text-3xl sm:text-4xl font-black text-text leading-tight tracking-tight break-words max-w-full">
@@ -628,7 +628,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
 
           {/* Rules Reminder Card */}
           <div className="p-4 rounded-card bg-surface border border-border space-y-2">
-            <h4 className="text-xs font-bold text-text uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-text">
               {L('Spielregeln für das Erraten:', 'Guessing rules:')}
             </h4>
             <ul className="text-xs text-text-secondary space-y-1 pl-4 list-disc">
@@ -655,7 +655,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-xs font-bold text-text uppercase tracking-wider">
+                <h4 className="text-xs font-bold text-text">
                   {L('Begriffe auf dem Tisch', 'Terms on the table')}
                 </h4>
                 <p className="text-2xs text-text-tertiary">

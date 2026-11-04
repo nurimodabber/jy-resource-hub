@@ -169,7 +169,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
     <div className="max-w-5xl w-full mx-auto pb-24 space-y-6 sm:space-y-8 animate-in fade-in duration-200">
       {/* Header */}
       <div>
-        <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+        <h1 className="text-[32px] sm:text-4xl lg:text-5xl font-semibold tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
           {t.tabTools}
         </h1>
         <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
@@ -201,7 +201,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
                 </div>
 
                 <div>
-                  <h2 className="font-serif text-lg font-medium text-text group-hover:text-accent transition-colors leading-snug tracking-tight">
+                  <h2 className="text-lg font-semibold text-text group-hover:text-accent transition-colors leading-snug tracking-tight">
                     {x.title[isDe ? 0 : 1]}
                   </h2>
                   <p className="text-xs sm:text-sm text-text-secondary mt-2 leading-relaxed line-clamp-2">
