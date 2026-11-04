@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TabBar } from 'glisse';
-import { Compass, BookOpen, HeartHandshake, Wrench } from 'lucide-react';
+import { Compass, BookOpen, HeartHandshake, Wrench, Plus } from 'lucide-react';
+import { Button } from './ui/Button';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -23,9 +24,10 @@ RouterLinkAdapter.displayName = 'RouterLinkAdapter';
 
 export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectTab, language }) => {
   const t = UI_TRANSLATIONS[language];
+  const navigate = useNavigate();
 
   // Vier Tabs statt sechs: Dienst und Kunst teilen sich „Projekte“ (Umschalter oben auf der Seite),
-  // „Beitragen“ ist über das Menü oben und am Listenende erreichbar.
+  // „Beitragen“ ist der runde Plus-Knopf rechts daneben.
   const projectsHref = activeTab === 'arts' ? '/arts' : '/service';
   const items = [
     { value: 'games', label: t.tabGames, href: '/games', icon: <Compass className="w-5 h-5" strokeWidth={1.75} /> },
@@ -42,10 +44,10 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
 
   return (
     <nav
-      className="jy-tabbar-dock fixed left-0 right-0 z-40 flex justify-center px-1.5 pointer-events-none md:hidden short:hidden print:hidden overflow-hidden"
+      className="jy-tabbar-dock fixed left-0 right-0 z-40 flex items-center justify-center gap-2 px-1.5 pointer-events-none md:hidden short:hidden print:hidden"
       aria-label={language === 'de' ? 'Navigation' : 'Navigation'}
     >
-      <div className="pointer-events-auto rounded-full max-w-[calc(100vw-12px)] overflow-hidden">
+      <div className="pointer-events-auto rounded-full max-w-[calc(100vw-72px)] overflow-hidden">
         <TabBar
           className="jy-mobile-tab-bar"
           items={items}
@@ -54,6 +56,15 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
           link={RouterLinkAdapter}
         />
       </div>
+      <Button
+        variant="glass"
+        onClick={() => navigate('/vorschlagen')}
+        icon={<Plus className="w-6 h-6" strokeWidth={2} />}
+        aria-label={language === 'de' ? 'Beitragen: Idee einreichen' : 'Contribute: share an idea'}
+        title={t.tabProposalShort}
+        aria-current={activeTab === 'vorschlagen' ? 'page' : undefined}
+        className="jy-tabbar-plus pointer-events-auto shrink-0"
+      />
     </nav>
   );
 };

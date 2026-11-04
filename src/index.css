@@ -390,18 +390,31 @@
 /* Mobile Glisse Liquid Glass Tab Bar scaling */
 .jy-mobile-tab-bar.lg-tab-bar,
 .lg-tab-bar.jy-mobile-tab-bar[data-icons] {
-  --lg-tab-width: min(76px, calc((100vw - 20px) / 4)) !important;
+  --lg-tab-width: min(76px, calc((100vw - 80px) / 4)) !important; /* 60 px für den runden Plus-Knopf daneben */
   --lg-tab-height: 48px !important;
   --lg-tab-inset: 2px !important;
   --lg-lens-grow-x: 0px !important;
   --lg-lens-grow-y: 0px !important;
   --lg-tab-selected: var(--accent);
-  max-width: calc(100vw - 12px) !important;
+  max-width: calc(100vw - 72px) !important;
   overflow: hidden !important;
   box-shadow: 0 12px 36px -4px rgba(20, 32, 51, 0.22), 0 4px 16px -2px rgba(20, 32, 51, 0.12);
 }
 
 .dark .jy-mobile-tab-bar, [data-theme="dark"] .jy-mobile-tab-bar {
+  box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 4px 16px -2px rgba(0, 0, 0, 0.45);
+}
+
+/* Runder Glas-Knopf „Beitragen“ rechts neben der Tab-Leiste, gleiche Höhe (52 px) und Grundlinie. */
+.jy-tabbar-plus.lg-button {
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  border-radius: 999px;
+  color: var(--text);
+  box-shadow: 0 12px 36px -4px rgba(20, 32, 51, 0.22), 0 4px 16px -2px rgba(20, 32, 51, 0.12);
+}
+.dark .jy-tabbar-plus.lg-button {
   box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 4px 16px -2px rgba(0, 0, 0, 0.45);
 }
 
