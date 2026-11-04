@@ -674,6 +674,8 @@ kbd { font-family: inherit; }
 .tone-ochre { --tone-fg: var(--cat-ochre-fg); --tone-bg: var(--cat-ochre-bg); }
 .tone-tile { background-color: var(--tone-bg); color: var(--tone-fg); }
 .tone-text { color: var(--tone-fg); }
+/* Startseite „Projekte & mehr“: nur ein Hauch Kategorie-Farbe (~10 %) hinter dem Icon, Icon im gedämpften Ton. */
+.tone-tile-soft { background-color: color-mix(in srgb, var(--tone-fg) 10%, transparent); color: var(--tone-fg); }
 
 /* Aktions-Dock (z. B. „Teams bilden“): sitzt immer über der unteren Tab-Leiste.
    Tab-Leiste = .jy-tabbar-dock-Abstand + 52 px Höhe (48 + 2 × 2 Innenabstand), dazu 10 px Luft. */

@@ -213,10 +213,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
       : t.greetingEvening;
   const fullGreeting = groupTitle ? `${baseGreeting}, ${groupTitle}` : baseGreeting;
 
-  // Fixed selection for Service & Arts
-  const sampleService = SERVICE_PROJECTS_DATA[0];
-  const sampleArt = ARTS_PROMPTS_DATA[0];
-
   const { showToast } = useToast();
 
   const handleShareQuote = async () => {
@@ -567,90 +563,50 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         </div>
       </section>
 
-      {/* 4. Dienst & Kunst: Karten mit visueller Kennung und Section-Links ohne Umbruch */}
-      <section aria-label={L('Dienst & Kunst', 'Service & Arts')} className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-text tracking-tight">
-              {L('Dienst & Kunst', 'Service & Arts')}
-            </h2>
-            <p className="text-xs text-text-tertiary">
-              {L('Gemeinwohlorientierte Aktionen und kreativer Ausdruck', 'Community service and creative expression')}
-            </p>
-          </div>
-          <div className="flex items-center gap-1">
-            <ArrowLink to="/service">
-              {L('Dienst', 'Service')}
-            </ArrowLink>
-            <span className="text-border select-none" aria-hidden="true">·</span>
-            <ArrowLink to="/arts">
-              {L('Kunst', 'Creative')}
-            </ArrowLink>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          {/* Service Project Card */}
-          {sampleService && (
+      {/* 4. Projekte & mehr: Dienst, Kunst und Beitragen haben keinen eigenen Tab unten, darum hier als Kacheln.
+          Bewusst zurückhaltend: weiße Kachel, nur die Icon-Fläche trägt einen Hauch der Kategorie-Farbe. */}
+      <section aria-labelledby="home-projects-title" className="space-y-3">
+        <h2 id="home-projects-title" className="text-base sm:text-lg font-bold text-text tracking-tight">
+          {L('Projekte & mehr', 'Projects & more')}
+        </h2>
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+          {[
+            {
+              to: '/service',
+              tone: 'tone-green',
+              Icon: HeartHandshake,
+              title: L('Dienst', 'Service'),
+              sub: L(`${SERVICE_PROJECTS_DATA.length} Projekte`, `${SERVICE_PROJECTS_DATA.length} projects`),
+            },
+            {
+              to: '/arts',
+              tone: 'tone-violet',
+              Icon: Palette,
+              title: L('Kunst', 'Arts'),
+              sub: L(`${ARTS_PROMPTS_DATA.length} Impulse`, `${ARTS_PROMPTS_DATA.length} prompts`),
+            },
+            {
+              to: '/vorschlagen',
+              tone: 'tone-blue',
+              Icon: Plus,
+              title: L('Beitragen', 'Contribute'),
+              sub: L('Idee einreichen', 'Share an idea'),
+            },
+          ].map(({ to, tone, Icon, title, sub }) => (
             <Link
-              to={`/service/${sampleService.id}`}
-              className="flex flex-col justify-between px-4 pb-4 pt-2.5 sm:px-5 sm:pb-5 sm:pt-3 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
+              key={to}
+              to={to}
+              className={`${tone} group flex flex-col items-start gap-2.5 p-3 sm:p-4 rounded-card bg-surface border border-border/80 shadow-2xs hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 motion-reduce:transform-none focus-visible:ring-2 focus-visible:ring-accent min-h-[112px]`}
             >
-              <div className="space-y-1 sm:space-y-1.5">
-                <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-                  <span className="font-semibold uppercase tracking-wider text-text-secondary">
-                    {L('Dienstprojekt', 'Service Project')}
-                  </span>
-                  <span className="font-medium tabular-nums">
-                    {sampleService.durationMin}–{sampleService.durationMax} {L('Min', 'min')}
-                  </span>
-                </div>
-                <h3 className="font-bold text-text text-base transition-colors">
-                  {sampleService.title[language]}
-                </h3>
-                <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
-                  {sampleService.objective[language]}
-                </p>
-              </div>
-              <div className="pt-3 mt-3 border-t border-line flex items-center justify-between text-xs text-text-tertiary">
-                <span>{sampleService.groupSize.min}–{sampleService.groupSize.max} {L('Personen', 'people')}</span>
-                <span className="font-semibold text-text-secondary group-hover:text-text group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
-                </span>
-              </div>
+              <span className="tone-tile-soft w-11 h-11 sm:w-12 sm:h-12 rounded-[14px] flex items-center justify-center shrink-0">
+                <Icon className="w-[22px] h-[22px]" strokeWidth={1.9} aria-hidden="true" />
+              </span>
+              <span className="min-w-0 w-full">
+                <span className="block font-bold text-sm sm:text-base text-text tracking-tight truncate">{title}</span>
+                <span className="block text-2xs sm:text-xs text-text-secondary truncate">{sub}</span>
+              </span>
             </Link>
-          )}
-
-          {/* Arts Prompt Card */}
-          {sampleArt && (
-            <Link
-              to={`/arts/${sampleArt.id}`}
-              className="flex flex-col justify-between px-4 pb-4 pt-2.5 sm:px-5 sm:pb-5 sm:pt-3 rounded-card bg-surface border border-border hover:bg-surface-2/40 hover:shadow-2 transition-all duration-150 group focus-visible:ring-2 focus-visible:ring-accent shadow-1"
-            >
-              <div className="space-y-1 sm:space-y-1.5">
-                <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-                  <span className="font-semibold uppercase tracking-wider text-text-secondary">
-                    {L('Kunst & Theater', 'Arts & Drama')}
-                  </span>
-                  <span className="font-medium tabular-nums">
-                    {sampleArt.durationMin}–{sampleArt.durationMax} {L('Min', 'min')}
-                  </span>
-                </div>
-                <h3 className="font-bold text-text text-base transition-colors">
-                  {sampleArt.title[language]}
-                </h3>
-                <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
-                  {sampleArt.description[language]}
-                </p>
-              </div>
-              <div className="pt-3 mt-3 border-t border-line flex items-center justify-between text-xs text-text-tertiary">
-                <span>{sampleArt.groupSize.min}–{sampleArt.groupSize.max} {L('Personen', 'people')}</span>
-                <span className="font-semibold text-text-secondary group-hover:text-text group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                  {L('Ansehen', 'View')} <ChevronRight className="w-3 h-3" />
-                </span>
-              </div>
-            </Link>
-          )}
+          ))}
         </div>
       </section>
 
