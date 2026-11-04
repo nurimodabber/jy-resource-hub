@@ -20,8 +20,6 @@ import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { QUOTES_DATA } from '../data/quotes';
 import { getQuoteSong } from '../data/quoteSongs';
-import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
-import { ARTS_PROMPTS_DATA } from '../data/artsPrompts';
 import { useToast } from '../context/ToastContext';
 import { stripQuotes } from '../utils/random';
 import { shareResource } from '../utils/share';
@@ -367,22 +365,19 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               to: '/service',
               Icon: HeartHandshake,
               title: L('Dienst', 'Service'),
-              sub: L(`${SERVICE_PROJECTS_DATA.length} Projekte`, `${SERVICE_PROJECTS_DATA.length} projects`),
             },
             {
               to: '/arts',
               Icon: Palette,
               title: L('Kunst', 'Arts'),
-              sub: L(`${ARTS_PROMPTS_DATA.length} Impulse`, `${ARTS_PROMPTS_DATA.length} prompts`),
             },
             {
               to: '/vorschlagen',
               Icon: Plus,
               title: L('Beitragen', 'Contribute'),
-              sub: L('Idee einreichen', 'Share an idea'),
             },
-          ].map(({ to, Icon, title, sub }) => (
-            <FadedIconTile key={to} to={to} Icon={Icon} title={title} sub={sub} />
+          ].map(({ to, Icon, title }) => (
+            <FadedIconTile key={to} to={to} Icon={Icon} title={title} className="lg:min-h-[150px]" />
           ))}
         </div>
       </section>

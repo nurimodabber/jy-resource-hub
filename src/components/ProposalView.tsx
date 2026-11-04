@@ -425,11 +425,11 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
 
       {/* Step 1: Type Selection — same tiles as "Projekte & mehr", 2 × 2 so it fits one phone screen */}
       {step === 1 && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <FadedIconTile Icon={Compass} title={L('Spiel', 'Game')} sub={L('Kooperativ, Kennenlernen, Energizer', 'Cooperative, icebreaker, energizer')} onClick={() => { updateField('type', 'spiel'); setStep(2); }} className="min-h-[112px] sm:min-h-[128px]" />
-          <FadedIconTile Icon={HeartHandshake} title={L('Dienstprojekt', 'Service project')} sub={L('Nachbarschaft oder Natur', 'Neighbourhood or nature')} onClick={() => { updateField('type', 'dienst'); setStep(2); }} className="min-h-[112px] sm:min-h-[128px]" />
-          <FadedIconTile Icon={Palette} title={L('Kreative Aktivität', 'Creative activity')} sub={L('Theater, Kunst, Musik, Poesie', 'Drama, art, music, poetry')} onClick={() => { updateField('type', 'kunst'); setStep(2); }} className="min-h-[112px] sm:min-h-[128px]" />
-          <FadedIconTile Icon={MessageSquare} title={L('Feedback & Ideen', 'Feedback & ideas')} sub={L('Rückmeldung oder Problem', 'Feedback or an issue')} onClick={() => setIsFeedbackOpen(true)} className="min-h-[112px] sm:min-h-[128px]" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+          <FadedIconTile Icon={Compass} title={L('Spiel', 'Game')} onClick={() => { updateField('type', 'spiel'); setStep(2); }} className="min-h-[76px] sm:min-h-[128px] lg:min-h-[180px]" />
+          <FadedIconTile Icon={HeartHandshake} title={L('Dienstprojekt', 'Service project')} onClick={() => { updateField('type', 'dienst'); setStep(2); }} className="min-h-[76px] sm:min-h-[128px] lg:min-h-[180px]" />
+          <FadedIconTile Icon={Palette} title={L('Kreative Aktivität', 'Creative activity')} onClick={() => { updateField('type', 'kunst'); setStep(2); }} className="min-h-[76px] sm:min-h-[128px] lg:min-h-[180px]" />
+          <FadedIconTile Icon={MessageSquare} title={L('Feedback & Ideen', 'Feedback & ideas')} onClick={() => setIsFeedbackOpen(true)} className="min-h-[76px] sm:min-h-[128px] lg:min-h-[180px]" />
         </div>
       )}
 

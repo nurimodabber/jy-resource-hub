@@ -725,3 +725,9 @@ kbd { font-family: inherit; }
   .jy-header.lg-glass { box-shadow: none; }
   .jy-header.lg-glass::after { display: none; }
 }
+
+/* Mobile header: no edge at all. The bar's own background fades out over its lower part,
+   so content slides softly underneath instead of meeting a line. */
+@media (max-width: 767px) {
+  .jy-header { border-bottom-color: transparent !important; -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent); mask-image: linear-gradient(to bottom, #000 72%, transparent); padding-bottom: 10px; margin-bottom: -10px; }
+}

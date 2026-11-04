@@ -175,9 +175,9 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
       </div>
 
       {/* Tools as tiles: title + faded icon, no description, no category pill */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
         {TOOLS.map((x) => (
-          <FadedIconTile key={x.id} to={x.customHref || `/tools/${x.id}`} Icon={x.icon} title={x.title[isDe ? 0 : 1]} />
+          <FadedIconTile key={x.id} to={x.customHref || `/tools/${x.id}`} Icon={x.icon} title={x.title[isDe ? 0 : 1]} className="min-h-[76px] sm:min-h-[112px] lg:min-h-[160px]" />
         ))}
       </div>
     </div>
