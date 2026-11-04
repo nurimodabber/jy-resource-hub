@@ -5,6 +5,8 @@ import { Language, GamePurpose, EnergyLevel } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { GameCard } from './GameCard';
 import { GamePage } from './GamePage';
+import { GlassIconButton } from './ui/Button';
+import { ContributeLink } from './ui/ContributeLink';
 import { EmptyState } from './ui/EmptyState';
 import { Badge } from './ui/Badge';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
@@ -251,17 +253,14 @@ export const GamesView: React.FC<GamesViewProps> = ({
           </p>
         </div>
 
-        {/* Random Game Button (aligned with header) */}
+        {/* Zufallsspiel: runder Knopf im Seitenkopf = Glas (Glas-Regel) */}
         {filteredGames.length > 0 && (
-          <button
-            type="button"
+          <GlassIconButton
+            label={language === 'de' ? 'Zufälliges Spiel' : 'Random game'}
+            icon={<Shuffle className="w-5 h-5" strokeWidth={1.9} />}
             onClick={handleRandomGame}
-            aria-label={language === 'de' ? 'Zufälliges Spiel' : 'Random game'}
-            title={language === 'de' ? 'Zufälliges Spiel' : 'Random game'}
-            className="p-3 rounded-full bg-surface hover:bg-surface-2 border border-border/80 text-text-secondary hover:text-accent transition-all min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 shadow-xs cursor-pointer active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <Shuffle className="w-5 h-5" />
-          </button>
+            className="mt-1"
+          />
         )}
       </header>
 
@@ -450,6 +449,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
           onAction={handleClearAll}
         />
       )}
+      <ContributeLink language={language} />
     </div>
   );
 };

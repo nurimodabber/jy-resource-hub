@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Search, X, ArrowLeft, BookOpen, Tag, SlidersHorizontal, HeartHandshake, Palette } from 'lucide-react';
 import {
   Language,
@@ -19,6 +19,7 @@ import { FilterPillDropdown } from './ui/FilterPillDropdown';
 import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { JY_BOOKS } from '../utils/bookProgress';
 import { tr } from './tools/common';
+import { ContributeLink } from './ui/ContributeLink';
 
 interface ServiceArtsViewProps {
   language: Language;
@@ -37,6 +38,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
 }) => {
   const { id } = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const t = UI_TRANSLATIONS[language];
   const L = tr(language);
 
@@ -301,17 +303,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   }
 
 
-  const pageTitle = fixedKind === 'dienst'
-    ? t.subtabServiceProjects
-    : fixedKind === 'kunst'
-    ? t.subtabArtsPrompts
-    : t.tabServiceArts;
-
-  const pageDesc = fixedKind === 'dienst'
-    ? t.serviceHeaderDesc
-    : fixedKind === 'kunst'
-    ? t.artsHeaderDesc
-    : t.serviceArtsHeaderDesc;
+  // „Projekte“ = Dienst + Kunst auf einer Seite. /service und /arts bleiben eigene Adressen und wählen das Segment vor.
+  const pageTitle = fixedKind ? t.tabProjects : t.tabServiceArts;
+  const pageDesc = fixedKind ? t.projectsHeaderDesc : t.serviceArtsHeaderDesc;
 
   const searchPlaceholderText = fixedKind === 'dienst'
     ? L('Dienstprojekt suchen...', 'Search service projects...')
@@ -340,6 +334,22 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
         <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {pageDesc}
         </p>
+        {fixedKind && (
+          <div className="mt-4 sm:mt-5 sm:max-w-sm">
+            <SegmentedControl<'dienst' | 'kunst'>
+              fullWidth
+              options={[
+                { id: 'dienst', label: L('Dienst', 'Service'), count: activeServiceProjects.length },
+                { id: 'kunst', label: L('Kunst', 'Arts'), count: activeArtsPrompts.length },
+              ]}
+              value={fixedKind}
+              onChange={(val) => {
+                // Filter gehören zur jeweiligen Art (Bereich vs. Kunstform), deshalb ohne Parameter wechseln.
+                if (val !== fixedKind) navigate(val === 'dienst' ? '/service' : '/arts', { replace: true });
+              }}
+            />
+          </div>
+        )}
       </header>
 
       {/* 2. Search Input + Filter Toggle Button */}
@@ -511,6 +521,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
           onAction={handleClearAll}
         />
       )}
+      <ContributeLink language={language} />
     </div>
   );
 };

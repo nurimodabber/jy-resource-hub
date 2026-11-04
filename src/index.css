@@ -370,7 +370,7 @@
 /* Mobile Glisse Liquid Glass Tab Bar scaling */
 .jy-mobile-tab-bar.lg-tab-bar,
 .lg-tab-bar.jy-mobile-tab-bar[data-icons] {
-  --lg-tab-width: min(62px, calc((100vw - 20px) / 6)) !important;
+  --lg-tab-width: min(76px, calc((100vw - 20px) / 4)) !important;
   --lg-tab-height: 48px !important;
   --lg-tab-inset: 2px !important;
   --lg-lens-grow-x: 0px !important;
@@ -404,8 +404,8 @@
 }
 
 .jy-mobile-tab-bar :is(.lg-tab, .lg-tab-copy) {
-  width: min(62px, calc((100vw - 20px) / 6)) !important;
-  max-width: min(62px, calc((100vw - 20px) / 6)) !important;
+  width: min(76px, calc((100vw - 20px) / 4)) !important;
+  max-width: min(76px, calc((100vw - 20px) / 4)) !important;
   height: 48px !important;
   font-size: 10px !important;
   gap: 1.5px !important;
@@ -629,3 +629,18 @@ body, footer, header, nav {
 
 input[type='checkbox'], input[type='radio'] { accent-color: var(--accent); }
 kbd { font-family: inherit; }
+
+/* Menü-Knopf oben rechts: glisse zeichnet 40 px, Touch-Ziel ist 44 px. Menükarte etwas breiter für „Einstellungen“. */
+.jy-nav-menu .lg-menu > .lg-button {
+  width: 44px;
+  height: 44px;
+  color: var(--text);
+}
+.jy-nav-menu .lg-menu-card {
+  width: 220px;
+  z-index: 60;
+}
+.jy-nav-menu .lg-menu-item {
+  min-height: 44px;
+  font-weight: 500;
+}

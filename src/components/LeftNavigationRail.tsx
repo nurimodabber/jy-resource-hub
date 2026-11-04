@@ -1,4 +1,4 @@
-import { Compass, BookOpen, Palette, HeartHandshake, Wrench, PlusCircle } from 'lucide-react';
+import { Compass, BookOpen, HeartHandshake, Wrench } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { Logo } from './Logo';
@@ -19,10 +19,8 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
   const items = [
     { id: 'games' as NavTab, label: t.tabGames, icon: Compass },
     { id: 'quotes' as NavTab, label: t.tabQuotes, icon: BookOpen },
-    { id: 'service' as NavTab, label: t.tabServiceShort, icon: HeartHandshake },
-    { id: 'arts' as NavTab, label: t.tabArtsShort, icon: Palette },
+    { id: 'service' as NavTab, label: t.tabProjects, icon: HeartHandshake },
     { id: 'tools' as NavTab, label: t.tabTools, icon: Wrench },
-    { id: 'vorschlagen' as NavTab, label: t.tabProposalShort, icon: PlusCircle },
   ];
 
   return (
@@ -44,7 +42,7 @@ export const LeftNavigationRail: React.FC<LeftNavigationRailProps> = ({
       <div className="flex flex-col items-center gap-1.5 my-auto">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = activeTab === item.id;
+          const isActive = activeTab === item.id || (item.id === 'service' && activeTab === 'arts');
           return (
             <button
               key={item.id}

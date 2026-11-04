@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TabBar } from 'glisse';
-import { Compass, BookOpen, HeartHandshake, Palette, Wrench, PlusCircle } from 'lucide-react';
+import { Compass, BookOpen, HeartHandshake, Wrench } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -24,14 +24,21 @@ RouterLinkAdapter.displayName = 'RouterLinkAdapter';
 export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectTab, language }) => {
   const t = UI_TRANSLATIONS[language];
 
+  // Vier Tabs statt sechs: Dienst und Kunst teilen sich „Projekte“ (Umschalter oben auf der Seite),
+  // „Beitragen“ ist über das Menü oben und am Listenende erreichbar.
+  const projectsHref = activeTab === 'arts' ? '/arts' : '/service';
   const items = [
     { value: 'games', label: t.tabGames, href: '/games', icon: <Compass className="w-5 h-5" strokeWidth={1.75} /> },
     { value: 'quotes', label: t.tabQuotes, href: '/quotes', icon: <BookOpen className="w-5 h-5" strokeWidth={1.75} /> },
-    { value: 'service', label: t.tabServiceShort, href: '/service', icon: <HeartHandshake className="w-5 h-5" strokeWidth={1.75} /> },
-    { value: 'arts', label: t.tabArtsShort, href: '/arts', icon: <Palette className="w-5 h-5" strokeWidth={1.75} /> },
+    { value: 'projects', label: t.tabProjects, href: projectsHref, icon: <HeartHandshake className="w-5 h-5" strokeWidth={1.75} /> },
     { value: 'tools', label: t.tabTools, href: '/tools', icon: <Wrench className="w-5 h-5" strokeWidth={1.75} /> },
-    { value: 'vorschlagen', label: t.tabProposalShort, href: '/vorschlagen', icon: <PlusCircle className="w-5 h-5" strokeWidth={1.75} /> },
   ];
+  const value =
+    activeTab === 'service' || activeTab === 'arts'
+      ? 'projects'
+      : items.some((i) => i.value === activeTab)
+      ? activeTab
+      : null;
 
   return (
     <nav
@@ -42,8 +49,8 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
         <TabBar
           className="jy-mobile-tab-bar"
           items={items}
-          value={activeTab}
-          onValueChange={(val) => onSelectTab(val as NavTab)}
+          value={value}
+          onValueChange={(val) => onSelectTab(val === 'projects' ? (activeTab === 'arts' ? 'arts' : 'service') : (val as NavTab))}
           link={RouterLinkAdapter}
         />
       </div>

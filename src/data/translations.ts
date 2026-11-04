@@ -580,6 +580,11 @@ const de = {
     footerDatenschutz: 'Datenschutz',
     exploreGames: 'Spiele entdecken',
     exploreQuotes: 'Zitate ansehen',
+    tabProjects: 'Projekte',
+    projectsHeaderDesc: 'Dienstprojekte und kreative Impulse für eure Gruppe.',
+    navMore: 'Mehr',
+    contributeLinkTitle: 'Etwas fehlt?',
+    contributeLinkDesc: 'Schlag ein Spiel oder Projekt vor.',
 };
 
 export type TKey = keyof typeof de;
@@ -1164,6 +1169,11 @@ const en: Record<TKey, string> = {
     footerDatenschutz: 'Privacy',
     exploreGames: 'Explore games',
     exploreQuotes: 'Explore quotes',
+    tabProjects: 'Projects',
+    projectsHeaderDesc: 'Service projects and creative prompts for your group.',
+    navMore: 'More',
+    contributeLinkTitle: 'Something missing?',
+    contributeLinkDesc: 'Suggest a game or project.',
 };
 
 export const UI_TRANSLATIONS: Record<Language, Record<TKey, string>> = { de, en };

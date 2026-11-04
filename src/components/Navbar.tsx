@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Bookmark, Settings } from 'lucide-react';
-import { Glass } from 'glisse';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Search, Bookmark, Settings, PlusCircle, ArrowLeft, Menu as MenuIcon } from 'lucide-react';
+import { Glass, Menu } from 'glisse';
 import { Logo } from './Logo';
+import { GlassIconButton } from './ui/Button';
 import { Language, NavTab } from '../types';
-import { UI_TRANSLATIONS } from '../data/translations';
+import { UI_TRANSLATIONS, TKey } from '../data/translations';
 
 interface NavbarProps {
   activeTab: NavTab;
@@ -14,14 +15,39 @@ interface NavbarProps {
   onOpenSettings: () => void;
 }
 
-export const NAV_ITEMS: { id: NavTab; href: string; key: 'tabGames' | 'tabQuotes' | 'tabServiceShort' | 'tabArtsShort' | 'tabTools' | 'tabProposalShort' }[] = [
+type NavId = 'games' | 'quotes' | 'projects' | 'tools';
+
+// Dieselben vier Bereiche wie in der unteren Leiste. „Projekte“ = Dienst + Kunst auf einer Seite.
+export const NAV_ITEMS: { id: NavId; href: string; key: TKey }[] = [
   { id: 'games', href: '/games', key: 'tabGames' },
   { id: 'quotes', href: '/quotes', key: 'tabQuotes' },
-  { id: 'service', href: '/service', key: 'tabServiceShort' },
-  { id: 'arts', href: '/arts', key: 'tabArtsShort' },
+  { id: 'projects', href: '/service', key: 'tabProjects' },
   { id: 'tools', href: '/tools', key: 'tabTools' },
-  { id: 'vorschlagen', href: '/vorschlagen', key: 'tabProposalShort' },
 ];
+
+const toNavId = (tab: NavTab): NavId | null =>
+  tab === 'service' || tab === 'arts' ? 'projects' : tab === 'games' || tab === 'quotes' || tab === 'tools' ? tab : null;
+
+const SECTION_TITLE_KEY: Partial<Record<NavTab, TKey>> = {
+  games: 'tabGames',
+  quotes: 'tabQuotes',
+  service: 'tabProjects',
+  arts: 'tabProjects',
+  tools: 'tabTools',
+  saved: 'savedItems',
+  vorschlagen: 'tabProposalShort',
+  impressum: 'footerImpressum',
+  datenschutz: 'footerDatenschutz',
+};
+
+/** Detailseite = zweites Pfadsegment unter einem Listenbereich. Zurück führt immer zur Liste, nie ins Leere. */
+const detailBackPath = (pathname: string): string | null => {
+  const [root, sub] = pathname.split('/').filter(Boolean);
+  if (!sub) return null;
+  if (root === 'service-arts') return '/service';
+  if (root === 'games' || root === 'quotes' || root === 'service' || root === 'arts' || root === 'tools') return `/${root}`;
+  return null;
+};
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
@@ -31,33 +57,36 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSettings,
 }) => {
   const t = UI_TRANSLATIONS[language];
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isHidden, setIsHidden] = useState(false);
+  const activeNavId = toNavId(activeTab);
+  const backPath = detailBackPath(location.pathname);
+  const titleKey = SECTION_TITLE_KEY[activeTab];
+  const sectionTitle = titleKey ? t[titleKey] : null;
 
-  // Desktop navigation liquid glass sliding indicator (pixel-perfect centering)
+  // Desktop: gleitender Hintergrund unter dem aktiven Bereich
   const desktopNavRef = useRef<HTMLDivElement>(null);
-  const desktopItemRefs = useRef<Map<NavTab, HTMLAnchorElement>>(new Map());
+  const desktopItemRefs = useRef<Map<NavId, HTMLAnchorElement>>(new Map());
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
 
   const updateIndicator = useCallback(() => {
-    const el = desktopItemRefs.current.get(activeTab);
+    const el = activeNavId ? desktopItemRefs.current.get(activeNavId) : undefined;
     const nav = desktopNavRef.current;
     if (el && nav) {
       const elRect = el.getBoundingClientRect();
       const navRect = nav.getBoundingClientRect();
-      setIndicator({
-        left: Math.round(elRect.left - navRect.left),
-        width: Math.round(elRect.width),
-      });
+      setIndicator({ left: Math.round(elRect.left - navRect.left), width: Math.round(elRect.width) });
     } else {
       setIndicator(null);
     }
-  }, [activeTab]);
+  }, [activeNavId]);
 
   useEffect(() => {
     updateIndicator();
     window.addEventListener('resize', updateIndicator);
     return () => window.removeEventListener('resize', updateIndicator);
-  }, [updateIndicator]);
+  }, [updateIndicator, language]);
 
   // Phone landscape: hide header while scrolling down
   useEffect(() => {
@@ -72,6 +101,25 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const menuItems = [
+    {
+      label: favoriteCount > 0 ? `${t.savedItems} (${favoriteCount})` : t.savedItems,
+      icon: <Bookmark strokeWidth={1.75} />,
+      onSelect: () => navigate('/saved'),
+    },
+    {
+      label: t.tabProposalShort,
+      icon: <PlusCircle strokeWidth={1.75} />,
+      onSelect: () => navigate('/vorschlagen'),
+    },
+    'separator' as const,
+    {
+      label: t.tabSettings,
+      icon: <Settings strokeWidth={1.75} />,
+      onSelect: onOpenSettings,
+    },
+  ];
+
   return (
     <Glass
       role="banner"
@@ -80,42 +128,59 @@ export const Navbar: React.FC<NavbarProps> = ({
       }`}
     >
       <div className="max-w-[1200px] mx-auto px-3.5 sm:px-6 flex items-center h-16 short:h-12 justify-between gap-2.5">
-        {/* Left: Logo & Site Title */}
+        {/* Links (mobil): Detailseite = Glas-Zurück + Bereich; Bereich = kleines Logo + Bereich; Start = Logo + Name */}
+        <div className="flex items-center gap-2 min-w-0 md:hidden">
+          {backPath ? (
+            <>
+              <GlassIconButton
+                label={sectionTitle ? `${language === 'de' ? 'Zurück zu' : 'Back to'} ${sectionTitle}` : language === 'de' ? 'Zurück' : 'Back'}
+                icon={<ArrowLeft className="w-5 h-5" strokeWidth={2} />}
+                onClick={() => navigate(backPath)}
+                className="-ml-1"
+              />
+              {sectionTitle && (
+                <span className="font-semibold text-base tracking-tight text-text truncate">{sectionTitle}</span>
+              )}
+            </>
+          ) : (
+            <Link
+              to="/"
+              className="flex items-center gap-2 min-w-0 min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent"
+              aria-label={`${t.siteTitle} – ${t.tabHome}`}
+            >
+              <Logo className={`${sectionTitle ? 'w-6 h-6' : 'w-8 h-8'} shrink-0`} />
+              <span className="font-semibold text-base tracking-tight text-text truncate" aria-hidden={sectionTitle ? 'true' : undefined}>
+                {sectionTitle ?? t.siteTitle}
+              </span>
+            </Link>
+          )}
+        </div>
+
+        {/* Links (ab Tablet): Logo + Name */}
         <Link
           to="/"
-          className="flex items-center gap-2.5 shrink-0 min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent"
+          className="hidden md:flex items-center gap-2.5 shrink-0 min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent"
           aria-label={`${t.siteTitle} – ${t.tabHome}`}
         >
           <Logo className="w-8 h-8 short:w-6 short:h-6 shrink-0" />
-          <span className="hidden min-[360px]:inline-block font-bold text-base tracking-tight text-text whitespace-nowrap">
-            {t.siteTitle}
-          </span>
+          <span className="font-bold text-base tracking-tight text-text whitespace-nowrap">{t.siteTitle}</span>
         </Link>
 
-        {/* Center: Tablet & Desktop Navigation (Glisse Liquid Glass Segmented Pill) */}
+        {/* Mitte (ab Tablet): vier Bereiche */}
         <nav
           ref={desktopNavRef}
-          className="relative hidden md:flex short:hidden items-center p-1 rounded-full bg-surface-2/70 border border-line/70 lg-glass gap-0.5 shadow-2xs"
+          className="relative hidden md:flex short:hidden items-center p-1 rounded-full bg-surface-2/70 border border-line/70 gap-0.5"
           aria-label={language === 'de' ? 'Hauptnavigation' : 'Main navigation'}
         >
-          {/* Active Liquid Glass sliding indicator pill (with left-0 for exact centering) */}
           {indicator && (
             <div
-              className="absolute left-0 top-1 bottom-1 rounded-full lg-glass bg-surface/95 dark:bg-surface-2 shadow-xs border border-line/80 transition-all duration-240 cubic-bezier(0.16, 1, 0.3, 1) pointer-events-none"
-              style={{
-                transform: `translate3d(${indicator.left}px, 0, 0)`,
-                width: `${indicator.width}px`,
-              }}
-            >
-              <span
-                className="absolute inset-x-2.5 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/90 dark:via-white/30 to-transparent pointer-events-none rounded-t-full"
-                aria-hidden="true"
-              />
-            </div>
+              className="absolute left-0 top-1 bottom-1 rounded-full bg-surface shadow-1 border border-line/80 transition-all duration-200 ease-out pointer-events-none motion-reduce:transition-none"
+              style={{ transform: `translate3d(${indicator.left}px, 0, 0)`, width: `${indicator.width}px` }}
+            />
           )}
-
           {NAV_ITEMS.map((item) => {
-            const isActive = activeTab === item.id;
+            const isActive = activeNavId === item.id;
+            const href = item.id === 'projects' && activeTab === 'arts' ? '/arts' : item.href;
             return (
               <Link
                 key={item.id}
@@ -123,12 +188,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   if (el) desktopItemRefs.current.set(item.id, el);
                   else desktopItemRefs.current.delete(item.id);
                 }}
-                to={item.href}
+                to={href}
                 aria-current={isActive ? 'page' : undefined}
-                className={`relative z-10 px-2.5 lg:px-3.5 py-1.5 min-h-[36px] inline-flex items-center rounded-full text-xs lg:text-sm font-medium whitespace-nowrap transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent ${
-                  isActive
-                    ? 'text-accent font-bold'
-                    : 'text-text-secondary hover:text-text'
+                className={`relative z-10 px-3 lg:px-4 py-1.5 min-h-[36px] inline-flex items-center rounded-full text-sm whitespace-nowrap transition-colors duration-150 ease-out focus-visible:ring-2 focus-visible:ring-accent ${
+                  isActive ? 'text-text font-semibold' : 'text-text-secondary font-medium hover:text-text'
                 }`}
               >
                 {t[item.key]}
@@ -137,61 +200,40 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Right: Search, Saved, Settings (Uncluttered, borderless touch targets >= 44px) */}
-        <div className="flex items-center gap-0.5 sm:gap-1">
-          {/* Desktop Search trigger button (Clean pill) */}
+        {/* Rechts: Suche + ein Menü (Gemerkt, Beitragen, Einstellungen) */}
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
             onClick={onOpenCommandPalette}
-            className="group hidden lg:flex items-center gap-2.5 h-10 w-44 lg:w-48 px-3.5 rounded-full bg-surface-2/70 border border-line/70 hover:border-accent/40 text-xs text-text-secondary hover:text-text cursor-pointer transition-all duration-150 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="group hidden lg:flex items-center gap-2.5 h-10 w-48 px-3.5 rounded-full bg-surface-2/70 border border-line/70 hover:border-border-strong text-xs text-text-secondary hover:text-text cursor-pointer transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={t.cmdKSearch}
           >
-            <Search className="w-3.5 h-3.5 text-text-tertiary group-hover:text-accent shrink-0 transition-colors" strokeWidth={1.75} />
-            <span className="flex-1 text-left truncate">{language === 'de' ? 'Suchen...' : 'Search...'}</span>
+            <Search className="w-3.5 h-3.5 text-text-tertiary shrink-0" strokeWidth={1.75} />
+            <span className="flex-1 text-left truncate">{language === 'de' ? 'Suchen …' : 'Search …'}</span>
+            <kbd className="text-2xs text-text-tertiary">⌘K</kbd>
           </button>
 
-          {/* Tablet & Mobile Search Icon button (Borderless interactive icon >= 44px) */}
-          <button
-            type="button"
+          <GlassIconButton
+            label={language === 'de' ? 'Suche öffnen' : 'Open search'}
+            icon={<Search className="w-[18px] h-[18px]" strokeWidth={1.9} />}
             onClick={onOpenCommandPalette}
-            className="lg:hidden w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all duration-150 outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-            aria-label={language === 'de' ? 'Suche öffnen' : 'Open search'}
-          >
-            <Search className="w-4 h-4" strokeWidth={1.75} />
-          </button>
+            className="lg:hidden"
+          />
 
-          {/* Saved Items (Lesezeichen - Borderless >= 44px with subtle active state) */}
-          <Link
-            to="/saved"
-            className={`relative w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center transition-all duration-150 active:scale-95 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
-              activeTab === 'saved'
-                ? 'bg-accent-subtle text-accent font-semibold'
-                : 'text-text-secondary hover:text-text hover:bg-surface-2/80'
-            }`}
-            aria-label={`${t.savedItems}${favoriteCount > 0 ? ` (${favoriteCount})` : ''}`}
-          >
-            <Bookmark
-              className={`w-4 h-4 transition-colors duration-150 ${
-                activeTab === 'saved' ? 'fill-accent text-accent' : favoriteCount > 0 ? 'text-accent' : ''
-              }`}
-              strokeWidth={1.75}
+          <div className="relative jy-nav-menu">
+            <Menu
+              aria-label={language === 'de' ? `${t.navMore}: Gemerkt, Beitragen, Einstellungen` : `${t.navMore}: Saved, Contribute, Settings`}
+              icon={<MenuIcon strokeWidth={1.9} />}
+              items={menuItems}
+              align="end"
             />
             {favoriteCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-accent text-accent-contrast text-[10px] font-bold tabular-nums flex items-center justify-center leading-none ring-2 ring-surface shadow-xs pointer-events-none">
-                {favoriteCount}
-              </span>
+              <span
+                className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-accent ring-2 ring-surface pointer-events-none"
+                aria-hidden="true"
+              />
             )}
-          </Link>
-
-          {/* Settings button (Borderless interactive icon >= 44px) */}
-          <button
-            type="button"
-            onClick={onOpenSettings}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all duration-150 ease-out focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-            aria-label={t.tabSettings}
-          >
-            <Settings className="w-4 h-4" strokeWidth={1.75} />
-          </button>
+          </div>
         </div>
       </div>
     </Glass>
