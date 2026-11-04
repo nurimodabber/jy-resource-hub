@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import {
   Shuffle,
   RotateCw,
@@ -7,8 +8,6 @@ import {
   Check,
   HelpCircle,
   Award,
-  Users,
-  User,
   Plus,
   Minus,
   X,
@@ -16,7 +15,10 @@ import {
   Undo2,
   RotateCcw,
   Eye,
+  ListPlus,
+  ClipboardPaste,
 } from 'lucide-react';
+import { Glass } from 'glisse';
 import { Language } from '../../types';
 import { useLocalState } from '../../hooks/useLocalState';
 import {
@@ -38,72 +40,19 @@ import { tr, Panel } from './common';
 import { SegmentedControl } from '../ui/SegmentedControl';
 import { Sheet } from '../ui/Sheet';
 import { Dialog } from '../ui/Dialog';
+import { Switch } from '../ui/Switch';
+import { GlassIconButton } from '../ui/Button';
 
-const TEAM_THEMES = [
-  {
-    name: 'blue',
-    bg: 'bg-blue-500/[0.03] dark:bg-blue-500/[0.08]',
-    border: 'border-blue-500/25 dark:border-blue-500/35',
-    badge: 'bg-blue-500/12 text-blue-600 dark:text-blue-400 border-blue-500/25',
-    dot: 'bg-blue-500',
-    initialBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
-  },
-  {
-    name: 'amber',
-    bg: 'bg-amber-500/[0.03] dark:bg-amber-500/[0.08]',
-    border: 'border-amber-500/25 dark:border-amber-500/35',
-    badge: 'bg-amber-500/12 text-amber-600 dark:text-amber-400 border-amber-500/25',
-    dot: 'bg-amber-500',
-    initialBg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
-  },
-  {
-    name: 'emerald',
-    bg: 'bg-emerald-500/[0.03] dark:bg-emerald-500/[0.08]',
-    border: 'border-emerald-500/25 dark:border-emerald-500/35',
-    badge: 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400 border-emerald-500/25',
-    dot: 'bg-emerald-500',
-    initialBg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
-  },
-  {
-    name: 'rose',
-    bg: 'bg-rose-500/[0.03] dark:bg-rose-500/[0.08]',
-    border: 'border-rose-500/25 dark:border-rose-500/35',
-    badge: 'bg-rose-500/12 text-rose-600 dark:text-rose-400 border-rose-500/25',
-    dot: 'bg-rose-500',
-    initialBg: 'bg-rose-500/15 text-rose-600 dark:text-rose-400',
-  },
-  {
-    name: 'purple',
-    bg: 'bg-purple-500/[0.03] dark:bg-purple-500/[0.08]',
-    border: 'border-purple-500/25 dark:border-purple-500/35',
-    badge: 'bg-purple-500/12 text-purple-600 dark:text-purple-400 border-purple-500/25',
-    dot: 'bg-purple-500',
-    initialBg: 'bg-purple-500/15 text-purple-600 dark:text-purple-400',
-  },
-  {
-    name: 'cyan',
-    bg: 'bg-cyan-500/[0.03] dark:bg-cyan-500/[0.08]',
-    border: 'border-cyan-500/25 dark:border-cyan-500/35',
-    badge: 'bg-cyan-500/12 text-cyan-700 dark:text-cyan-300 border-cyan-500/25',
-    dot: 'bg-cyan-500',
-    initialBg: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300',
-  },
-  {
-    name: 'orange',
-    bg: 'bg-orange-500/[0.03] dark:bg-orange-500/[0.08]',
-    border: 'border-orange-500/25 dark:border-orange-500/35',
-    badge: 'bg-orange-500/12 text-orange-600 dark:text-orange-400 border-orange-500/25',
-    dot: 'bg-orange-500',
-    initialBg: 'bg-orange-500/15 text-orange-600 dark:text-orange-400',
-  },
-  {
-    name: 'indigo',
-    bg: 'bg-indigo-500/[0.03] dark:bg-indigo-500/[0.08]',
-    border: 'border-indigo-500/25 dark:border-indigo-500/35',
-    badge: 'bg-indigo-500/12 text-indigo-600 dark:text-indigo-400 border-indigo-500/25',
-    dot: 'bg-indigo-500',
-    initialBg: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400',
-  },
+// Teamfarbe nur als kleiner Punkt: ruhig, und am Beamer trotzdem unterscheidbar.
+const TEAM_DOTS = [
+  'bg-blue-500',
+  'bg-amber-500',
+  'bg-emerald-500',
+  'bg-rose-500',
+  'bg-purple-500',
+  'bg-cyan-500',
+  'bg-orange-500',
+  'bg-indigo-500',
 ];
 
 const getInitialTeams = (): string[][] => {
@@ -141,6 +90,9 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
   });
 
   const [newNameInput, setNewNameInput] = useState('');
+  const [showPaste, setShowPaste] = useState(false);
+  const [pasteInput, setPasteInput] = useState('');
+  const pasteCount = parseNames(pasteInput).length;
   const [splitMode, setSplitMode] = useLocalState<'byCount' | 'bySize'>('jy_teams_split_mode', 'byCount');
   const [teamCount, setTeamCount] = useLocalState<number>('jy_teams_team_count', 2);
   const [teamSize, setTeamSize] = useLocalState<number>('jy_teams_team_size', 4);
@@ -254,10 +206,24 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
   // Quick add a new person by typing and submitting (with duplicate detection)
   const handleAddPerson = (e?: React.FormEvent) => {
     e?.preventDefault();
-    const trimmed = newNameInput.trim();
-    if (!trimmed) return;
+    if (addNames(newNameInput)) setNewNameInput('');
+  };
+
+  // Einfügen einer ganzen Liste nutzt dieselbe Logik (inkl. Doppelte-Namen-Rückfrage)
+  const handlePasteSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (addNames(pasteInput)) {
+      setPasteInput('');
+      setShowPaste(false);
+    }
+  };
+
+  /** true = sofort übernommen; false = nichts zu tun oder Rückfrage wegen doppeltem Namen offen. */
+  const addNames = (raw: string): boolean => {
+    const trimmed = raw.trim();
+    if (!trimmed) return false;
     const items = parseNames(trimmed);
-    if (items.length === 0) return;
+    if (items.length === 0) return false;
 
     // Check if any entered item matches an existing active name
     const existingMatch = items.find((item) =>
@@ -304,7 +270,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
         nextAll: updatedAll,
         nextPresent: updatedPresent,
       });
-      return;
+      return false;
     }
 
     const updatedNames = [...names];
@@ -326,7 +292,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
     setPresent(updatedPresent);
     saveGroupNames(updatedAll);
     saveGroupPresent(updatedPresent);
-    setNewNameInput('');
+    return true;
   };
 
   const confirmAddDuplicate = () => {
@@ -338,6 +304,8 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
     saveGroupPresent(duplicatePending.nextPresent);
     setDuplicatePending(null);
     setNewNameInput('');
+    setPasteInput('');
+    setShowPaste(false);
   };
 
   // Re-add an absent person from group roster
@@ -495,552 +463,393 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
   // Max value limits
   const maxTeamCount = Math.min(8, Math.max(2, names.length));
   const maxTeamSize = Math.max(2, Math.min(10, names.length));
+  const stepValue = splitMode === 'byCount' ? teamCount : teamSize;
+  const canDecrease = stepValue > 2;
+  const canIncrease = splitMode === 'byCount' ? teamCount < maxTeamCount : teamSize < maxTeamSize;
+  const isPairs = splitMode === 'bySize' && teamSize === 2;
+  const primaryLabel = result.length > 0 ? L('Neu mischen', 'Reshuffle') : L('Teams bilden', 'Make teams');
+
+  const stepBy = (delta: number) => {
+    if (splitMode === 'byCount') setTeamCount((prev) => Math.min(maxTeamCount, Math.max(2, prev + delta)));
+    else setTeamSize((prev) => Math.min(maxTeamSize, Math.max(2, prev + delta)));
+  };
+
+  const stepperButton =
+    'w-14 h-14 min-w-[56px] rounded-full bg-surface-2 hover:bg-surface-3 text-text flex items-center justify-center cursor-pointer transition-colors disabled:opacity-35 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-accent';
+  const secondaryButton =
+    'inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-control bg-surface-2 hover:bg-surface-3 text-sm font-semibold text-text cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-accent';
 
   return (
-    <div className="space-y-4 pb-[calc(110px+env(safe-area-inset-bottom,0px))] md:pb-0">
-      {/* 1. TOP OVERVIEW: Participants & Compact Attendance (Space-Saving) */}
-      <Panel className="p-3.5 sm:p-4 space-y-3">
-        <div className="flex items-center justify-between gap-2 border-b border-border/50 pb-2">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-accent" />
-            <span className="text-xs font-bold text-text">
-              {L('Teilnehmende Personen', 'Participants')}
+    // Unten Platz für das schwebende Aktions-Dock (mobil), damit es nie Inhalt verdeckt
+    <div className="space-y-4 pb-24 md:pb-0">
+      {/* 1. WER IST DA? Namen eintippen oder Liste einfügen */}
+      <Panel className="p-4 sm:p-5 space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-text">
+            {L('Wer ist da?', "Who's here?")}{' '}
+            <span className="text-text-secondary font-medium tabular-nums">
+              · {names.length} {names.length === 1 ? L('Person', 'person') : L('Personen', 'people')}
             </span>
-            <span className="text-2xs font-bold px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
-              {names.length} {L('anwesend', 'present')}
-            </span>
-          </div>
+          </h2>
+          <button
+            type="button"
+            onClick={() => setShowHelp(!showHelp)}
+            aria-expanded={showHelp}
+            className={`w-11 h-11 -mr-2 rounded-full flex items-center justify-center cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-accent ${
+              showHelp ? 'bg-surface-2 text-text' : 'text-text-secondary hover:text-text hover:bg-surface-2'
+            }`}
+            title={L('Hilfe', 'Help')}
+            aria-label={L('Hilfe', 'Help')}
+          >
+            <HelpCircle className="w-5 h-5" />
+          </button>
+        </div>
 
-          <div className="flex items-center gap-1.5">
-            {absentNames.length > 0 && (
+        {showHelp && (
+          <p className="text-sm text-text-secondary leading-relaxed bg-surface-2 rounded-control p-3">
+            {L(
+              'Trag die Namen ein (oder füg eine ganze Liste ein), wähl Anzahl Teams oder Personen pro Team und tippe auf „Teams bilden“. „Rotieren“ schickt alle reihum ins nächste Team, ideal für Stationen. Tippe auf einen Namen, um ihn in ein anderes Team zu verschieben.',
+              'Enter names (or paste a whole list), choose number of teams or people per team and tap "Make teams". "Rotate" moves everyone round-robin to the next team, ideal for stations. Tap a name to move it to another team.'
+            )}
+          </p>
+        )}
+
+        {/* Ein Feld + Hinzufügen. Komma oder Zeilenumbruch trennt mehrere Namen. */}
+        <form onSubmit={handleAddPerson} className="flex items-stretch gap-2">
+          <label htmlFor="teams-name-input" className="sr-only">
+            {L('Name hinzufügen', 'Add name')}
+          </label>
+          <input
+            id="teams-name-input"
+            type="text"
+            value={newNameInput}
+            onChange={(e) => setNewNameInput(e.target.value)}
+            placeholder={L('Name eingeben', 'Enter a name')}
+            autoComplete="off"
+            enterKeyHint="done"
+            className="flex-1 min-w-0 h-12 px-4 rounded-control bg-surface-2 border border-transparent focus:border-accent focus:bg-surface text-base text-text placeholder:text-text-tertiary focus:outline-hidden transition-colors"
+          />
+          <button
+            type="submit"
+            disabled={!newNameInput.trim()}
+            className="w-12 h-12 min-w-[48px] rounded-control bg-surface-2 hover:bg-surface-3 text-text flex items-center justify-center cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-accent"
+            aria-label={L('Hinzufügen', 'Add')}
+            title={L('Hinzufügen', 'Add')}
+          >
+            <Plus className="w-5 h-5" strokeWidth={2.25} />
+          </button>
+        </form>
+
+        {showPaste ? (
+          <form onSubmit={handlePasteSubmit} className="space-y-2">
+            <label htmlFor="teams-paste" className="block text-sm font-medium text-text">
+              {L('Liste einfügen (ein Name pro Zeile oder mit Komma)', 'Paste a list (one name per line or comma-separated)')}
+            </label>
+            <textarea
+              id="teams-paste"
+              value={pasteInput}
+              onChange={(e) => setPasteInput(e.target.value)}
+              rows={5}
+              autoFocus
+              className="w-full px-4 py-3 rounded-control bg-surface-2 border border-transparent focus:border-accent focus:bg-surface text-base text-text placeholder:text-text-tertiary focus:outline-hidden transition-colors resize-y"
+              placeholder={'Anna\nBen\nCara'}
+            />
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPaste(false);
+                  setPasteInput('');
+                }}
+                className="min-h-[44px] px-4 rounded-control text-sm font-semibold text-text-secondary hover:text-text hover:bg-surface-2 cursor-pointer transition-colors"
+              >
+                {L('Abbrechen', 'Cancel')}
+              </button>
+              <button type="submit" disabled={!pasteInput.trim()} className={secondaryButton}>
+                <ListPlus className="w-4 h-4" />
+                {pasteCount > 0
+                  ? L(`${pasteCount} übernehmen`, `Add ${pasteCount}`)
+                  : L('Übernehmen', 'Add')}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowPaste(true)}
+            className="inline-flex items-center gap-2 min-h-[44px] -ml-1 px-1 text-sm font-semibold text-accent-text hover:underline cursor-pointer"
+          >
+            <ClipboardPaste className="w-4 h-4" />
+            {L('Liste einfügen', 'Paste a list')}
+          </button>
+        )}
+
+        {/* Anwesende als entfernbare Chips: ganzer Chip ist das Touch-Ziel */}
+        {names.length > 0 && (
+          <ul className="flex flex-wrap gap-2" aria-label={L('Anwesend', 'Present')}>
+            {names.map((name) => (
+              <li key={name}>
+                <button
+                  type="button"
+                  onClick={() => handleRemovePerson(name)}
+                  className="inline-flex items-center gap-1.5 min-h-[44px] pl-3.5 pr-2.5 rounded-full bg-surface-2 hover:bg-surface-3 text-sm font-semibold text-text cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+                  aria-label={L(`${name} entfernen`, `Remove ${name}`)}
+                >
+                  <span className="truncate max-w-[160px]">{name}</span>
+                  <X className="w-4 h-4 text-text-tertiary" strokeWidth={2.25} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Nicht da: ein Tipp holt die Person zurück */}
+        {absentNames.length > 0 && (
+          <div className="space-y-2 pt-3 border-t border-line">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm text-text-secondary">{L('Nicht da', 'Not here')}</span>
               <button
                 type="button"
                 onClick={handleMarkAllPresent}
-                className="text-2xs font-semibold px-2.5 py-1 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text-secondary hover:text-text cursor-pointer transition-colors"
-                title={L('Alle Personen als anwesend markieren', 'Mark all as present')}
+                className="min-h-[44px] px-2 text-sm font-semibold text-accent-text hover:underline cursor-pointer"
               >
-                {L('Alle anwesend', 'All present')}
+                {L('Alle dazuholen', 'Add everyone')}
               </button>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setShowHelp(!showHelp)}
-              className={`p-1.5 rounded-control border text-xs font-semibold flex items-center justify-center transition-colors cursor-pointer min-h-[32px] min-w-[32px] ${
-                showHelp
-                  ? 'bg-accent/15 border-accent text-accent'
-                  : 'bg-surface-2 hover:bg-surface-raised border-border text-text-secondary hover:text-text'
-              }`}
-              title={L('Hilfe', 'Help')}
-              aria-label={L('Hilfe', 'Help')}
-            >
-              <HelpCircle className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Compact Chips & Quick-Add Input */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-          {names.map((name) => (
-            <span
-              key={name}
-              className="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text shadow-2xs group transition-colors"
-            >
-              <span className="truncate max-w-[140px]">{name}</span>
-              <button
-                type="button"
-                onClick={() => handleRemovePerson(name)}
-                className="p-0.5 rounded-full text-text-tertiary hover:text-red-500 hover:bg-red-500/10 cursor-pointer transition-colors min-h-[20px] min-w-[20px] flex items-center justify-center"
-                title={L(`${name} entfernen`, `Remove ${name}`)}
-                aria-label={L(`${name} entfernen`, `Remove ${name}`)}
-              >
-                <X className="w-3 h-3 stroke-[2.5]" />
-              </button>
-            </span>
-          ))}
-
-          {/* Inline Quick-Add Input */}
-          <form onSubmit={handleAddPerson} className="inline-flex items-center">
-            <div className="relative flex items-center">
-              <input
-                type="text"
-                value={newNameInput}
-                onChange={(e) => setNewNameInput(e.target.value)}
-                placeholder={L('+ Name', '+ Name')}
-                className="pl-3 pr-7 py-1 text-xs rounded-full bg-surface-2 hover:bg-surface-raised focus:bg-surface border border-dashed border-border focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden min-h-[32px] w-28 sm:w-36 transition-all font-medium"
-              />
-              {newNameInput.trim() && (
-                <button
-                  type="submit"
-                  className="absolute right-1 p-1 rounded-full bg-accent text-accent-contrast hover:bg-accent-hover cursor-pointer"
-                  title={L('Hinzufügen', 'Add')}
-                >
-                  <Plus className="w-3 h-3 stroke-[3]" />
-                </button>
-              )}
             </div>
-          </form>
-        </div>
-
-        {/* Multi-name paste hint */}
-        <p className="text-2xs text-text-tertiary pt-0.5">
-          {L(
-            'Tipp: Mehrere Namen mit Komma oder Zeilenumbruch einfügen.',
-            'Tip: Paste multiple names separated by commas or line breaks.'
-          )}
-        </p>
-
-        {/* Absent members quick toggle */}
-        {absentNames.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-border/50 text-2xs text-text-tertiary">
-            <span className="font-medium mr-1">
-              {L('Abwesend (tippen zum Dazuholen):', 'Absent (tap to include):')}
-            </span>
-            {absentNames.map((name) => (
-              <button
-                key={name}
-                type="button"
-                onClick={() => handleAddAbsentPerson(name)}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-2/60 hover:bg-surface-raised border border-border/60 text-text-secondary hover:text-text cursor-pointer transition-colors"
-                title={L(`${name} hinzufügen`, `Add ${name}`)}
-              >
-                <Plus className="w-2.5 h-2.5 text-accent" />
-                <span>{name}</span>
-              </button>
-            ))}
+            <ul className="flex flex-wrap gap-2">
+              {absentNames.map((name) => (
+                <li key={name}>
+                  <button
+                    type="button"
+                    onClick={() => handleAddAbsentPerson(name)}
+                    className="inline-flex items-center gap-1.5 min-h-[44px] pl-2.5 pr-3.5 rounded-full border border-dashed border-border-strong text-sm font-medium text-text-secondary hover:text-text hover:bg-surface-2 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-accent"
+                    aria-label={L(`${name} dazuholen`, `Add ${name}`)}
+                  >
+                    <Plus className="w-4 h-4" aria-hidden="true" />
+                    <span className="truncate max-w-[160px]">{name}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </Panel>
 
-      {/* Expandable Help */}
-      {showHelp && (
-        <div className="bg-surface-2 rounded-card border border-border p-3 text-xs text-text-secondary leading-relaxed animate-in fade-in duration-150">
-          <p>
-            {L(
-              'Teilt die anwesenden Personen automatisch in faire Teams oder Tandems auf. Wähle zwischen der gewünschten Teamanzahl oder Teamgröße, passe die Zahl an und wähle zwischen „Zufällig neu mischen“ und „Durchrotieren“ (ideal für wechselnde Stationsläufe). Einzelne Personen lassen sich anschließend per Klick manuell verschieben.',
-              'Automatically divides present participants into fair teams or pairs. Choose between team count or team size, set the number, and choose between "Random Reshuffle" and "Rotate" (ideal for rotating stations). Individuals can also be moved manually by tapping them.'
-            )}
-          </p>
-        </div>
-      )}
+      {/* 2. EINTEILUNG: Methode + großer Stepper */}
+      <Panel className="p-4 sm:p-5 space-y-5">
+        <h2 className="text-base font-semibold text-text">{L('Einteilung', 'Division')}</h2>
+        <SegmentedControl<'byCount' | 'bySize'>
+          fullWidth
+          value={splitMode}
+          onChange={(mode) => setSplitMode(mode)}
+          options={[
+            { id: 'byCount', label: L('Anzahl Teams', 'Number of teams') },
+            { id: 'bySize', label: L('Pro Team', 'Per team') },
+          ]}
+        />
 
-      {/* 2. DIVISION CONTROLS: Mode Switch & Count Selector */}
-      <Panel className="p-4 sm:p-5 space-y-4">
-        {/* Simple Mode Switch */}
-        <div className="space-y-1.5">
-          <label className="block text-2xs font-bold uppercase tracking-wider text-text-tertiary">
-            {L('Einteilungsmethode', 'Division method')}
-          </label>
-          <SegmentedControl<'byCount' | 'bySize'>
-            fullWidth
-            value={splitMode}
-            onChange={(mode) => setSplitMode(mode)}
-            options={[
-              { id: 'byCount', label: L('Anzahl Teams', 'Number of Teams'), icon: <Users className="w-4 h-4" /> },
-              { id: 'bySize', label: L('Personen pro Team', 'People per Team'), icon: <User className="w-4 h-4" /> },
-            ]}
-          />
-        </div>
-
-        {/* Number Selector: Stepper + Quick Number Chips */}
-        <div className="space-y-2.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-2/60 p-3 rounded-control border border-border/70">
-            {/* Stepper with +/- */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                disabled={
-                  splitMode === 'byCount'
-                    ? teamCount <= 2
-                    : teamSize <= 2
-                }
-                onClick={() => {
-                  if (splitMode === 'byCount') {
-                    setTeamCount((prev) => Math.max(2, prev - 1));
-                  } else {
-                    setTeamSize((prev) => Math.max(2, prev - 1));
-                  }
-                }}
-                className="w-11 h-11 rounded-control bg-surface hover:bg-surface-raised border border-border text-text font-bold flex items-center justify-center cursor-pointer disabled:opacity-30 transition-colors shadow-xs"
-                title={L('Verringern', 'Decrease')}
-                aria-label={L('Verringern', 'Decrease')}
-              >
-                <Minus className="w-4 h-4 stroke-[2.5]" />
-              </button>
-
-              <div className="min-w-[120px] text-center px-2">
-                <span className="text-xl sm:text-2xl font-black text-text font-sans tabular-nums block">
-                  {splitMode === 'byCount' ? teamCount : teamSize}
-                </span>
-                <span className="text-2xs font-semibold text-text-secondary block">
-                  {splitMode === 'byCount'
-                    ? L('Teams', 'Teams')
-                    : teamSize === 2
-                    ? L('Personen (Tandems)', 'People (Pairs)')
-                    : L('Personen pro Team', 'People per team')}
-                </span>
-              </div>
-
-              <button
-                type="button"
-                disabled={
-                  splitMode === 'byCount'
-                    ? teamCount >= maxTeamCount
-                    : teamSize >= maxTeamSize
-                }
-                onClick={() => {
-                  if (splitMode === 'byCount') {
-                    setTeamCount((prev) => Math.min(maxTeamCount, prev + 1));
-                  } else {
-                    setTeamSize((prev) => Math.min(maxTeamSize, prev + 1));
-                  }
-                }}
-                className="w-11 h-11 rounded-control bg-surface hover:bg-surface-raised border border-border text-text font-bold flex items-center justify-center cursor-pointer disabled:opacity-30 transition-colors shadow-xs"
-                title={L('Erhöhen', 'Increase')}
-                aria-label={L('Erhöhen', 'Increase')}
-              >
-                <Plus className="w-4 h-4 stroke-[2.5]" />
-              </button>
-            </div>
-
-            {/* Quick Visual Chips */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-2xs font-bold text-text-tertiary uppercase tracking-wider mr-1 sm:hidden">
-                {L('Schnellwahl:', 'Quick pick:')}
-              </span>
-              {[2, 3, 4, 5, 6, 8].map((num) => {
-                if (num > names.length && num > 2) return null;
-                const isActive =
-                  splitMode === 'byCount'
-                    ? teamCount === num
-                    : teamSize === num;
-                return (
-                  <button
-                    key={num}
-                    type="button"
-                    onClick={() => {
-                      if (splitMode === 'byCount') {
-                        setTeamCount(num);
-                      } else {
-                        setTeamSize(num);
-                      }
-                    }}
-                    className={`min-w-[38px] h-9 px-2 rounded-control text-xs font-bold transition-all cursor-pointer border flex items-center justify-center ${
-                      isActive
-                        ? 'bg-accent text-accent-contrast border-accent shadow-xs'
-                        : 'bg-surface hover:bg-surface-raised text-text border-border'
-                    }`}
-                  >
-                    {num === 2 && splitMode === 'bySize' ? L('2 (Tandem)', '2 (Pairs)') : num}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Live Math Preview Line */}
-          <div className="flex items-center justify-between gap-2 px-1 text-xs text-text-secondary">
-            <span className="font-medium text-accent">➔ {formatDivisionPreview(currentPlan, splitMode, currentSettingValue, language)}</span>
-          </div>
-        </div>
-
-        {/* Pairing Avoidance Checkbox & Reset History */}
-        <div className="pt-2 border-t border-border/50 flex flex-wrap items-center justify-between gap-2">
-          <label className="flex items-center gap-2.5 text-xs font-medium text-text cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={avoid}
-              onChange={(e) => setAvoid(e.target.checked)}
-              className="w-4 h-4 accent-accent rounded-xs"
-            />
-            <span>
-              {L(
-                'Gleiche Paarungen aus früheren Runden vermeiden',
-                'Avoid repeating pairings from earlier rounds'
-              )}
+        <div className="flex items-center justify-center gap-6 sm:gap-8">
+          <button
+            type="button"
+            disabled={!canDecrease}
+            onClick={() => stepBy(-1)}
+            className={stepperButton}
+            aria-label={L('Weniger', 'Fewer')}
+          >
+            <Minus className="w-6 h-6" strokeWidth={2.25} />
+          </button>
+          <div className="min-w-[96px] text-center" aria-live="polite">
+            <span className="block text-5xl font-bold text-text tabular-nums leading-none">{stepValue}</span>
+            <span className="block mt-1.5 text-sm font-medium text-text-secondary">
+              {splitMode === 'byCount'
+                ? L('Teams', 'teams')
+                : isPairs
+                ? L('pro Team (Tandems)', 'per team (pairs)')
+                : L('pro Team', 'per team')}
             </span>
-          </label>
+          </div>
+          <button
+            type="button"
+            disabled={!canIncrease}
+            onClick={() => stepBy(1)}
+            className={stepperButton}
+            aria-label={L('Mehr', 'More')}
+          >
+            <Plus className="w-6 h-6" strokeWidth={2.25} />
+          </button>
+        </div>
 
+        <p className="text-center text-sm text-text-secondary">
+          {names.length < 2
+            ? L('Trag mindestens 2 Personen ein.', 'Add at least 2 people.')
+            : formatDivisionPreview(currentPlan, splitMode, currentSettingValue, language)}
+        </p>
+
+        <div className="pt-4 border-t border-line space-y-2">
+          <Switch
+            checked={avoid}
+            onChange={setAvoid}
+            label={L('Paarungen nicht wiederholen', "Don't repeat pairings")}
+            description={L('Wer schon zusammen war, kommt möglichst in andere Teams.', 'People who were together go to different teams where possible.')}
+            className="w-full"
+          />
           {(round > 1 || Object.keys(seen).length > 0) && (
             <button
               type="button"
               onClick={handleResetHistory}
-              className="text-2xs text-text-tertiary hover:text-accent font-semibold flex items-center gap-1 cursor-pointer transition-colors"
-              title={L('Paarungs-Verlauf und Runden zurücksetzen', 'Reset pairing history and rounds')}
+              className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-medium text-text-secondary hover:text-text cursor-pointer transition-colors"
             >
-              <RotateCcw className="w-3 h-3 text-accent" />
-              <span>{L('Paarungs-Verlauf zurücksetzen', 'Reset pairing history')}</span>
+              <RotateCcw className="w-4 h-4" />
+              {L('Verlauf zurücksetzen', 'Reset history')}
             </button>
           )}
         </div>
       </Panel>
 
-      {/* 3. DUAL ACTION BUTTONS: In-Flow on Desktop, Sticky Glass Bar on Mobile */}
-      <div className="space-y-2">
-        {/* Desktop in-flow action buttons */}
-        <div className="hidden md:grid grid-cols-2 gap-2.5">
-          {/* Action 1: Random Shuffle */}
-          <button
-            type="button"
-            onClick={handleShuffle}
-            disabled={names.length < 2}
-            className="py-3 px-4 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-[0.99] transition-transform disabled:opacity-40 min-h-[48px]"
-          >
-            <Shuffle className="w-4 h-4" />
-            <span>
-              {result.length > 0
-                ? L('Zufällig neu mischen', 'Reshuffle randomly')
-                : L('Zufällig mischen', 'Shuffle randomly')}
-            </span>
+      {/* 3a. Desktop: Aktionen im Fluss */}
+      <div className="hidden md:flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={handleShuffle}
+          disabled={names.length < 2}
+          className="flex-1 min-h-[52px] px-5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-semibold text-base flex items-center justify-center gap-2 shadow-1 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        >
+          <Shuffle className="w-5 h-5" />
+          {primaryLabel}
+        </button>
+        {result.length > 0 && (
+          <button type="button" onClick={handleRotate} disabled={names.length < 2} className={`${secondaryButton} min-h-[52px] px-5`}>
+            <RotateCw className="w-4 h-4" />
+            {L('Rotieren', 'Rotate')}
           </button>
-
-          {/* Action 2: Durchrotieren */}
-          <button
-            type="button"
-            onClick={handleRotate}
-            disabled={names.length < 2}
-            className="py-3 px-4 rounded-control bg-surface hover:bg-surface-raised border border-border text-text font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-[0.99] transition-transform disabled:opacity-40 min-h-[48px]"
-            title={L(
-              'Personen wandern im Kreis in die nächste Gruppe (ideal für wechselnde Runden)',
-              'Rotate members round-robin to the next team (ideal for station rounds)'
-            )}
-          >
-            <RotateCw className="w-4 h-4 text-accent" />
-            <span>{L('Durchrotieren', 'Rotate teams')}</span>
+        )}
+        {history && (
+          <button type="button" onClick={handleUndo} className={`${secondaryButton} min-h-[52px]`} aria-label={L('Rückgängig', 'Undo')} title={L('Rückgängig', 'Undo')}>
+            <Undo2 className="w-4 h-4" />
           </button>
-        </div>
-
-        {/* Rotate Notification Toast */}
-        {rotateNotice && (
-          <div className="p-2.5 rounded-card bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
-            <RotateCw className="w-3.5 h-3.5 shrink-0" />
-            <span>{rotateNotice}</span>
-          </div>
         )}
       </div>
 
-      {/* Mobile Sticky Action Bar directly above the floating Tab Bar */}
-      <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-30 flex justify-center px-3 pointer-events-none md:hidden print:hidden">
-        <div className="pointer-events-auto w-full max-w-md p-1.5 rounded-full glass-surface shadow-2 border border-border/80 flex items-center gap-2 backdrop-blur-md">
+      {/* 3b. Mobil: Glas-Dock schwebt immer über der Tab-Leiste (Glas-Regel: schwebende Bedienelemente).
+          Portal in <body>: Der Seiten-Wrapper animiert mit transform, und ein transformierter Vorfahr
+          macht position: fixed relativ zu sich statt zum Bildschirm. */}
+      {createPortal(
+      <div className="jy-action-dock fixed left-0 right-0 z-30 flex justify-center px-3 pointer-events-none md:hidden print:hidden">
+        <Glass className="pointer-events-auto w-full max-w-md p-1.5 rounded-full shadow-2 flex items-center gap-1.5">
           {history && (
-            <button
-              type="button"
+            <GlassIconButton
+              label={L('Rückgängig', 'Undo')}
+              icon={<Undo2 className="w-5 h-5" />}
               onClick={handleUndo}
-              className="p-2.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-xs flex items-center justify-center shadow-xs cursor-pointer active:scale-[0.98] transition-transform min-h-[44px] min-w-[44px] shrink-0"
-              title={L('Rückgängig', 'Undo')}
-              aria-label={L('Rückgängig', 'Undo')}
-            >
-              <Undo2 className="w-4 h-4 text-text-secondary" />
-            </button>
+            />
           )}
-
           <button
             type="button"
             onClick={handleShuffle}
             disabled={names.length < 2}
-            className="flex-1 py-2.5 px-3.5 rounded-full bg-accent hover:bg-accent-hover text-accent-contrast font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-[0.98] transition-transform disabled:opacity-40 min-h-[44px]"
+            className="flex-1 min-w-0 h-12 px-4 rounded-full bg-accent hover:bg-accent-hover text-accent-contrast font-semibold text-base flex items-center justify-center gap-2 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
           >
-            <Shuffle className="w-4 h-4 shrink-0" />
-            <span className="truncate">
-              {result.length > 0
-                ? L('Neu mischen', 'Reshuffle')
-                : L('Zufällig mischen', 'Shuffle')}
-            </span>
+            <Shuffle className="w-5 h-5 shrink-0" />
+            <span className="truncate">{names.length < 2 ? L('Erst Namen eintragen', 'Add names first') : primaryLabel}</span>
           </button>
+          {result.length > 0 && (
+            <GlassIconButton
+              label={L('Rotieren: alle reihum ins nächste Team', 'Rotate: everyone to the next team')}
+              icon={<RotateCw className="w-5 h-5" />}
+              onClick={handleRotate}
+              disabled={names.length < 2}
+            />
+          )}
+        </Glass>
+      </div>,
+      document.body,
+      )}
 
-          <button
-            type="button"
-            onClick={handleRotate}
-            disabled={names.length < 2}
-            className="py-2.5 px-3.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-[0.98] transition-transform disabled:opacity-40 min-h-[44px] shrink-0"
-            title={L('Durchrotieren', 'Rotate teams')}
-          >
-            <RotateCw className="w-4 h-4 text-accent shrink-0" />
-            <span className="truncate">{L('Rotieren', 'Rotate')}</span>
-          </button>
+      {rotateNotice && (
+        <div role="status" className="p-3 rounded-control bg-surface-2 text-sm font-medium text-text flex items-center gap-2">
+          <RotateCw className="w-4 h-4 shrink-0 text-text-secondary" />
+          <span>{rotateNotice}</span>
         </div>
-      </div>
+      )}
 
-      {/* 4. RESULTS VIEW */}
+      {/* 4. ERGEBNIS: gestapelte Team-Karten, große Namen, Teamfarbe nur als Punkt */}
       {result.length > 0 && (
-        <div
+        <section
           ref={resultsRef}
           key={resultFlashKey}
-          className="space-y-4 pt-2 animate-in fade-in duration-200"
+          aria-label={L('Ergebnis', 'Result')}
+          className="space-y-3 pt-2 scroll-mt-20 animate-in fade-in duration-200"
         >
-          {/* Outdated Notice Banner when settings changed after manual edits */}
           {isOutdated && (
-            <div className="flex items-center justify-between gap-3 p-3 rounded-card bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold animate-in fade-in">
+            <div className="flex items-center justify-between gap-3 p-3 rounded-control bg-surface border border-border text-sm text-text">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
-                <span>
-                  {L(
-                    'Einstellungen geändert – Einteilung ist veraltet.',
-                    'Settings changed – division is outdated.'
-                  )}
-                </span>
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber" />
+                <span>{L('Einstellungen geändert, Einteilung ist veraltet.', 'Settings changed, division is outdated.')}</span>
               </div>
-              <button
-                type="button"
-                onClick={handleShuffle}
-                className="px-3 py-1.5 rounded-control bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs cursor-pointer transition-colors shadow-2xs shrink-0"
-              >
+              <button type="button" onClick={handleShuffle} className={`${secondaryButton} shrink-0`}>
                 {L('Neu mischen', 'Reshuffle')}
               </button>
             </div>
           )}
 
-          {/* Results Header Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-card bg-surface-2/60 border border-border">
+          <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-text">
-                  {L('Einteilung:', 'Result:')} {names.length} {L('Personen in', 'people in')}{' '}
-                  {result.length}{' '}
-                  {splitMode === 'bySize' && teamSize === 2
-                    ? L('Tandems', 'pairs')
-                    : L('Teams', 'teams')}
-                </h3>
-                <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-accent/15 text-accent border border-accent/25">
+              <h2 className="text-xl font-bold text-text tracking-tight">
+                {isPairs ? L('Tandems', 'Pairs') : L('Teams', 'Teams')}
+                <span className="ml-2 text-base font-medium text-text-secondary">
                   {L(`Runde ${round}`, `Round ${round}`)}
                 </span>
-              </div>
-              <p className="text-2xs text-text-tertiary">
-                {L(
-                  'Tippe auf eine Person, um sie unkompliziert in ein anderes Team zu verschieben.',
-                  'Tap a person to easily move them to another team.'
-                )}
+              </h2>
+              <p className="text-sm text-text-secondary">
+                {L('Tippe auf einen Namen, um ihn zu verschieben.', 'Tap a name to move it.')}
               </p>
             </div>
-
             <div className="flex flex-wrap items-center gap-2">
-              {/* Feature 12: Undo */}
-              <button
-                type="button"
-                onClick={handleUndo}
-                disabled={!history}
-                className="px-2.5 py-1.5 min-h-[38px] rounded-control bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                title={L('Letzte Änderung rückgängig machen', 'Undo last change')}
-                aria-label={L('Rückgängig', 'Undo')}
-              >
-                <Undo2 className="w-3.5 h-3.5 text-text-secondary" />
-                <span className="hidden sm:inline">{L('Rückgängig', 'Undo')}</span>
+              <button type="button" onClick={() => setShowGroupView(true)} className={secondaryButton}>
+                <Eye className="w-4 h-4" />
+                {L('Gruppe zeigen', 'Show group')}
               </button>
-
-              {/* Feature 14: Gruppe zeigen */}
-              <button
-                type="button"
-                onClick={() => setShowGroupView(true)}
-                className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 cursor-pointer transition-colors"
-                title={L('Großansicht für die Gruppe öffnen', 'Open large group view')}
-              >
-                <Eye className="w-3.5 h-3.5 text-accent" />
-                <span>{L('Gruppe zeigen', 'Show to group')}</span>
+              <button type="button" onClick={copy} className={secondaryButton} aria-label={L('Ergebnis kopieren', 'Copy result')} title={L('Ergebnis kopieren', 'Copy result')}>
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                <span className="hidden sm:inline">{copied ? L('Kopiert', 'Copied') : L('Kopieren', 'Copy')}</span>
               </button>
-
-              <button
-                type="button"
-                onClick={copy}
-                className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 cursor-pointer transition-colors"
-                title={L('Ergebnis in Zwischenablage kopieren', 'Copy result to clipboard')}
-              >
-                {copied ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-500" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5" />
-                )}
-                <span>{copied ? L('Kopiert!', 'Copied!') : L('Kopieren', 'Copy')}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={exportToScoreboard}
-                className="px-3.5 py-1.5 min-h-[38px] rounded-control bg-accent/15 hover:bg-accent/25 border border-accent/30 text-xs font-semibold text-accent flex items-center gap-1.5 cursor-pointer transition-colors"
-                title={L('Diese Teams direkt in die Punktetafel übernehmen', 'Transfer these teams to scoreboard')}
-              >
-                <Award className="w-3.5 h-3.5" />
-                <span>{L('An Punktetafel übergeben', 'Export to scoreboard')}</span>
+              <button type="button" onClick={exportToScoreboard} className={secondaryButton} title={L('Teams in die Punktetafel übernehmen', 'Send teams to the scoreboard')}>
+                <Award className="w-4 h-4" />
+                {L('Punktetafel', 'Scoreboard')}
               </button>
             </div>
           </div>
 
-          {/* Teams Grid: 2 columns on mobile if max size <= 4, otherwise 1 column */}
-          {(() => {
-            const maxTeamMemberCount = Math.max(...result.map((t) => t.length), 0);
-            const mobileGridCols = maxTeamMemberCount <= 4 ? 'grid-cols-2' : 'grid-cols-1';
-
-            return (
-              <div
-                className={`grid ${mobileGridCols} sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4 ${
-                  isOutdated ? 'opacity-60 transition-opacity' : ''
-                }`}
-              >
-                {result.map((team, teamIdx) => {
-                  const theme = TEAM_THEMES[teamIdx % TEAM_THEMES.length];
-
-                  return (
-                    <div
-                      key={teamIdx}
-                      className={`rounded-card p-3 sm:p-5 border transition-all duration-200 bg-surface shadow-2xs ${theme.border} ${theme.bg}`}
-                    >
-                      {/* Team Card Header */}
-                      <div className="flex items-center justify-between pb-2 sm:pb-3 border-b border-border/50">
-                        <div className="flex items-center gap-2 sm:gap-2.5">
-                          <div
-                            className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-bold text-xs ${theme.badge}`}
-                          >
-                            {teamIdx + 1}
-                          </div>
-                          <h4 className="text-xs sm:text-sm font-bold text-text tracking-tight truncate">
-                            {label(teamIdx)}
-                          </h4>
-                        </div>
-                        <span
-                          className={`text-2xs font-bold px-2 py-0.5 rounded-full border ${theme.badge} shrink-0`}
-                        >
-                          {team.length}{' '}
-                          {team.length === 1
-                            ? L('Person', 'person')
-                            : L('Personen', 'people')}
-                        </span>
-                      </div>
-
-                      {/* Members Roster as Compact Tactile Chips */}
-                      <div className="pt-2 sm:pt-3 flex flex-wrap gap-1.5">
-                        {team.map((person) => {
-                          const initial = person.trim().charAt(0).toUpperCase();
-
-                          return (
-                            <button
-                              key={person}
-                              type="button"
-                              onClick={() =>
-                                setMovingPerson({ person, fromTeam: teamIdx })
-                              }
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-surface-2 hover:bg-accent hover:text-accent-contrast border border-border/80 hover:border-accent text-xs font-semibold text-text transition-all cursor-pointer active:scale-95 shadow-2xs min-h-[36px] max-w-full group"
-                              title={L(
-                                `Tippen, um ${person} in ein anderes Team zu verschieben`,
-                                `Tap to move ${person} to another team`
-                              )}
-                            >
-                              <span
-                                className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 transition-colors ${theme.initialBg} group-hover:bg-white/20 group-hover:text-white`}
-                                aria-hidden="true"
-                              >
-                                {initial}
-                              </span>
-                              <span className="truncate max-w-[120px]">{person}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
+          <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 ${isOutdated ? 'opacity-60' : ''}`}>
+            {result.map((team, teamIdx) => (
+              <div key={teamIdx} className="bg-surface rounded-card shadow-1 p-4 sm:p-5">
+                <div className="flex items-center justify-between gap-3 pb-2">
+                  <h3 className="flex items-center gap-2.5 text-lg font-bold text-text">
+                    <span className={`w-3 h-3 rounded-full shrink-0 ${TEAM_DOTS[teamIdx % TEAM_DOTS.length]}`} aria-hidden="true" />
+                    {label(teamIdx)}
+                  </h3>
+                  <span className="text-sm text-text-secondary tabular-nums">
+                    {team.length} {team.length === 1 ? L('Person', 'person') : L('Personen', 'people')}
+                  </span>
+                </div>
+                <ul className="grid grid-cols-2 gap-x-2">
+                  {team.map((person) => (
+                    <li key={person} className="min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => setMovingPerson({ person, fromTeam: teamIdx })}
+                        className="w-full text-left min-h-[44px] px-2 -mx-2 rounded-control text-xl font-semibold text-text hover:bg-surface-2 cursor-pointer transition-colors truncate focus-visible:ring-2 focus-visible:ring-accent"
+                        title={L(`${person} verschieben`, `Move ${person}`)}
+                      >
+                        {person}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            );
-          })()}
-        </div>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* 5. BOTTOM SHEET FOR MOVING A PERSON */}
@@ -1061,7 +870,6 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {result.map((team, targetIdx) => {
                 if (targetIdx === movingPerson.fromTeam) return null;
-                const targetTheme = TEAM_THEMES[targetIdx % TEAM_THEMES.length];
                 const teamLabel = label(targetIdx);
                 const countText =
                   team.length === 1
@@ -1082,11 +890,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                     className="flex items-center justify-between p-3.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border hover:border-accent text-left transition-all active:scale-[0.98] cursor-pointer min-h-[52px] group"
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${targetTheme.badge}`}
-                      >
-                        {targetIdx + 1}
-                      </div>
+                      <span className={`w-3 h-3 rounded-full shrink-0 ${TEAM_DOTS[targetIdx % TEAM_DOTS.length]}`} aria-hidden="true" />
                       <span className="font-bold text-sm text-text group-hover:text-accent transition-colors">
                         {teamLabel}
                       </span>
@@ -1168,21 +972,17 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
               }`}
             >
               {result.map((team, tIdx) => {
-                const theme = TEAM_THEMES[tIdx % TEAM_THEMES.length];
+                const dot = TEAM_DOTS[tIdx % TEAM_DOTS.length];
                 const teamLabel = label(tIdx);
                 return (
                   <div
                     key={tIdx}
-                    className={`p-5 sm:p-6 rounded-card border-2 ${theme.border} ${theme.bg} shadow-sm space-y-4 flex flex-col justify-between`}
+                    className="p-5 sm:p-6 rounded-card bg-surface border border-border shadow-1 space-y-4 flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-3 border-b border-border/40 pb-3">
                         <div className="flex items-center gap-2.5">
-                          <span
-                            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-base sm:text-lg border ${theme.badge}`}
-                          >
-                            {tIdx + 1}
-                          </span>
+                          <span className={`w-4 h-4 rounded-full shrink-0 ${dot}`} aria-hidden="true" />
                           <h3 className="text-lg sm:text-xl font-bold text-text">
                             {teamLabel}
                           </h3>
@@ -1201,7 +1001,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                             className="text-base sm:text-lg font-bold text-text px-3 py-2 rounded-control bg-surface/80 border border-border/50 flex items-center gap-2.5"
                           >
                             <span
-                              className={`w-2.5 h-2.5 rounded-full shrink-0 ${theme.dot}`}
+                              className={`w-2.5 h-2.5 rounded-full shrink-0 ${dot}`}
                             />
                             <span className="truncate">{person}</span>
                           </div>

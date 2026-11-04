@@ -22,16 +22,12 @@ export const Switch: React.FC<SwitchProps> = ({
 }) => {
   const switchId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
 
-  const handleToggle = () => {
-    if (!disabled) {
-      onChange(!checked);
-    }
-  };
-
+  // Das label hat bewusst kein eigenes onClick: htmlFor leitet den Klick schon an den Schalter (button) weiter,
+  // ein zweiter Handler schaltete doppelt, also gar nicht.
   return (
     <div className={`inline-flex items-center justify-between gap-4 select-none ${disabled ? 'opacity-50 pointer-events-none' : ''} ${className}`}>
       {(label || description) && (
-        <label htmlFor={switchId} onClick={handleToggle} className="cursor-pointer">
+        <label htmlFor={switchId} className="cursor-pointer">
           {label && <span className="block text-sm font-medium text-text">{label}</span>}
           {description && <span className="block text-xs text-text-secondary mt-0.5">{description}</span>}
         </label>

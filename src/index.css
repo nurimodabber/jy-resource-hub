@@ -669,3 +669,23 @@ kbd { font-family: inherit; }
 .tone-ochre { --tone-fg: var(--cat-ochre-fg); --tone-bg: var(--cat-ochre-bg); }
 .tone-tile { background-color: var(--tone-bg); color: var(--tone-fg); }
 .tone-text { color: var(--tone-fg); }
+
+/* Aktions-Dock (z. B. „Teams bilden“): sitzt immer über der unteren Tab-Leiste.
+   Tab-Leiste = .jy-tabbar-dock-Abstand + 52 px Höhe (48 + 2 × 2 Innenabstand), dazu 10 px Luft. */
+.jy-action-dock {
+  bottom: calc(max(6px, calc(env(safe-area-inset-bottom) - 20px)) + 62px);
+}
+@media (max-height: 500px) {
+  /* Querformat: keine Tab-Leiste, Dock an den unteren Rand */
+  .jy-action-dock { bottom: max(8px, env(safe-area-inset-bottom)); }
+}
+/* Solange ein Dock da ist, braucht auch der Fuß unten Platz, sonst verdeckt das Dock die Links. */
+@media (max-width: 767px) {
+  body:has(.jy-action-dock) footer {
+    margin-bottom: calc(4.5rem + 72px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Schalter (glisse Switch): solide Spur statt durchscheinendem Grau, Akzent wenn an */
+.lg-switch .lg-switch-track { background: rgb(var(--border-strong-rgb)); }
+.dark .lg-switch .lg-switch-track { background: rgb(var(--surface-3-rgb)); }
