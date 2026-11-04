@@ -10,6 +10,8 @@ import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getBookById } from '../utils/bookProgress';
 import { ShareMenu } from './ui/ShareMenu';
+import { IconTile } from './ui/IconTile';
+import { activityTone } from '../data/activityTones';
 import { tr } from './tools/common';
 
 interface ServiceArtsDetailProps {
@@ -70,6 +72,8 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
     ? t.artFormVisual
     : t.artFormMural;
 
+  const { tone, icon: toneIcon } = activityTone(activity);
+
   const themeLabel = activity.theme
     ? activity.theme[language]
     : undefined;
@@ -90,7 +94,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
   return (
     <article className="max-w-4xl mx-auto pb-20">
       {/* 1. Header Toolbar */}
-      <div className="flex items-center justify-end md:justify-between gap-3 mb-4 md:mb-6 print:hidden">
+      <div className="hidden md:flex items-center justify-between gap-3 mb-6 print:hidden">
         {/* Mobil übernimmt der Glas-Zurück-Knopf in der Kopfzeile */}
         <Link
           to={backUrl}
@@ -131,12 +135,26 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
           </div>
         )}
 
-        <div className="p-6 sm:p-8 md:p-10">
-          <header className="mb-8">
-            <div className="flex items-center gap-2 mb-3 text-xs text-text-tertiary font-medium flex-wrap">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-chip text-2xs font-semibold bg-accent/8 text-accent border border-accent/20">
-                {categoryLabel}
-              </span>
+        <div className="p-5 sm:p-8 md:p-10">
+          <header className={`mb-8 tone-${tone}`}>
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <IconTile icon={toneIcon} size="lg" toneClass="tone-tile" />
+                <span className="text-sm font-semibold tone-text truncate">{categoryLabel}</span>
+              </div>
+              {/* Mobil: Merken/Teilen neben dem Icon statt in einer eigenen leeren Zeile */}
+              <div className="flex md:hidden items-center gap-1.5 shrink-0 print:hidden">
+                <GlassIconButton
+                  label={isFavorite ? t.savedItems : L('Merken', 'Bookmark')}
+                  aria-pressed={isFavorite}
+                  icon={<Bookmark className={`w-[18px] h-[18px] ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.9} />}
+                  onClick={(e) => onToggleFavorite(activity.id, e)}
+                />
+                <ShareMenu textToCopy={shareText} urlToCopy={currentUrl} language={language} align="right" glass />
+              </div>
+            </div>
+            {/* Der erste Trennpunkt entfällt, weil die Kategorie jetzt in eigener Zeile steht */}
+            <div className="flex items-center gap-2 mb-3 text-xs text-text-tertiary font-medium flex-wrap [&>span:first-child]:hidden">
               {activity.duration && (
                 <>
                   <span className="text-border" aria-hidden="true">·</span>

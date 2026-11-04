@@ -143,6 +143,14 @@
   --shadow-1: 0 1px 2px rgba(20, 32, 51, 0.06);
   --shadow-2: 0 8px 24px rgba(20, 32, 51, 0.08);
 
+  /* Projekt-Kategorien (Dienst/Kunst): je ein gedämpfter Ton, nur für Icon-Kachel + Kategorie-Text.
+     fg ≥ 4,9:1 auf Weiß und auf dem eigenen bg. */
+  --cat-green-fg: #2F6B47;  --cat-green-bg: #E7F2EA;
+  --cat-teal-fg: #23666E;   --cat-teal-bg: #E3F1F2;
+  --cat-blue-fg: #3A5A9A;   --cat-blue-bg: #E8EEF8;
+  --cat-violet-fg: #66509A; --cat-violet-bg: #EFEAF7;
+  --cat-rose-fg: #9A4459;   --cat-rose-bg: #F7E8EC;
+  --cat-ochre-fg: #85601A;  --cat-ochre-bg: #F6EEDC;
   /* Motion */
   --transition-fast: 120ms ease-out;
   --transition-sheet: 180ms ease-out;
@@ -287,6 +295,13 @@
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
   --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.50);
 
+  /* Projekt-Kategorien, dunkel: helle Töne auf getönten Flächen (fg ≥ 7,6:1) */
+  --cat-green-fg: #8CC9A2;  --cat-green-bg: #17271E;
+  --cat-teal-fg: #86C7CD;   --cat-teal-bg: #142628;
+  --cat-blue-fg: #9FB6E6;   --cat-blue-bg: #18223A;
+  --cat-violet-fg: #BCA8E6; --cat-violet-bg: #231D33;
+  --cat-rose-fg: #E5A3B3;   --cat-rose-bg: #2E1A20;
+  --cat-ochre-fg: #D9B56E;  --cat-ochre-bg: #2B2314;
   /* Motion */
   --transition-fast: 120ms ease-out;
   --transition-sheet: 180ms ease-out;
@@ -644,3 +659,13 @@ kbd { font-family: inherit; }
   min-height: 44px;
   font-weight: 500;
 }
+
+/* Kategorie-Töne: Klasse setzt den Ton, tone-tile/tone-text verwenden ihn. Keine Verläufe, keine Kartenflächen. */
+.tone-green { --tone-fg: var(--cat-green-fg); --tone-bg: var(--cat-green-bg); }
+.tone-teal { --tone-fg: var(--cat-teal-fg); --tone-bg: var(--cat-teal-bg); }
+.tone-blue { --tone-fg: var(--cat-blue-fg); --tone-bg: var(--cat-blue-bg); }
+.tone-violet { --tone-fg: var(--cat-violet-fg); --tone-bg: var(--cat-violet-bg); }
+.tone-rose { --tone-fg: var(--cat-rose-fg); --tone-bg: var(--cat-rose-bg); }
+.tone-ochre { --tone-fg: var(--cat-ochre-fg); --tone-bg: var(--cat-ochre-bg); }
+.tone-tile { background-color: var(--tone-bg); color: var(--tone-fg); }
+.tone-text { color: var(--tone-fg); }

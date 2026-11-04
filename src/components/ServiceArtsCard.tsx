@@ -4,6 +4,8 @@ import { Bookmark, BookOpen } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { getBookById } from '../utils/bookProgress';
+import { activityTone } from '../data/activityTones';
+import { IconTile } from './ui/IconTile';
 
 interface ServiceArtsCardProps {
   activity: ActivityItem;
@@ -43,9 +45,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
     ? t.artFormVisual
     : t.artFormMural;
 
-  // Category or general theme with uppercase first letter
-  const rawCategoryOrTheme = activity.theme ? activity.theme[language] : categoryLabel;
-  const categoryOrTheme = rawCategoryOrTheme.charAt(0).toUpperCase() + rawCategoryOrTheme.slice(1);
+  const { tone, icon } = activityTone(activity);
 
   const description = isService
     ? (activity.guidedBy ? activity.guidedBy[language] : activity.objective[language])
@@ -78,7 +78,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
   const targetUrl = isService ? `/service/${activity.id}` : `/arts/${activity.id}`;
 
   return (
-    <div className="group relative flex flex-col justify-between px-4 pb-4 pt-2.5 sm:px-5 sm:pb-5 sm:pt-3 rounded-card bg-surface border border-border/80 hover:bg-surface-2/40 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out shadow-2xs h-full">
+    <div className={`tone-${tone} group relative flex flex-col justify-between px-4 pb-4 pt-3 sm:px-5 sm:pb-5 sm:pt-4 rounded-card bg-surface border border-border/80 hover:shadow-2 transition-shadow duration-200 ease-out shadow-2xs h-full`}>
       {/* Optional image preview if imageUrl is present */}
       {activity.imageUrl && (
         <div className="mb-3 -mx-4 -mt-2.5 sm:-mx-5 sm:-mt-3 overflow-hidden rounded-t-card border-b border-border aspect-16/9 bg-surface-2 relative pointer-events-none">
@@ -95,8 +95,9 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
       <div className="space-y-1 sm:space-y-1.5 flex-1 min-w-0">
         {/* Top row: category or general theme on left, duration + bookmark on right */}
         <div className="flex items-center justify-between gap-2 text-2xs text-text-tertiary">
-          <span className="font-semibold tracking-normal text-text-secondary truncate">
-            {categoryOrTheme}
+          <span className="flex items-center gap-2.5 min-w-0">
+            <IconTile icon={icon} size="sm" toneClass="tone-tile" />
+            <span className="text-xs font-semibold tone-text truncate">{categoryLabel}</span>
           </span>
 
           <div className="flex items-center gap-1.5 -mr-1.5 -my-2 sm:-my-2.5 shrink-0 relative z-10" onClick={(e) => e.stopPropagation()}>
@@ -126,7 +127,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
           to={targetUrl}
           className="block group/link focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0"
         >
-          <h3 className="font-bold text-text text-base leading-snug line-clamp-1 group-hover:text-accent transition-colors relative z-[1] tracking-tight">
+          <h3 className="font-bold text-text text-base leading-snug line-clamp-2 mt-1 relative z-[1] tracking-tight">
             {activity.title[language]}
           </h3>
           {description && (
