@@ -168,7 +168,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           onClick={() => onPracticeQuote(quote)}
           aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
           title={isDe ? 'Auswendiglernen' : 'Memorise'}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-control bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-full bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
         >
           <Brain className="w-4 h-4 text-accent" />
         </button>

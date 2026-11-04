@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, BookOpen, Tag, SlidersHorizontal, HeartHandshake, Palette } from 'lucide-react';
+import { Search, X, ArrowLeft, BookOpen, Tag, HeartHandshake, Palette } from 'lucide-react';
+import { FilterToggle } from './ui/FilterToggle';
 import {
   Language,
   ActivityItem,
@@ -369,7 +370,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
             }}
             placeholder={searchPlaceholderText}
             aria-label={L('Suchen', 'Search')}
-            className="w-full h-11 pl-10 pr-11 rounded-control bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
+            className="w-full h-11 pl-10 pr-11 rounded-full bg-surface-2/60 hover:bg-surface-2/80 focus:bg-surface border border-line hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-3 focus:ring-accent/15 transition-all shadow-2xs"
           />
           {query && (
             <button
@@ -386,31 +387,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
           )}
         </div>
 
-        {/* Filter Toggle Button */}
-        <button
-          type="button"
-          onClick={() => setShowFilters((prev) => !prev)}
-          aria-expanded={showFilters}
-          aria-controls="service-filters-drawer"
-          aria-label={
-            showFilters
-              ? L('Filter schließen', 'Hide filters')
-              : L('Filter öffnen', 'Show filters')
-          }
-          className={`h-11 px-3.5 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer shrink-0 min-w-[44px] justify-center shadow-2xs ${
-            showFilters || activeSheetFilterCount > 0
-              ? 'bg-accent/12 border-accent/40 text-accent'
-              : 'bg-surface hover:bg-surface-2 border-border/80 text-text-secondary hover:text-text'
-          }`}
-        >
-          <SlidersHorizontal className="w-4 h-4 shrink-0" />
-          <span className="hidden sm:inline">{L('Filter', 'Filters')}</span>
-          {activeSheetFilterCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-accent text-accent-contrast text-2xs font-bold inline-flex items-center justify-center">
-              {activeSheetFilterCount}
-            </span>
-          )}
-        </button>
+        <FilterToggle open={showFilters} activeCount={activeSheetFilterCount} onToggle={() => setShowFilters((prev) => !prev)} language={language} controlsId="service-filters-drawer" />
       </div>
 
       {/* 2. & 3. Collapsible Filter Area: All filters visually identical in ONE line */}

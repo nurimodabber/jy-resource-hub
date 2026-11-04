@@ -2,8 +2,9 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
   Search, X, BookOpen, Layers, Tag, Heart,
-  ArrowLeft, ArrowRight, Play, Check, SlidersHorizontal, Brain, Music, Shuffle
+  ArrowLeft, ArrowRight, Play, Check, Brain, Music, Shuffle
 } from 'lucide-react';
+import { FilterToggle } from './ui/FilterToggle';
 import { QuoteItem, Language, QuoteGeneralTopic, QuoteMethod } from '../types';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { QUOTES_DATA, JUNIOR_YOUTH_BOOKS } from '../data/quotes';
@@ -518,30 +519,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               )}
             </div>
 
-            {/* Native Filter Toggle Button (Matches GamesView & ServiceArtsView) */}
-            <button
-              type="button"
-              onClick={() => setShowFilters((prev) => !prev)}
-              aria-expanded={showFilters}
-              aria-label={
-                showFilters
-                  ? (isDe ? 'Filter schließen' : 'Hide filters')
-                  : (isDe ? 'Filter öffnen' : 'Show filters')
-              }
-              className={`min-h-[44px] h-11 px-3.5 rounded-control border text-sm font-semibold inline-flex items-center gap-2 shrink-0 transition-all cursor-pointer shadow-2xs ${
-                showFilters || activeFilterCount > 0
-                  ? 'bg-accent/12 border-accent/40 text-accent hover:bg-accent/18'
-                  : 'bg-surface border-border/80 text-text hover:bg-surface-2'
-              }`}
-            >
-              <SlidersHorizontal className="w-4 h-4 shrink-0" />
-              <span className="hidden sm:inline">{isDe ? 'Filter' : 'Filters'}</span>
-              {activeFilterCount > 0 && (
-                <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-2xs font-bold bg-accent text-accent-contrast">
-                  {activeFilterCount}
-                </span>
-              )}
-            </button>
+            <FilterToggle open={showFilters} activeCount={activeFilterCount} onToggle={() => setShowFilters((prev) => !prev)} language={language} />
           </div>
 
           {/* 2. Collapsible Filter Bar */}
@@ -728,7 +706,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                         href={practiceSong.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-control border border-border/80 bg-surface hover:bg-surface-2 text-accent inline-flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full border border-border/80 bg-surface hover:bg-surface-2 text-accent inline-flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                         title={isDe ? `Lied „${practiceSong.title}“ auf bahaisongs.com anhören` : `Listen to song "${practiceSong.title}" on bahaisongs.com`}
                         aria-label={t.quoteSongAriaLabel}
                       >

@@ -71,7 +71,7 @@ export const Stepper: React.FC<{ value: number; min: number; max: number; onChan
   <div className="inline-flex items-center bg-surface-2 rounded-control p-1 gap-1 border-0" role="group" aria-label={label}>
     <button
       type="button"
-      className="w-10 h-10 rounded-control bg-surface text-text hover:bg-surface/80 flex items-center justify-center font-semibold disabled:opacity-40 shadow-1 transition-colors duration-150 ease-out cursor-pointer disabled:cursor-not-allowed"
+      className="w-10 h-10 rounded-full bg-surface text-text hover:bg-surface/80 flex items-center justify-center font-semibold disabled:opacity-40 shadow-1 transition-colors duration-150 ease-out cursor-pointer disabled:cursor-not-allowed"
       onClick={() => onChange(Math.max(min, value - 1))}
       disabled={value <= min}
       aria-label={`${label} −`}
@@ -83,7 +83,7 @@ export const Stepper: React.FC<{ value: number; min: number; max: number; onChan
     </span>
     <button
       type="button"
-      className="w-10 h-10 rounded-control bg-surface text-text hover:bg-surface/80 flex items-center justify-center font-semibold disabled:opacity-40 shadow-1 transition-colors duration-150 ease-out cursor-pointer disabled:cursor-not-allowed"
+      className="w-10 h-10 rounded-full bg-surface text-text hover:bg-surface/80 flex items-center justify-center font-semibold disabled:opacity-40 shadow-1 transition-colors duration-150 ease-out cursor-pointer disabled:cursor-not-allowed"
       onClick={() => onChange(Math.min(max, value + 1))}
       disabled={value >= max}
       aria-label={`${label} +`}

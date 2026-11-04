@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Search, X, ArrowLeft, Clock, Users, Flame, Compass, ArrowUpDown, MapPin, Shuffle, SlidersHorizontal } from 'lucide-react';
+import { Search, X, ArrowLeft, Clock, Users, Flame, Compass, ArrowUpDown, MapPin, Shuffle } from 'lucide-react';
+import { FilterToggle } from './ui/FilterToggle';
 import { Language, GamePurpose, EnergyLevel } from '../types';
 import { GAMES_DATA } from '../data/games';
 import { GameCard } from './GameCard';
@@ -300,31 +301,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
           )}
         </div>
 
-        {/* Filter Toggle Button */}
-        <button
-          type="button"
-          onClick={() => setShowFilters((prev) => !prev)}
-          aria-expanded={showFilters}
-          aria-controls="games-filters-drawer"
-          aria-label={
-            showFilters
-              ? L('Filter schließen', 'Hide filters')
-              : L('Filter öffnen', 'Show filters')
-          }
-          className={`h-11 px-3.5 sm:px-4 rounded-control border text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer shrink-0 min-w-[44px] justify-center shadow-2xs ${
-            showFilters || totalActiveFilterCount > 0
-              ? 'bg-accent/12 border-accent/40 text-accent'
-              : 'bg-surface hover:bg-surface-2 border-border/80 text-text-secondary hover:text-text'
-          }`}
-        >
-          <SlidersHorizontal className="w-4 h-4 shrink-0" />
-          <span className="hidden sm:inline">{L('Filter', 'Filters')}</span>
-          {totalActiveFilterCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-accent text-accent-contrast text-2xs font-bold inline-flex items-center justify-center">
-              {totalActiveFilterCount}
-            </span>
-          )}
-        </button>
+        <FilterToggle open={showFilters} activeCount={totalActiveFilterCount} onToggle={() => setShowFilters((prev) => !prev)} language={language} controlsId="games-filters-drawer" />
       </div>
 
       {/* 3. Collapsible Filter Bar */}
