@@ -731,3 +731,10 @@ kbd { font-family: inherit; }
 @media (max-width: 767px) {
   .jy-header { border-bottom-color: transparent !important; -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent); mask-image: linear-gradient(to bottom, #000 72%, transparent); padding-bottom: 10px; margin-bottom: -10px; }
 }
+
+/* Top bar: no bright glisse rim on the bar or its round buttons (read as a white outline on phones). */
+.jy-header.lg-glass,
+.jy-header .lg-glass {
+  background-image: none;
+  box-shadow: none;
+}

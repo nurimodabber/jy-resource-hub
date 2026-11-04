@@ -359,7 +359,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         <h2 id="home-projects-title" className="text-base sm:text-lg font-bold text-text tracking-tight">
           {L('Projekte & mehr', 'Projects & more')}
         </h2>
-        <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
           {[
             {
               to: '/service',
@@ -377,7 +377,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               title: L('Beitragen', 'Contribute'),
             },
           ].map(({ to, Icon, title }) => (
-            <FadedIconTile key={to} to={to} Icon={Icon} title={title} className="lg:min-h-[150px]" />
+            <FadedIconTile key={to} to={to} Icon={Icon} title={title} className="min-h-[76px] sm:min-h-[112px] lg:min-h-[150px]" />
           ))}
         </div>
       </section>
