@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Shuffle,
@@ -12,10 +12,13 @@ import {
   Plus,
   Minus,
   X,
+  AlertTriangle,
+  Undo2,
+  RotateCcw,
+  Eye,
 } from 'lucide-react';
 import { Language } from '../../types';
 import { useLocalState } from '../../hooks/useLocalState';
-import { shuffle } from '../../utils/random';
 import {
   loadGroupNames,
   saveGroupNames,
@@ -23,64 +26,18 @@ import {
   saveGroupPresent,
   parseNames,
 } from '../../utils/groupNames';
+import {
+  calculateTeamPlan,
+  formatDivisionPreview,
+  splitTeams,
+  rotateTeams,
+  isResultMatchingPlan,
+  pairKey,
+} from '../../utils/teamDivision';
 import { tr, Panel } from './common';
 import { SegmentedControl } from '../ui/SegmentedControl';
-
-const pairKey = (a: string, b: string) => [a, b].sort().join('||');
-
-const splitByTeamCount = (names: string[], count: number): string[][] => {
-  const safeCount = Math.max(1, count);
-  const teams: string[][] = Array.from({ length: safeCount }, () => []);
-  shuffle(names).forEach((n, i) => teams[i % safeCount].push(n));
-  return teams;
-};
-
-const splitByTeamSize = (names: string[], size: number): string[][] => {
-  const safeSize = Math.max(1, size);
-  const count = Math.max(1, Math.ceil(names.length / safeSize));
-  const teams: string[][] = Array.from({ length: count }, () => []);
-  shuffle(names).forEach((n, i) => teams[i % count].push(n));
-  return teams;
-};
-
-/**
- * Berger Round-Robin circle rotation:
- * Keeps participant 0 fixed and cycles all other participants clockwise by 1.
- * Preserves the exact team sizes and guarantees fresh pairings across rounds.
- */
-const rotateTeams = (currentTeams: string[][]): string[][] => {
-  if (currentTeams.length < 2) return currentTeams;
-  const flat = currentTeams.flat();
-  if (flat.length < 2) return currentTeams;
-
-  const teamSizes = currentTeams.map((t) => t.length);
-
-  const first = flat[0];
-  const rest = flat.slice(1);
-  const rotatedRest = [rest[rest.length - 1], ...rest.slice(0, -1)];
-  const rotatedFlat = [first, ...rotatedRest];
-
-  const newTeams: string[][] = [];
-  let cursor = 0;
-  for (const size of teamSizes) {
-    newTeams.push(rotatedFlat.slice(cursor, cursor + size));
-    cursor += size;
-  }
-
-  return newTeams;
-};
-
-const repeats = (teams: string[][], seen: Record<string, number>) => {
-  let s = 0;
-  for (const t of teams) {
-    for (let i = 0; i < t.length; i++) {
-      for (let j = i + 1; j < t.length; j++) {
-        s += seen[pairKey(t[i], t[j])] || 0;
-      }
-    }
-  }
-  return s;
-};
+import { Sheet } from '../ui/Sheet';
+import { Dialog } from '../ui/Dialog';
 
 const TEAM_THEMES = [
   {
@@ -149,6 +106,26 @@ const TEAM_THEMES = [
   },
 ];
 
+const getInitialTeams = (): string[][] => {
+  try {
+    const stored = localStorage.getItem('jy_teams_last_split');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+    const all = loadGroupNames();
+    const p = loadGroupPresent();
+    const active = all.filter((n) => p[n] !== false);
+    if (active.length >= 2) {
+      const initialPlan = calculateTeamPlan(active.length, 'byCount', 2);
+      return splitTeams(active, initialPlan);
+    }
+    return [];
+  } catch {
+    return [];
+  }
+};
+
 export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
   const L = tr(language);
   const navigate = useNavigate();
@@ -164,30 +141,77 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
   });
 
   const [newNameInput, setNewNameInput] = useState('');
-  const [splitMode, setSplitMode] = useState<'byCount' | 'bySize'>('byCount');
-  const [teamCount, setTeamCount] = useState(2);
-  const [teamSize, setTeamSize] = useState(4);
+  const [splitMode, setSplitMode] = useLocalState<'byCount' | 'bySize'>('jy_teams_split_mode', 'byCount');
+  const [teamCount, setTeamCount] = useLocalState<number>('jy_teams_team_count', 2);
+  const [teamSize, setTeamSize] = useLocalState<number>('jy_teams_team_size', 4);
   const [avoid, setAvoid] = useLocalState<boolean>('jy_teams_avoid', true);
   const [seen, setSeen] = useLocalState<Record<string, number>>('jy_teams_seen', {});
+  const [hasManualEdits, setHasManualEdits] = useLocalState<boolean>('jy_teams_has_manual_edits', false);
+  const [round, setRound] = useLocalState<number>('jy_teams_round', 1);
 
-  const [result, setResult] = useState<string[][]>(() => {
-    try {
-      const stored = localStorage.getItem('jy_teams_last_split');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  // Undo (1-step history)
+  interface HistorySnapshot {
+    result: string[][];
+    hasManualEdits: boolean;
+    round: number;
+  }
+  const [history, setHistory] = useState<HistorySnapshot | null>(null);
+
+  const pushHistory = () => {
+    setHistory({
+      result,
+      hasManualEdits,
+      round,
+    });
+  };
+
+  const handleUndo = () => {
+    if (!history) return;
+    setResult(history.result);
+    setHasManualEdits(history.hasManualEdits);
+    setRound(history.round);
+    setHistory(null);
+  };
+
+  // Fullscreen "Gruppe zeigen" presentation mode
+  const [showGroupView, setShowGroupView] = useState(false);
+  const touchStartY = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!showGroupView) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowGroupView(false);
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [showGroupView]);
+
+  // Duplicate name prompt state
+  interface DuplicatePending {
+    existingName: string;
+    candidateName: string;
+    nextNames: string[];
+    nextAll: string[];
+    nextPresent: Record<string, boolean>;
+  }
+  const [duplicatePending, setDuplicatePending] = useState<DuplicatePending | null>(null);
+
+  const currentSettingValue = splitMode === 'byCount' ? teamCount : teamSize;
+  const currentPlan = calculateTeamPlan(names.length, splitMode, currentSettingValue);
+
+  const [result, setResult] = useLocalState<string[][]>('jy_teams_last_split', getInitialTeams());
+
+  const isOutdated = result.length > 0 && !isResultMatchingPlan(result, names, currentPlan);
+
+  // If settings or names change and no manual edits exist, auto-recalculate immediately
+  useEffect(() => {
+    if (result.length > 0 && !hasManualEdits && names.length >= 2) {
+      if (!isResultMatchingPlan(result, names, currentPlan)) {
+        const fresh = splitTeams(names, currentPlan, seen, avoid);
+        setResult(fresh);
       }
-      const all = loadGroupNames();
-      const p = loadGroupPresent();
-      const active = all.filter((n) => p[n] !== false);
-      if (active.length >= 2) {
-        return splitByTeamCount(active, 2);
-      }
-      return [];
-    } catch {
-      return [];
     }
-  });
+  }, [splitMode, teamCount, teamSize, names, hasManualEdits, currentPlan, avoid, seen, result, setResult]);
 
   const [copied, setCopied] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -195,6 +219,25 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
 
   // Manual move state: which person is currently selected for moving?
   const [movingPerson, setMovingPerson] = useState<{ person: string; fromTeam: number } | null>(null);
+
+  // Results scroll and flash animation
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const [resultFlashKey, setResultFlashKey] = useState(0);
+
+  const scrollToResults = () => {
+    setResultFlashKey((k) => k + 1);
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(() => {
+      if (resultsRef.current) {
+        resultsRef.current.scrollIntoView({
+          behavior: prefersReduced ? 'auto' : 'smooth',
+          block: 'start',
+        });
+      }
+    }, 50);
+  };
 
   // Absent group members who can be reactivated with a single tap
   const absentNames = allGroupNames.filter((n) => !names.includes(n));
@@ -208,13 +251,61 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
     saveGroupPresent(nextPresent);
   };
 
-  // Quick add a new person by typing and submitting
+  // Quick add a new person by typing and submitting (with duplicate detection)
   const handleAddPerson = (e?: React.FormEvent) => {
     e?.preventDefault();
     const trimmed = newNameInput.trim();
     if (!trimmed) return;
     const items = parseNames(trimmed);
     if (items.length === 0) return;
+
+    // Check if any entered item matches an existing active name
+    const existingMatch = items.find((item) =>
+      names.some((n) => n.toLowerCase() === item.toLowerCase())
+    );
+
+    if (existingMatch) {
+      let counter = 2;
+      while (
+        names.some(
+          (n) => n.toLowerCase() === `${existingMatch} ${counter}`.toLowerCase()
+        )
+      ) {
+        counter++;
+      }
+      const candidateName = `${existingMatch} ${counter}`;
+
+      const updatedNames = [...names];
+      const updatedAll = [...allGroupNames];
+      const updatedPresent = { ...present };
+
+      items.forEach((item) => {
+        if (item.toLowerCase() === existingMatch.toLowerCase()) {
+          updatedNames.push(candidateName);
+          if (!updatedAll.some((n) => n.toLowerCase() === candidateName.toLowerCase())) {
+            updatedAll.push(candidateName);
+          }
+          updatedPresent[candidateName] = true;
+        } else {
+          if (!updatedNames.some((n) => n.toLowerCase() === item.toLowerCase())) {
+            updatedNames.push(item);
+          }
+          if (!updatedAll.some((n) => n.toLowerCase() === item.toLowerCase())) {
+            updatedAll.push(item);
+          }
+          updatedPresent[item] = true;
+        }
+      });
+
+      setDuplicatePending({
+        existingName: existingMatch,
+        candidateName,
+        nextNames: updatedNames,
+        nextAll: updatedAll,
+        nextPresent: updatedPresent,
+      });
+      return;
+    }
 
     const updatedNames = [...names];
     const updatedAll = [...allGroupNames];
@@ -235,6 +326,17 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
     setPresent(updatedPresent);
     saveGroupNames(updatedAll);
     saveGroupPresent(updatedPresent);
+    setNewNameInput('');
+  };
+
+  const confirmAddDuplicate = () => {
+    if (!duplicatePending) return;
+    setNames(duplicatePending.nextNames);
+    setAllGroupNames(duplicatePending.nextAll);
+    setPresent(duplicatePending.nextPresent);
+    saveGroupNames(duplicatePending.nextAll);
+    saveGroupPresent(duplicatePending.nextPresent);
+    setDuplicatePending(null);
     setNewNameInput('');
   };
 
@@ -261,40 +363,31 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
     saveGroupPresent(nextPresent);
   };
 
+  // Reset pairing history and round counter
+  const handleResetHistory = () => {
+    pushHistory();
+    setSeen({});
+    setRound(1);
+    setRotateNotice(
+      L(
+        'Paarungs-Verlauf und Runden zurückgesetzt.',
+        'Pairing history and rounds reset.'
+      )
+    );
+    setTimeout(() => setRotateNotice(null), 3000);
+  };
+
   // Primary action 1: Random Shuffle
   const handleShuffle = () => {
     if (names.length < 2) return;
+    pushHistory();
     setMovingPerson(null);
     setRotateNotice(null);
+    setHasManualEdits(false);
+    setRound((r) => r + 1);
 
-    let best: string[][];
-    if (splitMode === 'bySize') {
-      best = splitByTeamSize(names, Math.max(2, teamSize));
-    } else {
-      best = splitByTeamCount(names, Math.min(teamCount, names.length));
-    }
-
-    if (avoid) {
-      let bestScore = repeats(best, seen);
-      for (let i = 0; i < 300 && bestScore > 0; i++) {
-        const cand =
-          splitMode === 'bySize'
-            ? splitByTeamSize(names, Math.max(2, teamSize))
-            : splitByTeamCount(names, Math.min(teamCount, names.length));
-        const score = repeats(cand, seen);
-        if (score < bestScore) {
-          best = cand;
-          bestScore = score;
-        }
-      }
-    }
-
+    const best = splitTeams(names, currentPlan, seen, avoid);
     setResult(best);
-    try {
-      localStorage.setItem('jy_teams_last_split', JSON.stringify(best));
-    } catch {
-      /* ignore */
-    }
 
     // Record pairings in history
     const next = { ...seen };
@@ -306,31 +399,19 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
       }
     }
     setSeen(next);
+    scrollToResults();
   };
 
   // Primary action 2: Durchrotieren (Round-Robin Shift)
   const handleRotate = () => {
     if (names.length < 2) return;
+    pushHistory();
     setMovingPerson(null);
+    setHasManualEdits(false);
+    setRound((r) => r + 1);
 
-    let nextTeams: string[][];
-    if (result.length < 2) {
-      // First round if none exist yet
-      if (splitMode === 'bySize') {
-        nextTeams = splitByTeamSize(names, Math.max(2, teamSize));
-      } else {
-        nextTeams = splitByTeamCount(names, Math.min(teamCount, names.length));
-      }
-    } else {
-      nextTeams = rotateTeams(result);
-    }
-
+    const nextTeams = rotateTeams(result, names, currentPlan, seen, avoid);
     setResult(nextTeams);
-    try {
-      localStorage.setItem('jy_teams_last_split', JSON.stringify(nextTeams));
-    } catch {
-      /* ignore */
-    }
 
     // Record rotated pairings in history
     const next = { ...seen };
@@ -342,6 +423,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
       }
     }
     setSeen(next);
+    scrollToResults();
 
     setRotateNotice(
       L(
@@ -358,6 +440,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
       setMovingPerson(null);
       return;
     }
+    pushHistory();
     const updated = result.map((t, idx) => {
       if (idx === fromTeamIdx) {
         return t.filter((p) => p !== person);
@@ -369,11 +452,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
     });
     setResult(updated);
     setMovingPerson(null);
-    try {
-      localStorage.setItem('jy_teams_last_split', JSON.stringify(updated));
-    } catch {
-      /* ignore */
-    }
+    setHasManualEdits(true);
   };
 
   const label = (i: number) =>
@@ -413,73 +492,12 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
     navigate('/tools/scoreboard');
   };
 
-  // Live calculation preview
-  const getDivisionPreview = () => {
-    if (names.length < 2) {
-      return L('Mindestens 2 Personen eintragen', 'Enter at least 2 people');
-    }
-
-    const pWord = (n: number) => (n === 1 ? L('Person', 'person') : L('Personen', 'people'));
-    const tWord = (n: number) => (n === 1 ? L('Team', 'team') : L('Teams', 'teams'));
-    const pairWord = (n: number) => (n === 1 ? L('Tandem', 'pair') : L('Tandems', 'pairs'));
-
-    if (splitMode === 'byCount') {
-      const K = Math.min(Math.max(2, teamCount), names.length);
-      const base = Math.floor(names.length / K);
-      const rem = names.length % K;
-
-      if (rem === 0) {
-        return L(
-          `Ergibt ${K} ${tWord(K)} mit je ${base} ${pWord(base)}`,
-          `Results in ${K} ${tWord(K)} with ${base} ${pWord(base)} each`
-        );
-      }
-      const larger = rem;
-      const smaller = K - rem;
-      return L(
-        `Ergibt ${K} ${tWord(K)} (${larger}× ${base + 1} ${pWord(base + 1)}, ${smaller}× ${base} ${pWord(base)})`,
-        `Results in ${K} ${tWord(K)} (${larger}× ${base + 1} ${pWord(base + 1)}, ${smaller}× ${base} ${pWord(base)})`
-      );
-    } else {
-      const targetSize = Math.max(2, teamSize);
-      const K = Math.max(1, Math.ceil(names.length / targetSize));
-      const base = Math.floor(names.length / K);
-      const rem = names.length % K;
-
-      if (targetSize === 2) {
-        if (rem === 0) {
-          return L(
-            `Ergibt ${K} ${pairWord(K)} (je 2 Personen)`,
-            `Results in ${K} ${pairWord(K)} (2 people each)`
-          );
-        }
-        return L(
-          `Ergibt ${K} ${pairWord(K)} (${rem}× 3 Personen, ${K - rem}× 2 Personen)`,
-          `Results in ${K} ${pairWord(K)} (${rem}× 3 people, ${K - rem}× 2 people)`
-        );
-      }
-
-      if (rem === 0) {
-        return L(
-          `Ergibt ${K} ${tWord(K)} mit je ${base} ${pWord(base)}`,
-          `Results in ${K} ${tWord(K)} with ${base} ${pWord(base)} each`
-        );
-      }
-      const larger = rem;
-      const smaller = K - rem;
-      return L(
-        `Ergibt ${K} ${tWord(K)} (${larger}× ${base + 1} ${pWord(base + 1)}, ${smaller}× ${base} ${pWord(base)})`,
-        `Results in ${K} ${tWord(K)} (${larger}× ${base + 1} ${pWord(base + 1)}, ${smaller}× ${base} ${pWord(base)})`
-      );
-    }
-  };
-
   // Max value limits
   const maxTeamCount = Math.min(8, Math.max(2, names.length));
   const maxTeamSize = Math.max(2, Math.min(10, names.length));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-[calc(110px+env(safe-area-inset-bottom,0px))] md:pb-0">
       {/* 1. TOP OVERVIEW: Participants & Compact Attendance (Space-Saving) */}
       <Panel className="p-3.5 sm:p-4 space-y-3">
         <div className="flex items-center justify-between gap-2 border-b border-border/50 pb-2">
@@ -548,8 +566,8 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                 type="text"
                 value={newNameInput}
                 onChange={(e) => setNewNameInput(e.target.value)}
-                placeholder={L('+ Person (z. B. Musonda)...', '+ Person (e.g. Musonda)...')}
-                className="pl-3 pr-7 py-1 text-xs rounded-full bg-surface-2 hover:bg-surface-raised focus:bg-surface border border-dashed border-border focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden min-h-[32px] w-32 sm:w-40 transition-all font-medium"
+                placeholder={L('+ Name', '+ Name')}
+                className="pl-3 pr-7 py-1 text-xs rounded-full bg-surface-2 hover:bg-surface-raised focus:bg-surface border border-dashed border-border focus:border-accent text-text placeholder:text-text-tertiary focus:outline-hidden min-h-[32px] w-28 sm:w-36 transition-all font-medium"
               />
               {newNameInput.trim() && (
                 <button
@@ -563,6 +581,14 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
             </div>
           </form>
         </div>
+
+        {/* Multi-name paste hint */}
+        <p className="text-2xs text-text-tertiary pt-0.5">
+          {L(
+            'Tipp: Mehrere Namen mit Komma oder Zeilenumbruch einfügen.',
+            'Tip: Paste multiple names separated by commas or line breaks.'
+          )}
+        </p>
 
         {/* Absent members quick toggle */}
         {absentNames.length > 0 && (
@@ -714,12 +740,12 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
 
           {/* Live Math Preview Line */}
           <div className="flex items-center justify-between gap-2 px-1 text-xs text-text-secondary">
-            <span className="font-medium text-accent">➔ {getDivisionPreview()}</span>
+            <span className="font-medium text-accent">➔ {formatDivisionPreview(currentPlan, splitMode, currentSettingValue, language)}</span>
           </div>
         </div>
 
-        {/* Pairing Avoidance Checkbox */}
-        <div className="pt-2 border-t border-border/50">
+        {/* Pairing Avoidance Checkbox & Reset History */}
+        <div className="pt-2 border-t border-border/50 flex flex-wrap items-center justify-between gap-2">
           <label className="flex items-center gap-2.5 text-xs font-medium text-text cursor-pointer select-none">
             <input
               type="checkbox"
@@ -734,12 +760,25 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
               )}
             </span>
           </label>
+
+          {(round > 1 || Object.keys(seen).length > 0) && (
+            <button
+              type="button"
+              onClick={handleResetHistory}
+              className="text-2xs text-text-tertiary hover:text-accent font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+              title={L('Paarungs-Verlauf und Runden zurücksetzen', 'Reset pairing history and rounds')}
+            >
+              <RotateCcw className="w-3 h-3 text-accent" />
+              <span>{L('Paarungs-Verlauf zurücksetzen', 'Reset pairing history')}</span>
+            </button>
+          )}
         </div>
       </Panel>
 
-      {/* 3. DUAL ACTION BUTTONS: Shuffle Randomly or Rotate */}
+      {/* 3. DUAL ACTION BUTTONS: In-Flow on Desktop, Sticky Glass Bar on Mobile */}
       <div className="space-y-2">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        {/* Desktop in-flow action buttons */}
+        <div className="hidden md:grid grid-cols-2 gap-2.5">
           {/* Action 1: Random Shuffle */}
           <button
             type="button"
@@ -780,19 +819,92 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
         )}
       </div>
 
+      {/* Mobile Sticky Action Bar directly above the floating Tab Bar */}
+      <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] left-0 right-0 z-30 flex justify-center px-3 pointer-events-none md:hidden print:hidden">
+        <div className="pointer-events-auto w-full max-w-md p-1.5 rounded-full glass-surface shadow-2 border border-border/80 flex items-center gap-2 backdrop-blur-md">
+          {history && (
+            <button
+              type="button"
+              onClick={handleUndo}
+              className="p-2.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-xs flex items-center justify-center shadow-xs cursor-pointer active:scale-[0.98] transition-transform min-h-[44px] min-w-[44px] shrink-0"
+              title={L('Rückgängig', 'Undo')}
+              aria-label={L('Rückgängig', 'Undo')}
+            >
+              <Undo2 className="w-4 h-4 text-text-secondary" />
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleShuffle}
+            disabled={names.length < 2}
+            className="flex-1 py-2.5 px-3.5 rounded-full bg-accent hover:bg-accent-hover text-accent-contrast font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-[0.98] transition-transform disabled:opacity-40 min-h-[44px]"
+          >
+            <Shuffle className="w-4 h-4 shrink-0" />
+            <span className="truncate">
+              {result.length > 0
+                ? L('Neu mischen', 'Reshuffle')
+                : L('Zufällig mischen', 'Shuffle')}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleRotate}
+            disabled={names.length < 2}
+            className="py-2.5 px-3.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-xs cursor-pointer active:scale-[0.98] transition-transform disabled:opacity-40 min-h-[44px] shrink-0"
+            title={L('Durchrotieren', 'Rotate teams')}
+          >
+            <RotateCw className="w-4 h-4 text-accent shrink-0" />
+            <span className="truncate">{L('Rotieren', 'Rotate')}</span>
+          </button>
+        </div>
+      </div>
+
       {/* 4. RESULTS VIEW */}
       {result.length > 0 && (
-        <div className="space-y-4 pt-2">
+        <div
+          ref={resultsRef}
+          key={resultFlashKey}
+          className="space-y-4 pt-2 animate-in fade-in duration-200"
+        >
+          {/* Outdated Notice Banner when settings changed after manual edits */}
+          {isOutdated && (
+            <div className="flex items-center justify-between gap-3 p-3 rounded-card bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold animate-in fade-in">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
+                <span>
+                  {L(
+                    'Einstellungen geändert – Einteilung ist veraltet.',
+                    'Settings changed – division is outdated.'
+                  )}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleShuffle}
+                className="px-3 py-1.5 rounded-control bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs cursor-pointer transition-colors shadow-2xs shrink-0"
+              >
+                {L('Neu mischen', 'Reshuffle')}
+              </button>
+            </div>
+          )}
+
           {/* Results Header Toolbar */}
           <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-card bg-surface-2/60 border border-border">
             <div>
-              <h3 className="text-sm font-bold text-text">
-                {L('Einteilung:', 'Result:')} {names.length} {L('Personen in', 'people in')}{' '}
-                {result.length}{' '}
-                {splitMode === 'bySize' && teamSize === 2
-                  ? L('Tandems', 'pairs')
-                  : L('Teams', 'teams')}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-text">
+                  {L('Einteilung:', 'Result:')} {names.length} {L('Personen in', 'people in')}{' '}
+                  {result.length}{' '}
+                  {splitMode === 'bySize' && teamSize === 2
+                    ? L('Tandems', 'pairs')
+                    : L('Teams', 'teams')}
+                </h3>
+                <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-accent/15 text-accent border border-accent/25">
+                  {L(`Runde ${round}`, `Round ${round}`)}
+                </span>
+              </div>
               <p className="text-2xs text-text-tertiary">
                 {L(
                   'Tippe auf eine Person, um sie unkompliziert in ein anderes Team zu verschieben.',
@@ -801,7 +913,31 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Feature 12: Undo */}
+              <button
+                type="button"
+                onClick={handleUndo}
+                disabled={!history}
+                className="px-2.5 py-1.5 min-h-[38px] rounded-control bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title={L('Letzte Änderung rückgängig machen', 'Undo last change')}
+                aria-label={L('Rückgängig', 'Undo')}
+              >
+                <Undo2 className="w-3.5 h-3.5 text-text-secondary" />
+                <span className="hidden sm:inline">{L('Rückgängig', 'Undo')}</span>
+              </button>
+
+              {/* Feature 14: Gruppe zeigen */}
+              <button
+                type="button"
+                onClick={() => setShowGroupView(true)}
+                className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-1.5 cursor-pointer transition-colors"
+                title={L('Großansicht für die Gruppe öffnen', 'Open large group view')}
+              >
+                <Eye className="w-3.5 h-3.5 text-accent" />
+                <span>{L('Gruppe zeigen', 'Show to group')}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={copy}
@@ -828,118 +964,307 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
             </div>
           </div>
 
-          {/* Teams Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {result.map((team, teamIdx) => {
-              const theme = TEAM_THEMES[teamIdx % TEAM_THEMES.length];
-              const isMovingFromThisTeam = movingPerson?.fromTeam === teamIdx;
+          {/* Teams Grid: 2 columns on mobile if max size <= 4, otherwise 1 column */}
+          {(() => {
+            const maxTeamMemberCount = Math.max(...result.map((t) => t.length), 0);
+            const mobileGridCols = maxTeamMemberCount <= 4 ? 'grid-cols-2' : 'grid-cols-1';
 
-              return (
-                <div
-                  key={teamIdx}
-                  className={`rounded-card p-4 sm:p-5 border transition-all duration-200 bg-surface shadow-2xs ${theme.border} ${theme.bg}`}
-                >
-                  {/* Team Card Header */}
-                  <div className="flex items-center justify-between pb-3 border-b border-border/50">
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${theme.badge}`}>
-                        {teamIdx + 1}
-                      </div>
-                      <h4 className="text-sm font-bold text-text tracking-tight">
-                        {label(teamIdx)}
-                      </h4>
-                    </div>
-                    <span className={`text-2xs font-bold px-2.5 py-0.5 rounded-full border ${theme.badge}`}>
-                      {team.length} {team.length === 1 ? L('Person', 'person') : L('Personen', 'people')}
-                    </span>
-                  </div>
+            return (
+              <div
+                className={`grid ${mobileGridCols} sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4 ${
+                  isOutdated ? 'opacity-60 transition-opacity' : ''
+                }`}
+              >
+                {result.map((team, teamIdx) => {
+                  const theme = TEAM_THEMES[teamIdx % TEAM_THEMES.length];
 
-                  {/* Members Roster */}
-                  <div className="pt-3 space-y-1.5">
-                    {team.map((person) => {
-                      const isSelected =
-                        movingPerson?.person === person && movingPerson?.fromTeam === teamIdx;
-                      const initial = person.trim().charAt(0).toUpperCase();
-
-                      return (
-                        <div key={person} className="relative">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (isSelected) {
-                                setMovingPerson(null);
-                              } else {
-                                setMovingPerson({ person, fromTeam: teamIdx });
-                              }
-                            }}
-                            className={`w-full flex items-center justify-between px-3 py-2 rounded-control text-xs font-semibold border transition-all cursor-pointer min-h-[40px] text-left ${
-                              isSelected
-                                ? 'bg-accent text-accent-contrast border-accent ring-2 ring-accent shadow-xs'
-                                : 'bg-surface hover:bg-surface-raised border-border/80 text-text hover:border-accent/30'
-                            }`}
-                            title={L('Tippen, um in anderes Team zu verschieben', 'Tap to move to another team')}
+                  return (
+                    <div
+                      key={teamIdx}
+                      className={`rounded-card p-3 sm:p-5 border transition-all duration-200 bg-surface shadow-2xs ${theme.border} ${theme.bg}`}
+                    >
+                      {/* Team Card Header */}
+                      <div className="flex items-center justify-between pb-2 sm:pb-3 border-b border-border/50">
+                        <div className="flex items-center gap-2 sm:gap-2.5">
+                          <div
+                            className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-bold text-xs ${theme.badge}`}
                           >
-                            <div className="flex items-center gap-2.5 truncate">
+                            {teamIdx + 1}
+                          </div>
+                          <h4 className="text-xs sm:text-sm font-bold text-text tracking-tight truncate">
+                            {label(teamIdx)}
+                          </h4>
+                        </div>
+                        <span
+                          className={`text-2xs font-bold px-2 py-0.5 rounded-full border ${theme.badge} shrink-0`}
+                        >
+                          {team.length}{' '}
+                          {team.length === 1
+                            ? L('Person', 'person')
+                            : L('Personen', 'people')}
+                        </span>
+                      </div>
+
+                      {/* Members Roster as Compact Tactile Chips */}
+                      <div className="pt-2 sm:pt-3 flex flex-wrap gap-1.5">
+                        {team.map((person) => {
+                          const initial = person.trim().charAt(0).toUpperCase();
+
+                          return (
+                            <button
+                              key={person}
+                              type="button"
+                              onClick={() =>
+                                setMovingPerson({ person, fromTeam: teamIdx })
+                              }
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-surface-2 hover:bg-accent hover:text-accent-contrast border border-border/80 hover:border-accent text-xs font-semibold text-text transition-all cursor-pointer active:scale-95 shadow-2xs min-h-[36px] max-w-full group"
+                              title={L(
+                                `Tippen, um ${person} in ein anderes Team zu verschieben`,
+                                `Tap to move ${person} to another team`
+                              )}
+                            >
                               <span
-                                className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                                  isSelected ? 'bg-white/20 text-white' : theme.initialBg
-                                }`}
+                                className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 transition-colors ${theme.initialBg} group-hover:bg-white/20 group-hover:text-white`}
                                 aria-hidden="true"
                               >
                                 {initial}
                               </span>
-                              <span className="truncate">{person}</span>
-                            </div>
-                            <span className="text-2xs text-text-tertiary font-normal shrink-0 pl-1">
-                              {isSelected ? L('Ausgewählt', 'Selected') : L('Verschieben', 'Move')}
-                            </span>
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Inline Destination Picker */}
-                  {isMovingFromThisTeam && movingPerson && (
-                    <div className="mt-3 p-3 rounded-control bg-surface-2/90 border border-accent/40 shadow-xs space-y-2 animate-in fade-in zoom-in-95 duration-150">
-                      <div className="flex items-center justify-between text-2xs">
-                        <span className="font-bold text-text truncate pr-2">
-                          „{movingPerson.person}“ {L('verschieben nach:', 'move to:')}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setMovingPerson(null)}
-                          className="text-text-tertiary hover:text-text p-0.5 rounded cursor-pointer shrink-0"
-                          aria-label={L('Abbrechen', 'Cancel')}
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {result.map((_, targetIdx) => {
-                          if (targetIdx === teamIdx) return null;
-                          const targetTheme = TEAM_THEMES[targetIdx % TEAM_THEMES.length];
-                          return (
-                            <button
-                              key={targetIdx}
-                              type="button"
-                              onClick={() => movePersonToTeam(movingPerson.person, teamIdx, targetIdx)}
-                              className="px-2.5 py-1.5 rounded-control bg-surface hover:bg-accent hover:text-accent-contrast border border-border text-xs font-semibold text-text text-left transition-colors cursor-pointer flex items-center gap-2 min-h-[36px]"
-                            >
-                              <span className={`w-2 h-2 rounded-full shrink-0 ${targetTheme.dot}`} />
-                              <span className="truncate">{label(targetIdx)}</span>
+                              <span className="truncate max-w-[120px]">{person}</span>
                             </button>
                           );
                         })}
                       </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* 5. BOTTOM SHEET FOR MOVING A PERSON */}
+      <Sheet
+        isOpen={movingPerson !== null}
+        onClose={() => setMovingPerson(null)}
+        title={
+          movingPerson
+            ? L(
+                `„${movingPerson.person}“ verschieben nach:`,
+                `Move "${movingPerson.person}" to:`
+              )
+            : ''
+        }
+      >
+        {movingPerson && (
+          <div className="p-4 sm:p-5 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {result.map((team, targetIdx) => {
+                if (targetIdx === movingPerson.fromTeam) return null;
+                const targetTheme = TEAM_THEMES[targetIdx % TEAM_THEMES.length];
+                const teamLabel = label(targetIdx);
+                const countText =
+                  team.length === 1
+                    ? L('1 Person', '1 person')
+                    : L(`${team.length} Personen`, `${team.length} people`);
+
+                return (
+                  <button
+                    key={targetIdx}
+                    type="button"
+                    onClick={() =>
+                      movePersonToTeam(
+                        movingPerson.person,
+                        movingPerson.fromTeam,
+                        targetIdx
+                      )
+                    }
+                    className="flex items-center justify-between p-3.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border hover:border-accent text-left transition-all active:scale-[0.98] cursor-pointer min-h-[52px] group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${targetTheme.badge}`}
+                      >
+                        {targetIdx + 1}
+                      </div>
+                      <span className="font-bold text-sm text-text group-hover:text-accent transition-colors">
+                        {teamLabel}
+                      </span>
+                    </div>
+                    <span className="text-xs text-text-tertiary font-medium">
+                      {countText}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setMovingPerson(null)}
+                className="w-full py-3 rounded-control bg-surface hover:bg-surface-2 border border-border text-text font-semibold text-sm cursor-pointer transition-colors min-h-[44px]"
+              >
+                {L('Abbrechen', 'Cancel')}
+              </button>
+            </div>
+          </div>
+        )}
+      </Sheet>
+
+      {/* 6. FULLSCREEN "GRUPPE ZEIGEN" VIEW (Feature 14) */}
+      {showGroupView && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={L('Großansicht für die Gruppe', 'Fullscreen group view')}
+          className="fixed inset-0 z-50 bg-surface/98 backdrop-blur-md flex flex-col p-4 sm:p-6 md:p-8 overflow-y-auto animate-fadeIn select-none"
+          onTouchStart={(e) => {
+            touchStartY.current = e.touches[0].clientY;
+          }}
+          onTouchEnd={(e) => {
+            if (touchStartY.current === null) return;
+            const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+            if (Math.abs(deltaY) > 70) {
+              setShowGroupView(false);
+            }
+            touchStartY.current = null;
+          }}
+        >
+          {/* Top Bar with round / team count & large Close button */}
+          <div className="flex items-center justify-between gap-4 max-w-5xl mx-auto w-full pb-4 border-b border-border/60">
+            <div className="flex items-center gap-3">
+              <span className="text-xl sm:text-2xl font-black text-text tracking-tight">
+                {splitMode === 'bySize' && teamSize === 2
+                  ? L('Tandems', 'Pairs')
+                  : L('Teams', 'Teams')}
+              </span>
+              <span className="text-xs sm:text-sm font-bold px-3 py-1 rounded-full bg-accent/15 text-accent border border-accent/25">
+                {L(`Runde ${round}`, `Round ${round}`)}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowGroupView(false)}
+              className="min-h-[44px] min-w-[44px] px-4 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-sm flex items-center gap-2 cursor-pointer transition-colors shadow-xs"
+              title={L('Ansicht schließen (Esc oder Wischen)', 'Close view (Esc or swipe)')}
+              aria-label={L('Schließen', 'Close')}
+            >
+              <X className="w-5 h-5" />
+              <span className="hidden sm:inline">{L('Schließen', 'Close')}</span>
+            </button>
+          </div>
+
+          {/* Large Team Cards Grid */}
+          <div className="flex-1 max-w-5xl mx-auto w-full py-6">
+            <div
+              className={`grid gap-4 sm:gap-6 ${
+                result.length <= 2
+                  ? 'grid-cols-1 md:grid-cols-2'
+                  : result.length <= 4
+                  ? 'grid-cols-1 sm:grid-cols-2'
+                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+              }`}
+            >
+              {result.map((team, tIdx) => {
+                const theme = TEAM_THEMES[tIdx % TEAM_THEMES.length];
+                const teamLabel = label(tIdx);
+                return (
+                  <div
+                    key={tIdx}
+                    className={`p-5 sm:p-6 rounded-card border-2 ${theme.border} ${theme.bg} shadow-sm space-y-4 flex flex-col justify-between`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-3 border-b border-border/40 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <span
+                            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-base sm:text-lg border ${theme.badge}`}
+                          >
+                            {tIdx + 1}
+                          </span>
+                          <h3 className="text-lg sm:text-xl font-bold text-text">
+                            {teamLabel}
+                          </h3>
+                        </div>
+                        <span className="text-xs sm:text-sm font-semibold text-text-tertiary">
+                          {team.length === 1
+                            ? L('1 Person', '1 person')
+                            : L(`${team.length} Personen`, `${team.length} people`)}
+                        </span>
+                      </div>
+
+                      <div className="pt-3 space-y-2">
+                        {team.map((person) => (
+                          <div
+                            key={person}
+                            className="text-base sm:text-lg font-bold text-text px-3 py-2 rounded-control bg-surface/80 border border-border/50 flex items-center gap-2.5"
+                          >
+                            <span
+                              className={`w-2.5 h-2.5 rounded-full shrink-0 ${theme.dot}`}
+                            />
+                            <span className="truncate">{person}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Bottom dismiss helper hint */}
+          <div className="max-w-5xl mx-auto w-full pt-4 text-center">
+            <button
+              type="button"
+              onClick={() => setShowGroupView(false)}
+              className="text-xs text-text-tertiary hover:text-text py-2 px-4 rounded-full transition-colors cursor-pointer"
+            >
+              {L('Tippen, nach unten wischen oder Esc drücken zum Schließen', 'Tap, swipe down or press Esc to close')}
+            </button>
           </div>
         </div>
       )}
+
+      {/* 7. DUPLICATE NAME CONFIRMATION DIALOG (Feature 15) */}
+      <Dialog
+        isOpen={duplicatePending !== null}
+        onClose={() => setDuplicatePending(null)}
+        title={L('Name bereits vorhanden', 'Name already exists')}
+        maxWidth="sm"
+      >
+        {duplicatePending && (
+          <div className="p-4 sm:p-5 space-y-4">
+            <p className="text-sm text-text-secondary leading-relaxed">
+              {L(
+                `„${duplicatePending.existingName}“ ist bereits in der Gruppe vorhanden. Möchtest du die Person trotzdem als „${duplicatePending.candidateName}“ hinzufügen?`,
+                `"${duplicatePending.existingName}" is already in the group. Do you want to add them as "${duplicatePending.candidateName}" anyway?`
+              )}
+            </p>
+
+            <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDuplicatePending(null)}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-semibold text-sm cursor-pointer transition-colors min-h-[44px]"
+              >
+                {L('Abbrechen', 'Cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={confirmAddDuplicate}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-control bg-accent hover:bg-accent-hover text-white font-bold text-sm cursor-pointer transition-colors min-h-[44px]"
+              >
+                {L(
+                  `Ja, als „${duplicatePending.candidateName}“ hinzufügen`,
+                  `Yes, add as "${duplicatePending.candidateName}"`
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+      </Dialog>
     </div>
   );
 };

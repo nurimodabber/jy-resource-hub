@@ -150,7 +150,7 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
       return <Navigate to="/tools" replace />;
     }
     return (
-      <div className="max-w-3xl mx-auto pb-20 animate-in fade-in duration-150">
+      <div className="max-w-3xl mx-auto pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-16 animate-in fade-in duration-150">
         <ToolHeader
           title={tool.title[isDe ? 0 : 1]}
           subtitle={tool.desc[isDe ? 0 : 1]}
