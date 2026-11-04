@@ -96,7 +96,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <nav
           ref={desktopNavRef}
           className="relative hidden md:flex short:hidden items-center p-1 rounded-full bg-surface-2/70 border border-line/70 lg-glass gap-0.5 shadow-2xs"
-          aria-label="Hauptnavigation"
+          aria-label={language === 'de' ? 'Hauptnavigation' : 'Main navigation'}
         >
           {/* Active Liquid Glass sliding indicator pill (with left-0 for exact centering) */}
           {indicator && (

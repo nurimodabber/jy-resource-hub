@@ -172,7 +172,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
       ) : (
         <>
           {/* Filter Chips */}
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Gemerkt filtern">
+          <div className="flex flex-wrap gap-2" role="group" aria-label={language === 'de' ? 'Gemerkt filtern' : 'Filter saved items'}>
             <Chip
               selected={active === 'all'}
               count={favorites.length}

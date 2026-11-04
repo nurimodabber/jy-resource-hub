@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { uiText } from './closeLabel';
 import { RotateCcw } from 'lucide-react';
 
 export interface ScrollableFilterBarProps {
@@ -72,7 +73,7 @@ export const ScrollableFilterBar: React.FC<ScrollableFilterBarProps> = ({
         ref={scrollRef}
         className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full py-0.5 snap-x snap-mandatory scroll-smooth"
         role="toolbar"
-        aria-label="Filter-Optionen"
+        aria-label={uiText('Filter-Optionen', 'Filter options')}
       >
         {children}
 

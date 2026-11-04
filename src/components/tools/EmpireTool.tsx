@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useConfirm } from '../ui/ConfirmDialog';
 import { ChevronLeft, ChevronRight, RotateCcw, Undo2, Shuffle, Crown, SlidersHorizontal, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Language } from '../../types';
 import { EMPIRE_CATEGORIES_V2 } from '../../data/empireContent';
@@ -23,6 +24,7 @@ interface Move {
 
 export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
   const L = tr(language);
+  const [confirm, confirmDialog] = useConfirm();
   const [step, setStep] = useLocalState<Step>('jy_empire_step', 'category');
   const [mood, setMood] = useLocalState<string | null>('jy_empire_mood', null);
   const [age, setAge] = useLocalState<string | null>('jy_empire_age', null);
@@ -125,8 +127,14 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
     setMoves(moves.slice(0, -1));
   };
 
-  const resetAll = () => {
-    if (window.confirm(L('Möchtest du wirklich eine neue Runde Empire starten?', 'Start a new round of Empire?'))) {
+  const resetAll = async () => {
+    const ok = await confirm({
+      title: L('Neue Runde Empire starten?', 'Start a new round of Empire?'),
+      message: L('Kategorie, Zettel und Reiche dieser Runde werden zurückgesetzt.', 'The category, slips and kingdoms of this round are reset.'),
+      confirmLabel: L('Neue Runde', 'New round'),
+      cancelLabel: L('Abbrechen', 'Cancel'),
+    });
+    if (ok) {
       setStep('category');
       setTermsText('');
       setReadOrder([]);
@@ -562,6 +570,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
           </p>
         </div>
       </Dialog>
+      {confirmDialog}
     </div>
   );
 };

@@ -38,6 +38,9 @@ interface ProposalPayload {
   reflectionQuestions?: string[];
   setting?: 'drinnen' | 'draussen' | 'beides';
   occasion?: 'treffen' | 'camp' | 'beides';
+  imageUrl?: string;
+  relatedBook?: string;
+  lesson?: number;
   // Anti-spam fields
   clientTimestamp?: number;
   hp_website?: string;
@@ -64,8 +67,9 @@ const sanitize = (str: string = ''): string => {
   return str.replace(/<[^>]*>?/gm, '').trim();
 };
 
+// Matches real links and domains; the old pattern also rejected sentences like "weiter.Der".
 const containsUrl = (str: string = ''): boolean => {
-  return /(https?:\/\/|www\.|\.com|\.org|\.net|\.de|\.io)/i.test(str);
+  return /(https?:\/\/|www\.|\b[a-z0-9-]+\.(com|org|net|de|io)\b)/i.test(str);
 };
 
 export default async function handler(req: IncomingMessage & { body?: any }, res: ServerResponse) {
@@ -111,8 +115,8 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
         let data = '';
         req.on('data', (chunk) => {
           data += chunk;
-          if (data.length > 8192) {
-            reject(new Error('Payload too large (max 8KB)'));
+          if (data.length > 32768) {
+            reject(new Error('Payload too large (max 32KB)'));
           }
         });
         req.on('end', () => resolve(data));
@@ -120,10 +124,10 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       });
     }
 
-    if (rawBody.length > 8192) {
+    if (rawBody.length > 32768) {
       res.statusCode = 413;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ error: 'Payload too large (max 8KB)' }));
+      res.end(JSON.stringify({ error: 'Payload too large (max 32KB)' }));
       return;
     }
 
@@ -216,6 +220,11 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     const setting = ['drinnen', 'draussen', 'beides'].includes(String(payload.setting)) ? payload.setting! : 'beides';
     const occasion = ['treffen', 'camp', 'beides'].includes(String(payload.occasion)) ? payload.occasion! : 'beides';
 
+    // Sent by the form but previously dropped, so reviewers never saw them.
+    const rawImage = String(payload.imageUrl || '').trim();
+    const imageUrl = /^https:\/\/[^\s<>"']{4,490}$/.test(rawImage) ? rawImage : '';
+    const relatedBook = sanitize(String(payload.relatedBook || '')).slice(0, 80);
+    const lesson = Number.isInteger(Number(payload.lesson)) && Number(payload.lesson) > 0 ? Number(payload.lesson) : undefined;
     const groupSizeMin = Math.max(1, Number(payload.groupSizeMin) || 4);
     const groupSizeMax = Math.max(groupSizeMin, Number(payload.groupSizeMax) || 20);
     const durationMin = Math.max(5, Number(payload.durationMin) || 15);
@@ -254,6 +263,9 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       steps: { de: steps, en: [] },
       animatorTips: animatorTips ? { de: [animatorTips], en: [] } : undefined,
       source: source || 'Eingereicht von Animatoren',
+      ...(imageUrl ? { imageUrl } : {}),
+      ...(relatedBook ? { relatedBook } : {}),
+      ...(lesson ? { lesson } : {}),
       ...(type === 'dienst' ? {
         category: 'neighborhood',
         scope: 'medium',
@@ -295,7 +307,7 @@ ${JSON.stringify({ kind: 'feedback', submittedBy: authorName || 'Anonym', submit
 **Art:** ${kindLabel}  
 **Eingereicht von:** ${authorName || 'Anonym'}${authorEmail ? ' (Kontakt liegt der Redaktion vor)' : ''}  
 **Datum:** ${new Date().toLocaleDateString('de-DE')}  
-**Quelle / Herkunft:** ${source || 'Keine Angabe'}
+**Quelle / Herkunft:** ${source || 'Keine Angabe'}${relatedBook ? `  \n**Buch:** ${relatedBook}${lesson ? `, Lektion ${lesson}` : ''}` : ''}${imageUrl ? `  \n**Bild:** ${imageUrl}` : ''}
 
 ---
 
