@@ -1,8 +1,7 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { TabBar } from 'glisse';
 import { Compass, BookOpen, HeartHandshake, Wrench, Plus } from 'lucide-react';
-import { Button } from './ui/Button';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 
@@ -24,16 +23,34 @@ RouterLinkAdapter.displayName = 'RouterLinkAdapter';
 
 export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectTab, language }) => {
   const t = UI_TRANSLATIONS[language];
-  const navigate = useNavigate();
+  // Compact once the page is scrolled; large again at the top.
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setCompact(window.scrollY > 24);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
 
-  // Vier Tabs statt sechs: Dienst und Kunst teilen sich „Projekte“ (Umschalter oben auf der Seite),
-  // „Beitragen“ ist der runde Plus-Knopf rechts daneben.
+  // Eine Leiste mit fünf Tabs: Dienst und Kunst teilen sich „Projekte“ (Umschalter oben auf der Seite),
+  // „Beitragen“ ist der fünfte Tab statt eines eigenen Knopfs daneben.
   const projectsHref = activeTab === 'arts' ? '/arts' : '/service';
   const items = [
     { value: 'games', label: t.tabGames, href: '/games', icon: <Compass className="w-5 h-5" strokeWidth={1.75} /> },
     { value: 'quotes', label: t.tabQuotes, href: '/quotes', icon: <BookOpen className="w-5 h-5" strokeWidth={1.75} /> },
     { value: 'projects', label: t.tabProjects, href: projectsHref, icon: <HeartHandshake className="w-5 h-5" strokeWidth={1.75} /> },
     { value: 'tools', label: t.tabTools, href: '/tools', icon: <Wrench className="w-5 h-5" strokeWidth={1.75} /> },
+    { value: 'vorschlagen', label: t.tabProposalShort, href: '/vorschlagen', icon: <Plus className="w-5 h-5" strokeWidth={1.9} /> },
   ];
   const value =
     activeTab === 'service' || activeTab === 'arts'
@@ -44,10 +61,11 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
 
   return (
     <nav
-      className="jy-tabbar-dock fixed left-0 right-0 z-40 flex items-center justify-center gap-2 px-1.5 pointer-events-none md:hidden short:hidden print:hidden"
+      className="jy-tabbar-dock fixed left-0 right-0 z-40 flex items-center justify-center px-1.5 pointer-events-none md:hidden short:hidden print:hidden"
+      data-compact={compact ? '' : undefined}
       aria-label={language === 'de' ? 'Navigation' : 'Navigation'}
     >
-      <div className="pointer-events-auto rounded-full max-w-[calc(100vw-72px)] overflow-hidden">
+      <div className="pointer-events-auto rounded-full max-w-[calc(100vw-12px)] overflow-hidden">
         <TabBar
           className="jy-mobile-tab-bar"
           items={items}
@@ -56,15 +74,6 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
           link={RouterLinkAdapter}
         />
       </div>
-      <Button
-        variant="glass"
-        onClick={() => navigate('/vorschlagen')}
-        icon={<Plus className="w-6 h-6" strokeWidth={2} />}
-        aria-label={language === 'de' ? 'Beitragen: Idee einreichen' : 'Contribute: share an idea'}
-        title={t.tabProposalShort}
-        aria-current={activeTab === 'vorschlagen' ? 'page' : undefined}
-        className="jy-tabbar-plus pointer-events-auto shrink-0"
-      />
     </nav>
   );
 };

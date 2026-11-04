@@ -60,6 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
   const [isHidden, setIsHidden] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const activeNavId = toNavId(activeTab);
   const backPath = detailBackPath(location.pathname);
   const titleKey = SECTION_TITLE_KEY[activeTab];
@@ -93,6 +94,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     let last = window.pageYOffset;
     const onScroll = () => {
       const y = window.pageYOffset;
+      setIsScrolled(y > 4);
       if (y > last && y > 70) setIsHidden(true);
       else if (y < last) setIsHidden(false);
       last = Math.max(y, 0);
@@ -104,7 +106,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <Glass
       role="banner"
-      className={`sticky top-0 z-40 border-b border-line/75 bg-surface/75 backdrop-blur-xl shadow-2xs print:hidden safe-top transition-transform duration-200 ${
+      // Mobile: the header melts into the page (page colour, no line). A hairline only appears once content
+      // scrolls underneath. From md up it keeps the framed bar.
+      className={`jy-header sticky top-0 z-40 border-b bg-bg/85 md:bg-surface/75 md:border-line/75 md:shadow-2xs backdrop-blur-xl print:hidden safe-top transition-[transform,border-color] duration-200 ${
+        isScrolled ? 'border-line/60' : 'border-transparent'
+      } ${
         isHidden ? 'short:-translate-y-full' : ''
       }`}
     >
@@ -129,10 +135,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-2 min-w-0 min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent"
               aria-label={`${t.siteTitle} – ${t.tabHome}`}
             >
-              <Logo className={`${sectionTitle ? 'w-6 h-6' : 'w-8 h-8'} shrink-0`} />
-              <span className="font-semibold text-base tracking-tight text-text truncate" aria-hidden={sectionTitle ? 'true' : undefined}>
-                {sectionTitle ?? t.siteTitle}
-              </span>
+              <Logo className="w-8 h-8 shrink-0" />
+              {/* Section pages already open with a large heading; repeating it up here was noise. */}
+              {!sectionTitle && (
+                <span className="font-semibold text-base tracking-tight text-text truncate">{t.siteTitle}</span>
+              )}
             </Link>
           )}
         </div>
