@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bookmark, Settings, PlusCircle, ArrowLeft, Menu as MenuIcon } from 'lucide-react';
-import { Glass, Menu } from 'glisse';
+import { Search, Bookmark, Settings, PlusCircle, ArrowLeft } from 'lucide-react';
+import { Glass } from 'glisse';
 import { Logo } from './Logo';
 import { GlassIconButton } from './ui/Button';
 import { Language, NavTab } from '../types';
@@ -101,25 +101,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const menuItems = [
-    {
-      label: favoriteCount > 0 ? `${t.savedItems} (${favoriteCount})` : t.savedItems,
-      icon: <Bookmark strokeWidth={1.75} />,
-      onSelect: () => navigate('/saved'),
-    },
-    {
-      label: t.tabProposalShort,
-      icon: <PlusCircle strokeWidth={1.75} />,
-      onSelect: () => navigate('/vorschlagen'),
-    },
-    'separator' as const,
-    {
-      label: t.tabSettings,
-      icon: <Settings strokeWidth={1.75} />,
-      onSelect: onOpenSettings,
-    },
-  ];
-
   return (
     <Glass
       role="banner"
@@ -200,7 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           })}
         </nav>
 
-        {/* Rechts: Suche + ein Menü (Gemerkt, Beitragen, Einstellungen) */}
+        {/* Rechts: Suche, Gemerkt, Einstellungen (+ Beitragen ab Tablet) */}
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
@@ -220,20 +201,35 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="lg:hidden"
           />
 
-          <div className="relative jy-nav-menu">
-            <Menu
-              aria-label={language === 'de' ? `${t.navMore}: Gemerkt, Beitragen, Einstellungen` : `${t.navMore}: Saved, Contribute, Settings`}
-              icon={<MenuIcon strokeWidth={1.9} />}
-              items={menuItems}
-              align="end"
+          {/* Drei runde Glas-Knöpfe statt Menü: Gemerkt (mit Zähler), Beitragen (nur ab Tablet; mobil ist das der Plus-Knopf unten), Einstellungen */}
+          <div className="relative">
+            <GlassIconButton
+              label={favoriteCount > 0 ? `${t.savedItems} (${favoriteCount})` : t.savedItems}
+              icon={<Bookmark className="w-[18px] h-[18px]" strokeWidth={1.9} />}
+              onClick={() => navigate('/saved')}
+              aria-current={activeTab === 'saved' ? 'page' : undefined}
             />
             {favoriteCount > 0 && (
               <span
-                className="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-accent ring-2 ring-surface pointer-events-none"
+                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-accent-contrast text-[10px] font-bold leading-[18px] text-center tabular-nums ring-2 ring-surface pointer-events-none"
                 aria-hidden="true"
-              />
+              >
+                {favoriteCount > 99 ? '99+' : favoriteCount}
+              </span>
             )}
           </div>
+          <GlassIconButton
+            label={t.tabProposalShort}
+            icon={<PlusCircle className="w-[18px] h-[18px]" strokeWidth={1.9} />}
+            onClick={() => navigate('/vorschlagen')}
+            aria-current={activeTab === 'vorschlagen' ? 'page' : undefined}
+            className="hidden md:inline-flex"
+          />
+          <GlassIconButton
+            label={t.tabSettings}
+            icon={<Settings className="w-[18px] h-[18px]" strokeWidth={1.9} />}
+            onClick={onOpenSettings}
+          />
         </div>
       </div>
     </Glass>
