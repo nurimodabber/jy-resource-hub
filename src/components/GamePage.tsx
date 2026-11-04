@@ -18,6 +18,8 @@ import { UI_TRANSLATIONS } from '../data/translations';
 import { Button, GlassIconButton } from './ui/Button';
 import { GameCard, EnergyDots } from './GameCard';
 import { ShareMenu } from './ui/ShareMenu';
+import { IconTile } from './ui/IconTile';
+import { getGameIcon } from '../data/gameIcons';
 import { SegmentedControl } from './ui/SegmentedControl';
 import { tr } from './tools/common';
 
@@ -141,7 +143,7 @@ export const GamePage: React.FC<GamePageProps> = ({
   return (
     <article className="max-w-6xl w-full mx-auto pb-32 lg:pb-16 pt-2">
       {/* Top Header Navigation: Back button links to /games, right has subtle Share & Bookmark buttons */}
-      <div className="flex items-center justify-end md:justify-between gap-4 mb-4 print:hidden">
+      <div className="hidden md:flex items-center justify-between gap-4 mb-4 print:hidden">
         {/* Mobil übernimmt der Glas-Zurück-Knopf in der Kopfzeile */}
         <Link
           to="/games"
@@ -176,10 +178,21 @@ export const GamePage: React.FC<GamePageProps> = ({
         <div className="lg:col-span-8">
           <header className="mb-4 sm:mb-5 space-y-2.5">
             <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle/80 text-accent-text">
-                  {categoryBadge}
-                </span>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <IconTile icon={getGameIcon(game.id)} size="lg" />
+                  <span className="text-sm font-semibold text-text-secondary truncate">{categoryBadge}</span>
+                </div>
+                {/* Mobil: Merken/Teilen neben dem Icon statt in einer eigenen leeren Zeile */}
+                <div className="flex md:hidden items-center gap-1.5 shrink-0 print:hidden">
+                  <GlassIconButton
+                    label={isFavorite ? t.savedItems : L('Merken', 'Save')}
+                    aria-pressed={isFavorite}
+                    icon={<Bookmark className={`w-[18px] h-[18px] ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.9} />}
+                    onClick={(e) => onToggleFavorite(game.id, e)}
+                  />
+                  <ShareMenu textToCopy={gameRulesText} urlToCopy={gameUrl} language={language} align="right" glass />
+                </div>
               </div>
               <div className="flex items-center gap-3.5 flex-wrap pt-1">
                 <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text text-balance leading-[1.12]">

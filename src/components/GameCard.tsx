@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Users, Clock, Bookmark, Play, Flame } from 'lucide-react';
 import { Game, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
+import { getGameIcon } from '../data/gameIcons';
+import { IconTile } from './ui/IconTile';
 
 export const COMPANION_GAME_IDS = new Set([
   'empire',
@@ -111,9 +113,12 @@ export const GameCard: React.FC<GameCardProps> = ({
         className="block flex-1 min-w-0 pr-10 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0"
       >
         <div className="flex items-center justify-between gap-2 relative z-[1]">
-          <h3 className="font-serif text-lg font-medium text-text leading-snug truncate group-hover:text-accent transition-colors min-w-0 tracking-tight">
-            {game.title[language]}
-          </h3>
+          <div className="flex items-center gap-3 min-w-0">
+            <IconTile icon={getGameIcon(game.id)} />
+            <h3 className="font-serif text-lg font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors min-w-0 tracking-tight">
+              {game.title[language]}
+            </h3>
+          </div>
           <span
             className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-2/80 border border-line/60 text-2xs text-text-tertiary shrink-0 shadow-2xs group-hover:border-accent/30 transition-colors"
             title={`${t.filterEnergy}: ${energyLabel}`}
