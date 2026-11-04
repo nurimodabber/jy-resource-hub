@@ -16,10 +16,13 @@ React 18, TypeScript, Vite 6, Tailwind CSS v3, react-router-dom 7, lucide-react.
 5. **Begriffe:** „Animator“/„Animatoren“, „Juniorjugend“, „Spielleitung“. Kein Denglisch („Toolkit“, „Quick Pick“, „Board“). Du-Form, kurze aktive Sätze, keine Marketing-Sprache, keine Ausrufezeichen.
 6. **Daten:** Alles, was die Seite speichert, liegt in `localStorage` unter `jy_*`-Schlüsseln und muss in `src/utils/backup.ts` mitgesichert werden. Ausnahme: Zugangsdaten, Tokens und Sitzungen (`LEGACY_SENSITIVE_KEYS`, `jy_admin_session*`) kommen nie in eine Sicherung. Keine Cookies, kein Tracking, keine externen Schriften oder Skripte.
 7. **Barrierefreiheit:** Kontrast mindestens WCAG AA (4,5:1 Text, 3:1 Bedienelemente), Touch-Ziele mindestens 44 px, sichtbarer Fokus, `prefers-reduced-motion` respektieren, jede Funktion per Tastatur erreichbar.
-8. **Kein KI-Look:** keine Verläufe, kein Glas-Effekt, kein Glühen, keine Emojis als Dekoration, keine Pillen-Beschriftungen über Überschriften („✨ Neu“), keine Karten in Karten, keine Fantasie-Namen für Funktionen.
+8. **Kein KI-Look:** keine Verläufe, kein Glühen, keine Emojis als Dekoration, keine Pillen-Beschriftungen über Überschriften („✨ Neu“), keine Karten in Karten, keine Fantasie-Namen für Funktionen. **Ausnahme Glas (Entscheidung des Inhabers, 2026-11-04):** Flüssigglas kommt ausschließlich aus der Bibliothek `glisse` (TabBar, Button `variant="glass"` transparent, Glass, Slider, Switch). Glas-Knöpfe sind immer die transparente Variante `glass`.
 
 ## Designsystem (verbindlich, Details in `prompts/00-design-system.md`)
 Richtung „frisch und freundlich“: helle kühle Flächen, eine kräftige blaue Akzentfarbe, große Rundungen (Karten 20 px, Bedienelemente 14 px, Chips voll rund), weiche Flächen statt harter Linien, großzügiger Weißraum, eine Sans-Schrift (Figtree), Serif nur für heilige Texte. Alle Werte stehen als CSS-Variablen in `src/index.css` und werden in `tailwind.config.js` referenziert. Kein Bauteil enthält feste Farb- oder Radiuswerte.
+
+## Inhalte
+Die Kürzung der Treffen-Themen und der „Wer bin ich?“-Pakete in `redesign-v2` war eine bewusste Entscheidung des Inhabers (2026-11-04), keine Panne.
 
 ## Arbeitsweise
 - Lies zuerst `prompts/README.md` und arbeite die Phasen in der dort genannten Reihenfolge ab.

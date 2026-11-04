@@ -35,7 +35,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
 
   return (
     <nav
-      className="fixed bottom-2.5 left-0 right-0 z-40 flex justify-center px-1.5 safe-bottom pointer-events-none md:hidden short:hidden print:hidden overflow-hidden"
+      className="jy-tabbar-dock fixed left-0 right-0 z-40 flex justify-center px-1.5 pointer-events-none md:hidden short:hidden print:hidden overflow-hidden"
       aria-label={language === 'de' ? 'Navigation' : 'Navigation'}
     >
       <div className="pointer-events-auto rounded-full max-w-[calc(100vw-12px)] overflow-hidden">

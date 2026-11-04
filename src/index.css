@@ -360,6 +360,13 @@
   box-shadow: inset 0 1px 0 0 rgb(255 255 255 / var(--glass-specular, 0.55));
 }
 
+/* Mobile tab bar position. It used to sit 10px above the full safe area (~44px on iPhones),
+   which floated it too high. Like the iOS 26 tab bar it now overlaps the lower part of the
+   safe area and stays clear of the home indicator. */
+.jy-tabbar-dock {
+  bottom: max(6px, calc(env(safe-area-inset-bottom) - 20px));
+}
+
 /* Mobile Glisse Liquid Glass Tab Bar scaling */
 .jy-mobile-tab-bar.lg-tab-bar,
 .lg-tab-bar.jy-mobile-tab-bar[data-icons] {
