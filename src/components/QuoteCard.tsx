@@ -62,6 +62,23 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   const formattedShareText = `„${text}“\n— ${quote.source[language]} (${quote.book[language]})`;
   const quoteUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/quotes/${quote.id}`;
 
+  // Kürzen auf 6 Zeilen OHNE -webkit-box: Safari (iPhone und Mac) ignoriert float innerhalb von
+  // -webkit-line-clamp, dann rutschen Merken und Teilen in eine eigene Zeile über den Text.
+  // Deshalb kürzt .jy-quote-clamp per max-height + overflow: clip (bildet keinen eigenen
+  // Block-Kontext, der float bleibt wirksam). Ist der Text gekürzt, blendet ein Verlauf aus.
+  const quoteRef = React.useRef<HTMLQuoteElement>(null);
+  const [isClamped, setIsClamped] = React.useState(false);
+  React.useLayoutEffect(() => {
+    const el = quoteRef.current;
+    if (!el) return;
+    const measure = () => setIsClamped(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [text, language]);
+
   return (
     <article
       onClick={() => onSelectQuote(quote)}
@@ -86,7 +103,9 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
       <div className="relative z-10 flex-1">
         {/* Holy Text in Lora Serif font with top-right floated actions (wraps lines 1-2, full width from line 3) */}
         <blockquote
-          className="font-serif text-base sm:text-lg leading-relaxed text-text line-clamp-6 select-text mb-2.5"
+          ref={quoteRef}
+          data-clamped={isClamped}
+          className="jy-quote-clamp font-serif text-base sm:text-lg leading-relaxed text-text select-text mb-2.5"
           lang={language}
           style={{ hyphens: 'none', wordBreak: 'normal', overflowWrap: 'normal' }}
         >
