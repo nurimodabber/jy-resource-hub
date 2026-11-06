@@ -118,9 +118,9 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
       <IconButton
         ref={buttonRef}
         label={triggerLabel}
-        variant="ghost"
+        variant="outline"
         size="md"
-        className="shrink-0 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] rounded-full text-text-tertiary hover:text-text hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-accent"
+        className="shrink-0 min-w-[44px] min-h-[44px] text-text-secondary hover:text-text focus-visible:ring-2 focus-visible:ring-accent"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={isOpen}

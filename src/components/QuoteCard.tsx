@@ -77,14 +77,24 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         }
       }}
     >
-      <div className="space-y-3 relative z-10 flex-1">
-        {/* Top Meta Line: Book & Lesson on Left, Actions on Right */}
-        <div className="flex items-center justify-between gap-2 mb-1" onClick={(e) => e.stopPropagation()}>
-          <span className="text-2xs sm:text-xs font-medium text-text-secondary truncate">
-            {metaTag}
-          </span>
+      {/* Subtle Top-Right Ambient Glow in Blue / Accent */}
+      <div
+        className="pointer-events-none absolute -top-12 -right-12 w-48 h-48 rounded-full blur-2xl opacity-10 dark:opacity-20 transition-opacity"
+        style={{ background: 'radial-gradient(circle, rgb(var(--accent-rgb)) 0%, transparent 70%)' }}
+      />
 
-          <div className="flex items-center gap-1 shrink-0 -mr-1">
+      <div className="relative z-10 flex-1">
+        {/* Holy Text in Lora Serif font with top-right floated actions (wraps lines 1-2, full width from line 3) */}
+        <blockquote
+          className="font-serif text-base sm:text-lg leading-relaxed text-text line-clamp-6 select-text mb-2.5"
+          lang={language}
+          style={{ hyphens: 'none', wordBreak: 'normal', overflowWrap: 'normal' }}
+        >
+          {/* Top-Right Floated Actions: Bookmark + Share */}
+          <div
+            className="float-right flex items-center gap-0.5 ml-2.5 -mr-1 -mt-1 sm:-mt-1.5 mb-1"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               onClick={(e) => onToggleFavorite(quote.id, e)}
@@ -107,18 +117,9 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               align="right"
             />
           </div>
-        </div>
 
-        {/* Holy Text in Lora Serif font (strictly unmodified, full width, no hyphen breaks) */}
-        <div className="w-full">
-          <blockquote
-            className="font-serif text-base sm:text-lg leading-relaxed text-text line-clamp-6 select-text mb-2.5"
-            lang={language}
-            style={{ hyphens: 'none', wordBreak: 'normal', overflowWrap: 'normal' }}
-          >
-            {isDe ? `»${text}«` : `“${text}”`}
-          </blockquote>
-        </div>
+          {isDe ? `»${text}«` : `“${text}”`}
+        </blockquote>
 
         {/* Source underneath in text-secondary with authoritative library link */}
         <div className="pt-0.5 mb-2">
@@ -150,7 +151,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
       >
         <div className="flex items-center gap-2 truncate text-text-tertiary text-2xs sm:text-xs min-w-0">
           <span className="truncate font-sans font-medium text-text-secondary">
-            {quote.theme ? quote.theme[language] : (isDe ? 'Heiliger Text' : 'Sacred text')}
+            {metaTag}
           </span>
           {song && (
             <>
