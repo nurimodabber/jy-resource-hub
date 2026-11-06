@@ -92,6 +92,12 @@ export const GameCard: React.FC<GameCardProps> = ({
         !matchesGroup ? 'opacity-60 hover:opacity-100' : ''
       }`}
     >
+      {/* Subtle Top-Right Ambient Glow in Blue / Accent (Normed for Games page) */}
+      <div
+        className="pointer-events-none absolute -top-12 -right-12 w-44 h-44 rounded-full blur-2xl opacity-10 dark:opacity-20 transition-opacity"
+        style={{ background: 'radial-gradient(circle, rgb(var(--accent-rgb)) 0%, transparent 70%)' }}
+      />
+
       {/* Top-Right Bookmark Button */}
       <button
         type="button"

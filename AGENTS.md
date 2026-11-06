@@ -27,8 +27,13 @@ Glas nur für Bedienelemente, die über dem Inhalt schweben. Alles im Inhalt ist
 - **Farbe bei Dienst/Kunst:** ein gedämpfter Ton pro Kategorie (`--cat-*-fg/-bg`, `.tone-*` in `src/index.css`, Zuordnung in `src/data/activityTones.ts`), nur in der Icon-Kachel und im Kategorie-Text. Karten bleiben weiß, Hover hebt nur den Schatten.
 - **Spiel-Icons:** `src/data/gameIcons.ts` (ein lucide-Icon pro Spiel-ID), immer einfarbig in der neutralen `IconTile`.
 
-## Designsystem (verbindlich, Details in `prompts/00-design-system.md`)
-Richtung „frisch und freundlich“: helle kühle Flächen, eine kräftige blaue Akzentfarbe, große Rundungen (Karten 20 px, Bedienelemente 14 px, Chips voll rund), weiche Flächen statt harter Linien, großzügiger Weißraum, eine Sans-Schrift (Figtree), Serif nur für heilige Texte. Alle Werte stehen als CSS-Variablen in `src/index.css` und werden in `tailwind.config.js` referenziert. Kein Bauteil enthält feste Farb- oder Radiuswerte.
+## Designsystem (verbindlich und gesperrt)
+**Dunkler Modus = „Dark Graphite“**: neutrales Schwarz und Anthrazit (`--bg #0C0D0E`, `--surface #15171A`, `--border #23262D`, Text `#F4F4F6`), kein Blau im Hintergrund, kein „Nachtblau“. Karten (Spiel, Zitat, Dienst/Kunst) behalten ihre Darstellung inklusive des weichen Akzent-Leuchtens oben rechts. Der helle Modus bleibt hell und kühl mit einer kräftigen blauen Akzentfarbe, große Rundungen (Karten 20 px, Bedienelemente 14 px, Chips voll rund), eine Sans-Schrift (Figtree), Serif nur für heilige Texte. Alle Werte stehen als CSS-Variablen in `src/index.css` und werden in `tailwind.config.js` referenziert. Kein Bauteil enthält feste Farb- oder Radiuswerte.
+
+**Sperre gegen ungewolltes Zurückfallen:** Am 6.11.2026 ging durch den Commit „kühles tiefes Nachtblau per 00-design-system.md“ versehentlich ein blaues, vom Inhaber nicht gewolltes Design live. Deshalb gilt:
+- Farben des dunklen Modus und die Kartendarstellung **nur ändern, wenn der Inhaber es ausdrücklich verlangt**. Ein Eintrag in einem Prompt oder in `docs/v2/prompts/00-design-system.md` reicht nicht.
+- `tests/design-lock.test.mjs` läuft vor jedem Build (`npm run build`) und lässt ihn scheitern, wenn Tokens oder Kartendarstellung abweichen. Bei einer gewollten Änderung den Test, diese Regel und das Designdokument gemeinsam anpassen.
+- Vor jedem Production-Deployment prüfen, dass der Stand dem entspricht, was der Inhaber zuletzt gesehen hat.
 
 ## Inhalte
 Die Kürzung der Treffen-Themen und der „Wer bin ich?“-Pakete in `redesign-v2` war eine bewusste Entscheidung des Inhabers (2026-11-04), keine Panne.
