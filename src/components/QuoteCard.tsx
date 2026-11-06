@@ -105,6 +105,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         <blockquote
           ref={quoteRef}
           data-clamped={isClamped}
+          data-short={text.length <= 90}
           className="jy-quote-clamp font-serif text-base sm:text-lg leading-relaxed text-text select-text mb-1 sm:mb-2.5"
           lang={language}
           style={{ hyphens: 'none', wordBreak: 'normal', overflowWrap: 'normal' }}

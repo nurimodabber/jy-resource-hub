@@ -756,3 +756,9 @@ kbd { font-family: inherit; }
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6em), transparent);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6em), transparent);
 }
+
+/* Zitat-Karten: Zeilenumbruch ausgleichen (keine einzelnen Wörter in der letzten Zeile);
+   kurze Zitate größer setzen, damit sie die Karte füllen statt verloren zu wirken. */
+.jy-quote-clamp { text-wrap: pretty; }
+.jy-quote-clamp[data-short='true'] { font-size: 1.125rem; line-height: 1.55; text-wrap: balance; }
+@media (min-width: 640px) { .jy-quote-clamp[data-short='true'] { font-size: 1.25rem; } }
