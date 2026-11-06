@@ -105,7 +105,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         <blockquote
           ref={quoteRef}
           data-clamped={isClamped}
-          className="jy-quote-clamp font-serif text-base sm:text-lg leading-relaxed text-text select-text mb-2.5"
+          className="jy-quote-clamp font-serif text-base sm:text-lg leading-relaxed text-text select-text mb-1 sm:mb-2.5"
           lang={language}
           style={{ hyphens: 'none', wordBreak: 'normal', overflowWrap: 'normal' }}
         >
@@ -142,7 +142,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         </blockquote>
 
         {/* Source underneath in text-secondary with authoritative library link */}
-        <div className="pt-0.5 mb-2">
+        <div className="pt-0.5 mb-0 sm:mb-2">
           <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium">
             —{' '}
             <a
@@ -155,7 +155,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
                   ? `Quelle „${quote.source.de}“ in der Bahá'í-Bibliothek öffnen`
                   : `Open source "${quote.source.en}" in Bahá'í Reference Library`
               }
-              className="hover:text-accent hover:underline inline-flex items-center gap-1 transition-colors group/src focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-accent rounded-xs"
+              className="relative min-h-0 before:absolute before:-inset-x-2 before:-inset-y-3 before:content-[''] hover:text-accent hover:underline inline-flex items-center gap-1 transition-colors group/src focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-accent rounded-xs"
             >
               <span>{quoteAuthor(quote.source[language])}</span>
               <ExternalLink className="w-3 h-3 opacity-0 group-hover/src:opacity-80 transition-opacity shrink-0" />
@@ -166,7 +166,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
 
       {/* Full-bleed Footer Divider: Book & Section on left (replacing "Heiliger Text"), Brain button on right */}
       <div
-        className="relative z-10 -mx-3.5 -mb-3.5 px-3.5 py-2.5 sm:-mx-5 sm:-mb-5 sm:px-5 sm:py-3 border-t border-border/60 bg-surface-2/40 mt-4 flex items-center justify-between gap-3 text-xs"
+        className="relative z-10 -mx-3.5 -mb-3.5 px-3.5 py-2.5 sm:-mx-5 sm:-mb-5 sm:px-5 sm:py-3 border-t border-border/60 bg-surface-2/40 mt-3 sm:mt-4 flex items-center justify-between gap-3 text-xs"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 truncate text-text-tertiary text-2xs sm:text-xs min-w-0">
