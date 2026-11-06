@@ -111,7 +111,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         >
           {/* Top-Right Floated Actions: Bookmark + Share */}
           <div
-            className="float-right flex items-center gap-0.5 ml-2.5 -mr-1 -mt-1 sm:-mt-1.5 mb-1"
+            className="float-right flex items-center gap-0.5 ml-2 mb-1"
             onClick={(e) => e.stopPropagation()}
           >
             <button
