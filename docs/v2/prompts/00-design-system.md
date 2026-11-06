@@ -1,3 +1,5 @@
+> **ÜBERHOLT für den dunklen Modus (Stand 6.11.2026):** Die dunklen Startwerte in der Tabelle unten (Nachtblau, z. B. #0E1626) gelten nicht mehr. Verbindlich ist „Dark Graphite“ laut `AGENTS.md` und `tests/design-lock.test.mjs`. Dieses Dokument darf das nicht überschreiben, ohne dass der Inhaber es ausdrücklich verlangt.
+
 # Phase 00 – Designsystem „frisch und freundlich“
 
 ## Ziel

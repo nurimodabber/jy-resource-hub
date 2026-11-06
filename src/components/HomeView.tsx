@@ -353,35 +353,6 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         </div>
       </div>
 
-      {/* Projekte & mehr: Dienst, Kunst und Beitragen haben keinen eigenen Tab unten, darum hier als Kacheln.
-          Bewusst neutral (keine Kategorie-Farbe): die Startseite soll ruhig bleiben. */}
-      <section aria-labelledby="home-projects-title" className="space-y-3">
-        <h2 id="home-projects-title" className="text-base sm:text-lg font-bold text-text tracking-tight">
-          {L('Projekte & mehr', 'Projects & more')}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
-          {[
-            {
-              to: '/service',
-              Icon: HeartHandshake,
-              title: L('Dienst', 'Service'),
-            },
-            {
-              to: '/arts',
-              Icon: Palette,
-              title: L('Kunst', 'Arts'),
-            },
-            {
-              to: '/vorschlagen',
-              Icon: Plus,
-              title: L('Beitragen', 'Contribute'),
-            },
-          ].map(({ to, Icon, title }) => (
-            <FadedIconTile key={to} to={to} Icon={Icon} title={title} className="min-h-[76px] sm:min-h-[112px] lg:min-h-[150px]" />
-          ))}
-        </div>
-      </section>
-
       {/* 3. Zitat des Tages: Raum für das heilige Wort */}
       {quote && (
         <section
@@ -459,6 +430,35 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           </Link>
         </section>
       )}
+
+      {/* Projekte & mehr: Dienst, Kunst und Beitragen haben keinen eigenen Tab unten, darum hier als Kacheln.
+          Bewusst neutral (keine Kategorie-Farbe): die Startseite soll ruhig bleiben. */}
+      <section aria-labelledby="home-projects-title" className="space-y-3">
+        <h2 id="home-projects-title" className="text-base sm:text-lg font-bold text-text tracking-tight">
+          {L('Projekte & mehr', 'Projects & more')}
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
+          {[
+            {
+              to: '/service',
+              Icon: HeartHandshake,
+              title: L('Dienst', 'Service'),
+            },
+            {
+              to: '/arts',
+              Icon: Palette,
+              title: L('Kunst', 'Arts'),
+            },
+            {
+              to: '/vorschlagen',
+              Icon: Plus,
+              title: L('Beitragen', 'Contribute'),
+            },
+          ].map(({ to, Icon, title }) => (
+            <FadedIconTile key={to} to={to} Icon={Icon} title={title} className="min-h-[76px] sm:min-h-[112px] lg:min-h-[150px]" />
+          ))}
+        </div>
+      </section>
 
       {/* 6. Zuletzt angesehen: Ansprechender Leerzustand & Verlaufskarten */}
       <section aria-label={L('Zuletzt angesehen', 'Recently viewed')} className="space-y-3">
