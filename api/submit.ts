@@ -72,6 +72,18 @@ const containsUrl = (str: string = ''): boolean => {
   return /(https?:\/\/|www\.|\b[a-z0-9-]+\.(com|org|net|de|io)\b)/i.test(str);
 };
 
+/** Single-line fields (names, titles): no line breaks, so nobody can fake extra markdown headings in the public issue. */
+const oneLine = (str: unknown): string => sanitize(String(str ?? '')).replace(/\s+/g, ' ');
+
+const MAX_LIST_ITEMS = 30;
+const MAX_ITEM_CHARS = 2000;
+/** Caps list fields so a single request cannot flood the issue with hundreds of entries. */
+const cleanList = (value: unknown): string[] =>
+  (Array.isArray(value) ? value : [])
+    .slice(0, MAX_LIST_ITEMS)
+    .map((item) => sanitize(String(item ?? '')).slice(0, MAX_ITEM_CHARS))
+    .filter(Boolean);
+
 export default async function handler(req: IncomingMessage & { body?: any }, res: ServerResponse) {
   // Same-origin only (no CORS): the form lives on this site.
   const secFetchSite = req.headers['sec-fetch-site'];
@@ -131,7 +143,21 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       return;
     }
 
-    const payload: ProposalPayload = typeof req.body === 'object' && req.body !== null ? req.body : JSON.parse(rawBody);
+    let payload: ProposalPayload;
+    try {
+      payload = typeof req.body === 'object' && req.body !== null ? req.body : JSON.parse(rawBody);
+    } catch {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'Ungültige Anfrage.' }));
+      return;
+    }
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'Ungültige Anfrage.' }));
+      return;
+    }
 
     // 2. Anti-spam checks
     // Honeypot check
@@ -143,9 +169,11 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       return;
     }
 
-    // Minimum time check (must take at least 3 seconds to fill form)
+    // Minimum time check (must take at least 3 seconds to fill form). The form always sends the
+    // timestamp, so a missing or non-numeric value is treated like a bot instead of skipping the check.
     const now = Date.now();
-    if (payload.clientTimestamp && now - payload.clientTimestamp < 3000) {
+    const clientTimestamp = Number(payload.clientTimestamp);
+    if (!Number.isFinite(clientTimestamp) || clientTimestamp <= 0 || now - clientTimestamp < 3000) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify({ error: 'Zu schnell gesendet. Bitte nimm dir einen Moment Zeit.' }));
@@ -171,7 +199,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       return;
     }
 
-    const title = sanitize(payload.title);
+    const title = oneLine(payload.title);
     if (!title || title.length < 3 || title.length > 100) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'application/json');
@@ -199,9 +227,7 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       return;
     }
 
-    const steps = (Array.isArray(payload.steps) ? payload.steps : [])
-      .map(sanitize)
-      .filter((s) => s.length > 0);
+    const steps = cleanList(payload.steps);
     if (type !== 'feedback' && steps.length < 3) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'application/json');
@@ -209,14 +235,26 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       return;
     }
 
-    const materials = (Array.isArray(payload.materials) ? payload.materials : []).map(sanitize).filter(Boolean);
-    const subtitle = sanitize(payload.subtitle);
-    const animatorTips = sanitize(payload.animatorTips);
-    const source = sanitize(payload.source);
-    const authorName = sanitize(payload.authorName);
-    const authorEmail = sanitize(payload.authorEmail);
-    const objective = sanitize(payload.objective);
-    const reflectionQuestions = (Array.isArray(payload.reflectionQuestions) ? payload.reflectionQuestions : []).map(sanitize).filter(Boolean);
+    const materials = cleanList(payload.materials);
+    const subtitle = oneLine(payload.subtitle).slice(0, 200);
+    const animatorTips = sanitize(String(payload.animatorTips ?? '')).slice(0, MAX_ITEM_CHARS);
+    // The source may legitimately name a website, so links stay allowed here; reviewers see it before publishing.
+    const source = oneLine(payload.source).slice(0, 300);
+    const authorName = oneLine(payload.authorName).slice(0, 80);
+    const rawEmail = oneLine(payload.authorEmail).slice(0, 120);
+    const authorEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(rawEmail) ? rawEmail : '';
+    const objective = sanitize(String(payload.objective ?? '')).slice(0, MAX_ITEM_CHARS);
+    const reflectionQuestions = cleanList(payload.reflectionQuestions);
+
+    // The bot posts this text under the owner's account into a public issue tracker, so links are
+    // refused in every free-text field (not only title and summary) to keep it from relaying spam or phishing.
+    const linkFields: string[] = [subtitle, animatorTips, objective, authorName, ...steps, ...materials, ...reflectionQuestions];
+    if (linkFields.some(containsUrl)) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'application/json');
+      res.end(JSON.stringify({ error: 'Bitte schreibe keine Web-Links in die Felder (nur im Feld „Quelle“).' }));
+      return;
+    }
     const setting = ['drinnen', 'draussen', 'beides'].includes(String(payload.setting)) ? payload.setting! : 'beides';
     const occasion = ['treffen', 'camp', 'beides'].includes(String(payload.occasion)) ? payload.occasion! : 'beides';
 

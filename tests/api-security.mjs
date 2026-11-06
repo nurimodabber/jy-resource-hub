@@ -405,6 +405,26 @@ const createdFeedback = fake.createdIssues.at(-1);
 check(r.data?.ok && createdFeedback && !createdFeedback.body.includes('feedback@example.org'), 'feedback issue never leaks email in plaintext');
 check(/<!--\s*jy-contact:/.test(createdFeedback.body), 'feedback contact stored encrypted');
 
+// Härtung 6.11.: Links in allen Freitextfeldern, Pflicht-Zeitstempel, Zeilenumbrüche, E-Mail-Prüfung
+r = await call(submit, { body: { ...base, title: 'Link im Schritt', steps: ['Eins', 'Besuche http://bad.example/x', 'Drei'] }, ip: '9.9.9.20' });
+check(r.status === 400, 'link inside a step → 400');
+r = await call(submit, { body: { ...base, title: 'Link im Namen', authorName: 'www.spam.example' }, ip: '9.9.9.21' });
+check(r.status === 400, 'link inside the author name → 400');
+r = await call(submit, { body: { ...base, title: 'Quelle mit Link', source: 'Quelle: https://www.bahai.org/library/x' }, ip: '9.9.9.22' });
+check(r.data?.ok, 'link in the source field stays allowed');
+{ const noTs = { ...base, title: 'Ohne Zeitstempel' }; delete noTs.clientTimestamp;
+  r = await call(submit, { body: noTs, ip: '9.9.9.23' });
+  check(r.status === 400, 'missing clientTimestamp → 400'); }
+r = await call(submit, { body: { ...base, title: 'Zeilen\nUmbruch\r\nTitel', subtitle: 'Unter\ntitel', authorName: 'Name\nmit Umbruch' }, ip: '9.9.9.24' });
+{ const li = fake.createdIssues.at(-1);
+  check(r.data?.ok && li && !/\n/.test(li.title), 'newlines in the title are collapsed'); }
+r = await call(submit, { body: { ...base, title: 'Falsche Mail', authorName: 'Test', authorEmail: 'kein-mail' }, ip: '9.9.9.25' });
+check(r.data?.ok, 'invalid email does not break the submission (dropped)');
+r = await call(submit, { body: { ...base, title: 'Viele Schritte', steps: Array.from({ length: 80 }, (_, i) => `Schritt ${i}`) }, ip: '9.9.9.26' });
+check(r.data?.ok && !fake.createdIssues.at(-1).body.includes('Schritt 79'), 'step list is capped');
+r = await call(submit, { body: [1, 2, 3], ip: '9.9.9.27' });
+check(r.status === 400, 'array payload → 400');
+
 r = await call(submit, { body: { type: 'spiel' }, extraHeaders: { 'sec-fetch-site': 'cross-site' } });
 check(r.status === 403, 'sec-fetch-site cross-site submit → 403');
 r = await call(sync, { body: { action: 'session' }, extraHeaders: { 'sec-fetch-site': 'cross-site' } });
