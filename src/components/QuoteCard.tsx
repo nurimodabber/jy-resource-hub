@@ -111,7 +111,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         >
           {/* Top-Right Floated Actions: Bookmark + Share */}
           <div
-            className="float-right flex items-center gap-0.5 ml-2 mb-1"
+            className="float-right flex items-center ml-2 mb-1 -mt-[7px] -mr-[12px]"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -119,13 +119,13 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               onClick={(e) => onToggleFavorite(quote.id, e)}
               aria-pressed={isFavorite}
               aria-label={`${t.savedItems}: ${quote.source[language]}`}
-              className={`min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+              className={`w-[40px] h-[40px] min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
                 isFavorite
                   ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
                   : 'text-text-tertiary hover:text-text hover:bg-surface-2'
               }`}
             >
-              <Bookmark className={`w-4 h-4 transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
+              <Bookmark className={`w-[16px] h-[16px] transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
             </button>
 
             <ShareMenu
@@ -134,6 +134,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               language={language}
               direction="down"
               align="right"
+              variant="ghost"
             />
           </div>
 
@@ -195,9 +196,9 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           onClick={() => onPracticeQuote(quote)}
           aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
           title={isDe ? 'Auswendiglernen' : 'Memorise'}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-full bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent shrink-0"
+          className="w-[40px] h-[40px] min-w-[40px] min-h-[40px] -mr-[10px] inline-flex items-center justify-center rounded-full bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent shrink-0"
         >
-          <Brain className="w-4 h-4 text-accent" />
+          <Brain className="w-[16px] h-[16px] text-accent" />
         </button>
       </div>
     </article>

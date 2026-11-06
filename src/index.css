@@ -742,7 +742,14 @@ kbd { font-family: inherit; }
 /* Zitat-Karten: Kürzen auf 6 Zeilen, ohne -webkit-box (siehe QuoteCard.tsx).
    line-height ist leading-relaxed = 1.625. Verlauf nur, wenn wirklich gekürzt wurde. */
 .jy-quote-clamp {
-  max-height: calc(6 * 1.625em);
+  /* Der Kürzungsrahmen reicht 8 px nach oben und 12 px nach rechts/links über den Text hinaus.
+     So werden die Symbole Merken und Teilen (mit negativem Rand) nicht abgeschnitten und
+     liegen bündig mit dem Textrand. Der Text selbst bleibt an derselben Stelle. */
+  margin-top: -8px;
+  margin-left: -12px;
+  margin-right: -12px;
+  padding: 8px 12px 0;
+  max-height: calc(6 * 1.625em + 8px);
   overflow: clip;
 }
 .jy-quote-clamp[data-clamped='true'] {

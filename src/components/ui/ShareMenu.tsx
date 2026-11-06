@@ -23,6 +23,8 @@ export interface ShareMenuProps {
   onShare?: () => void;
   /** Runder Glas-Knopf, nur im Seitenkopf (Glas-Regel in AGENTS.md) */
   glass?: boolean;
+  /** 'ghost': runder Knopf ohne Rahmen, gleiche Größe wie der Merken-Knopf (Zitat-Karten) */
+  variant?: 'outline' | 'ghost';
 }
 
 export const ShareMenu: React.FC<ShareMenuProps> = ({
@@ -35,6 +37,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
   direction = 'down',
   onShare,
   glass = false,
+  variant = 'outline',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
@@ -118,14 +121,18 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
       <IconButton
         ref={buttonRef}
         label={triggerLabel}
-        variant="outline"
+        variant={variant}
         size="md"
-        className="shrink-0 min-w-[44px] min-h-[44px] text-text-secondary hover:text-text focus-visible:ring-2 focus-visible:ring-accent"
+        className={
+          variant === 'ghost'
+            ? 'shrink-0 w-[40px] h-[40px] min-w-[40px] min-h-[40px] rounded-full text-text-tertiary hover:text-text hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-accent'
+            : 'shrink-0 min-w-[44px] min-h-[44px] text-text-secondary hover:text-text focus-visible:ring-2 focus-visible:ring-accent'
+        }
         onClick={() => setIsOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={isOpen}
       >
-        <Share2 className="w-4 h-4" />
+        <Share2 className={variant === 'ghost' ? 'w-[16px] h-[16px]' : 'w-4 h-4'} />
       </IconButton>
       )}
 
