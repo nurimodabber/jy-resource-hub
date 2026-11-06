@@ -105,13 +105,14 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         <blockquote
           ref={quoteRef}
           data-clamped={isClamped}
-          className="jy-quote-clamp font-serif text-base sm:text-lg leading-relaxed text-text select-text mb-2.5"
+          data-short={text.length <= 90}
+          className="jy-quote-clamp font-serif text-base sm:text-lg leading-relaxed text-text select-text mb-1 sm:mb-2.5"
           lang={language}
           style={{ hyphens: 'none', wordBreak: 'normal', overflowWrap: 'normal' }}
         >
           {/* Top-Right Floated Actions: Bookmark + Share */}
           <div
-            className="float-right flex items-center gap-0.5 ml-2.5 -mr-1 -mt-1 sm:-mt-1.5 mb-1"
+            className="float-right flex items-center ml-2 mb-1 -mt-[7px] -mr-[12px]"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -119,13 +120,13 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               onClick={(e) => onToggleFavorite(quote.id, e)}
               aria-pressed={isFavorite}
               aria-label={`${t.savedItems}: ${quote.source[language]}`}
-              className={`min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+              className={`w-[40px] h-[40px] min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
                 isFavorite
                   ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
                   : 'text-text-tertiary hover:text-text hover:bg-surface-2'
               }`}
             >
-              <Bookmark className={`w-4 h-4 transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
+              <Bookmark className={`w-[16px] h-[16px] transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
             </button>
 
             <ShareMenu
@@ -134,6 +135,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               language={language}
               direction="down"
               align="right"
+              variant="ghost"
             />
           </div>
 
@@ -141,7 +143,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
         </blockquote>
 
         {/* Source underneath in text-secondary with authoritative library link */}
-        <div className="pt-0.5 mb-2">
+        <div className="pt-0.5 mb-0 sm:mb-2">
           <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium">
             —{' '}
             <a
@@ -154,7 +156,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
                   ? `Quelle „${quote.source.de}“ in der Bahá'í-Bibliothek öffnen`
                   : `Open source "${quote.source.en}" in Bahá'í Reference Library`
               }
-              className="hover:text-accent hover:underline inline-flex items-center gap-1 transition-colors group/src focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-accent rounded-xs"
+              className="relative min-h-0 before:absolute before:-inset-x-2 before:-inset-y-3 before:content-[''] hover:text-accent hover:underline inline-flex items-center gap-1 transition-colors group/src focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-accent rounded-xs"
             >
               <span>{quoteAuthor(quote.source[language])}</span>
               <ExternalLink className="w-3 h-3 opacity-0 group-hover/src:opacity-80 transition-opacity shrink-0" />
@@ -165,7 +167,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
 
       {/* Full-bleed Footer Divider: Book & Section on left (replacing "Heiliger Text"), Brain button on right */}
       <div
-        className="relative z-10 -mx-3.5 -mb-3.5 px-3.5 py-2.5 sm:-mx-5 sm:-mb-5 sm:px-5 sm:py-3 border-t border-border/60 bg-surface-2/40 mt-4 flex items-center justify-between gap-3 text-xs"
+        className="relative z-10 -mx-3.5 -mb-3.5 px-3.5 py-2.5 sm:-mx-5 sm:-mb-5 sm:px-5 sm:py-3 border-t border-border/60 bg-surface-2/40 mt-3 sm:mt-4 flex items-center justify-between gap-3 text-xs"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 truncate text-text-tertiary text-2xs sm:text-xs min-w-0">
@@ -195,9 +197,9 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           onClick={() => onPracticeQuote(quote)}
           aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
           title={isDe ? 'Auswendiglernen' : 'Memorise'}
-          className="w-10 h-10 min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-full bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent shrink-0"
+          className="w-[40px] h-[40px] min-w-[40px] min-h-[40px] -mr-[10px] inline-flex items-center justify-center rounded-full bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent shrink-0"
         >
-          <Brain className="w-4 h-4 text-accent" />
+          <Brain className="w-[16px] h-[16px] text-accent" />
         </button>
       </div>
     </article>
