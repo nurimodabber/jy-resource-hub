@@ -33,7 +33,7 @@ export const BahaiSongsModal: React.FC<BahaiSongsModalProps> = ({
       onClose={handleClose}
       maxWidth="full"
       showCloseButton={true}
-      title="Bahá'í Songs"
+      title={language === 'de' ? "Bahá'í-Lieder" : "Bahá'í songs"}
       description={
         language === 'de' 
           ? 'Akkorde, Texte und Aufnahmen für Andachten & Freizeiten' 
@@ -50,7 +50,7 @@ export const BahaiSongsModal: React.FC<BahaiSongsModalProps> = ({
             href="https://www.bahaisongs.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 min-h-[36px] bg-surface-2 hover:bg-black/10 dark:hover:bg-white/10 text-text text-xs font-semibold rounded-lg border border-border-subtle transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 min-h-[44px] bg-surface-2 hover:bg-surface-raised text-text text-xs font-semibold rounded-lg border border-border-subtle transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
           >
             <span>{language === 'de' ? 'In neuem Tab öffnen' : 'Open in new tab'}</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -86,9 +86,9 @@ export const BahaiSongsModal: React.FC<BahaiSongsModalProps> = ({
                   href="https://www.bahaisongs.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 text-xs font-medium text-text-secondary hover:text-text rounded-xl hover:bg-surface transition-colors inline-flex items-center gap-1 min-h-[40px]"
+                  className="px-4 py-2 text-xs font-medium text-text-secondary hover:text-text rounded-xl hover:bg-surface transition-colors inline-flex items-center gap-1 min-h-[44px] outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                  <span>{language === 'de' ? 'Direkt extern öffnen' : 'Open directly external'}</span>
+                  <span>{language === 'de' ? 'Direkt extern öffnen' : 'Open on bahaisongs.com'}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>

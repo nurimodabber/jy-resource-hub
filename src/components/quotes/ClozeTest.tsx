@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { CheckCircle2, RotateCcw, HelpCircle } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
+import { splitWord } from './textParts';
 
 interface ClozeTestProps {
   quote: QuoteItem;
@@ -12,6 +13,7 @@ type Difficulty = 'easy' | 'medium' | 'hard';
 export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
   const quoteText = language === 'de' ? quote.textDe : quote.textEn;
   const rawWords = useMemo(() => quoteText.split(/\s+/), [quoteText]);
+  const wordParts = useMemo(() => rawWords.map(splitWord), [rawWords]);
 
   const [difficulty, setDifficulty] = useState<Difficulty>('medium');
   const [blankIndices, setBlankIndices] = useState<number[]>([]);
@@ -25,11 +27,8 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
     setIsChecked(false);
     setFilledWords({});
 
-    const eligibleIndices = rawWords
-      .map((w, idx) => {
-        const clean = w.replace(/[.,;:!?„"«»]/g, '');
-        return { idx, length: clean.length };
-      })
+    const eligibleIndices = wordParts
+      .map((w, idx) => ({ idx, length: w.core.length }))
       .filter((item) => item.length >= 3)
       .map((item) => item.idx);
 
@@ -43,7 +42,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
 
     setBlankIndices(selected);
     setSelectedBlank(selected[0] ?? null);
-  }, [rawWords, difficulty]);
+  }, [wordParts, difficulty]);
 
   useEffect(() => {
     initBlanks();
@@ -53,14 +52,12 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
   const candidatePool = useMemo(() => {
     const list: string[] = [];
     blankIndices.forEach((idx) => {
-      const w = rawWords[idx];
-      const clean = w.replace(/[.,;:!?„"«»]/g, '');
-      list.push(clean);
+      list.push(wordParts[idx].core);
     });
 
     // Shuffle pool
     return [...list].sort(() => 0.5 - Math.random());
-  }, [blankIndices, rawWords]);
+  }, [blankIndices, wordParts]);
 
   // Which candidate instances are already used
   const usedCandidates = useMemo(() => {
@@ -106,7 +103,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
     const empty = blankIndices.filter((i) => !filledWords[i]);
     if (empty.length === 0) return;
     const target = empty[0];
-    const correctClean = rawWords[target].replace(/[.,;:!?„"«»]/g, '');
+    const correctClean = wordParts[target].core;
     setFilledWords((prev) => ({ ...prev, [target]: correctClean }));
     setSelectedBlank(empty[1] ?? null);
   };
@@ -116,11 +113,11 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
   const isAllCorrect = useMemo(() => {
     if (!allFilled) return false;
     return blankIndices.every((i) => {
-      const cleanExpected = rawWords[i].replace(/[.,;:!?„"«»]/g, '').toLowerCase();
+      const cleanExpected = wordParts[i].core.toLowerCase();
       const actual = (filledWords[i] || '').toLowerCase();
       return cleanExpected === actual;
     });
-  }, [allFilled, blankIndices, rawWords, filledWords]);
+  }, [allFilled, blankIndices, wordParts, filledWords]);
 
   return (
     <div className="space-y-6">
@@ -139,7 +136,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
               key={d}
               type="button"
               onClick={() => setDifficulty(d)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[44px] outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                 difficulty === d
                   ? 'bg-accent text-accent-contrast shadow-xs'
                   : 'text-text-secondary hover:text-text'
@@ -157,11 +154,10 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
 
       {/* Main Quote Canvas with Interactive Blanks */}
       <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
-        <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-3 font-serif text-lg sm:text-2xl leading-relaxed text-text text-center min-h-[140px]">
+        <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-3 font-serif text-lg sm:text-2xl leading-relaxed text-text text-center min-h-[140px] pr-[var(--quote-gap)]">
           {rawWords.map((word, idx) => {
             const isBlank = blankIndices.includes(idx);
-            const punctuation = word.replace(/[a-zA-ZäöüÄÖÜß0-9]/g, '');
-            const cleanExpected = word.replace(/[.,;:!?„"«»]/g, '');
+            const { lead, core: cleanExpected, trail } = wordParts[idx];
 
             if (!isBlank) {
               return (
@@ -177,7 +173,10 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
             const isSlotWrong = isChecked && currentVal && currentVal.toLowerCase() !== cleanExpected.toLowerCase();
 
             return (
-              <span key={idx} className="inline-flex items-baseline gap-0.5 my-0.5">
+              // Trailing punctuation goes inside the filled button so it sits right at the word,
+              // not behind the button's padding.
+              <span key={idx} className="inline-flex items-baseline my-0.5">
+                {lead && <span className="select-none">{lead}</span>}
                 <button
                   type="button"
                   onClick={() => {
@@ -200,9 +199,9 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                   }`}
                   title={currentVal ? (language === 'de' ? 'Klicken zum Entfernen' : 'Click to remove') : (language === 'de' ? 'Klicken zum Auswählen' : 'Click to select')}
                 >
-                  {currentVal || '______'}
+                  {currentVal ? `${currentVal}${trail}` : '______'}
                 </button>
-                {punctuation && <span className="select-none">{punctuation}</span>}
+                {trail && !currentVal && <span className="select-none">{trail}</span>}
               </span>
             );
           })}
@@ -210,12 +209,12 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
 
         {/* Success Banner */}
         {allFilled && isAllCorrect && (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-between gap-3 text-text animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
                 <strong className="font-semibold block text-success">
-                  {language === 'de' ? 'Fantastisch! Alle Lücken korrekt ausgefüllt.' : 'Superb! All blanks correctly completed.'}
+                  {language === 'de' ? 'Fantastisch. Alle Lücken korrekt ausgefüllt.' : 'Superb. All blanks correctly completed.'}
                 </strong>
                 <span className="text-text-secondary">
                   {language === 'de' ? 'Jetzt das Zitat im Chor laut aufsagen.' : 'Now recite the verse aloud in unison.'}

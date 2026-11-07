@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useConfirm } from '../ui/ConfirmDialog';
 import {
   Plus,
@@ -36,56 +37,48 @@ const TEAM_THEMES = [
     nameDe: 'Team Blau',
     nameEn: 'Blue Team',
     border: 'border-blue-500/30',
-    badge: 'bg-blue-500/15 text-blue-800 dark:text-blue-300 border-blue-500/30',
     dot: 'bg-blue-500',
   },
   {
     nameDe: 'Team Gelb',
     nameEn: 'Yellow Team',
     border: 'border-amber-500/30',
-    badge: 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30',
     dot: 'bg-amber-500',
   },
   {
     nameDe: 'Team Grün',
     nameEn: 'Green Team',
     border: 'border-emerald-500/30',
-    badge: 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30',
     dot: 'bg-emerald-500',
   },
   {
     nameDe: 'Team Rot',
     nameEn: 'Red Team',
     border: 'border-rose-500/30',
-    badge: 'bg-rose-500/15 text-rose-800 dark:text-rose-300 border-rose-500/30',
     dot: 'bg-rose-500',
   },
   {
     nameDe: 'Team Lila',
     nameEn: 'Purple Team',
     border: 'border-purple-500/30',
-    badge: 'bg-purple-500/15 text-purple-800 dark:text-purple-300 border-purple-500/30',
     dot: 'bg-purple-500',
   },
   {
     nameDe: 'Team Türkis',
     nameEn: 'Cyan Team',
     border: 'border-cyan-500/30',
-    badge: 'bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 border-cyan-500/30',
     dot: 'bg-cyan-500',
   },
   {
     nameDe: 'Team Orange',
     nameEn: 'Orange Team',
     border: 'border-orange-500/30',
-    badge: 'bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30',
     dot: 'bg-orange-500',
   },
   {
     nameDe: 'Team Indigo',
     nameEn: 'Indigo Team',
     border: 'border-indigo-500/30',
-    badge: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30',
     dot: 'bg-indigo-500',
   },
 ];
@@ -94,6 +87,11 @@ const MAX_TEAMS = 8;
 
 export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) => {
   const L = tr(language);
+  const pointsFor = (delta: number, name: string) => {
+    const n = Math.abs(delta);
+    const sign = delta < 0 ? '−' : '+';
+    return L(`${sign}${n} ${n === 1 ? 'Punkt' : 'Punkte'} für ${name}`, `${sign}${n} ${n === 1 ? 'point' : 'points'} for ${name}`);
+  };
   const [confirm, confirmDialog] = useConfirm();
   const [teams, setTeams] = useLocalState<TeamScore[]>('jy_scoreboard_teams', [
     { id: 't1', name: language === 'de' ? 'Team Blau' : 'Blue Team', score: 0 },
@@ -281,6 +279,10 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
     }
   };
 
+  // Secondary, not accent: the view keeps one filled accent button ("Vollbild"), three per team drowned it.
+  const stepBtn =
+    'py-2.5 px-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-extrabold text-sm flex items-center justify-center gap-0.5 active:scale-95 transition-transform cursor-pointer min-h-[44px]';
+
   // Secondary quick-step based on current primary step
   const quickStep = stepSize === 1 ? 5 : (stepSize === 5 ? 1 : 5);
 
@@ -309,7 +311,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
         {/* Action toolbar: one line from sm up. On phones it wraps into two rows, because as one
             scrolling line it pushed "Vollbild" (the button needed live in the group) off-screen. */}
         <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 w-full bg-surface rounded-card border border-border p-2 sm:p-2.5 shadow-xs">
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-1.5 min-w-0">
             <button
               type="button"
               onClick={handleAddTeam}
@@ -388,8 +390,9 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
             <button
               type="button"
               onClick={handleResetScores}
-              className="p-2 rounded-control text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer min-h-[44px] min-w-[38px] flex items-center justify-center border border-border"
-              title={L('Punkte auf 0 zurücksetzen', 'Reset scores')}
+              className="p-2 rounded-control text-text-tertiary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer min-h-[44px] min-w-[38px] flex items-center justify-center border border-border"
+              title={L('Punkte auf 0 zurücksetzen', 'Reset scores to 0')}
+              aria-label={L('Punkte auf 0 zurücksetzen', 'Reset scores to 0')}
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
@@ -434,7 +437,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                   <button
                     type="button"
                     onClick={() => handleRemoveTeam(team.id)}
-                    className="absolute top-3 right-3 text-text-tertiary hover:text-red-400 p-1 rounded-full cursor-pointer text-xs min-h-[32px] min-w-[32px] flex items-center justify-center"
+                    className="absolute top-3 right-3 text-text-tertiary hover:text-danger p-1 rounded-full cursor-pointer text-xs min-h-[44px] min-w-[44px] flex items-center justify-center"
                     title={L('Team entfernen', 'Remove team')}
                   >
                     ✕
@@ -444,10 +447,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                 {/* Team Header with Color Dot & Editable Name */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-center gap-2">
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${theme.dot}`} />
-                    <span className={`text-2xs font-bold px-2 py-0.5 rounded-full border ${theme.badge}`}>
-                      {L(`Team ${idx + 1}`, `Team ${idx + 1}`)}
-                    </span>
+                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${theme.dot}`} aria-hidden="true" />
                   </div>
                   <input
                     type="text"
@@ -468,6 +468,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     onClick={() => adjustScore(team.id, 1)}
                     className="group cursor-pointer active:scale-95 transition-transform duration-100 flex items-center justify-center rounded-control p-2 hover:bg-surface-2/60 w-full"
                     title={L('Klicken für +1 Punkt', 'Click for +1 point')}
+                    aria-label={L(`${team.name}: ${team.score} Punkte. Tippen für +1`, `${team.name}: ${team.score} points. Tap for +1`)}
                   >
                     <span className="text-6xl sm:text-7xl font-sans font-black text-text tabular-nums select-none tracking-tight group-hover:text-accent transition-colors">
                       {team.score}
@@ -493,7 +494,8 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     <button
                       type="button"
                       onClick={() => adjustScore(team.id, 1)}
-                      className="py-2.5 px-2 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-extrabold text-sm flex items-center justify-center gap-0.5 shadow-xs active:scale-95 transition-transform cursor-pointer min-h-[44px]"
+                      className={stepBtn}
+                      aria-label={pointsFor(1, team.name)}
                     >
                       <Plus className="w-3.5 h-3.5 stroke-[3]" />
                       <span>1</span>
@@ -501,7 +503,8 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     <button
                       type="button"
                       onClick={() => adjustScore(team.id, 5)}
-                      className="py-2.5 px-2 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-extrabold text-sm flex items-center justify-center gap-0.5 shadow-xs active:scale-95 transition-transform cursor-pointer min-h-[44px]"
+                      className={stepBtn}
+                      aria-label={pointsFor(5, team.name)}
                     >
                       <Plus className="w-3.5 h-3.5 stroke-[3]" />
                       <span>5</span>
@@ -509,7 +512,8 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     <button
                       type="button"
                       onClick={() => adjustScore(team.id, 10)}
-                      className="py-2.5 px-2 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-extrabold text-sm flex items-center justify-center gap-0.5 shadow-xs active:scale-95 transition-transform cursor-pointer min-h-[44px]"
+                      className={stepBtn}
+                      aria-label={pointsFor(10, team.name)}
                     >
                       <Plus className="w-3.5 h-3.5 stroke-[3]" />
                       <span>10</span>
@@ -520,6 +524,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     type="button"
                     disabled={team.score <= 0}
                     onClick={() => adjustScore(team.id, -1)}
+                    aria-label={pointsFor(-1, team.name)}
                     className="w-full py-2 px-3 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-text font-bold text-xs flex items-center justify-center gap-1 disabled:opacity-30 cursor-pointer min-h-[44px]"
                   >
                     <Minus className="w-4 h-4 stroke-[2.5]" />
@@ -533,11 +538,13 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
       </div>
 
       {/* Fullscreen Overlay Mode (All up to 8 teams at a single glance without scrolling) */}
-      {isFullscreen && (
+      {/* Portal in <body> und z-50: liegt so über Kopfzeile und Tab-Leiste (z-40), Dialoge (z-60) bleiben darüber. Unten mindestens die
+          Safe Area frei, damit die −/+-Reihe am iPhone nicht unter dem Home-Balken sitzt. */}
+      {isFullscreen && createPortal(
         <div
           ref={fullscreenRef}
           tabIndex={-1}
-          className="fixed inset-0 z-50 bg-bg text-text p-2.5 sm:p-4 flex flex-col justify-between overflow-hidden select-none"
+          className="fixed inset-0 z-50 bg-bg text-text p-2.5 sm:p-4 pb-[max(0.625rem,env(safe-area-inset-bottom))] flex flex-col justify-between overflow-hidden select-none"
           role="dialog"
           aria-modal="true"
           aria-label={L('Punktetafel Vollbild', 'Scoreboard Full Screen')}
@@ -565,7 +572,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     key={step}
                     type="button"
                     onClick={() => setStepSize(step)}
-                    className={`px-2.5 py-1 rounded-control text-xs font-bold transition-colors cursor-pointer min-h-[34px] min-w-[34px] flex items-center justify-center ${
+                    className={`px-2.5 py-1 rounded-control text-xs font-bold transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center ${
                       stepSize === step
                         ? 'bg-accent text-accent-contrast shadow-xs'
                         : 'bg-surface-2 hover:bg-surface-raised text-text-secondary border border-border'
@@ -611,9 +618,9 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
               <button
                 type="button"
                 onClick={handleResetScores}
-                className="p-2 rounded-control text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer min-h-[44px] min-w-[38px] flex items-center justify-center border border-border"
-                title={L('Punkte auf 0 zurücksetzen', 'Reset scores')}
-                aria-label={L('Punkte auf 0 zurücksetzen', 'Reset scores')}
+                className="p-2 rounded-control text-text-tertiary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer min-h-[44px] min-w-[38px] flex items-center justify-center border border-border"
+                title={L('Punkte auf 0 zurücksetzen', 'Reset scores to 0')}
+                aria-label={L('Punkte auf 0 zurücksetzen', 'Reset scores to 0')}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
@@ -651,10 +658,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                   {/* Top: Team Color & Name & Delete button */}
                   <div className="relative shrink-0 flex items-center justify-between gap-1 w-full">
                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${theme.dot}`} />
-                      <span className={`text-2xs font-bold px-1.5 py-0.5 rounded-full border shrink-0 ${theme.badge}`}>
-                        {L(`Team ${idx + 1}`, `Team ${idx + 1}`)}
-                      </span>
+                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${theme.dot}`} aria-hidden="true" />
                       <input
                         type="text"
                         value={team.name}
@@ -671,7 +675,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                       <button
                         type="button"
                         onClick={() => handleRemoveTeam(team.id)}
-                        className="p-1 rounded-control text-text-tertiary hover:text-red-400 hover:bg-red-500/10 cursor-pointer text-xs min-h-[32px] min-w-[32px] flex items-center justify-center shrink-0"
+                        className="p-1 rounded-control text-text-tertiary hover:text-danger hover:bg-danger/10 cursor-pointer text-xs min-h-[44px] min-w-[44px] flex items-center justify-center shrink-0"
                         title={L('Team entfernen', 'Remove team')}
                         aria-label={L('Team entfernen', 'Remove team')}
                       >
@@ -728,6 +732,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                       onClick={() => adjustScore(team.id, -stepSize)}
                       className="min-h-[44px] px-2 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised active:bg-surface-3 border border-border text-text font-bold text-xs sm:text-sm flex items-center justify-center gap-1 disabled:opacity-30 cursor-pointer active:scale-95 transition-transform"
                       title={L(`-${stepSize} Punkte abziehen`, `Deduct -${stepSize} points`)}
+                      aria-label={pointsFor(-stepSize, team.name)}
                     >
                       <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
                       <span>{stepSize}</span>
@@ -737,8 +742,9 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     <button
                       type="button"
                       onClick={() => adjustScore(team.id, stepSize)}
-                      className="min-h-[44px] px-2 py-1.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-black text-xs sm:text-sm flex items-center justify-center gap-1 shadow-xs active:scale-95 transition-transform cursor-pointer"
+                      className="min-h-[44px] px-2 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised active:bg-surface-3 border border-border text-text font-black text-xs sm:text-sm flex items-center justify-center gap-1 active:scale-95 transition-transform cursor-pointer"
                       title={L(`+${stepSize} Punkte hinzufügen`, `Add +${stepSize} points`)}
+                      aria-label={pointsFor(stepSize, team.name)}
                     >
                       <Plus className="w-3.5 h-3.5 stroke-[3]" />
                       <span>{stepSize}</span>
@@ -749,8 +755,9 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                       <button
                         type="button"
                         onClick={() => adjustScore(team.id, quickStep)}
-                        className="min-h-[44px] px-2 py-1.5 rounded-control bg-accent/15 hover:bg-accent/25 active:bg-accent/30 border border-accent/30 text-accent font-bold text-xs sm:text-sm flex items-center justify-center gap-1 cursor-pointer active:scale-95 transition-transform"
+                        className="min-h-[44px] px-2 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised active:bg-surface-3 border border-border text-text font-bold text-xs sm:text-sm flex items-center justify-center gap-1 cursor-pointer active:scale-95 transition-transform"
                         title={L(`+${quickStep} Punkte hinzufügen`, `Add +${quickStep} points`)}
+                        aria-label={pointsFor(quickStep, team.name)}
                       >
                         <Plus className="w-3 h-3 stroke-[2.5]" />
                         <span>{quickStep}</span>
@@ -777,7 +784,8 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
               {teams.length} {L('Teams', 'Teams')}
             </span>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
       {confirmDialog}
     </>

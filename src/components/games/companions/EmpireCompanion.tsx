@@ -21,6 +21,7 @@ import {
   tr,
   Panel,
   primaryBtn,
+  ToggleSwitch,
 } from '../../tools/common';
 import { Sheet } from '../../ui/Sheet';
 import { useWakeLock } from '../../../hooks/useWakeLock';
@@ -51,6 +52,8 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
   });
   const [customPrompt, setCustomPrompt] = useState('');
   const [isCustomCat, setIsCustomCat] = useState(false);
+  // Opt-in, off by default: /api/submit creates a public GitHub issue, so a topic typed for one round must not leave the device unasked.
+  const [submitCustomTopic, setSubmitCustomTopic] = useState(false);
 
   // Category browser modal / sheet state
   const [isPickerOpen, setIsPickerOpen] = useState(false);
@@ -123,8 +126,8 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
       return;
     }
 
-    // Automatically submit custom topics as a community proposal
-    if (isCustomCat && customPrompt.trim()) {
+    // Submit the custom topic as a community proposal only when the Animator turned the switch on
+    if (isCustomCat && submitCustomTopic && customPrompt.trim()) {
       const trimmed = customPrompt.trim();
       try {
         saveProposal({
@@ -234,7 +237,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                   <button
                     type="button"
                     onClick={() => setIsPickerOpen(true)}
-                    className="h-10 px-4 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-2 transition-colors cursor-pointer shrink-0 active:scale-95"
+                    className="h-11 px-4 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text flex items-center gap-2 transition-colors cursor-pointer shrink-0 active:scale-95"
                     title={L('Alle Themen durchsuchen', 'Browse all topics')}
                   >
                     <BookOpen className="w-4 h-4 text-accent shrink-0" />
@@ -250,7 +253,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                       setCustomPrompt('');
                     }
                   }}
-                  className="h-10 px-4 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-accent flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-95"
+                  className="h-11 px-4 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-accent flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-95"
                 >
                   <Plus className="w-4 h-4 shrink-0" />
                   <span>{isCustomCat ? L('Vorschläge', 'Presets') : L('Eigenes', 'Custom')}</span>
@@ -261,7 +264,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                 <button
                   type="button"
                   onClick={drawRandomCategory}
-                  className="w-10 h-10 rounded-control bg-surface-2 hover:bg-surface-raised border border-border flex items-center justify-center text-text-secondary hover:text-text transition-colors cursor-pointer shrink-0 active:scale-95 ml-auto"
+                  className="w-11 h-11 rounded-control bg-surface-2 hover:bg-surface-raised border border-border flex items-center justify-center text-text-secondary hover:text-text transition-colors cursor-pointer shrink-0 active:scale-95 ml-auto"
                   title={L('Anderes Zufallsthema ziehen', 'Draw another random topic')}
                   aria-label={L('Zufälliges Thema', 'Random topic')}
                 >
@@ -272,15 +275,11 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
 
             {isCustomCat ? (
               <div className="space-y-2.5 pt-1">
-                <div>
-                  <label className="text-sm font-bold text-text block">
-                    {L('Eigenes Thema eingeben:', 'Enter custom topic:')}
-                  </label>
-                  <p className="text-2xs text-text-tertiary mt-0.5">
-                    {L('Wird automatisch auch als neuer Themenvorschlag gespeichert.', 'Will automatically also be submitted as a new topic idea.')}
-                  </p>
-                </div>
+                <label htmlFor="empire-custom-topic" className="text-sm font-bold text-text block">
+                  {L('Eigenes Thema eingeben:', 'Enter custom topic:')}
+                </label>
                 <input
+                  id="empire-custom-topic"
                   type="text"
                   autoFocus
                   placeholder={L('z. B. Dinge, die man im Jugendcamp um 2 Uhr nachts hört', 'e.g. Things heard at 2am in camp')}
@@ -288,6 +287,21 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                   onChange={(e) => setCustomPrompt(e.target.value)}
                   className="w-full px-4 py-3 rounded-control bg-surface-2 border border-border text-base font-semibold text-text focus:border-accent focus:outline-hidden"
                 />
+                <div className="flex items-center justify-between gap-4 min-h-[44px] pt-1">
+                  <div className="min-w-0 space-y-0.5">
+                    <span className="block text-sm font-medium text-text">
+                      {L('Auch als Themenvorschlag einreichen', 'Also submit as topic suggestion')}
+                    </span>
+                    <span className="block text-2xs text-text-tertiary">
+                      {L('Wird nur gesendet, wenn du es einschaltest.', 'Only sent if you turn this on.')}
+                    </span>
+                  </div>
+                  <ToggleSwitch
+                    checked={submitCustomTopic}
+                    onChange={setSubmitCustomTopic}
+                    label={L('Auch als Themenvorschlag einreichen', 'Also submit as topic suggestion')}
+                  />
+                </div>
               </div>
             ) : (
               <div className="space-y-3 pt-1">
@@ -339,7 +353,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                 type="button"
                 onClick={() => setPlayerCount(Math.max(3, playerCount - 1))}
                 disabled={playerCount <= 3}
-                className="w-9 h-9 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
+                className="w-11 h-11 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
                 aria-label={L('Weniger Personen', 'Fewer players')}
               >
                 −
@@ -351,7 +365,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                 type="button"
                 onClick={() => setPlayerCount(Math.min(30, playerCount + 1))}
                 disabled={playerCount >= 30}
-                className="w-9 h-9 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
+                className="w-11 h-11 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-base font-bold text-text flex items-center justify-center disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors active:scale-95"
                 aria-label={L('Mehr Personen', 'More players')}
               >
                 +

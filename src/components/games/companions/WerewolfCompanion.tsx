@@ -554,7 +554,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
                 title={L('Rollenübersicht ein-/ausblenden', 'Toggle roles master view')}
               >
                 {showRoleMaster ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                <span>{showRoleMaster ? L('Verbergen', 'Hide') : L('Spielleiter-Liste', 'Master')}</span>
+                <span>{showRoleMaster ? L('Verbergen', 'Hide') : L('Liste der Spielleitung', 'Master')}</span>
               </button>
 
               <span className="text-xs font-bold text-text-tertiary tabular-nums pl-1">
@@ -568,7 +568,7 @@ export const WerewolfCompanion: React.FC<WerewolfCompanionProps> = ({ language }
             <div className="p-4 rounded-card bg-surface-2 border border-border space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-2xs font-bold text-accent">
-                  {L('Geheime Spielleiter-Übersicht:', 'Secret Roles Master View:')}
+                  {L('Geheime Übersicht der Spielleitung:', 'Secret Roles Master View:')}
                 </span>
                 <span className="text-2xs text-text-tertiary">
                   {L('Nur für deine Augen', 'Facilitator only')}

@@ -12,12 +12,15 @@ interface GroupManagerProps {
   language: Language;
   onNamesChange?: (presentNames: string[], allNames: string[]) => void;
   compact?: boolean;
+  /** false, wenn die Seite selbst schon „Meine Gruppe“ als Überschrift trägt (/tools/group), sonst steht sie doppelt da. */
+  showTitle?: boolean;
 }
 
 export const GroupManager: React.FC<GroupManagerProps> = ({
   language,
   onNamesChange,
   compact = false,
+  showTitle = true,
 }) => {
   const L = tr(language);
   const [groupTitle, setGroupTitle] = useState<string>(() => loadGroupTitle());
@@ -98,34 +101,38 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
   return (
     <Panel className="space-y-4">
       {/* Header with Presence Counter */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-accent-text" />
-          <h3 className="text-sm font-bold text-text">
-            {groupTitle || L('Meine Gruppe', 'My Group')}
-          </h3>
-          <span className="text-2xs font-bold px-2 py-0.5 rounded-chip bg-accent-subtle text-accent-text">
+      <div className="flex flex-wrap items-center justify-between gap-x-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {showTitle && (
+            <>
+              <Users className="w-4 h-4 text-accent-text shrink-0" />
+              <h3 className="text-sm font-bold text-text whitespace-nowrap">
+                {groupTitle || L('Meine Gruppe', 'My Group')}
+              </h3>
+            </>
+          )}
+          <span className="text-sm text-text-secondary whitespace-nowrap">
             {L(`${presentCount} von ${names.length} anwesend`, `${presentCount} of ${names.length} present`)}
           </span>
         </div>
 
         {names.length > 0 && (
-          <div className="flex items-center gap-2 text-2xs">
+          <div className="flex items-center gap-1 text-xs whitespace-nowrap">
             <button
               type="button"
               onClick={() => handleSetAll(true)}
-              className="text-accent-text font-semibold hover:underline cursor-pointer flex items-center gap-1 min-h-[36px] px-1"
+              className="text-accent-text font-semibold hover:underline cursor-pointer flex items-center gap-1 min-h-[44px] px-2"
             >
-              <UserCheck className="w-3 h-3" />
+              <UserCheck className="w-3.5 h-3.5" />
               <span>{L('Alle anwesend', 'All present')}</span>
             </button>
-            <span className="text-text-tertiary">•</span>
+            <span className="text-text-tertiary" aria-hidden="true">•</span>
             <button
               type="button"
               onClick={() => handleSetAll(false)}
-              className="text-text-tertiary hover:text-text cursor-pointer flex items-center gap-1 min-h-[36px] px-1"
+              className="text-text-tertiary hover:text-text cursor-pointer flex items-center gap-1 min-h-[44px] px-2"
             >
-              <UserX className="w-3 h-3" />
+              <UserX className="w-3.5 h-3.5" />
               <span>{L('Keine', 'None')}</span>
             </button>
           </div>
@@ -159,7 +166,7 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
             return (
               <div
                 key={name}
-                className={`group inline-flex items-center gap-1 pl-3 pr-1.5 py-1 rounded-chip text-xs font-semibold transition-all border min-h-[44px] ${
+                className={`group inline-flex items-center rounded-chip text-xs font-semibold transition-all border min-h-[44px] ${
                   isPresent
                     ? 'bg-accent-subtle text-accent-text border-accent/30 shadow-xs'
                     : 'bg-surface-2 text-text-tertiary line-through opacity-60 border-border hover:opacity-100'
@@ -168,7 +175,8 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
                 <button
                   type="button"
                   onClick={() => handleTogglePresent(name)}
-                  className="cursor-pointer py-1 pr-1 focus-visible:outline-hidden"
+                  aria-pressed={isPresent}
+                  className="cursor-pointer min-h-[44px] pl-3 pr-1 inline-flex items-center rounded-l-chip focus-visible:outline-hidden"
                   title={isPresent ? L('Als abwesend markieren', 'Mark as absent') : L('Als anwesend markieren', 'Mark as present')}
                 >
                   <span>{name}</span>
@@ -176,7 +184,7 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
                 <button
                   type="button"
                   onClick={(e) => handleRemoveName(name, e)}
-                  className="p-1.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-text-tertiary hover:text-text cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center"
+                  className="rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-text-tertiary hover:text-text cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center"
                   title={L('Namen löschen', 'Remove name')}
                   aria-label={`${name} ${L('löschen', 'remove')}`}
                 >
@@ -200,7 +208,7 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
               handleAddName();
             }
           }}
-          placeholder={L('Name eingeben (z. B. Musonda)...', 'Enter name (e.g. Musonda)...')}
+          placeholder={L('Name eingeben (z. B. Musonda)…', 'Enter name (e.g. Musonda)…')}
           className="flex-1 px-3.5 py-2 text-xs rounded-control bg-surface-2 border border-border text-text placeholder:text-text-tertiary focus:outline-hidden focus:ring-2 focus:ring-accent min-h-[44px]"
         />
         <button

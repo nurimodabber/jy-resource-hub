@@ -137,7 +137,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                 value={theme}
                 onChange={(v) => setTheme(v as Theme)}
                 fullWidth
-                size="sm"
+                size="md"
               />
             </div>
 
@@ -159,7 +159,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
                 value={language}
                 onChange={(v) => setLanguage(v as Language)}
                 fullWidth
-                size="sm"
+                size="md"
               />
             </div>
           </div>

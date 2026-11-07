@@ -137,7 +137,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
                           : 'bg-surface border-border hover:bg-surface-2 text-text'
                       }`}
                     >
-                      <p className="text-xs font-bold leading-tight truncate">{pack.name[language]}</p>
+                      <p className="text-xs font-bold leading-tight line-clamp-2">{pack.name[language]}</p>
                       <span className="text-2xs opacity-70 mt-1">
                         {pack.entries.length} {L('Begriffe', 'terms')}
                       </span>
@@ -166,7 +166,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
                           : 'bg-surface border-border hover:bg-surface-2 text-text'
                       }`}
                     >
-                      <p className="text-xs font-bold leading-tight truncate">{pack.name[language]}</p>
+                      <p className="text-xs font-bold leading-tight line-clamp-2">{pack.name[language]}</p>
                       <span className="text-2xs opacity-70 mt-1">
                         {pack.entries.length} {L('Begriffe', 'terms')}
                       </span>
@@ -275,10 +275,10 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
               <button
                 type="button"
                 onClick={() => setShowSpoilers(!showSpoilers)}
-                className="px-2.5 py-1 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="min-h-[44px] px-3.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border text-2xs font-semibold text-text flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 {showSpoilers ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                <span>{showSpoilers ? L('Begriffe verbergen', 'Hide terms') : L('Spielleiter-Lösung anzeigen', 'Show solutions')}</span>
+                <span>{showSpoilers ? L('Begriffe verbergen', 'Hide terms') : L('Lösung für die Spielleitung anzeigen', 'Show solutions')}</span>
               </button>
             </div>
 
@@ -291,11 +291,10 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
                 return (
                   <div
                     key={p}
-                    onClick={() => toggleSolved(p)}
-                    className={`p-3.5 rounded-card border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    className={`p-3.5 rounded-card border transition-all flex items-center justify-between gap-3 ${
                       isSolved
-                        ? 'bg-emerald-500/10 border-emerald-500/30'
-                        : 'bg-surface border-border hover:bg-surface-2'
+                        ? 'bg-success-subtle border-success/30'
+                        : 'bg-surface border-border'
                     }`}
                   >
                     <div className="min-w-0 flex-1">
@@ -311,10 +310,12 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
 
                     <button
                       type="button"
-                      aria-label={L('Als erraten markieren', 'Mark as solved')}
-                      className={`w-7 h-7 rounded-full border flex items-center justify-center transition-colors shrink-0 ${
+                      onClick={() => toggleSolved(p)}
+                      aria-pressed={isSolved}
+                      aria-label={`${L('Als erraten markieren', 'Mark as solved')}: ${p}`}
+                      className={`w-11 h-11 rounded-full border flex items-center justify-center transition-colors shrink-0 cursor-pointer ${
                         isSolved
-                          ? 'bg-emerald-500 border-emerald-500 text-white'
+                          ? 'bg-success border-success text-surface'
                           : 'border-border bg-surface-2 text-text-tertiary hover:border-accent hover:text-accent'
                       }`}
                     >

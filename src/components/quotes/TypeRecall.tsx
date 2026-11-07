@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { RotateCcw, HelpCircle, CheckCircle2, Award, Keyboard } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { SegmentedControl } from '../ui/SegmentedControl';
+import { splitWord, hasLetter, normalizeTyped } from './textParts';
 
 interface TypeRecallProps {
   quote: QuoteItem;
@@ -14,30 +15,54 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
   const quoteText = language === 'de' ? quote.textDe : quote.textEn;
   const [mode, setMode] = useState<TypingMode>('initials');
 
-  const words = useMemo(() => quoteText.split(/\s+/), [quoteText]);
+  const words = useMemo(() => quoteText.split(/\s+/).map(splitWord), [quoteText]);
 
-  // Target sequence for initials mode
-  const initialsSequence = useMemo(() => {
-    return words.map((w) => {
-      const clean = w.replace(/[.,;:!?„"«»]/g, '');
-      return clean.charAt(0);
+  // Target sequence for initials mode. Tokens without a letter (a standalone "–") are skipped:
+  // there is no key to press for them, so the run used to get stuck there.
+  // askBefore[i] = how many askable words come before token i (drives what is revealed).
+  const { initialsSequence, askBefore } = useMemo(() => {
+    const seq: string[] = [];
+    const before: number[] = [];
+    words.forEach((w) => {
+      before.push(seq.length);
+      if (hasLetter(w.core)) seq.push(normalizeTyped(w.core.charAt(0)));
     });
+    return { initialsSequence: seq, askBefore: before };
   }, [words]);
+
+  // Full-text mode compares in normalised form (see normalizeTyped). origEnd[k] maps the first
+  // k+1 normalised characters back to an end offset in the original text for display.
+  const { normQuote, origEnd } = useMemo(() => {
+    let norm = '';
+    const ends: number[] = [];
+    for (let i = 0; i < quoteText.length; i++) {
+      const n = normalizeTyped(quoteText[i]);
+      norm += n;
+      for (let j = 0; j < n.length; j++) ends.push(i + 1);
+    }
+    return { normQuote: norm, origEnd: ends };
+  }, [quoteText]);
 
   // Current typed index
   const [typedCount, setTypedCount] = useState<number>(0);
   const [fullTypedText, setFullTypedText] = useState<string>('');
   const [errorsCount, setErrorsCount] = useState<number>(0);
   const [shake, setShake] = useState<boolean>(false);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // No focus here: focusing on mount jumped the page and opened the phone keyboard uninvited.
   const resetPractice = useCallback(() => {
     setTypedCount(0);
     setFullTypedText('');
     setErrorsCount(0);
     setShake(false);
-    setTimeout(() => inputRef.current?.focus(), 50);
   }, []);
+
+  const handleRestart = () => {
+    resetPractice();
+    inputRef.current?.focus();
+  };
 
   useEffect(() => {
     resetPractice();
@@ -51,12 +76,13 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
       e.preventDefault();
       if (typedCount >= initialsSequence.length) return;
 
-      const expected = initialsSequence[typedCount].toLowerCase();
-      const pressed = e.key.toLowerCase();
+      if (e.key.length !== 1) return;
+      const expected = initialsSequence[typedCount];
+      const pressed = normalizeTyped(e.key);
 
       if (pressed === expected) {
         setTypedCount((prev) => prev + 1);
-      } else if (pressed.length === 1 && /[a-zA-ZäöüÄÖÜß]/.test(pressed)) {
+      } else if (hasLetter(pressed)) {
         setErrorsCount((prev) => prev + 1);
         setShake(true);
         setTimeout(() => setShake(false), 400);
@@ -67,9 +93,8 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
   const handleFullInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (mode !== 'full') return;
     const val = e.target.value;
-    const targetSubstring = quoteText.slice(0, val.length);
 
-    if (val.toLowerCase() === targetSubstring.toLowerCase()) {
+    if (normQuote.startsWith(normalizeTyped(val))) {
       setFullTypedText(val);
     } else {
       setErrorsCount((prev) => prev + 1);
@@ -78,9 +103,12 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
     }
   };
 
+  const typedNormLength = normalizeTyped(fullTypedText).length;
+  const typedOrigLength = typedNormLength > 0 ? origEnd[typedNormLength - 1] : 0;
+
   const isCompleted = mode === 'initials'
     ? typedCount >= initialsSequence.length
-    : fullTypedText.length >= quoteText.length;
+    : typedNormLength >= normQuote.length;
 
   const handleHint = () => {
     if (mode === 'initials') {
@@ -88,8 +116,8 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
         setTypedCount((prev) => prev + 1);
       }
     } else {
-      if (fullTypedText.length < quoteText.length) {
-        setFullTypedText(quoteText.slice(0, fullTypedText.length + 1));
+      if (typedNormLength < normQuote.length) {
+        setFullTypedText(normQuote.slice(0, typedNormLength + 1));
       }
     }
     inputRef.current?.focus();
@@ -97,7 +125,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
 
   const progressPercent = mode === 'initials'
     ? Math.round((typedCount / Math.max(1, initialsSequence.length)) * 100)
-    : Math.round((fullTypedText.length / Math.max(1, quoteText.length)) * 100);
+    : Math.round((typedNormLength / Math.max(1, normQuote.length)) * 100);
 
   return (
     <div className="space-y-6">
@@ -115,11 +143,10 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
 
         {/* Mode Selector */}
         <SegmentedControl<TypingMode>
-          size="sm"
           value={mode}
           onChange={(newMode) => setMode(newMode)}
           options={[
-            { id: 'initials', label: language === 'de' ? 'Anfangsbuchstaben (Speed)' : 'Initials (Fast)' },
+            { id: 'initials', label: language === 'de' ? 'Anfangsbuchstaben' : 'First letters' },
             { id: 'full', label: language === 'de' ? 'Vollständiger Text' : 'Full Text' },
           ]}
         />
@@ -129,7 +156,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
       <div
         onClick={() => inputRef.current?.focus()}
         className={`bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6 cursor-text transition-all ${
-          shake ? 'ring-2 ring-red-500/40 bg-red-500/5' : ''
+          shake ? 'ring-2 ring-danger/40 bg-danger/5' : ''
         }`}
       >
         {/* Progress Bar */}
@@ -142,13 +169,21 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
 
         {/* Render for Mode 'initials' */}
         {mode === 'initials' && (
-          <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-center min-h-[140px]">
-            {words.map((word, idx) => {
-              const clean = word.replace(/[.,;:!?„"«»]/g, '');
-              const punctuation = word.replace(/[a-zA-ZäöüÄÖÜß0-9]/g, '');
-              const initial = clean.charAt(0);
-              const isTyped = idx < typedCount;
-              const isCurrent = idx === typedCount;
+          <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-center min-h-[140px] pr-[var(--quote-gap)]">
+            {words.map((w, idx) => {
+              const word = w.lead + w.core + w.trail;
+              if (!hasLetter(w.core)) {
+                // Nothing to type: shown as is, once the words before it are done.
+                const reached = typedCount >= askBefore[idx];
+                return (
+                  <span key={idx} className={`select-none ${reached ? 'text-text' : 'text-text-tertiary opacity-40'}`}>
+                    {word}
+                  </span>
+                );
+              }
+              const initial = w.core.charAt(0);
+              const isTyped = askBefore[idx] < typedCount;
+              const isCurrent = askBefore[idx] === typedCount;
 
               return (
                 <span
@@ -157,7 +192,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
                     isTyped
                       ? 'text-success font-bold bg-success/15 border border-success/30'
                       : isCurrent
-                      ? 'bg-accent/20 text-accent-text border border-accent ring-2 ring-accent/30 animate-pulse font-bold'
+                      ? 'bg-accent/20 text-accent-text border border-accent ring-2 ring-accent/30 motion-safe:animate-pulse font-bold'
                       : 'text-text-tertiary opacity-40'
                   }`}
                 >
@@ -170,9 +205,10 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
                     </span>
                   ) : (
                     <span>
+                      {w.lead}
                       {initial}
-                      <span className="opacity-40">{'_'.repeat(Math.max(1, clean.length - 1))}</span>
-                      {punctuation}
+                      <span className="opacity-40">{'_'.repeat(Math.max(1, w.core.length - 1))}</span>
+                      {w.trail}
                     </span>
                   )}
                 </span>
@@ -184,13 +220,13 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
         {/* Render for Mode 'full' */}
         {mode === 'full' && (
           <div className="font-serif text-lg sm:text-2xl leading-relaxed text-center min-h-[140px] flex items-center justify-center">
-            <p className="max-w-3xl">
+            <p className="max-w-3xl pr-[var(--quote-gap)]">
               <span className="text-success font-bold bg-success/15 px-1 rounded-sm border border-success/20">
-                {quoteText.slice(0, fullTypedText.length)}
+                {quoteText.slice(0, typedOrigLength)}
               </span>
-              <span className="inline-block w-0.5 h-6 bg-accent align-middle animate-pulse mx-0.5" />
+              <span className="inline-block w-0.5 h-6 bg-accent align-middle motion-safe:animate-pulse mx-0.5" />
               <span className="text-text-tertiary opacity-40">
-                {quoteText.slice(fullTypedText.length)}
+                {quoteText.slice(typedOrigLength)}
               </span>
             </p>
           </div>
@@ -204,14 +240,15 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
             value={mode === 'full' ? fullTypedText : ''}
             onChange={handleFullInputChange}
             onKeyDown={handleKeyDown}
-            autoFocus
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             aria-label={language === 'de' ? 'Tippfeld für Zitat' : 'Type the quote'}
           />
         </div>
 
         {/* Completion Banner */}
         {isCompleted ? (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-between gap-3 text-text animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
@@ -219,16 +256,18 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
                   {language === 'de' ? 'Perfekt gemeistert.' : 'Flawlessly mastered.'}
                 </strong>
                 <span className="text-text-secondary">
-                  {language === 'de'
-                    ? `Fehlerfrei durchgetippt (${errorsCount} Tippfehler korrigiert).`
-                    : `Completed with precision (${errorsCount} mistakes corrected).`}
+                  {errorsCount === 0
+                    ? (language === 'de' ? 'Fehlerfrei durchgetippt.' : 'Completed without mistakes.')
+                    : language === 'de'
+                    ? `Durchgetippt (${errorsCount} Tippfehler korrigiert).`
+                    : `Completed (${errorsCount} ${errorsCount === 1 ? 'mistake' : 'mistakes'} corrected).`}
                 </span>
               </div>
             </div>
 
             <button
               type="button"
-              onClick={resetPractice}
+              onClick={handleRestart}
               className="px-3.5 py-1.5 bg-accent text-accent-contrast rounded-control text-xs font-semibold hover:bg-accent-hover transition-colors shadow-xs shrink-0 cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5 inline mr-1" />
@@ -238,14 +277,21 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
         ) : (
           /* Prompt to tap to type */
           <div className="text-center">
-            <span className="inline-flex items-center gap-1.5 text-2xs text-text-tertiary tabular-nums bg-surface-2 border border-border px-3 py-1.5 rounded-control">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                inputRef.current?.focus();
+              }}
+              className="inline-flex items-center gap-1.5 text-xs text-text-secondary bg-surface-2 border border-border px-3.5 py-2 min-h-[44px] rounded-control cursor-pointer hover:text-text outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+            >
               <Keyboard className="w-3.5 h-3.5" />
               <span>
-                {language === 'de'
-                  ? 'Tippe auf der Tastatur einfach los...'
-                  : 'Start typing directly on your keyboard...'}
+                {isFocused
+                  ? (language === 'de' ? 'Tippe auf der Tastatur einfach los...' : 'Start typing directly on your keyboard...')
+                  : (language === 'de' ? 'Zum Starten hier tippen' : 'Tap here to start typing')}
               </span>
-            </span>
+            </button>
           </div>
         )}
 
@@ -264,7 +310,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
 
             <button
               type="button"
-              onClick={resetPractice}
+              onClick={handleRestart}
               className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-surface text-text text-xs font-medium rounded-control hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px]"
             >
               <RotateCcw className="w-3.5 h-3.5" />

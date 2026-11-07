@@ -1278,8 +1278,8 @@ export const GAMES_DATA: Game[] = [
     rules: {
       de: [
         'Jeder erhält geheim eine Rollenkarte (z. B. Dorfbewohner, Werwolf, Seherin, Hexe).',
-        'Nachtphase: Alle schließen die Augen. Der Spielleiter ruft nacheinander die Sonderrollen auf. Die Werwölfe einigen sich stumm auf ein Opfer.',
-        'Tagphase: Das Dorf erwacht. Der Spielleiter berichtet vom nächtlichen Vorfall.',
+        'Nachtphase: Alle schließen die Augen. Die Spielleitung ruft nacheinander die Sonderrollen auf. Die Werwölfe einigen sich stumm auf ein Opfer.',
+        'Tagphase: Das Dorf erwacht. Die Spielleitung berichtet vom nächtlichen Vorfall.',
         'Die Gruppe diskutiert und stimmt demokratisch ab, wer verdächtigt und aus dem Dorf verbannt wird.',
         'Die Dorfbewohner gewinnen, wenn alle Wölfe enttarnt sind; die Wölfe gewinnen bei Parität.'
       ],

@@ -60,7 +60,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
   };
 
   return (
-    <div className="max-w-4xl w-full mx-auto py-4 sm:py-8 px-4 sm:px-6 animate-in fade-in duration-200">
+    <div className="max-w-4xl w-full mx-auto animate-in fade-in duration-200">
       <Button
         variant="ghost"
         size="sm"
@@ -72,18 +72,19 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
         {isDe ? 'Zurück' : 'Back'}
       </Button>
 
-      <div className="bg-surface rounded-3xl border border-border-subtle p-6 sm:p-10 shadow-apple-card space-y-8">
+      {/* No outer card: the highlighted boxes below would otherwise be cards in a card. */}
+      <div className="space-y-8">
         <div>
           <div className="w-12 h-12 rounded-2xl bg-success/10 text-success flex items-center justify-center mb-4">
             <ShieldCheck className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-text tracking-tight">
+          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {isDe ? 'Datenschutzerklärung' : 'Privacy Policy'}
           </h1>
-          <p className="text-sm text-text-secondary mt-1">
+          <p className="text-sm sm:text-base text-text-secondary mt-2">
             {isDe 
-              ? 'Transparente Information nach Art. 13 DSGVO — Sparsamkeit by Design & kein Tracking' 
-              : 'Information pursuant to Art. 13 GDPR — Privacy by Design & Zero Tracking'}
+              ? 'Transparente Information nach Art. 13 DSGVO — so wenig Daten wie möglich, kein Tracking' 
+              : 'Information pursuant to Art. 13 GDPR — as little data as possible, no tracking'}
           </p>
         </div>
 
@@ -133,7 +134,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
         {/* 4. Lokale Speicherung im Browser (LocalStorage) */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {isDe ? '4. Lokale Speicherung im Browser (LocalStorage gem. § 25 Abs. 2 Nr. 2 TDDDG)' : '4. Local Storage (§ 25 (2) No. 2 TDDDG)'}
+            {isDe ? '4. Lokale Speicherung im Browser (§ 25 Abs. 2 Nr. 2 TDDDG)' : '4. Local Storage (§ 25 (2) No. 2 TDDDG)'}
           </h2>
           <p>
             {isDe
@@ -163,7 +164,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
         {/* 5. Hosting bei Vercel Inc. */}
         <section className="space-y-3 text-sm text-text-secondary leading-relaxed">
           <h2 className="text-base font-semibold text-text">
-            {isDe ? '5. Hosting & Technisch erforderliche Server-Logfiles' : '5. Hosting & Server Log Files'}
+            {isDe ? '5. Hosting und technisch erforderliche Server-Protokolle' : '5. Hosting & Server Log Files'}
           </h2>
           <p>
             {isDe
@@ -179,7 +180,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
           </h2>
           <p>
             {isDe
-              ? 'Wenn du über den Kontakt-Button oder per E-Mail an nuri@modabber.net oder lasse.nieruch@bahai.de mit uns in Verbindung trittst, werden deine Angaben (wie E-Mail-Adresse, Name und der Inhalt deiner Nachricht) ausschließlich zur Bearbeitung und Beantwortung deiner Anfrage verarbeitet (Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO). Deine Daten werden nicht für Werbezwecke verwendet und nach Abschluss der Bearbeitung gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.'
+              ? 'Wenn du über das Kontaktfenster oder per E-Mail an nuri@modabber.net oder lasse.nieruch@bahai.de mit uns in Verbindung trittst, werden deine Angaben (wie E-Mail-Adresse, Name und der Inhalt deiner Nachricht) ausschließlich zur Bearbeitung und Beantwortung deiner Anfrage verarbeitet (Art. 6 Abs. 1 lit. f DSGVO bzw. Art. 6 Abs. 1 lit. b DSGVO). Deine Daten werden nicht für Werbezwecke verwendet und nach Abschluss der Bearbeitung gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.'
               : 'When you contact us via the contact dialog or email to nuri@modabber.net or lasse.nieruch@bahai.de, your email address, message, and details are processed solely to address your inquiry (Art. 6 (1) (f)/(b) GDPR). No marketing use occurs.'}
           </p>
           {onOpenContact && (
@@ -192,7 +193,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
                 icon={<Mail className="w-3.5 h-3.5" />}
                 iconPosition="left"
               >
-                {isDe ? 'Kontakt aufnehmen / E-Mail hinterlegen' : 'Open Contact Dialog'}
+                {isDe ? 'Kontakt aufnehmen' : 'Get in touch'}
               </Button>
             </div>
           )}

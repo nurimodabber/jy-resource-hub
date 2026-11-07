@@ -34,7 +34,7 @@ export const Stepper: React.FC<StepperProps> = ({
         disabled={!canDecrement}
         onClick={() => onChange(Math.max(min, value - step))}
         aria-label={`${label} verringern`}
-        className="w-10 h-10 rounded-control bg-surface text-text hover:bg-surface/80 flex items-center justify-center font-semibold disabled:opacity-40 disabled:cursor-not-allowed shadow-1 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+        className="w-11 h-11 rounded-nested bg-surface text-text hover:bg-surface/80 flex items-center justify-center font-semibold disabled:opacity-40 disabled:cursor-not-allowed shadow-1 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
       >
         <Minus className="w-4 h-4" strokeWidth={1.75} />
       </button>
@@ -48,7 +48,7 @@ export const Stepper: React.FC<StepperProps> = ({
         disabled={!canIncrement}
         onClick={() => onChange(Math.min(max, value + step))}
         aria-label={`${label} erhöhen`}
-        className="w-10 h-10 rounded-control bg-surface text-text hover:bg-surface/80 flex items-center justify-center font-semibold disabled:opacity-40 disabled:cursor-not-allowed shadow-1 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+        className="w-11 h-11 rounded-nested bg-surface text-text hover:bg-surface/80 flex items-center justify-center font-semibold disabled:opacity-40 disabled:cursor-not-allowed shadow-1 transition-colors duration-150 ease-out outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
       >
         <Plus className="w-4 h-4" strokeWidth={1.75} />
       </button>

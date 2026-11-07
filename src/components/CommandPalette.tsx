@@ -340,6 +340,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, results, selectedIndex, handleSelect]);
 
+  // Keep the keyboard-selected option visible in the scrolling list.
+  useEffect(() => {
+    if (!isOpen) return;
+    document.getElementById(`cmdk-option-${selectedIndex}`)?.scrollIntoView({ block: 'nearest' });
+  }, [isOpen, selectedIndex]);
+
   if (!isOpen) return null;
 
   return (
@@ -359,7 +365,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
       {/* Modal / Search Panel (Top-anchored and VisualViewport-adaptive on mobile) */}
       <div
-        className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[80vh] glass-surface-panel search-palette-panel rounded-none sm:rounded-dialog shadow-2 border-0 sm:border sm:border-border overflow-hidden z-10 flex flex-col animate-in fade-in sm:zoom-in-95 duration-150 ease-out outline-none focus:outline-none"
+        className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[80vh] bg-surface search-palette-panel rounded-none sm:rounded-dialog shadow-2 border-0 sm:border sm:border-border overflow-hidden z-10 flex flex-col animate-in fade-in sm:zoom-in-95 duration-150 ease-out outline-none focus:outline-none"
         style={viewportHeight ? { maxHeight: `${viewportHeight}px`, outline: 'none' } : { outline: 'none' }}
       >
         {/* Input Bar (Liquid Glass Capsule with glow when selected) */}
@@ -369,6 +375,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
             <input
               ref={inputRef}
               type="text"
+              role="combobox"
+              aria-label={isDe ? 'Suchbegriff' : 'Search term'}
+              aria-autocomplete="list"
+              aria-expanded={results.length > 0}
+              aria-controls="cmdk-results"
+              aria-activedescendant={results[selectedIndex] ? `cmdk-option-${selectedIndex}` : undefined}
               inputMode="search"
               enterKeyHint="search"
               autoComplete="off"
@@ -381,7 +393,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                 setSelectedIndex(0);
               }}
               placeholder={isDe ? 'Spiele, Zitate, Methoden, Dienst suchen...' : 'Search games, quotes, methods, service...'}
-              className="flex-1 bg-transparent text-sm sm:text-base text-text placeholder:text-text-tertiary outline-none focus:outline-none ring-0 focus:ring-0 min-h-[32px]"
+              className="flex-1 min-w-0 bg-transparent text-base text-text placeholder:text-text-tertiary outline-none focus:outline-none ring-0 focus:ring-0 min-h-[32px]"
             />
             {query ? (
               <button
@@ -390,7 +402,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   setQuery('');
                   inputRef.current?.focus();
                 }}
-                className="p-1 rounded-full text-text-tertiary hover:text-text hover:bg-surface-2 cursor-pointer min-w-[28px] min-h-[28px] flex items-center justify-center transition-colors"
+                className="-my-1.5 -mr-2.5 rounded-full text-text-tertiary hover:text-text hover:bg-surface-2 cursor-pointer w-11 h-11 min-w-[44px] min-h-[44px] shrink-0 flex items-center justify-center transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
                 aria-label={language === 'de' ? 'Suche löschen' : 'Clear search'}
               >
                 <X className="w-3.5 h-3.5" strokeWidth={2} />
@@ -419,12 +431,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               <p>{isDe ? `Keine Treffer für „${query}“.` : `No results for "${query}".`}</p>
             </div>
           ) : (
-            results.map((item, idx) => {
+            <div id="cmdk-results" role="listbox" aria-label={isDe ? 'Treffer' : 'Results'} className="space-y-1">
+            {results.map((item, idx) => {
               const Icon = item.icon;
               const isSelected = idx === selectedIndex;
               return (
                 <div
                   key={`${item.type}-${item.id}`}
+                  id={`cmdk-option-${idx}`}
+                  role="option"
+                  aria-selected={isSelected}
                   onClick={() => handleSelect(item)}
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={`flex items-center justify-between p-2.5 sm:p-3 rounded-control cursor-pointer transition-all duration-100 ease-out ${
@@ -464,7 +480,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                   />
                 </div>
               );
-            })
+            })}
+            </div>
           )}
         </div>
 

@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Bookmark, Users, Clock } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
-import { UI_TRANSLATIONS } from '../data/translations';
 import { getBookById } from '../utils/bookProgress';
 
 interface ServiceArtsCardProps {
@@ -18,7 +17,6 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
   isFavorite,
   onToggleFavorite,
 }) => {
-  const t = UI_TRANSLATIONS[language];
   const isDe = language === 'de';
   const isService = activity.kind === 'dienst';
 
@@ -59,8 +57,9 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         type="button"
         onClick={(e) => onToggleFavorite(activity.id, e)}
         aria-pressed={isFavorite}
-        aria-label={`${t.savedItems}: ${activity.title[language]}`}
-        className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+        aria-label={`${isDe ? 'Merken' : 'Save'}: ${activity.title[language]}`}
+        // after: vergrößert nur die Tippfläche am Handy von 40 auf 44 px, sichtbar bleibt der Knopf gleich (Karte ist gesperrt).
+        className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] after:absolute after:-inset-0.5 after:rounded-full after:content-[''] sm:after:hidden inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
           isFavorite
             ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
             : 'text-text-tertiary hover:text-text hover:bg-surface-2'

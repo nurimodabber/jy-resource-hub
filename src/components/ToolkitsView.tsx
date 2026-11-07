@@ -36,7 +36,7 @@ type ToolDef = {
 
 const GroupManagerToolWrapper: React.FC<{ language: Language }> = ({ language }) => (
   <div className="space-y-4">
-    <GroupManager language={language} compact={false} />
+    <GroupManager language={language} compact={false} showTitle={false} />
   </div>
 );
 

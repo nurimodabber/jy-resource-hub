@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Trophy, Timer } from 'lucide-react';
+import { Play, Square, RotateCcw, Trophy } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
 
@@ -14,7 +14,6 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
 
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [elapsedMs, setElapsedMs] = useState<number>(0);
-  const [targetSeconds, setTargetSeconds] = useState<number>(20);
   const [bestTimeMs, setBestTimeMs] = useState<number | null>(null);
   const [isRecordBeaten, setIsRecordBeaten] = useState<boolean>(false);
 
@@ -26,20 +25,26 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
     requestRef.current = requestAnimationFrame(updateTimer);
   };
 
+  // Every start is a fresh run: the group speaks the whole passage again, so resuming the old
+  // time made no sense.
   const handleStart = () => {
     setIsRunning(true);
     setIsRecordBeaten(false);
-    startTimeRef.current = Date.now() - elapsedMs;
+    setElapsedMs(0);
+    startTimeRef.current = Date.now();
     requestRef.current = requestAnimationFrame(updateTimer);
   };
 
   const handleStop = () => {
     setIsRunning(false);
     if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    const finalMs = Date.now() - startTimeRef.current;
+    setElapsedMs(finalMs);
 
-    if (bestTimeMs === null || elapsedMs < bestTimeMs) {
-      setBestTimeMs(elapsedMs);
-      setIsRecordBeaten(true);
+    // The first run only sets the best time; a "new record" needs an earlier one to beat.
+    if (bestTimeMs === null || finalMs < bestTimeMs) {
+      setBestTimeMs(finalMs);
+      setIsRecordBeaten(bestTimeMs !== null);
     }
   };
 
@@ -76,18 +81,18 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
         )}
       </div>
 
-      {/* Main Card */}
-      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
-        {/* Quote Reference */}
-        <div className="p-5 rounded-card bg-surface-2 border border-border text-center space-y-2">
-          <p className="font-serif italic text-lg sm:text-2xl text-text leading-relaxed">
-            „{quoteText}“
-          </p>
-          <span className="text-xs text-text-secondary font-medium block">
-            — {quote.source[language]} ({quote.book[language]})
-          </span>
-        </div>
+      {/* Quote on its own calm card: no timer or trophy directly at the sacred text. */}
+      <figure className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs text-center space-y-2">
+        <blockquote className="font-serif italic text-lg sm:text-2xl text-text leading-relaxed pr-[var(--quote-gap)]">
+          {language === 'de' ? `„${quoteText}“` : `“${quoteText}”`}
+        </blockquote>
+        <figcaption className="text-xs text-text-secondary font-medium">
+          — {quote.source[language]} ({quote.book[language]})
+        </figcaption>
+      </figure>
 
+      {/* Stopwatch Card */}
+      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
         {/* Digital Stopwatch Display */}
         <div className="py-4 text-center space-y-2">
           <div className="tabular-nums text-5xl sm:text-7xl font-bold tracking-tight text-accent-text select-none">
@@ -100,25 +105,26 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
 
         {/* Record Beaten Announcement */}
         {isRecordBeaten && (
-          <div className="p-4 bg-accent-subtle border border-accent/20 rounded-card flex items-center justify-center gap-2 text-accent-text font-semibold text-xs animate-in fade-in">
-            <Trophy className="w-4 h-4" />
+          <p role="status" className="flex items-center justify-center gap-2 text-accent-text font-semibold text-sm animate-in fade-in">
+            <Trophy className="w-4 h-4 shrink-0" />
             <span>{t.recordBeaten} ({formatTime(elapsedMs)})</span>
-          </div>
+          </p>
         )}
 
         {/* Action Controls */}
-        <div className="pt-2 border-t border-border flex flex-wrap items-center justify-between gap-4">
+        <div className="pt-4 border-t border-border flex flex-wrap items-center justify-center gap-4">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={isRunning ? handleStop : handleStart}
               className={`flex items-center gap-2 px-6 py-2.5 rounded-control text-xs font-semibold shadow-xs transition-colors cursor-pointer min-h-[44px] ${
                 isRunning
-                  ? 'bg-red-600 text-white hover:bg-red-700'
+                  ? // Tinted, not filled: --danger is light in dark mode, white text on it would fail contrast.
+                    'bg-danger/10 text-danger border border-danger/40 hover:bg-danger/15'
                   : 'bg-accent text-accent-contrast hover:bg-accent-hover'
               }`}
             >
-              {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              {isRunning ? <Square className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4" />}
               <span>{isRunning ? t.stopTimer : t.startTimer}</span>
             </button>
 
@@ -130,28 +136,6 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
               <RotateCcw className="w-3.5 h-3.5" />
               <span>{t.resetTimer}</span>
             </button>
-          </div>
-
-          {/* Target setter */}
-          <div className="flex items-center gap-2 text-xs text-text-secondary">
-            <Timer className="w-3.5 h-3.5 text-accent-text" />
-            <span>{t.targetTimeLabel}:</span>
-            <div className="flex items-center gap-1">
-              {[15, 20, 30].map((sec) => (
-                <button
-                  type="button"
-                  key={sec}
-                  onClick={() => setTargetSeconds(sec)}
-                  className={`px-3 py-1.5 rounded-control text-xs font-medium transition-colors cursor-pointer min-h-[44px] flex items-center justify-center ${
-                    targetSeconds === sec
-                      ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
-                      : 'bg-surface-2 text-text-secondary hover:text-text border border-border'
-                  }`}
-                >
-                  {sec}s
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>

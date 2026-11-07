@@ -287,7 +287,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
       description = 'Datenschutz nach DSGVO: Keine Cookies, kein Tracking, 100 % lokale Speicherung auf deinem Gerät.';
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Datenschutzerklärung' : 'Privacy Policy');
-    } else if (pathname === '/_design') {
+    } else if (pathname.startsWith('/_design')) {
       title = 'Designsystem — Juju Hub';
       description = 'Komponenten-Galerie und Design-Tokens des Juju Hub.';
     } else {

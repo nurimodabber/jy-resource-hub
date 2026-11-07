@@ -48,6 +48,8 @@ interface GamePageProps {
   game: Game;
   language: Language;
   isFavorite: boolean;
+  /** All saved game ids, so the "similar games" cards show (and toggle) the real saved state */
+  favorites: string[];
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
 }
 
@@ -55,6 +57,7 @@ export const GamePage: React.FC<GamePageProps> = ({
   game,
   language,
   isFavorite,
+  favorites,
   onToggleFavorite,
 }) => {
   const t = UI_TRANSLATIONS[language];
@@ -72,6 +75,11 @@ export const GamePage: React.FC<GamePageProps> = ({
   // View mode: 'rules' or 'play' (interactive companion)
   const initialMode = searchParams.get('mode') === 'play' && hasCompanion ? 'play' : 'rules';
   const [viewMode, setViewMode] = useState<'rules' | 'play'>(initialMode);
+  // Once "Jetzt spielen" was opened, the companion stays mounted (only hidden) so switching to the
+  // instructions mid-game does not wipe the round. Stored per game id, because this component is
+  // reused when the route moves to another game.
+  const [playMountedFor, setPlayMountedFor] = useState<string | null>(initialMode === 'play' ? game.id : null);
+  const playMounted = playMountedFor === game.id;
 
   // Ensure top of detail view is immediately visible on mount or game change
   useEffect(() => {
@@ -81,10 +89,12 @@ export const GamePage: React.FC<GamePageProps> = ({
   useEffect(() => {
     const targetMode = searchParams.get('mode') === 'play' && hasCompanion ? 'play' : 'rules';
     setViewMode(targetMode);
-  }, [searchParams, hasCompanion]);
+    if (targetMode === 'play') setPlayMountedFor(game.id);
+  }, [searchParams, hasCompanion, game.id]);
 
   const switchMode = (mode: 'rules' | 'play') => {
     setViewMode(mode);
+    if (mode === 'play') setPlayMountedFor(game.id);
     const newParams = new URLSearchParams(searchParams);
     if (mode === 'play') {
       newParams.set('mode', 'play');
@@ -165,6 +175,7 @@ export const GamePage: React.FC<GamePageProps> = ({
           <ShareMenu
             textToCopy={gameRulesText}
             urlToCopy={gameUrl}
+            shareTitle={game.title[language]}
             language={language}
             align="right"
             glass
@@ -191,7 +202,7 @@ export const GamePage: React.FC<GamePageProps> = ({
                     icon={<Bookmark className={`w-[18px] h-[18px] ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.9} />}
                     onClick={(e) => onToggleFavorite(game.id, e)}
                   />
-                  <ShareMenu textToCopy={gameRulesText} urlToCopy={gameUrl} language={language} align="right" glass />
+                  <ShareMenu textToCopy={gameRulesText} urlToCopy={gameUrl} shareTitle={game.title[language]} language={language} align="right" glass />
                 </div>
               </div>
               <div className="flex items-center gap-3.5 flex-wrap pt-1">
@@ -210,27 +221,30 @@ export const GamePage: React.FC<GamePageProps> = ({
               </div>
             </div>
 
-            {/* Meta as Badges: Immer in genau einer einzigen Zeile (kein Umbruch!) */}
-            <div tabIndex={0} role="group" aria-label={language === 'de' ? 'Eckdaten' : 'Key facts'} className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap py-1 print:hidden select-none text-xs text-text-secondary focus-visible:outline-2 focus-visible:outline-accent rounded-chip">
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border shrink-0 font-medium whitespace-nowrap shadow-2xs">
+            {/* Meta as Badges: always one line; the place chip shrinks and truncates instead of scrolling (full text in title) */}
+            <div role="group" aria-label={language === 'de' ? 'Eckdaten' : 'Key facts'} className="flex items-center gap-1 sm:gap-1.5 min-w-0 flex-nowrap py-1 print:hidden select-none text-xs text-text-secondary">
+              <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-surface-2 border border-border shrink-0 font-medium whitespace-nowrap shadow-2xs">
                 <Users className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
                 <span>{game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}</span>
               </span>
 
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border shrink-0 font-medium whitespace-nowrap shadow-2xs">
+              <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-surface-2 border border-border shrink-0 font-medium whitespace-nowrap shadow-2xs">
                 <Clock className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
                 <span>{game.durationMinutes}</span>
               </span>
 
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border shrink-0 font-medium whitespace-nowrap shadow-2xs">
+              <span
+                className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-surface-2 border border-border min-w-0 font-medium whitespace-nowrap shadow-2xs"
+                title={game.space[language]}
+              >
                 <MapPin className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
-                <span>{game.space[language]}</span>
+                <span className="truncate">{game.space[language]}</span>
               </span>
             </div>
 
             {/* Seamless Mode Switcher (Anleitung vs Jetzt spielen) */}
             {hasCompanion && (
-              <div className="pt-2 print:hidden">
+              <div className="pt-2 print:hidden lg:hidden">
                 <SegmentedControl<'rules' | 'play'>
                   options={[
                     {
@@ -246,7 +260,7 @@ export const GamePage: React.FC<GamePageProps> = ({
                   ]}
                   value={viewMode}
                   onChange={(val) => switchMode(val)}
-                  size="sm"
+                  size="md"
                 />
               </div>
             )}
@@ -260,15 +274,15 @@ export const GamePage: React.FC<GamePageProps> = ({
           {/* =============================================================== */}
           {/* INTERACTIVE COMPANION VIEW (JETZT SPIELEN)                      */}
           {/* =============================================================== */}
-          {viewMode === 'play' && Companion ? (
-            <section className="mt-4 print:hidden">
+          {Companion && playMounted && (
+            <section hidden={viewMode !== 'play'} className="mt-4 print:hidden">
               <Companion language={language} />
             </section>
-          ) : (
-            /* ============================================================= */
-            /* STANDARD INSTRUCTIONS VIEW (ANLEITUNG LESEN)                  */
-            /* ============================================================= */
-            <>
+          )}
+          {/* ============================================================= */}
+          {/* STANDARD INSTRUCTIONS VIEW (ANLEITUNG LESEN)                  */}
+          {/* ============================================================= */}
+          <div hidden={viewMode === 'play' && hasCompanion}>
               {/* Section 1: Idee */}
               <section className="mb-5 sm:mb-6">
                 <h2 className="text-xs font-bold text-text-tertiary mb-1.5">
@@ -310,11 +324,11 @@ export const GamePage: React.FC<GamePageProps> = ({
                         <button
                           type="button"
                           onClick={() => toggleStepCheck(idx)}
-                          className="mt-0.5 min-w-[28px] min-h-[28px] flex items-center justify-center text-text-tertiary hover:text-accent focus-visible:outline-none print:hidden cursor-pointer"
+                          className="group -ml-2 -mr-2 -mt-1.5 -mb-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-tertiary hover:text-accent focus-visible:outline-none print:hidden cursor-pointer"
                           aria-label={`${L('Schritt', 'Step')} ${idx + 1}`}
                         >
                           <span
-                            className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
+                            className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors group-focus-visible:ring-2 group-focus-visible:ring-accent group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-bg ${
                               isChecked
                                 ? 'bg-accent border-accent text-accent-contrast'
                                 : 'border-border-strong bg-surface'
@@ -387,15 +401,14 @@ export const GamePage: React.FC<GamePageProps> = ({
                         key={similar.id}
                         game={similar}
                         language={language}
-                        isFavorite={false}
+                        isFavorite={favorites.includes(similar.id)}
                         onToggleFavorite={onToggleFavorite}
                       />
                     ))}
                   </div>
                 </section>
               )}
-            </>
-          )}
+          </div>
         </div>
 
         {/* Right Column: Sticky Action Bar on Desktop */}
@@ -439,6 +452,7 @@ export const GamePage: React.FC<GamePageProps> = ({
               <ShareMenu
                 textToCopy={gameRulesText}
                 urlToCopy={gameUrl}
+                shareTitle={game.title[language]}
                 language={language}
                 align="right"
               />

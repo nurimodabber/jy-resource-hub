@@ -150,7 +150,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
               </Button>
               <a
                 href={`mailto:${CONTACT_EMAILS.join(',')}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-accent text-accent-contrast hover:bg-accent-hover transition-colors min-h-[36px]"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-surface-2 text-text border border-border hover:bg-surface-raised transition-colors min-h-[44px]"
               >
                 <Mail className="w-3.5 h-3.5" />
                 <span>{L('E-Mail öffnen', 'Open Mail')}</span>
@@ -180,7 +180,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
                 placeholder={L('name@beispiel.de', 'name@example.com')}
-                className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full px-3.5 py-2.5 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent"
               />
               <p className="text-2xs text-text-tertiary mt-1">
                 {L(
@@ -199,7 +199,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
                 id="contact-topic"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value as typeof topic)}
-                className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent"
+                className="w-full px-3.5 py-2.5 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <option value="feedback">{L('Rückmeldung zu Inhalten (Spiele/Zitate)', 'Feedback on content (Games/Quotes)')}</option>
                 <option value="question">{L('Frage zur Gruppenpraxis', 'Question on group practice')}</option>
@@ -219,7 +219,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={L('Schreibe deine Rückmeldung, deinen Eindruck oder deine Frage...', 'Write your feedback, experience or question...')}
-                className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent resize-y"
+                className="w-full px-3.5 py-2.5 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-accent resize-y"
               />
             </div>
           </div>

@@ -49,7 +49,8 @@ export const parseGameFilters = (searchParams: URLSearchParams): GameFilterState
   const ort = ortRaw === 'drinnen' || ortRaw === 'draussen' ? ortRaw : null;
 
   const sortRaw = searchParams.get('sort')?.toLowerCase();
-  const sort = sortRaw === 'duration' || sortRaw === 'groupSize' ? sortRaw : 'match';
+  // The URL value is lowercased above, so 'groupSize' arrives as 'groupsize' and must be mapped back.
+  const sort = sortRaw === 'duration' ? 'duration' : sortRaw === 'groupsize' ? 'groupSize' : 'match';
 
   return {
     q,

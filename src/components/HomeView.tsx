@@ -207,7 +207,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         >
           <div className="flex items-center gap-2 min-w-0">
             <Smartphone className="w-4 h-4 text-accent shrink-0" />
-            <p className="line-clamp-2">
+            <p>
               {L(
                 'Tipp: Zum Startbildschirm hinzufügen, um die Seite wie eine App und offline zu nutzen.',
                 'Tip: Add to home screen to use the hub offline like an app.'
@@ -259,21 +259,32 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             aria-label={L('Haupteinstiege', 'Main navigation')}
             className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-2.5 sm:gap-3"
           >
-            {/* Aktion 1: Spiel finden (die eine gefüllte Hauptaktion, solide) */}
+            {/* Aktion 1: Spiel finden. Gefüllt, solange der Finder zu ist. Offen wird „Passende Spiele anzeigen“
+                die eine Hauptaktion, darum wird dieser Knopf dann sekundär. */}
             <button
               type="button"
               onClick={() => setShowCompactFinder(!showCompactFinder)}
-              className="relative overflow-hidden rounded-full bg-accent text-accent-contrast px-5 py-3.5 sm:py-4 shadow-md hover:bg-accent-hover active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px] border border-white/25"
+              aria-expanded={showCompactFinder}
+              aria-controls="home-quick-finder"
+              className={`relative overflow-hidden rounded-full px-5 py-3.5 sm:py-4 active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px] ${
+                showCompactFinder
+                  ? 'bg-surface border border-line text-text shadow-sm hover:bg-surface-2/90'
+                  : 'bg-accent text-accent-contrast shadow-md hover:bg-accent-hover border border-white/25'
+              }`}
             >
               <div className="min-w-0 pr-2 relative z-10">
-                <div className="font-bold text-sm sm:text-base text-accent-contrast tracking-tight">
+                <div className={`font-bold text-sm sm:text-base tracking-tight ${showCompactFinder ? 'text-text' : 'text-accent-contrast'}`}>
                   {L('Spiel finden', 'Find a game')}
                 </div>
-                <p className="text-2xs text-accent-contrast font-medium leading-tight truncate">
+                <p className={`text-2xs font-medium leading-tight truncate ${showCompactFinder ? 'text-text-secondary' : 'text-accent-contrast'}`}>
                   {L('Gruppengröße & Zeit wählen', 'Pick group size & time')}
                 </p>
               </div>
-              <ArrowRight className="w-4 h-4 text-accent-contrast/95 group-hover:translate-x-1 transition-transform shrink-0 relative z-10" />
+              <ArrowRight
+                className={`w-4 h-4 shrink-0 relative z-10 transition-transform ${
+                  showCompactFinder ? 'text-text-tertiary rotate-90' : 'text-accent-contrast/95 group-hover:translate-x-1'
+                }`}
+              />
             </button>
 
             {/* Aktion 2: Zitate & Gebete (solide, sekundär) */}
@@ -295,7 +306,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
 
           {/* Spielfinder kompakt (nur bei Klick auf "Spiel finden") */}
           {showCompactFinder && (
-            <section aria-label={L('Kompakter Spielfinder', 'Compact game finder')} className="animate-in fade-in duration-200">
+            <section id="home-quick-finder" aria-label={L('Kompakter Spielfinder', 'Compact game finder')} className="animate-in fade-in duration-200">
               <Panel className="space-y-4 border border-border bg-surface rounded-card p-4 sm:p-5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold text-text flex items-center gap-2">
@@ -331,9 +342,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                       onChange={setFinderDuration}
                       allLabel={L('Egal', 'Any')}
                       options={[
-                        { id: '10', label: '10 min' },
-                        { id: '20', label: '20 min' },
-                        { id: '30', label: '30 min' },
+                        { id: '10', label: L('10 Min', '10 min') },
+                        { id: '20', label: L('20 Min', '20 min') },
+                        { id: '30', label: L('30 Min', '30 min') },
                       ]}
                     />
                   </div>
@@ -392,7 +403,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               <button
                 type="button"
                 onClick={handleShareQuote}
-                className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                 title={t.quoteShare}
                 aria-label={t.quoteShare}
               >
@@ -405,7 +416,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                   href={quoteSong.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full flex items-center justify-center text-text-secondary hover:text-accent hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-text-secondary hover:text-accent hover:bg-surface-2 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                   title={language === 'de' ? `Lied „${quoteSong.title}“ auf bahaisongs.com anhören` : `Listen to song "${quoteSong.title}" on bahaisongs.com`}
                   aria-label={t.quoteSongAriaLabel}
                 >
@@ -420,11 +431,12 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             to={`/quotes/${quote.id}`}
             className="block group/quote focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control pt-1"
           >
-            <blockquote className="font-serif text-lg sm:text-xl md:text-2xl text-text leading-[1.65] select-text group-hover/quote:text-accent transition-colors font-normal">
+            {/* Sacred text keeps its colour on hover; the source line underlines instead. */}
+            <blockquote className="font-serif text-lg sm:text-xl md:text-2xl text-text leading-[1.65] select-text font-normal pr-[var(--quote-gap)]">
               {language === 'de' ? `»${stripQuotes(quoteText)}«` : `“${stripQuotes(quoteText)}”`}
             </blockquote>
 
-            <cite className="not-italic text-xs sm:text-sm text-text-secondary font-serif italic block mt-3">
+            <cite className="not-italic text-xs sm:text-sm text-text-secondary font-serif italic block mt-3 underline-offset-2 group-hover/quote:underline">
               — {quoteAuthor(quote.source[language])}
             </cite>
           </Link>
