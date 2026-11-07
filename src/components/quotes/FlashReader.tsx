@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Play, Pause, RotateCcw, Eye, CheckCircle2 } from 'lucide-react';
 import { Slider as GlisseSlider } from 'glisse';
 import { QuoteItem, Language } from '../../types';
+import { tr } from '../tools/common';
 
 interface FlashReaderProps {
   quote: QuoteItem;
@@ -9,6 +10,7 @@ interface FlashReaderProps {
 }
 
 export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => {
+  const L = tr(language);
   const quoteText = language === 'de' ? quote.textDe : quote.textEn;
   const rawWords = useMemo(() => quoteText.split(/\s+/), [quoteText]);
 
@@ -80,27 +82,29 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
 
         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
           <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1.5 rounded-control text-text flex items-center">
-            <span>{wpm} WPM</span>
+            <span>{wpm} {L('Wörter/Min', 'words/min')}</span>
           </span>
 
           <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-full border border-border">
             <button
               type="button"
               onClick={() => { setChunkSize(1); setCurrentIndex(0); }}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
+              aria-pressed={chunkSize === 1}
+              className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer min-h-[44px] outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                 chunkSize === 1 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary hover:text-text'
               }`}
             >
-              1W
+              {L('1 Wort', '1 word')}
             </button>
             <button
               type="button"
               onClick={() => { setChunkSize(2); setCurrentIndex(0); }}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer min-h-[36px] ${
+              aria-pressed={chunkSize === 2}
+              className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer min-h-[44px] outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                 chunkSize === 2 ? 'bg-accent text-accent-contrast shadow-xs' : 'text-text-secondary hover:text-text'
               }`}
             >
-              2W
+              {L('2 Wörter', '2 words')}
             </button>
           </div>
         </div>
@@ -118,7 +122,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
 
         {/* Big Focal Word Display */}
         <div className="min-h-[160px] flex flex-col items-center justify-center py-6 text-center select-none relative">
-          <div className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-text leading-tight animate-in fade-in duration-75">
+          <div className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-text leading-tight animate-in fade-in duration-75 pr-[var(--quote-gap)]">
             {chunks[currentIndex] || '...'}
           </div>
 
@@ -129,7 +133,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
 
         {/* Completion Message */}
         {isFinished && (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-between gap-3 text-text animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
@@ -155,8 +159,8 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
 
         {/* Full Text Reveal if toggled */}
         {showFullText && (
-          <div className="p-4 rounded-card bg-surface-2 border border-border text-center font-serif italic text-sm sm:text-base text-text animate-in fade-in">
-            „{quoteText}“
+          <div className="p-4 rounded-card bg-surface-2 border border-border text-center font-serif italic text-sm sm:text-base text-text animate-in fade-in pr-[var(--quote-gap)]">
+            {language === 'de' ? `„${quoteText}“` : `“${quoteText}”`}
           </div>
         )}
 
@@ -176,7 +180,8 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
               type="button"
               onClick={handleReset}
               className="p-2.5 rounded-full border border-border bg-surface text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-              title="Reset"
+              aria-label={L('Zurücksetzen', 'Reset')}
+              title={L('Zurücksetzen', 'Reset')}
             >
               <RotateCcw className="w-4 h-4" />
             </button>
@@ -196,8 +201,8 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
                 onValueChange={(val) => setWpm(val)}
               />
             </div>
-            <span className="text-xs tabular-nums font-semibold text-text w-16 text-right">
-              {wpm} wpm
+            <span className="text-xs tabular-nums font-semibold text-text whitespace-nowrap text-right">
+              {wpm} {L('Wörter/Min', 'words/min')}
             </span>
           </div>
         </div>

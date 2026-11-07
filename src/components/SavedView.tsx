@@ -17,16 +17,18 @@ import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { GAMES_DATA } from '../data/games';
 import { useAdminData } from '../context/AdminDataContext';
+import { useToast } from '../context/ToastContext';
 import { QUOTES_DATA } from '../data/quotes';
 import { QUOTE_METHODS_DATA } from '../data/quoteMethods';
 import { SERVICE_PROJECTS_DATA } from '../data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from '../data/artsPrompts';
 import { EmptyState, Chip } from './ui';
+import { tr } from './tools/common';
 
 interface SavedViewProps {
   language: Language;
   favorites: string[];
-  onToggleFavorite: (id: string, e: React.MouseEvent) => void;
+  onToggleFavorite: (id: string, e?: React.MouseEvent) => void;
 }
 
 type Group = 'games' | 'quotes' | 'methods' | 'projects';
@@ -37,6 +39,7 @@ interface Row {
   subtitle?: string;
   duration?: string;
   groupSize?: string;
+  book?: string;
   attribution?: string;
   href: string;
   icon: LucideIcon;
@@ -46,6 +49,8 @@ interface Row {
 export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onToggleFavorite }) => {
   const t = UI_TRANSLATIONS[language];
   const isDe = language === 'de';
+  const L = tr(language);
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const adminData = useAdminData();
   const allGames = adminData.games.length > 0 ? adminData.games : GAMES_DATA;
@@ -111,7 +116,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
         title: a.title[language],
         subtitle: a.description[language],
         duration: a.duration[language],
-        groupSize: a.book[language],
+        book: a.book[language],
         href: `/arts/${a.id}`,
         icon: Palette,
       })),
@@ -136,6 +141,8 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
 
   const order: Group[] = ['games', 'quotes', 'methods', 'projects'];
   const nonEmpty = order.filter((g) => groups[g].length > 0);
+  // Count rows that actually render, not favorites.length: IDs of removed entries stay in storage.
+  const savedCount = order.reduce((n, g) => n + groups[g].length, 0);
   const [active, setActive] = useState<Group | 'all'>('all');
   const shown = active === 'all' ? nonEmpty : nonEmpty.filter((g) => g === active);
 
@@ -147,9 +154,9 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
           <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {t.savedItems}
           </h1>
-          {favorites.length > 0 && (
+          {savedCount > 0 && (
             <span className="text-sm font-bold text-accent tabular-nums">
-              {favorites.length} {isDe ? (favorites.length === 1 ? 'Eintrag' : 'Einträge') : (favorites.length === 1 ? 'item' : 'items')}
+              {savedCount} {isDe ? (savedCount === 1 ? 'Eintrag' : 'Einträge') : (savedCount === 1 ? 'item' : 'items')}
             </span>
           )}
         </div>
@@ -176,7 +183,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
           <div className="flex flex-wrap gap-2" role="group" aria-label={language === 'de' ? 'Gemerkt filtern' : 'Filter saved items'}>
             <Chip
               selected={active === 'all'}
-              count={favorites.length}
+              count={savedCount}
               onClick={() => setActive('all')}
             >
               {isDe ? 'Alle' : 'All'}
@@ -228,11 +235,12 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
                               {row.isQuote ? (
                                 <div>
                                   {/* Sacred Quote Text: Reverent Lora Serif, serene, no tacky tags or badges */}
-                                  <blockquote className="font-serif italic text-base sm:text-lg text-text leading-relaxed select-text group-hover:text-accent transition-colors font-normal">
+                                  {/* No hover colour on sacred text: the row background and the source underline show hover. */}
+                                  <blockquote className="font-serif text-base sm:text-lg text-text leading-relaxed select-text font-normal pr-[var(--quote-gap)]">
                                     {row.title}
                                   </blockquote>
                                   {row.attribution && (
-                                    <p className="mt-2 text-xs text-text-secondary tracking-wide font-normal">
+                                    <p className="mt-2 text-xs text-text-secondary tracking-wide font-normal underline-offset-2 group-hover:underline">
                                       {row.attribution}
                                     </p>
                                   )}
@@ -250,21 +258,25 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
                                   )}
 
                                   {/* Minimalist, calm metadata (only duration and group size, no loud badges) */}
-                                  {(row.duration || row.groupSize) && (
-                                    <div className="flex items-center gap-2.5 mt-1.5 text-xs text-text-tertiary font-medium">
+                                  {(row.duration || row.groupSize || row.book) && (
+                                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-xs text-text-tertiary font-medium">
                                       {row.duration && (
-                                        <span className="inline-flex items-center gap-1">
+                                        <span className="inline-flex items-center gap-1 whitespace-nowrap">
                                           <Clock className="w-3 h-3 text-text-tertiary/75 shrink-0" strokeWidth={1.5} />
                                           <span>{row.duration}</span>
                                         </span>
                                       )}
-                                      {row.duration && row.groupSize && (
-                                        <span className="text-line" aria-hidden="true">·</span>
-                                      )}
                                       {row.groupSize && (
-                                        <span className="inline-flex items-center gap-1">
+                                        <span className="inline-flex items-center gap-1 whitespace-nowrap">
                                           <Users className="w-3 h-3 text-text-tertiary/75 shrink-0" strokeWidth={1.5} />
                                           <span>{row.groupSize}</span>
+                                        </span>
+                                      )}
+                                      {/* Book names can be long ("… & …"), so they may wrap; numbers above never break mid-value. */}
+                                      {row.book && (
+                                        <span className="inline-flex items-center gap-1 min-w-0">
+                                          <BookOpen className="w-3 h-3 text-text-tertiary/75 shrink-0" strokeWidth={1.5} />
+                                          <span>{row.book}</span>
                                         </span>
                                       )}
                                     </div>
@@ -278,11 +290,18 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
                           <div className="flex items-center gap-1 shrink-0 pt-0.5 sm:pt-0" onClick={(e) => e.stopPropagation()}>
                             <button
                               type="button"
-                              onClick={(e) => onToggleFavorite(row.id, e)}
+                              onClick={(e) => {
+                                onToggleFavorite(row.id, e);
+                                // One tap removes at once; offer a way back for mis-taps during a live session.
+                                showToast({
+                                  text: L(`Entfernt: ${row.title}`, `Removed: ${row.title}`),
+                                  undo: { label: L('Rückgängig', 'Undo'), onClick: () => onToggleFavorite(row.id) },
+                                });
+                              }}
                               aria-pressed="true"
-                              className="w-10 h-10 min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-full text-accent hover:bg-accent-subtle active:scale-90 transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                              aria-label={`${t.savedItems} entfernen: ${row.title}`}
-                              title={isDe ? 'Aus Lesezeichen entfernen' : 'Remove from bookmarks'}
+                              className="w-11 h-11 min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-full text-accent hover:bg-accent-subtle active:scale-90 transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                              aria-label={`${L('Aus Gemerkt entfernen', 'Remove from saved')}: ${row.title}`}
+                              title={L('Aus Gemerkt entfernen', 'Remove from saved')}
                             >
                               <Bookmark className="w-4 h-4 fill-accent text-accent" strokeWidth={1.75} />
                             </button>

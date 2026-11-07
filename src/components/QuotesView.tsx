@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { 
   Search, X, BookOpen, Layers, Tag, Heart,
   ArrowLeft, ArrowRight, Play, Check, Brain, Music, Shuffle
@@ -42,6 +42,17 @@ interface QuotesViewProps {
 
 type ViewTab = 'quotes' | 'practice';
 
+// Accent- and apostrophe-insensitive search: "Abdul" must find "‘Abdu’l-Bahá", "Bahaullah" "Bahá’u’lláh".
+const normalizeSearch = (s: string) =>
+  s.normalize('NFD').replace(/\p{M}/gu, '').replace(/[’‘'ʿʼ]/g, '').toLowerCase();
+
+// Query string of the list (search + filters), kept in memory only so "back" from a quote opened
+// some other way (shared link, sibling quote) still lands on the filtered list. No storage needed.
+let lastListSearch = '';
+
+// Marks navigation from the list into a detail page, so "back" can simply pop that history entry.
+const FROM_LIST_STATE = { fromQuotesList: true } as const;
+
 export const QuotesView: React.FC<QuotesViewProps> = ({
   searchQuery: externalSearchQuery,
   language,
@@ -56,6 +67,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
   const t = UI_TRANSLATIONS[language];
   const isDe = language === 'de';
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Route detail page mode: if URL has an ID, display QuoteDetail
   const activeDetailQuote = useMemo(() => {
@@ -132,12 +144,42 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     }
   }, [searchParams]);
 
-  // Sync external search prop if provided
+  // Sync external search prop if provided. Only a non-empty value: App passes '' on every mount,
+  // which used to wipe ?q= from a reloaded URL.
   useEffect(() => {
-    if (externalSearchQuery !== undefined) {
+    if (externalSearchQuery) {
       setLocalSearch(externalSearchQuery);
     }
   }, [externalSearchQuery]);
+
+  useEffect(() => {
+    if (!effectiveQuoteId) lastListSearch = location.search;
+  }, [effectiveQuoteId, location.search]);
+
+  // Opening a tool scrolls to it (not to the page top, which hid the tool below the banner).
+  // Pending target lives in a ref because the practice tab may only render after the URL sync.
+  const practiceTopRef = useRef<HTMLDivElement>(null);
+  const toolSectionRef = useRef<HTMLDivElement>(null);
+  const pendingScrollRef = useRef<'practice' | 'tool' | null>(null);
+  const [scrollTick, setScrollTick] = useState(0);
+  const requestScroll = (target: 'practice' | 'tool') => {
+    pendingScrollRef.current = target;
+    setScrollTick((n) => n + 1);
+  };
+  useEffect(() => {
+    const target = pendingScrollRef.current;
+    if (!target) return;
+    const el = target === 'tool' ? toolSectionRef.current : practiceTopRef.current;
+    if (!el) return;
+    pendingScrollRef.current = null;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }, [scrollTick, viewTab, activeTool]);
+
+  const openTool = (tool: InteractiveTool) => {
+    setActiveTool(tool);
+    requestScroll('tool');
+  };
 
   // URL Query Params updates helper
   const updateParams = useCallback((newParams: Record<string, string | null>) => {
@@ -182,11 +224,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       if (onlyPrayers && !isPrayerQuote(quote)) return false;
 
       if (effectiveSearch) {
-        const query = effectiveSearch.toLowerCase();
-        const textMatch = (isDe ? quote.textDe : quote.textEn).toLowerCase().includes(query);
-        const sourceMatch = quote.source[language].toLowerCase().includes(query);
-        const themeMatch = quote.theme[language].toLowerCase().includes(query);
-        const keywordMatch = quote.keywords?.some((k) => k.toLowerCase().includes(query));
+        const query = normalizeSearch(effectiveSearch);
+        const textMatch = normalizeSearch(isDe ? quote.textDe : quote.textEn).includes(query);
+        const sourceMatch = normalizeSearch(quote.source[language]).includes(query);
+        const themeMatch = normalizeSearch(quote.theme[language]).includes(query);
+        const keywordMatch = quote.keywords?.some((k) => normalizeSearch(k).includes(query));
         if (!textMatch && !sourceMatch && !themeMatch && !keywordMatch) return false;
       }
 
@@ -337,7 +379,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       setPracticeQuote(randomQuote);
       updateParams({ quote: randomQuote.id });
     } else {
-      navigate(`/quotes/${randomQuote.id}`);
+      navigate(`/quotes/${randomQuote.id}`, { state: FROM_LIST_STATE });
     }
   };
 
@@ -368,15 +410,15 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
   // Filtered quotes in picker dialog
   const pickerQuotes = useMemo(() => {
-    if (!pickerSearch) return QUOTES_DATA;
-    const query = pickerSearch.toLowerCase();
+    if (!pickerSearch.trim()) return QUOTES_DATA;
+    const query = normalizeSearch(pickerSearch.trim());
     return QUOTES_DATA.filter((q) => {
       const text = isDe ? q.textDe : q.textEn;
       return (
-        text.toLowerCase().includes(query) ||
-        q.source[language].toLowerCase().includes(query) ||
-        q.book[language].toLowerCase().includes(query) ||
-        q.theme[language].toLowerCase().includes(query)
+        normalizeSearch(text).includes(query) ||
+        normalizeSearch(q.source[language]).includes(query) ||
+        normalizeSearch(q.book[language]).includes(query) ||
+        normalizeSearch(q.theme[language]).includes(query)
       );
     });
   }, [pickerSearch, language, isDe]);
@@ -396,6 +438,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       },
     ],
     [t.tabQuotesRead, t.tabQuotesMemorise, effectiveSearch, activeFilterCount, filteredQuotes.length]
+  );
+
+  const mobileTabOptions = useMemo(
+    () => tabOptions.map(({ icon: _icon, ...rest }) => rest),
+    [tabOptions]
   );
 
   // Unknown id (other sites link here): say so instead of silently showing the list.
@@ -420,7 +467,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         language={language}
         favorites={favorites}
         onToggleFavorite={onToggleFavorite}
-        onBack={() => navigate('/quotes')}
+        onBack={() => {
+          const state = location.state as { fromQuotesList?: boolean } | null;
+          if (state?.fromQuotesList) navigate(-1);
+          else navigate(`/quotes${lastListSearch}`);
+        }}
       />
     );
   }
@@ -460,8 +511,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
         {/* Mobile: SegmentedControl with Random Quote Button to the right */}
         <div className="sm:hidden flex items-center gap-2">
           <div className="flex-1 min-w-0">
+            {/* No icons at phone width: with them "Auswendiglernen" was cut off. */}
             <SegmentedControl<ViewTab>
-              options={tabOptions}
+              options={mobileTabOptions}
               value={viewTab}
               onChange={handleTabChange}
               fullWidth
@@ -512,7 +564,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     updateParams({ q: null });
                   }}
                   aria-label={isDe ? 'Suche löschen' : 'Clear search'}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -610,10 +662,10 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     language={language}
                     isFavorite={favorites.includes(quote.id)}
                     onToggleFavorite={onToggleFavorite}
-                    onSelectQuote={(q) => navigate(`/quotes/${q.id}`)}
+                    onSelectQuote={(q) => navigate(`/quotes/${q.id}`, { state: FROM_LIST_STATE })}
                     onPracticeQuote={(q) => {
                       navigate(`/quotes?tab=practice&quote=${q.id}`);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      requestScroll('practice');
                     }}
                   />
                 ))}
@@ -634,7 +686,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
       {/* TAB 2: AUSWENDIG LERNEN (Flat Overview of Methods & Interactive Web-Apps) */}
       {/* ========================================================================= */}
       {viewTab === 'practice' && (
-        <div className="space-y-6">
+        <div ref={practiceTopRef} className="space-y-6 scroll-mt-24">
           {/* Active Practice Quote Banner (Hero) */}
           {(() => {
             const practiceSong = getQuoteSong(practiceQuote.id, language);
@@ -643,9 +695,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 {/* 1. Header Bar: Badge, Book/Lesson info & Quote counter */}
                 <div className="px-4 sm:px-6 py-3 bg-surface-2/40 border-b border-border/60 flex items-center justify-between gap-3 flex-wrap">
                   <div className="flex items-center gap-2 flex-wrap min-w-0">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-2xs font-semibold bg-accent-subtle text-accent-text shrink-0">
-                      <Brain className="w-3.5 h-3.5" />
-                      <span>{isDe ? 'Ausgewählt zum Üben' : 'Selected for practice'}</span>
+                    <span className="text-2xs font-semibold text-text-secondary shrink-0">
+                      {isDe ? 'Ausgewählt zum Üben' : 'Selected for practice'}
                     </span>
                     <span className="text-border-strong text-xs hidden sm:inline" aria-hidden="true">·</span>
                     <span className="text-xs text-text-secondary font-medium truncate max-w-xs sm:max-w-md">
@@ -662,10 +713,12 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
                 {/* 2. Main Content: Holy text and attribution */}
                 <div className="p-5 sm:p-6 pb-3 space-y-2.5">
-                  <p className="font-serif text-lg sm:text-xl md:text-2xl text-text leading-relaxed font-normal">
-                    {isDe ? `»${practiceQuote.textDe}«` : `“${practiceQuote.textEn}”`}
-                  </p>
-                  <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium">
+                  {!activeTool && (
+                    <p className="font-serif text-lg sm:text-xl md:text-2xl text-text leading-relaxed font-normal pr-[var(--quote-gap)]">
+                      {isDe ? `»${practiceQuote.textDe}«` : `“${practiceQuote.textEn}”`}
+                    </p>
+                  )}
+                  <p className="text-xs sm:text-sm text-text-secondary font-sans font-medium pr-[var(--quote-gap)]">
                     — {practiceQuote.source[language]}
                   </p>
                 </div>
@@ -741,7 +794,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
           {/* Active Interactive Simulator (when a Web-App tool is launched) */}
           {activeTool && (
-            <div className="space-y-4 animate-in fade-in duration-200">
+            <div ref={toolSectionRef} className="space-y-4 animate-in fade-in duration-200 scroll-mt-24">
               {/* The Active Simulator Container */}
               <InteractiveToolRenderer
                 tool={activeTool}
@@ -785,7 +838,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     type="button"
                     onClick={() => setMethodSearch('')}
                     aria-label={isDe ? 'Suche löschen' : 'Clear search'}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-text-tertiary hover:text-text hover:bg-surface-2/80 active:scale-95 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -808,7 +861,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     key={pill.id}
                     type="button"
                     onClick={() => setSelectedPhase(pill.id as typeof selectedPhase)}
-                    className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer min-h-[36px] flex items-center ${
+                    className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer min-h-[44px] flex items-center focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                       isSelected
                         ? 'bg-accent text-accent-contrast font-semibold shadow-xs'
                         : 'bg-surface hover:bg-surface-2 text-text-secondary hover:text-text border border-border/80'
@@ -829,15 +882,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 return (
                   <article
                     key={method.id}
-                    onClick={() => {
-                      if (toolId) {
-                        setActiveTool(toolId);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      } else {
-                        setSelectedMethodForDetail(method);
-                      }
-                    }}
-                    className={`bg-surface rounded-card border p-5 sm:p-6 transition-all duration-200 ease-out cursor-pointer flex flex-col justify-between group shadow-2xs ${
+                    className={`relative bg-surface rounded-card border p-5 sm:p-6 transition-all duration-200 ease-out cursor-pointer flex flex-col justify-between group shadow-2xs ${
                       isCurrentToolActive
                         ? 'border-accent shadow-1 ring-1 ring-accent/30'
                         : 'border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2'
@@ -846,12 +891,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-2 text-xs text-text-tertiary">
                         <div className="flex items-center gap-2 font-medium flex-wrap">
-                          {toolId ? (
-                            <span className="px-2.5 py-0.5 rounded-chip text-2xs font-semibold bg-accent/8 text-accent border border-accent/20 inline-flex items-center gap-1">
-                              <Play className="w-2.5 h-2.5 fill-current" />
-                              <span>{isDe ? 'Web-App' : 'Web App'}</span>
-                            </span>
-                          ) : (
+                          {!toolId && (
                             <span className="px-2.5 py-0.5 rounded-full text-2xs font-medium bg-surface-2 text-text-secondary border border-border/70">
                               {method.phase === 1
                                 ? isDe ? '1. Lernen' : '1. Learn'
@@ -871,7 +911,17 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                       </div>
 
                       <h3 className="font-serif text-base sm:text-lg font-medium text-text group-hover:text-accent transition-colors leading-snug">
-                        {method.name[language]}
+                        {/* Stretched button: the whole card is the hit area, the heading stays a heading. */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (toolId) openTool(toolId);
+                            else setSelectedMethodForDetail(method);
+                          }}
+                          className="text-left cursor-pointer outline-hidden after:absolute after:inset-0 after:rounded-card after:content-[''] focus-visible:after:ring-2 focus-visible:after:ring-accent"
+                        >
+                          {method.name[language]}
+                        </button>
                       </h3>
 
                       <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed">
@@ -951,8 +1001,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                       onClick={() => {
                         const tool = METHOD_TO_TOOL_MAP[selectedMethodForDetail.id];
                         setSelectedMethodForDetail(null);
-                        setActiveTool(tool);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        openTool(tool);
                       }}
                     >
                       <Play className="w-4 h-4 mr-2 fill-current" />
@@ -990,29 +1039,31 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             {pickerQuotes.map((q) => {
               const isSelected = q.id === practiceQuote.id;
               return (
-                <div
+                <button
+                  type="button"
                   key={q.id}
+                  aria-pressed={isSelected}
                   onClick={() => {
                     setPracticeQuote(q);
                     updateParams({ quote: q.id });
                     setIsQuotePickerOpen(false);
                   }}
-                  className={`p-3 rounded-xl border text-left cursor-pointer transition-colors ${
+                  className={`block w-full p-3 rounded-xl border text-left cursor-pointer transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                     isSelected
                       ? 'border-accent bg-accent-subtle/50'
                       : 'border-border hover:bg-surface-2'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="flex items-center justify-between gap-2 mb-1">
                     <span className="text-2xs font-bold text-text-tertiary">
                       {q.book[language]}
                     </span>
                     {isSelected && <Check className="w-4 h-4 text-accent" />}
-                  </div>
-                  <p className="font-serif text-xs text-text line-clamp-2">
-                    „{isDe ? q.textDe : q.textEn}“
-                  </p>
-                </div>
+                  </span>
+                  <span className="block font-serif text-xs text-text line-clamp-2 pr-[var(--quote-gap)]">
+                    {isDe ? `„${q.textDe}“` : `“${q.textEn}”`}
+                  </span>
+                </button>
               );
             })}
           </div>

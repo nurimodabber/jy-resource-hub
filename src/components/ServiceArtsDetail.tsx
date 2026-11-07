@@ -200,8 +200,9 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
             <h2 className="text-xs font-semibold text-accent mb-2">
               {L('Was uns geleitet hat', 'What guided our initiative')}
             </h2>
-            <p className="font-serif text-lg sm:text-xl text-text leading-relaxed italic">
-              „{objectiveText}“
+            {/* Normale Schrift ohne Anführungszeichen: Serif kursiv mit „…“ ist heiligen Texten vorbehalten. */}
+            <p className="text-base sm:text-lg text-text leading-relaxed">
+              {objectiveText}
             </p>
           </section>
 
@@ -223,7 +224,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
               {stepsList.map((step, idx) => (
                 <li
                   key={idx}
-                  className="flex items-start gap-4 p-4 sm:p-5 rounded-card border border-border/80 bg-surface hover:bg-surface-2/40 transition-colors shadow-2xs"
+                  className="flex items-start gap-4"
                 >
                   <span className="font-serif text-lg font-bold text-accent shrink-0 w-6 text-center tabular-nums leading-none mt-0.5">
                     {idx + 1}
@@ -254,11 +255,11 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
 
           {/* Section 4: Reflexionsfragen im Kreis */}
           {reflectionList.length > 0 && (
-            <section className="mb-8 rounded-card border border-border bg-surface-2 p-5 sm:p-6">
+            <section className="mb-8 border-t border-border pt-5">
               <button
                 type="button"
                 onClick={() => setIsQuestionsOpen(!isQuestionsOpen)}
-                className="w-full flex items-center justify-between text-left print:hidden cursor-pointer"
+                className="w-full min-h-[44px] flex items-center justify-between text-left print:hidden cursor-pointer"
                 aria-expanded={isQuestionsOpen}
               >
                 <div className="flex items-center gap-2">
@@ -294,11 +295,11 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
 
           {/* Section 5: Tipps für Animatoren */}
           {tipsList.length > 0 && (
-            <section className="rounded-card border border-border bg-surface-2 p-5 sm:p-6">
+            <section className="border-t border-border pt-5">
               <button
                 type="button"
                 onClick={() => setIsTipsOpen(!isTipsOpen)}
-                className="w-full flex items-center justify-between text-left print:hidden cursor-pointer"
+                className="w-full min-h-[44px] flex items-center justify-between text-left print:hidden cursor-pointer"
                 aria-expanded={isTipsOpen}
               >
                 <h2 className="text-xs font-bold text-text">

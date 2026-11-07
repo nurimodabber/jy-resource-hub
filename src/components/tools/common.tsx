@@ -145,7 +145,7 @@ export const ChoiceChips: React.FC<{
 );
 
 export const chipCls = (selected: boolean) =>
-  `min-h-[40px] px-4 rounded-chip text-sm font-medium transition-colors duration-150 ease-out border-0 ${
+  `min-h-[44px] px-4 rounded-chip text-sm font-medium transition-colors duration-150 ease-out border-0 ${
     selected
       ? 'bg-accent-subtle text-accent-text font-semibold'
       : 'bg-surface-2 text-text-secondary hover:text-text hover:bg-surface-2/80'

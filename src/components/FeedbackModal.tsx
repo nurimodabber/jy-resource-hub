@@ -100,7 +100,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
       }
 
       setSubmitted(true);
-      showToast({ text: L('Vielen Dank für dein Feedback.', 'Thank you for your feedback.') });
+      showToast({ text: L('Danke für deine Rückmeldung.', 'Thank you for your feedback.') });
       setTimeout(() => {
         setMessage('');
         setIsSubmitting(false);
@@ -115,7 +115,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={L('Feedback abgeben', 'Share Feedback')}
+      title={L('Rückmeldung geben', 'Give feedback')}
       description={L(
         'Hast du Ideen, Wünsche oder Anmerkungen zum Juju Hub? Teile deine Gedanken mit uns.',
         'Do you have ideas, requests, or notes about the Juju Hub? Share your thoughts with us.'
@@ -128,7 +128,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
             <Check className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-bold text-text">
-            {L('Feedback erhalten.', 'Feedback received.')}
+            {L('Rückmeldung erhalten.', 'Feedback received.')}
           </h3>
           <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
             {L(
@@ -191,7 +191,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
                 'Was gefällt dir, was fehlt oder was könnte verbessert werden?',
                 'What do you like, what is missing, or what could be improved?'
               )}
-              className="w-full px-3 py-2.5 rounded-control bg-bg border border-border text-text text-sm placeholder:text-text-tertiary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent resize-y min-h-[100px]"
+              className="w-full px-3 py-2.5 rounded-control bg-bg border border-border text-text text-base sm:text-sm placeholder:text-text-tertiary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent resize-y min-h-[100px]"
               autoFocus
             />
             <div className="flex items-center justify-between text-2xs text-text-tertiary mt-1">
@@ -212,7 +212,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
                 placeholder={L('z. B. Musonda', 'e.g. Musonda')}
-                className="w-full px-3 py-2 rounded-control bg-bg border border-border text-text text-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent min-h-[40px]"
+                className="w-full px-3 py-2 rounded-control bg-bg border border-border text-text text-base sm:text-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent min-h-[44px]"
               />
             </div>
             <div>
@@ -225,7 +225,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
                 value={authorEmail}
                 onChange={(e) => setAuthorEmail(e.target.value)}
                 placeholder="name@beispiel.de"
-                className="w-full px-3 py-2 rounded-control bg-bg border border-border text-text text-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent min-h-[40px]"
+                className="w-full px-3 py-2 rounded-control bg-bg border border-border text-text text-base sm:text-sm focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent min-h-[44px]"
               />
             </div>
           </div>
@@ -242,7 +242,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
               disabled={isSubmitting || message.trim().length < 5}
               icon={<Send className="w-3.5 h-3.5" />}
             >
-              {isSubmitting ? L('Wird gesendet...', 'Sending...') : L('Feedback absenden', 'Send Feedback')}
+              {isSubmitting ? L('Wird gesendet...', 'Sending...') : L('Rückmeldung senden', 'Send feedback')}
             </Button>
           </div>
         </form>

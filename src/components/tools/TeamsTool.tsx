@@ -691,7 +691,8 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
             onChange={setAvoid}
             label={L('Paarungen nicht wiederholen', "Don't repeat pairings")}
             description={L('Wer schon zusammen war, kommt möglichst in andere Teams.', 'People who were together go to different teams where possible.')}
-            className="w-full"
+            // Der Text füllt die ganze Zeile bis zum Schalter, so ist die gesamte Zeile anklickbar (mind. 44 px hoch).
+            className="w-full min-h-[44px] [&>label]:flex-1 [&>label]:py-2"
           />
           {(round > 1 || Object.keys(seen).length > 0) && (
             <button
@@ -916,13 +917,15 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
         )}
       </Sheet>
 
-      {/* 6. FULLSCREEN "GRUPPE ZEIGEN" VIEW (Feature 14) */}
-      {showGroupView && (
+      {/* 6. FULLSCREEN "GRUPPE ZEIGEN" VIEW (Feature 14)
+          Portal in <body> und z-50: Nur so liegt die Großansicht über Kopfzeile und Tab-Leiste (beide z-40)
+          und deckt wirklich den ganzen Bildschirm statt nur den Seiteninhalt. */}
+      {showGroupView && createPortal(
         <div
           role="dialog"
           aria-modal="true"
           aria-label={L('Großansicht für die Gruppe', 'Fullscreen group view')}
-          className="fixed inset-0 z-50 bg-surface/98 backdrop-blur-md flex flex-col p-4 sm:p-6 md:p-8 overflow-y-auto animate-fadeIn select-none"
+          className="fixed inset-0 z-50 bg-surface flex flex-col p-4 sm:p-6 md:p-8 overflow-y-auto animate-fade-in select-none"
           onTouchStart={(e) => {
             touchStartY.current = e.touches[0].clientY;
           }}
@@ -943,7 +946,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                   ? L('Tandems', 'Pairs')
                   : L('Teams', 'Teams')}
               </span>
-              <span className="text-xs sm:text-sm font-bold px-3 py-1 rounded-full bg-accent/15 text-accent border border-accent/25">
+              <span className="text-sm sm:text-base font-semibold text-text-secondary">
                 {L(`Runde ${round}`, `Round ${round}`)}
               </span>
             </div>
@@ -983,7 +986,7 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                       <div className="flex items-center justify-between gap-3 border-b border-border/40 pb-3">
                         <div className="flex items-center gap-2.5">
                           <span className={`w-4 h-4 rounded-full shrink-0 ${dot}`} aria-hidden="true" />
-                          <h3 className="text-lg sm:text-xl font-bold text-text">
+                          <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-text">
                             {teamLabel}
                           </h3>
                         </div>
@@ -998,10 +1001,11 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
                         {team.map((person) => (
                           <div
                             key={person}
-                            className="text-base sm:text-lg font-bold text-text px-3 py-2 rounded-control bg-surface/80 border border-border/50 flex items-center gap-2.5"
+                            className="text-2xl lg:text-4xl font-bold text-text py-1.5 flex items-center gap-3"
                           >
                             <span
-                              className={`w-2.5 h-2.5 rounded-full shrink-0 ${dot}`}
+                              className={`w-3 h-3 lg:w-4 lg:h-4 rounded-full shrink-0 ${dot}`}
+                              aria-hidden="true"
                             />
                             <span className="truncate">{person}</span>
                           </div>
@@ -1019,12 +1023,13 @@ export const TeamsTool: React.FC<{ language: Language }> = ({ language }) => {
             <button
               type="button"
               onClick={() => setShowGroupView(false)}
-              className="text-xs text-text-tertiary hover:text-text py-2 px-4 rounded-full transition-colors cursor-pointer"
+              className="text-sm text-text-tertiary hover:text-text min-h-[44px] py-2 px-4 rounded-full transition-colors cursor-pointer"
             >
               {L('Tippen, nach unten wischen oder Esc drücken zum Schließen', 'Tap, swipe down or press Esc to close')}
             </button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* 7. DUPLICATE NAME CONFIRMATION DIALOG (Feature 15) */}

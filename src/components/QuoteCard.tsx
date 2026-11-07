@@ -119,7 +119,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               type="button"
               onClick={(e) => onToggleFavorite(quote.id, e)}
               aria-pressed={isFavorite}
-              aria-label={`${t.savedItems}: ${quote.source[language]}`}
+              aria-label={`${isDe ? 'Merken' : 'Save'}: ${quote.source[language]}`}
               className={`w-[40px] h-[40px] min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
                 isFavorite
                   ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'

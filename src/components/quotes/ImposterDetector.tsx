@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, CheckCircle2, RotateCcw } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
+import { splitWord } from './textParts';
 
 interface ImposterDetectorProps {
   quote: QuoteItem;
@@ -54,8 +55,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
     const eligibleIndices: { index: number; word: string; decoy: string }[] = [];
 
     rawWords.forEach((word, idx) => {
-      const clean = word.replace(/[.,;:!?„"«»]/g, '');
-      const punctuation = word.replace(/[a-zA-ZäöüÄÖÜß0-9]/g, '');
+      const { lead, core: clean, trail } = splitWord(word);
 
       for (const [key, decoys] of Object.entries(DECOY_MAP)) {
         if (clean.toLowerCase() === key.toLowerCase()) {
@@ -63,7 +63,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
           const formattedDecoy = clean.charAt(0) === clean.charAt(0).toUpperCase()
             ? randomDecoy.charAt(0).toUpperCase() + randomDecoy.slice(1)
             : randomDecoy.toLowerCase();
-          eligibleIndices.push({ index: idx, word, decoy: formattedDecoy + punctuation });
+          eligibleIndices.push({ index: idx, word, decoy: lead + formattedDecoy + trail });
           return;
         }
       }
@@ -73,7 +73,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
           ? ['Wunder', 'Gedanke', 'Prüfung', 'Zeichen', 'Hoffnung']
           : ['wonder', 'thought', 'symbol', 'purpose', 'promise'];
         const randomDecoy = fallbackDecoys[Math.floor(Math.random() * fallbackDecoys.length)];
-        eligibleIndices.push({ index: idx, word, decoy: randomDecoy + punctuation });
+        eligibleIndices.push({ index: idx, word, decoy: lead + randomDecoy + trail });
       }
     });
 
@@ -116,7 +116,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
 
       {/* Main Reading Canvas */}
       <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
-        <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px]">
+        <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px] pr-[var(--quote-gap)]">
           {rawWords.map((word, idx) => {
             const isImposter = idx === imposterIndex;
             const displayedWord = isImposter && !isResolved ? decoyWord : word;
@@ -127,11 +127,9 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
                 type="button"
                 key={idx}
                 onClick={() => handleWordClick(idx)}
-                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-control font-serif text-xl sm:text-3xl ${
+                className={`cursor-pointer transition-all duration-200 select-none inline-flex items-center min-h-[44px] px-2 py-0.5 rounded-control font-serif text-xl sm:text-3xl outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                   isImposter && isResolved
                     ? 'bg-success/15 text-success font-bold border border-success/30'
-                    : isImposter && !isResolved
-                    ? 'hover:bg-accent-subtle hover:text-accent-text'
                     : isShaking
                     ? 'bg-danger/10 text-danger border border-danger/30'
                     : 'hover:bg-surface-2'
@@ -146,13 +144,15 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
 
         {/* Resolution Banner */}
         {isResolved ? (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-between gap-3 text-text animate-in fade-in">
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
                 <strong className="font-semibold block text-success">{t.imposterFound}</strong>
                 <span className="text-text-secondary">
-                  {language === 'de' ? `„${decoyWord}“ wurde durch „${originalWord}“ ersetzt.` : `"${decoyWord}" was corrected to "${originalWord}".`}
+                  {language === 'de'
+                    ? `„${splitWord(decoyWord).core}“ wurde durch „${splitWord(originalWord).core}“ ersetzt.`
+                    : `“${splitWord(decoyWord).core}” was corrected to “${splitWord(originalWord).core}”.`}
                 </span>
               </div>
             </div>
@@ -166,16 +166,16 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
             </button>
           </div>
         ) : (
-          <div className="flex items-center justify-between pt-2 border-t border-border text-xs text-text-secondary">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-border text-xs text-text-secondary">
             <span className="flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5 text-accent-text" />
-              <span>{language === 'de' ? 'Findet das gefälschte Wort und klickt darauf.' : 'Locate the imposter word and click it.'}</span>
+              <span>{language === 'de' ? 'Finde das gefälschte Wort und klicke darauf.' : 'Locate the imposter word and click it.'}</span>
             </span>
 
             <button
               type="button"
               onClick={generateImposter}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs text-text hover:bg-surface-2 rounded-control transition-colors border border-border cursor-pointer min-h-[44px]"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs text-text hover:bg-surface-2 rounded-control transition-colors border border-border cursor-pointer min-h-[44px] shrink-0"
             >
               <RotateCcw className="w-3 h-3" />
               <span>{t.nextImposter}</span>

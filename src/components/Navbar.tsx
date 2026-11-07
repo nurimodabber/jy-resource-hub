@@ -123,7 +123,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               <GlassIconButton
                 label={sectionTitle ? `${language === 'de' ? 'Zurück zu' : 'Back to'} ${sectionTitle}` : language === 'de' ? 'Zurück' : 'Back'}
                 icon={<ArrowLeft className="w-5 h-5" strokeWidth={2} />}
-                onClick={() => navigate(backPath)}
+                onClick={() => {
+                  // Opened from the quote list: go back to it, so search and filters stay as they were.
+                  if ((location.state as { fromQuotesList?: boolean } | null)?.fromQuotesList) navigate(-1);
+                  else navigate(backPath);
+                }}
                 className="-ml-1"
               />
               {sectionTitle && (
@@ -133,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <Link
               to="/"
-              className="flex items-center gap-2 min-w-0 min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex items-center justify-center gap-2 min-w-[44px] min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent"
               aria-label={`${t.siteTitle} – ${t.tabHome}`}
             >
               <Logo className="w-8 h-8 shrink-0" />
@@ -144,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Links (ab Tablet): Logo */}
         <Link
           to="/"
-          className="hidden md:flex items-center gap-2.5 shrink-0 min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent"
+          className="hidden md:flex items-center justify-center gap-2.5 shrink-0 min-w-[44px] min-h-[44px] rounded-control focus-visible:ring-2 focus-visible:ring-accent"
           aria-label={`${t.siteTitle} – ${t.tabHome}`}
         >
           <Logo className="w-8 h-8 short:w-6 short:h-6 shrink-0" />
@@ -189,7 +193,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenCommandPalette}
-            className="group hidden lg:flex items-center gap-2.5 h-10 w-48 px-3.5 rounded-full bg-surface-2/70 border border-line/70 hover:border-border-strong text-xs text-text-secondary hover:text-text cursor-pointer transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent"
+            className="group hidden lg:flex items-center gap-2.5 h-11 w-48 px-3.5 rounded-full bg-surface-2/70 border border-line/70 hover:border-border-strong text-xs text-text-secondary hover:text-text cursor-pointer transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={t.cmdKSearch}
           >
             <Search className="w-3.5 h-3.5 text-text-tertiary shrink-0" strokeWidth={1.75} />

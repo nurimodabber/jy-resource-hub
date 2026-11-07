@@ -25,6 +25,8 @@ export interface ShareMenuProps {
   glass?: boolean;
   /** 'ghost': runder Knopf ohne Rahmen, gleiche Größe wie der Merken-Knopf (Zitat-Karten) */
   variant?: 'outline' | 'ghost';
+  /** Titel für das Teilen-Menü des Systems (navigator.share); Standard ist der Seitentitel */
+  shareTitle?: string;
 }
 
 export const ShareMenu: React.FC<ShareMenuProps> = ({
@@ -38,6 +40,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
   onShare,
   glass = false,
   variant = 'outline',
+  shareTitle,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
@@ -48,6 +51,42 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
 
   const isDe = language === 'de';
   const resolvedUrl = urlToCopy || (typeof window !== 'undefined' ? window.location.href : '');
+  const canNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+
+  const closeAndRefocus = () => {
+    setIsOpen(false);
+    buttonRef.current?.focus();
+  };
+
+  // Menu pattern: focus moves into the menu on open, so keyboard users land on the first item
+  useEffect(() => {
+    if (!isOpen) return;
+    menuRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]')?.focus();
+  }, [isOpen]);
+
+  const handleMenuKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    e.preventDefault();
+    const items = Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]') ?? []);
+    if (items.length === 0) return;
+    const current = items.indexOf(document.activeElement as HTMLButtonElement);
+    const step = e.key === 'ArrowDown' ? 1 : -1;
+    items[(current + step + items.length) % items.length].focus();
+  };
+
+  const handleNativeShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    closeAndRefocus();
+    try {
+      await navigator.share({ title: shareTitle || document.title, url: resolvedUrl });
+      onShare?.();
+    } catch (err) {
+      // AbortError = the person closed the system sheet; that is not a failure worth a message
+      if ((err as Error)?.name !== 'AbortError') {
+        showToast({ text: isDe ? 'Teilen fehlgeschlagen' : 'Sharing failed' });
+      }
+    }
+  };
 
   // Close when clicking outside
   useEffect(() => {
@@ -63,10 +102,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
       }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-        buttonRef.current?.focus();
-      }
+      if (e.key === 'Escape') closeAndRefocus();
     };
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleKeyDown);
@@ -87,7 +123,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
     } catch {
       showToast({ text: isDe ? 'Kopieren fehlgeschlagen' : 'Failed to copy' });
     }
-    setIsOpen(false);
+    closeAndRefocus();
   };
 
   const handleCopyLink = async (e: React.MouseEvent) => {
@@ -101,7 +137,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
     } catch {
       showToast({ text: isDe ? 'Kopieren fehlgeschlagen' : 'Failed to copy' });
     }
-    setIsOpen(false);
+    closeAndRefocus();
   };
 
   const triggerLabel = label || (isDe ? 'Teilen' : 'Share');
@@ -141,15 +177,28 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
           ref={menuRef}
           role="menu"
           aria-label={triggerLabel}
+          onKeyDown={handleMenuKeyDown}
           className={`absolute z-50 min-w-[170px] py-1 glass-surface rounded-card border border-border shadow-2 animate-in fade-in zoom-in-95 duration-120 select-none ${
             direction === 'up' ? 'bottom-full mb-1.5' : 'top-full mt-1.5'
           } ${align === 'right' ? 'right-0' : 'left-0'}`}
         >
+          {canNativeShare && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={handleNativeShare}
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-text hover:bg-surface-2 transition-colors cursor-pointer text-left min-h-[44px] focus-visible:bg-surface-2 focus-visible:outline-none"
+            >
+              <Share2 className="w-4 h-4 text-text-tertiary shrink-0" />
+              <span>{isDe ? 'Teilen …' : 'Share …'}</span>
+            </button>
+          )}
+
           <button
             type="button"
             role="menuitem"
             onClick={handleCopyText}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-text hover:bg-surface-2 transition-colors cursor-pointer text-left min-h-[40px] focus-visible:bg-surface-2 focus-visible:outline-none"
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-text hover:bg-surface-2 transition-colors cursor-pointer text-left min-h-[44px] focus-visible:bg-surface-2 focus-visible:outline-none"
           >
             {copiedText ? (
               <Check className="w-4 h-4 text-accent shrink-0" />
@@ -163,7 +212,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
             type="button"
             role="menuitem"
             onClick={handleCopyLink}
-            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-text hover:bg-surface-2 transition-colors cursor-pointer text-left min-h-[40px] focus-visible:bg-surface-2 focus-visible:outline-none"
+            className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-text hover:bg-surface-2 transition-colors cursor-pointer text-left min-h-[44px] focus-visible:bg-surface-2 focus-visible:outline-none"
           >
             {copiedLink ? (
               <Check className="w-4 h-4 text-accent shrink-0" />

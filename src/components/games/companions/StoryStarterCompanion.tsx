@@ -49,9 +49,12 @@ export const StoryStarterCompanion: React.FC<StoryStarterCompanionProps> = ({ la
   };
 
   // Keyboard navigation
+  const rootRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      // GamePage keeps this companion mounted but hidden while the instructions are shown; keys belong to the page then
+      if (rootRef.current?.closest('[hidden]')) return;
       if (e.key === 'ArrowRight' || e.key === ' ') {
         e.preventDefault();
         handleNext();
@@ -89,7 +92,7 @@ export const StoryStarterCompanion: React.FC<StoryStarterCompanionProps> = ({ la
   };
 
   return (
-    <div className="space-y-4 text-left w-full max-w-2xl">
+    <div ref={rootRef} className="space-y-4 text-left w-full max-w-2xl">
       {/* Top Toolbar: Symmetrical single-row controls with Shuffle on the far right */}
       <div className="flex items-center justify-between gap-2.5 w-full flex-nowrap">
         <div className="flex items-center gap-2 min-w-0">

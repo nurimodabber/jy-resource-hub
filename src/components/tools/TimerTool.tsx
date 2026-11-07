@@ -8,11 +8,17 @@ import {
   HelpCircle,
   Clock,
   Repeat,
+  Maximize2,
+  X,
 } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { Language } from '../../types';
 import { useLocalState } from '../../hooks/useLocalState';
 import { useWakeLock } from '../../hooks/useWakeLock';
+import { useModal } from '../../hooks/useModal';
+import { useBackToClose } from '../../hooks/useBackToClose';
 import { tr, Panel, primaryBtn, secondaryBtn, chipCls } from './common';
+import { playChime } from '../../utils/chime';
 import { SegmentedControl } from '../ui/SegmentedControl';
 
 const PRESETS = [60, 120, 180, 300, 600, 900];
@@ -39,33 +45,41 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
   const endRef = useRef(0);
   useWakeLock(running);
 
-  const chime = useCallback(() => {
+  // Vollbild für den Beamer: wie bei der Punktetafel eigene Ebene in <body>, dazu (wenn erlaubt) das
+  // echte Browser-Vollbild. Escape, Fokus-Falle und Scroll-Sperre kommen aus useModal, Zurück vom Handy aus useBackToClose.
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const fullscreenRef = useRef<HTMLDivElement>(null);
+  const handleExitFullscreen = useCallback(async () => {
+    setIsFullscreen(false);
     try {
-      navigator.vibrate?.([200, 100, 200]);
+      if (document.fullscreenElement && document.exitFullscreen) await document.exitFullscreen();
     } catch {
       /* ignore */
     }
-    if (!sound) return;
+  }, []);
+  const exitFullscreen = useBackToClose(isFullscreen, 'timer', handleExitFullscreen);
+  useModal(fullscreenRef, isFullscreen, exitFullscreen);
+  const enterFullscreen = async () => {
+    setIsFullscreen(true);
     try {
-      const Ctx =
-        window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const ctx = new Ctx();
-      [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.frequency.value = f;
-        g.gain.setValueAtTime(0.18, ctx.currentTime + i * 0.12);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 1.2);
-        o.connect(g);
-        g.connect(ctx.destination);
-        o.start(ctx.currentTime + i * 0.12);
-        o.stop(ctx.currentTime + i * 0.12 + 1.3);
-      });
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      }
     } catch {
-      /* audio blocked */
+      /* the overlay alone still covers the screen */
     }
-  }, [sound]);
+  };
+  // Escape im echten Browser-Vollbild verlässt nur dieses und erreicht die Seite nicht: dann die Ansicht mitschließen.
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const onChange = () => {
+      if (!document.fullscreenElement) exitFullscreen();
+    };
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, [isFullscreen, exitFullscreen]);
+
+  const chime = useCallback(() => playChime(sound), [sound]);
 
   // Main countdown engine (resilient against backgrounding via endRef timestamp)
   useEffect(() => {
@@ -216,7 +230,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
           <button
             type="button"
             onClick={() => setShowHelp(!showHelp)}
-            className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors cursor-pointer ${
+            className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[44px] min-w-[44px] transition-colors cursor-pointer ${
               showHelp
                 ? 'bg-accent/15 border-accent text-accent'
                 : 'bg-surface-2 hover:bg-surface-raised border-border text-text-secondary hover:text-text'
@@ -234,8 +248,8 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
         <div className="bg-surface-2 rounded-card border border-border p-3 text-left text-xs text-text-secondary animate-in fade-in duration-150">
           <p className="leading-relaxed">
             {L(
-              'Große Zeitanzeige für Spiele, Vorträge oder Stationenläufe. Tippe auf den Kreis oder nutze Start/Pause und passe die Zeit mit den Schnellknöpfen (+30s / +1m) an.',
-              'Clean countdown for games, talks, or stations. Tap the circle or use Start/Pause and adjust time with quick buttons (+30s / +1m).'
+              'Große Zeitanzeige für Spiele, Vorträge oder Stationenläufe. Tippe auf den Kreis oder nutze Start/Pause und passe die Zeit mit den Schnellknöpfen (+30 Sek. / +1 Min.) an.',
+              'Clean countdown for games, talks, or stations. Tap the circle or use Start/Pause and adjust time with quick buttons (+30 s / +1 min).'
             )}
           </p>
         </div>
@@ -247,7 +261,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
           type="button"
           onClick={toggle}
           aria-label={running ? L('Pause', 'Pause') : L('Start', 'Start')}
-          className="relative w-48 h-48 sm:w-60 sm:h-60 flex items-center justify-center rounded-full transition-transform active:scale-98 cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+          className="relative w-48 h-48 sm:w-60 sm:h-60 lg:w-96 lg:h-96 flex items-center justify-center rounded-full transition-transform active:scale-98 cursor-pointer group focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
         >
           {/* Circular SVG Track & Arc */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 300 300">
@@ -298,7 +312,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
               </span>
             )}
             <div
-              className={`font-sans font-extrabold tabular-nums tracking-tight select-none transition-colors text-5xl sm:text-6xl ${
+              className={`font-sans font-extrabold tabular-nums tracking-tight select-none transition-colors text-5xl sm:text-6xl lg:text-8xl ${
                 remaining <= 10 && remaining > 0 && running
                   ? 'text-red-400'
                   : remaining === 0
@@ -310,7 +324,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
             >
               {fmt(remaining)}
             </div>
-            <span className="text-2xs font-sans text-text-tertiary mt-2 block">
+            <span className="text-sm font-sans text-text-tertiary mt-2 block">
               {running
                 ? L('Tippen für Pause', 'Tap to pause')
                 : remaining === 0
@@ -338,6 +352,7 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
             onClick={reset}
             className={secondaryBtn}
             title={L('Zurücksetzen', 'Reset')}
+            aria-label={L('Zurücksetzen', 'Reset')}
           >
             <RotateCcw className="w-4 h-4" />
           </button>
@@ -350,6 +365,11 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
           >
             {sound ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-text-tertiary" />}
           </button>
+
+          <button type="button" onClick={enterFullscreen} className={secondaryBtn}>
+            <Maximize2 className="w-4 h-4" />
+            <span>{L('Vollbild', 'Full screen')}</span>
+          </button>
         </div>
 
         {/* Schnellzeit-Knöpfe (-30s, +30s, +1m) */}
@@ -358,26 +378,26 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
             type="button"
             onClick={() => adjustTime(-30)}
             disabled={remaining <= 10}
-            className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text-secondary hover:text-text disabled:opacity-30 transition-colors cursor-pointer"
+            className="px-3 py-1.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text-secondary hover:text-text disabled:opacity-30 transition-colors cursor-pointer"
             title={L('30 Sekunden abziehen', 'Subtract 30 seconds')}
           >
-            -30s
+            {L('−30 Sek.', '−30 s')}
           </button>
           <button
             type="button"
             onClick={() => adjustTime(30)}
-            className="px-3 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text-secondary hover:text-text transition-colors cursor-pointer"
+            className="px-3 py-1.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text-secondary hover:text-text transition-colors cursor-pointer"
             title={L('30 Sekunden hinzufügen', 'Add 30 seconds')}
           >
-            +30s
+            {L('+30 Sek.', '+30 s')}
           </button>
           <button
             type="button"
             onClick={() => adjustTime(60)}
-            className="px-3.5 py-1.5 min-h-[38px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text-secondary hover:text-text transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 min-h-[44px] rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text-secondary hover:text-text transition-colors cursor-pointer"
             title={L('1 Minute hinzufügen', 'Add 1 minute')}
           >
-            +1m
+            {L('+1 Min.', '+1 min')}
           </button>
         </div>
       </div>
@@ -455,6 +475,59 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
           </div>
         </Panel>
       )}
+
+      {isFullscreen &&
+        createPortal(
+          <div
+            ref={fullscreenRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label={L('Timer im Vollbild', 'Timer in full screen')}
+            className="fixed inset-0 z-50 bg-bg text-text flex flex-col p-4 sm:p-6 pb-[max(1rem,env(safe-area-inset-bottom))] select-none outline-none"
+          >
+            <div className="flex items-center justify-between gap-3 shrink-0">
+              <span className="text-lg sm:text-2xl font-semibold text-text-secondary">
+                {timerMode === 'interval'
+                  ? intervalPhase === 'work'
+                    ? L(`Runde ${currentRound}/${intervalRounds}`, `Round ${currentRound}/${intervalRounds}`)
+                    : L('Pause', 'Rest')
+                  : ''}
+              </span>
+              <button type="button" onClick={exitFullscreen} className={secondaryBtn} title={L('Vollbild beenden (Esc)', 'Exit full screen (Esc)')}>
+                <X className="w-5 h-5" />
+                <span>{L('Schließen', 'Close')}</span>
+              </button>
+            </div>
+
+            <div className="flex-1 min-h-0 flex items-center justify-center">
+              <div
+                className={`font-sans font-extrabold tabular-nums tracking-tight leading-none text-[min(26vw,48vh)] ${
+                  remaining <= 10 && remaining > 0 && running
+                    ? 'text-red-400'
+                    : remaining === 0
+                    ? 'text-accent'
+                    : 'text-text'
+                }`}
+                role="timer"
+                aria-live="off"
+              >
+                {fmt(remaining)}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 shrink-0">
+              <button type="button" onClick={toggle} data-autofocus className={`${primaryBtn} min-w-[160px] text-lg`}>
+                {running ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+                <span>{running ? L('Pause', 'Pause') : L('Start', 'Start')}</span>
+              </button>
+              <button type="button" onClick={reset} className={secondaryBtn} aria-label={L('Zurücksetzen', 'Reset')} title={L('Zurücksetzen', 'Reset')}>
+                <RotateCcw className="w-5 h-5" />
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

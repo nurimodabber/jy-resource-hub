@@ -13,7 +13,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
   const isDe = language === 'de';
 
   return (
-    <div className="max-w-4xl w-full mx-auto py-4 sm:py-8 px-4 sm:px-6 animate-in fade-in duration-200">
+    <div className="max-w-4xl w-full mx-auto animate-in fade-in duration-200">
       <Button
         variant="ghost"
         size="sm"
@@ -25,15 +25,16 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
         {isDe ? 'Zurück' : 'Back'}
       </Button>
 
-      <div className="bg-surface rounded-3xl border border-border-subtle p-6 sm:p-10 shadow-apple-card space-y-8">
+      {/* No outer card: the highlighted boxes below would otherwise be cards in a card. */}
+      <div className="space-y-8">
         <div>
           <div className="w-12 h-12 rounded-2xl bg-accent-subtle text-accent-text flex items-center justify-center mb-4">
             <Shield className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-text tracking-tight">
+          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {isDe ? 'Impressum' : 'Legal Notice (Impressum)'}
           </h1>
-          <p className="text-sm text-text-secondary mt-1">
+          <p className="text-sm sm:text-base text-text-secondary mt-2">
             {isDe 
               ? 'Gesetzliche Anbieterkennzeichnung nach § 5 Digitale-Dienste-Gesetz (DDG) und § 18 Abs. 2 Medienstaatsvertrag (MStV)' 
               : 'Service provider information pursuant to § 5 DDG and § 18 (2) MStV'}
@@ -44,7 +45,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
         <section className="p-4 sm:p-5 rounded-2xl bg-surface-2 border border-border-subtle space-y-2.5">
           <div className="flex items-center gap-2 text-accent-text font-bold text-xs">
             <AlertCircle className="w-4 h-4" />
-            <span>{isDe ? 'Rechtlicher Status & Regionaler Fokus' : 'Legal Status & Regional Focus'}</span>
+            <span>{isDe ? 'Rechtlicher Status & regionaler Fokus' : 'Legal Status & Regional Focus'}</span>
           </div>
           <p className="text-sm text-text font-medium leading-relaxed">
             {isDe
@@ -74,7 +75,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
           </h2>
           <div className="p-4 sm:p-5 rounded-2xl bg-surface-2 border border-border-subtle text-xs sm:text-sm leading-relaxed space-y-2">
             <div>
-              <p className="font-bold text-text">Junior Youth Resource Hub</p>
+              <p className="font-bold text-text">Juju Hub</p>
               <p className="text-text-secondary">{isDe ? 'Private Einzelinitiative' : 'Independent Initiative'}</p>
             </div>
 
@@ -103,7 +104,7 @@ export const ImpressumView: React.FC<ImpressumViewProps> = ({ language, onBack, 
                   icon={<Mail className="w-3.5 h-3.5" />}
                   iconPosition="left"
                 >
-                  {isDe ? 'Kontakt aufnehmen / E-Mail hinterlegen' : 'Open Contact / Leave email'}
+                  {isDe ? 'Kontakt aufnehmen' : 'Get in touch'}
                 </Button>
               ) : (
                 <a

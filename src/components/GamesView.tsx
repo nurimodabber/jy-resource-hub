@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Search, X, ArrowLeft, Clock, Users, Flame, Compass, ArrowUpDown, MapPin, Shuffle } from 'lucide-react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { Search, X, Clock, Users, Flame, Compass, ArrowUpDown, MapPin, Shuffle } from 'lucide-react';
 import { FilterToggle } from './ui/FilterToggle';
 import { Language, GamePurpose, EnergyLevel } from '../types';
 import { GAMES_DATA } from '../data/games';
@@ -9,7 +9,6 @@ import { GamePage } from './GamePage';
 import { GlassIconButton } from './ui/Button';
 import { ContributeLink } from './ui/ContributeLink';
 import { EmptyState } from './ui/EmptyState';
-import { Badge } from './ui/Badge';
 import { FilterPillDropdown, FilterPillButton } from './ui/FilterPillDropdown';
 import { ScrollableFilterBar } from './ui/ScrollableFilterBar';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -108,7 +107,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
     { value: 10, label: t.filterDuration10 },
     { value: 20, label: t.filterDuration20 },
     { value: 30, label: t.filterDuration30 },
-    { value: 45, label: 'Bis 45 Min.' },
+    { value: 45, label: L('Bis 45 Min', 'Up to 45 min') },
   ];
 
   // Group size options for FilterPillDropdown
@@ -203,17 +202,8 @@ export const GamesView: React.FC<GamesViewProps> = ({
             title={t.gameNotFoundTitle}
             description={t.gameNotFoundDesc}
             actionLabel={t.backToGamesOverview}
-            onAction={() => window.location.assign('/games')}
+            onAction={() => navigate('/games')}
           />
-          <div className="mt-6 text-center">
-            <Link
-              to="/games"
-              className="inline-flex items-center gap-1.5 text-sm text-accent-text hover:underline"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {t.backToGamesOverview}
-            </Link>
-          </div>
         </div>
       );
     }
@@ -222,6 +212,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
         game={activeGame}
         language={language}
         isFavorite={favorites.includes(activeGame.id)}
+        favorites={favorites}
         onToggleFavorite={onToggleFavorite}
       />
     );
@@ -238,13 +229,6 @@ export const GamesView: React.FC<GamesViewProps> = ({
             <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
               {t.tabGames}
             </h1>
-            {hasActiveFilterOrSearch && (
-              <div aria-live="polite" aria-atomic="true">
-                <Badge category="neutral" size="md">
-                  {filteredGames.length} {t.gamesFound}
-                </Badge>
-              </div>
-            )}
           </div>
           <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
             {L(
@@ -349,7 +333,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
             {/* Dauer Dropdown */}
             <FilterPillDropdown
               label={t.filterDuration}
-              activeLabel={filters.dauer ? `≤ ${filters.dauer} Min.` : undefined}
+              activeLabel={filters.dauer ? `≤ ${filters.dauer} Min` : undefined}
               isActive={filters.dauer != null}
               icon={<Clock className="w-3.5 h-3.5 shrink-0" />}
               options={durationOptions}
@@ -393,14 +377,15 @@ export const GamesView: React.FC<GamesViewProps> = ({
         </div>
       )}
 
-      {/* Live count: only while searching/filtering; the unfiltered "29 Spiele" line was noise */}
-      {(totalActiveFilterCount > 0 || !!filters.q) && (
-      <div className="flex items-center justify-between gap-3 text-xs text-text-secondary pt-0.5 pb-2">
-        <span className="font-medium">
-          {filteredGames.length} {filteredGames.length === 1 ? (language === 'de' ? 'Spiel gefunden' : 'game found') : (language === 'de' ? 'Spiele gefunden' : 'games found')}
-        </span>
+      {/* Live count: only while searching/filtering; the unfiltered "29 Spiele" line was noise.
+          The live region stays mounted so screen readers hear the count when filtering starts. */}
+      <div aria-live="polite" aria-atomic="true" className="flex items-center justify-between gap-3 text-xs text-text-secondary">
+        {hasActiveFilterOrSearch && (
+          <span className="font-medium pt-0.5 pb-2">
+            {filteredGames.length} {filteredGames.length === 1 ? (language === 'de' ? 'Spiel gefunden' : 'game found') : (language === 'de' ? 'Spiele gefunden' : 'games found')}
+          </span>
+        )}
       </div>
-      )}
 
       {/* 4. Games Grid: 1 col on mobile, 2 cols on tablet, 3 cols from 1120px */}
       <h2 className="sr-only">{t.tabGames}</h2>

@@ -112,7 +112,7 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
 
           {/* Bookmark Button */}
           <GlassIconButton
-            label={isFavorite ? t.savedItems : (isDe ? 'Merken' : 'Save')}
+            label={isDe ? 'Merken' : 'Save'}
             aria-pressed={isFavorite}
             icon={<Bookmark className={`w-[18px] h-[18px] ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.9} />}
             onClick={(e) => onToggleFavorite(activeQuote.id, e)}
@@ -139,15 +139,23 @@ export const QuoteDetail: React.FC<QuoteDetailProps> = ({
 
         {/* The Holy Text: strictly unmodified, Lora font */}
         <div className="max-w-3xl mx-auto py-2">
-          <blockquote className="font-serif text-2xl sm:text-3xl lg:text-4xl leading-[1.7] text-text text-center sm:text-left select-text">
+          {/* Very long passages step down one size so the source stays on screen at 1280×800. */}
+          <blockquote
+            className={`font-serif leading-[1.7] text-text text-center sm:text-left select-text pr-[var(--quote-gap)] ${
+              text.length > 300
+                ? 'text-xl sm:text-2xl lg:text-3xl'
+                : 'text-2xl sm:text-3xl lg:text-4xl'
+            }`}
+          >
             {isDe ? `»${text}«` : `“${text}”`}
           </blockquote>
         </div>
 
         {/* Bottom meta */}
         <div className="pt-6 sm:pt-8 border-t border-border/60">
-          <cite className="not-italic text-sm sm:text-base text-text-secondary font-serif italic block">
-            —{' '}
+          {/* Flex keeps the dash with the source; as plain text it could end a line on its own. */}
+          <cite className="not-italic text-sm sm:text-base text-text-secondary font-serif italic flex items-baseline gap-1.5">
+            <span aria-hidden="true" className="shrink-0">—</span>
             <a
               href={getBahaiLibraryUrl(activeQuote, language)}
               target="_blank"

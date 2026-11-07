@@ -51,11 +51,11 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
     },
     reflectionPrompts: {
       de: [
-        'Warum kommen Bestätigungen oft erst *nachdem* man den ersten Schritt gewagt hat, und nicht vorher?',
+        'Warum kommen Bestätigungen oft erst, nachdem man den ersten Schritt gewagt hat, und nicht vorher?',
         'Wie können wir einander in Momenten der Mutlosigkeit an die Bestätigungen erinnern?'
       ],
       en: [
-        'Why do confirmations usually arrive *after* one takes the first leap of faith rather than beforehand?',
+        'Why do confirmations usually arrive after one takes the first leap of faith rather than beforehand?',
         'How can co-animators and group peers serve as agents of confirmation for one another during discouragement?'
       ]
     },

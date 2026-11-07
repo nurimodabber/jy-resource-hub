@@ -17,6 +17,7 @@ import { shuffle } from '../../../utils/random';
 import { tr, Panel, primaryBtn, secondaryBtn, Stepper, ToggleSwitch, PlayerSetupSection, usePlayerList } from '../../tools/common';
 import { PassAround } from '../../tools/PassAround';
 import { useWakeLock } from '../../../hooks/useWakeLock';
+import { playChime } from '../../../utils/chime';
 
 interface SpyCompanionProps {
   language: Language;
@@ -85,11 +86,8 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
       setSecondsLeft(left);
       if (left === 0) {
         setTimerRunning(false);
-        try {
-          navigator.vibrate?.([200, 100, 200]);
-        } catch {
-          /* ignore */
-        }
+        // The setup promises a "Schlusston", so play sound as well as vibration
+        playChime(true);
       }
     }, 250);
     return () => clearInterval(interval);
@@ -442,7 +440,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
                   className={secondaryBtn}
                   title={L('30 Sekunden abziehen', 'Subtract 30 seconds')}
                 >
-                  -30s
+                  {L('−30 Sek.', '−30 s')}
                 </button>
                 <button
                   type="button"
@@ -450,7 +448,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
                   className={secondaryBtn}
                   title={L('1 Minute hinzufügen', 'Add 1 minute')}
                 >
-                  +1m
+                  {L('+1 Min.', '+1 min')}
                 </button>
                 <button
                   type="button"

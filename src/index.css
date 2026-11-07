@@ -597,7 +597,9 @@
 }
 
 .animate-fade-in {
-  animation: pageFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  /* `backwards`, not `both`: a kept final transform makes this wrapper the containing block for
+     every position: fixed child, so full-screen views (Punktetafel, Teams) sat inside the page. */
+  animation: pageFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 
 /* Tactile button & card active spring */
@@ -756,10 +758,16 @@ kbd { font-family: inherit; }
   margin-top: -8px;
   margin-left: -12px;
   margin-right: -12px;
-  padding: 8px 12px 0;
+  /* Zitattext läuft nie bis an den rechten Rand (Wunsch des Inhabers, 7.11.2026): rechts
+     zusätzlich --quote-gap. Die Symbole oben rechts gleichen das mit negativem Rand aus und
+     bleiben bündig. */
+  padding: 8px calc(12px + var(--quote-gap)) 0 12px;
   max-height: calc(6 * 1.625em + 8px);
   overflow: clip;
 }
+.jy-quote-clamp > .float-right { margin-right: calc(-12px - var(--quote-gap)); }
+:root { --quote-gap: 1rem; }
+@media (min-width: 640px) { :root { --quote-gap: 1.5rem; } }
 .jy-quote-clamp[data-clamped='true'] {
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6em), transparent);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6em), transparent);

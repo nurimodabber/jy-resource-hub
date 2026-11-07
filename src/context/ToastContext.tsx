@@ -74,7 +74,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                   toast.action?.onClick();
                   hideToast();
                 }}
-                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-accent text-accent-contrast hover:bg-accent-hover transition-colors min-h-[32px] cursor-pointer"
+                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-accent text-accent-contrast hover:bg-accent-hover transition-colors min-h-[44px] cursor-pointer"
               >
                 {toast.action.label}
               </button>
@@ -86,7 +86,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                   toast.undo?.onClick();
                   hideToast();
                 }}
-                className="px-2.5 py-1 text-xs font-medium rounded-lg text-text-secondary hover:text-text hover:bg-surface-2 transition-colors min-h-[32px] cursor-pointer"
+                className="px-2.5 py-1 text-xs font-medium rounded-lg text-text-secondary hover:text-text hover:bg-surface-2 transition-colors min-h-[44px] cursor-pointer"
               >
                 {toast.undo.label}
               </button>

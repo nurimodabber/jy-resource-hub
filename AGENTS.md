@@ -32,6 +32,8 @@ Glas nur für Bedienelemente, die über dem Inhalt schweben. Alles im Inhalt ist
 
 **Ecken-Regel:** Sitzt ein abgerundetes Element nah an der Ecke eines anderen, gilt äußerer Radius = innerer Radius + Abstand. Für Knöpfe in Leisten oder Karten mit 4–10 px Abstand gibt es `rounded-nested` (10 px). Kreise und Pillen sind ausgenommen.
 
+**Zitat-Abstand rechts (Entscheidung des Inhabers, 2026-11-07):** Zitattext läuft nie bis an den rechten Rand seines Feldes. Er hält rechts zusätzlich `--quote-gap` frei (1rem, ab 640 px 1,5rem; `src/index.css`). Symbole oben rechts bleiben bündig.
+
 **Text-Grau:** `--text-tertiary` erfüllt in beiden Modi 4,5:1 auf allen Flächen (`npm run contrast` liest die Werte direkt aus `src/index.css`).
 
 **Sperre gegen ungewolltes Zurückfallen:** Am 6.11.2026 ging durch den Commit „kühles tiefes Nachtblau per 00-design-system.md“ versehentlich ein blaues, vom Inhaber nicht gewolltes Design live. Deshalb gilt:

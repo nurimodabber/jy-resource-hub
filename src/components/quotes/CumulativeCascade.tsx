@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronRight, ChevronLeft, Eye, EyeOff, CheckCircle2, RotateCcw, Layers } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
+import { tr } from '../tools/common';
 
 interface CumulativeCascadeProps {
   quote: QuoteItem;
@@ -10,28 +11,15 @@ interface CumulativeCascadeProps {
 export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, language }) => {
   const quoteText = language === 'de' ? quote.textDe : quote.textEn;
 
-  // Split quote into natural clauses / phrases
+  // Split quote into natural clauses at punctuation only. Splitting long clauses by word count
+  // cut sacred phrases in the middle ("Ihr seid die Bäume / Meines Gartens").
   const phrases = useMemo(() => {
-    // Split by commas, semicolons, colons, periods, or exclamation/question marks
-    const rawChunks = quoteText
-      .split(/(?<=[,;:.!?])\s+/)
+    const chunks = quoteText
+      .split(/(?<=[,;:.!?…])\s+/)
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
 
-    // If chunks are too long, split further by conjunctions or word count ~5 words
-    const fineChunks: string[] = [];
-    rawChunks.forEach((chunk) => {
-      const words = chunk.split(/\s+/);
-      if (words.length > 8) {
-        const mid = Math.ceil(words.length / 2);
-        fineChunks.push(words.slice(0, mid).join(' '));
-        fineChunks.push(words.slice(mid).join(' '));
-      } else {
-        fineChunks.push(chunk);
-      }
-    });
-
-    return fineChunks.length > 1 ? fineChunks : [quoteText];
+    return chunks.length > 1 ? chunks : [quoteText];
   }, [quoteText]);
 
   // Current step: 0 to phrases.length (phrases.length means full recitation from memory)
@@ -136,7 +124,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
 
                 <div className="flex-1 min-w-0">
                   <p
-                    className={`font-serif text-lg sm:text-2xl leading-relaxed transition-all ${
+                    className={`font-serif text-lg sm:text-2xl leading-relaxed transition-all pr-[var(--quote-gap)] ${
                       isHiddenFromMemory
                         ? 'blur-md select-none text-text-tertiary opacity-30'
                         : isCurrent
@@ -144,7 +132,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
                         : 'text-text-secondary'
                     }`}
                   >
-                    „{phrase}“
+                    {language === 'de' ? `„${phrase}“` : `“${phrase}”`}
                   </p>
 
                   {isHiddenFromMemory && (
@@ -160,7 +148,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
 
         {/* Final Step Master Celebration */}
         {isFinalStep && (
-          <div className="p-5 bg-success/10 border border-success/20 rounded-card flex items-center justify-between gap-3 text-text animate-in fade-in">
+          <div className="p-5 bg-success/10 border border-success/20 rounded-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-text animate-in fade-in">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-6 h-6 text-success shrink-0" />
               <div className="text-xs">
@@ -225,7 +213,8 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
               type="button"
               onClick={handleReset}
               className="p-2 border border-border bg-surface text-text-secondary hover:text-text rounded-full hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-              title="Reset"
+              aria-label={tr(language)('Zurücksetzen', 'Reset')}
+              title={tr(language)('Zurücksetzen', 'Reset')}
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>

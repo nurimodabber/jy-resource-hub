@@ -248,7 +248,9 @@ async function runTests() {
 
     // Verify clicking an interactive web app launches the web-app
     const launchWebApp = await page.evaluate(() => {
-      const webAppBtn = Array.from(document.querySelectorAll('article')).find(a => a.innerText.includes('Web-App'));
+      // Method cards open their tool through a stretched button inside the card heading.
+      const card = Array.from(document.querySelectorAll('article')).find(a => a.innerText.includes('Web-App starten'));
+      const webAppBtn = card && card.querySelector('button');
       if (webAppBtn) {
         webAppBtn.click();
         return true;
@@ -259,7 +261,7 @@ async function runTests() {
     await page.waitForTimeout(300);
 
     const isWebAppRunning = await page.evaluate(() => {
-      return document.body.innerText.includes('Web-App schließen');
+      return Boolean(document.querySelector('[aria-label="Web-App schließen"]'));
     });
     assert(isWebAppRunning, 'Interactive Web-App opened and running from overview');
 

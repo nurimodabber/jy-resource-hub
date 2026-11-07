@@ -96,30 +96,23 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
   const isDe = language === 'de';
   const currentMethod = getToolMethod(tool);
 
+  // No outer card: each tool already draws its own card, and a frame around it was a card in a card.
   return (
     <section 
       aria-label={currentMethod?.name[language] || (isDe ? 'Interaktive Web-App' : 'Interactive Web-App')}
-      className="bg-surface/90 rounded-3xl border border-accent/40 p-4 sm:p-6 shadow-sm space-y-4 animate-in fade-in duration-200"
+      className="space-y-4 animate-in fade-in duration-200"
     >
       {/* Tool Header */}
       <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className="w-2.5 h-2.5 rounded-full bg-accent inline-block animate-pulse shrink-0" aria-hidden="true" />
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-2xs font-semibold px-2.5 py-0.5 rounded-full bg-accent-subtle text-accent-text border border-accent/20 inline-flex items-center">
-                Web-App
-              </span>
-              {currentMethod?.durationMinutes && (
-                <span className="text-2xs text-text-tertiary">
-                  {currentMethod.durationMinutes}
-                </span>
-              )}
-            </div>
-            <h2 className="font-bold text-sm sm:text-base text-text truncate mt-0.5">
-              {currentMethod?.name[language] || (isDe ? 'Interaktive Web-App' : 'Interactive Web-App')}
-            </h2>
-          </div>
+        <div className="min-w-0">
+          <h2 className="font-bold text-sm sm:text-base text-text truncate">
+            {currentMethod?.name[language] || (isDe ? 'Interaktive Web-App' : 'Interactive Web-App')}
+          </h2>
+          {currentMethod?.durationMinutes && (
+            <p className="text-2xs text-text-tertiary mt-0.5">
+              {currentMethod.durationMinutes}
+            </p>
+          )}
         </div>
 
         <button
@@ -149,9 +142,9 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
                   key={tId}
                   type="button"
                   onClick={() => onSelectTool(tId)}
-                  className={`px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 select-none ${
+                  className={`px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 select-none outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                     isActive
-                      ? 'bg-accent text-white font-semibold shadow-xs border border-white/20'
+                      ? 'bg-accent text-accent-contrast font-semibold shadow-xs border border-accent'
                       : 'bg-surface-2/80 text-text-secondary hover:text-text hover:bg-surface-2 font-medium border border-line/60'
                   }`}
                   aria-pressed={isActive}
@@ -164,8 +157,9 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
         </div>
       )}
 
-      {/* Simulator Component */}
-      <React.Suspense fallback={<div className="h-48 animate-pulse bg-surface-2 rounded-2xl" />}>
+      {/* Simulator Component. Keyed by quote and language: tools keep word indices in state, and
+          switching the quote while a tool is open rendered stale indices (crash in ClozeTest). */}
+      <React.Suspense key={`${quote.id}-${language}`} fallback={<div className="h-48 animate-pulse bg-surface-2 rounded-2xl" />}>
         {tool === 'chalkboard' && <Chalkboard quote={quote} language={language} />}
         {tool === 'firstLetter' && <FirstLetterBoard quote={quote} language={language} />}
         {tool === 'cloze' && <ClozeTest quote={quote} language={language} />}

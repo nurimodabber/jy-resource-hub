@@ -309,10 +309,10 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   const pageDesc = fixedKind ? t.projectsHeaderDesc : t.serviceArtsHeaderDesc;
 
   const searchPlaceholderText = fixedKind === 'dienst'
-    ? L('Dienstprojekt suchen...', 'Search service projects...')
+    ? L('Dienstprojekt suchen…', 'Search service projects…')
     : fixedKind === 'kunst'
-    ? L('Kreativimpuls oder Kunstaktion suchen...', 'Search creative activity or drama prompt...')
-    : L('Dienstprojekt oder Kunstimpuls suchen...', 'Search service projects or arts prompts...');
+    ? L('Kreativimpuls oder Kunstaktion suchen…', 'Search creative activity or drama prompt…')
+    : L('Dienstprojekt oder Kunstimpuls suchen…', 'Search service projects or arts prompts…');
 
   const hasActiveFilterOrSearch = Boolean(query || activeSheetFilterCount > 0);
 

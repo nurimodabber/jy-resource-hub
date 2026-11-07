@@ -13,7 +13,8 @@ export default {
       'lg': '1024px',
       'xl': '1280px',
       '2xl': '1536px',
-      'short': { raw: '(max-height: 500px)' },
+      // `short` (landscape phones) is a plugin variant below, not a screen: a raw screen here makes
+      // Tailwind 3 drop every arbitrary min-[…]/max-[…] variant, e.g. the 3-column grids.
     },
     extend: {
       borderRadius: {
@@ -186,11 +187,16 @@ export default {
           'monospace',
         ],
       },
+      // Tailwind 4 names used in components; Tailwind 3 has no 3px ring or 98 % scale.
+      ringWidth: { '3': '3px' },
+      scale: { '98': '.98' },
       zIndex: {
         '60': '60',
         '70': '70',
       },
     },
   },
-  plugins: [],
+  plugins: [
+    ({ addVariant }) => addVariant('short', '@media (max-height: 500px)'),
+  ],
 }

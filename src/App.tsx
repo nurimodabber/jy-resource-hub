@@ -12,6 +12,7 @@ import { Language, NavTab } from './types';
 import { UI_TRANSLATIONS } from './data/translations';
 import { GAMES_DATA } from './data/games';
 import { QUOTES_DATA } from './data/quotes';
+import { QUOTE_METHODS_DATA } from './data/quoteMethods';
 import { SERVICE_PROJECTS_DATA } from './data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from './data/artsPrompts';
 import { recordRecentView } from './utils/recentViews';
@@ -137,6 +138,19 @@ export const AppContent: React.FC = () => {
     }
   });
 
+  // The badge counts only IDs that still resolve to an entry, from the same sources as /saved.
+  // Stale IDs stay in jy_favorites on purpose: an admin catalogue sync can bring an entry back.
+  const savedCount = useMemo(() => {
+    const known = new Set<string>([
+      ...(adminData.games.length > 0 ? adminData.games : GAMES_DATA).map((g) => g.id),
+      ...QUOTES_DATA.map((q) => q.id),
+      ...QUOTE_METHODS_DATA.map((m) => m.id),
+      ...(adminData.serviceProjects.length > 0 ? adminData.serviceProjects : SERVICE_PROJECTS_DATA).map((p) => p.id),
+      ...(adminData.artsPrompts.length > 0 ? adminData.artsPrompts : ARTS_PROMPTS_DATA).map((a) => a.id),
+    ]);
+    return new Set(favorites.filter((id) => known.has(id))).size;
+  }, [favorites, adminData.games, adminData.serviceProjects, adminData.artsPrompts]);
+
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
 
   // Sync html lang attribute
@@ -236,8 +250,8 @@ export const AppContent: React.FC = () => {
     }
   }, [location.pathname, adminData.games]);
 
-  const handleToggleFavorite = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleToggleFavorite = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setFavorites(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
@@ -391,7 +405,7 @@ export const AppContent: React.FC = () => {
         <Navbar
           activeTab={activeTab}
           language={language}
-          favoriteCount={favorites.length}
+          favoriteCount={savedCount}
           onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
         />
@@ -596,8 +610,8 @@ export const AppContent: React.FC = () => {
             />
 
             <Route path="/_design" element={<GalleryView />} />
-            <Route path="/compare" element={<CardComparisonView language={language} />} />
-            <Route path="/vergleich" element={<CardComparisonView language={language} />} />
+            {/* Internal card comparison for design decisions: under /_design (robots.txt Disallow), not public. */}
+            <Route path="/_design/vergleich" element={<CardComparisonView language={language} />} />
 
             {/* Real 404 Route */}
             <Route path="*" element={<NotFoundView language={language} />} />

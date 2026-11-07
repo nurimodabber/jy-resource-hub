@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -10,6 +10,7 @@ import {
   HeartHandshake,
   Palette,
   Eye,
+  Pencil,
   Plus,
   Trash2,
   AlertCircle,
@@ -77,6 +78,11 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
   const [isPreview, setIsPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Der Fehler steht direkt über „Beitrag absenden“; scrollen nur, falls der Knopf gerade am Rand klebt.
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (submitError) errorRef.current?.scrollIntoView({ block: 'nearest' });
+  }, [submitError]);
   const [mailtoFallback, setMailtoFallback] = useState<string | null>(null);
   const [createdIssueUrl, setCreatedIssueUrl] = useState<string | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(() => searchParams.get('feedback') === 'true');
@@ -356,7 +362,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
           <button
             type="button"
             onClick={() => setStep((s) => (s === 3 ? 2 : 1))}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-secondary hover:text-text mb-3 cursor-pointer"
+            className="inline-flex items-center gap-1.5 min-h-[44px] text-xs font-semibold text-text-secondary hover:text-text mb-1 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>{L('Zurück zu Schritt', 'Back to step')} {step - 1}</span>
@@ -439,9 +445,9 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             <button
               type="button"
               onClick={() => setIsPreview(!isPreview)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-chip text-xs font-semibold bg-surface-2 hover:bg-surface-raised text-text cursor-pointer transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded-chip text-xs font-semibold bg-surface-2 hover:bg-surface-raised text-text cursor-pointer transition-colors"
             >
-              <Eye className="w-3.5 h-3.5 text-accent-text" />
+              {isPreview ? <Pencil className="w-3.5 h-3.5 text-accent-text" /> : <Eye className="w-3.5 h-3.5 text-accent-text" />}
               <span>{isPreview ? L('Formular bearbeiten', 'Edit form') : L('Vorschau ansehen', 'Live preview')}</span>
             </button>
           </div>
@@ -455,17 +461,16 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
 
               <Panel className="space-y-6">
                 <div>
-                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                    <span className="px-2.5 py-0.5 rounded-chip text-2xs font-extrabold bg-accent-subtle text-accent-text">
-                      {formData.type === 'spiel' ? 'Spiel' : formData.type === 'dienst' ? 'Dienstprojekt' : 'Kunst & Ausdruck'} · Entwurf
-                    </span>
+                  <p className="text-xs font-semibold text-text-secondary mb-2">
+                    {formData.type === 'spiel' ? L('Spiel', 'Game') : formData.type === 'dienst' ? L('Dienstprojekt', 'Service project') : L('Kunst & Ausdruck', 'Arts & expression')} · {L('Entwurf', 'Draft')}
                     {formData.relatedBook && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-chip text-2xs font-medium bg-surface-2 text-text-secondary border border-border">
-                        <BookOpen className="w-3 h-3 text-text-tertiary" />
-                        <span>{JY_BOOKS.find((b) => b.id === formData.relatedBook)?.title[language]}{formData.lesson ? ` · ${language === 'de' ? 'Lektion' : 'Lesson'} ${formData.lesson}` : ''}</span>
-                      </span>
+                      <>
+                        {' · '}
+                        {JY_BOOKS.find((b) => b.id === formData.relatedBook)?.title[language]}
+                        {formData.lesson ? ` · ${L('Lektion', 'Lesson')} ${formData.lesson}` : ''}
+                      </>
                     )}
-                  </div>
+                  </p>
                   <h2 className="text-2xl font-bold text-text mt-2">
                     {formData.title || L('Unbenannter Eintrag', 'Untitled')}
                   </h2>
@@ -476,11 +481,11 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 rounded-card bg-surface-2 text-xs">
                   <div>
                     <span className="text-text-tertiary block font-semibold">{L('Dauer', 'Duration')}</span>
-                    <span className="font-bold text-text">{formData.durationMin}–{formData.durationMax} min</span>
+                    <span className="font-bold text-text">{formData.durationMin}–{formData.durationMax} {L('Min', 'min')}</span>
                   </div>
                   <div>
                     <span className="text-text-tertiary block font-semibold">{L('Gruppe', 'Group')}</span>
-                    <span className="font-bold text-text">{formData.groupSizeMin}–{formData.groupSizeMax} Personen</span>
+                    <span className="font-bold text-text">{formData.groupSizeMin}–{formData.groupSizeMax} {L('Personen', 'people')}</span>
                   </div>
                   <div>
                     <span className="text-text-tertiary block font-semibold">{L('Material', 'Materials')}</span>
@@ -488,17 +493,19 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-text">{L('Ablauf', 'Steps')}</h3>
-                  <ol className="space-y-2 text-sm text-text-secondary">
-                    {formData.steps.filter(Boolean).map((s, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5">
-                        <span className="font-bold text-accent-text shrink-0">{idx + 1}.</span>
-                        <span>{s}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
+                {formData.steps.some((st) => st.trim()) && (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-bold text-text">{L('Ablauf', 'Steps')}</h3>
+                    <ol className="space-y-2 text-sm text-text-secondary">
+                      {formData.steps.filter(Boolean).map((s, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5">
+                          <span className="font-bold text-accent-text shrink-0">{idx + 1}.</span>
+                          <span>{s}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
 
                 {formData.animatorTips && (
                   <div className="p-4 rounded-card bg-accent-subtle/30 border border-accent/20 text-xs space-y-1">
@@ -545,24 +552,6 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                 />
               </div>
 
-              {submitError && (
-                <div className="p-4 rounded-card bg-danger/10 border border-danger/20 text-danger text-xs font-semibold flex items-start gap-2.5">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <div className="space-y-2 flex-1">
-                    <p>{submitError}</p>
-                    {mailtoFallback && (
-                      <a
-                        href={mailtoFallback}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control bg-danger text-white text-xs font-bold hover:opacity-90 transition-opacity"
-                      >
-                        <Mail className="w-3.5 h-3.5" />
-                        <span>{L('Jetzt per E-Mail absenden', 'Send via email now')}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              )}
-
               <Panel className="space-y-4">
                 <div>
                   <Label htmlFor="prop-title">{L('Titel *', 'Title *')}</Label>
@@ -573,7 +562,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                     value={formData.title}
                     onChange={(e) => updateField('title', e.target.value)}
                     placeholder={L('z.B. Brückenbauer im Nebel', 'e.g. Bridge Builder in the Fog')}
-                    className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                    className="w-full px-3.5 py-2.5 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                   />
                 </div>
 
@@ -585,7 +574,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                     value={formData.subtitle}
                     onChange={(e) => updateField('subtitle', e.target.value)}
                     placeholder={L('z.B. Kooperatives Vertrauensspiel', 'e.g. Cooperative trust game')}
-                    className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                    className="w-full px-3.5 py-2.5 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                   />
                 </div>
 
@@ -598,7 +587,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                     value={formData.summary}
                     onChange={(e) => updateField('summary', e.target.value)}
                     placeholder={L('Worum geht es in wenigen Worten?', 'What is it about in a few words?')}
-                    className="w-full px-3.5 py-2 rounded-control bg-surface-2 border border-border text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                    className="w-full px-3.5 py-2 rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                   />
                 </div>
 
@@ -612,7 +601,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       max={50}
                       value={formData.groupSizeMin}
                       onChange={(e) => updateField('groupSizeMin', Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-sm text-text text-center font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text text-center font-bold"
                     />
                   </div>
                   <div>
@@ -624,7 +613,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       max={100}
                       value={formData.groupSizeMax}
                       onChange={(e) => updateField('groupSizeMax', Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-sm text-text text-center font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text text-center font-bold"
                     />
                   </div>
                   <div>
@@ -636,7 +625,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       max={180}
                       value={formData.durationMin}
                       onChange={(e) => updateField('durationMin', Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-sm text-text text-center font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text text-center font-bold"
                     />
                   </div>
                   <div>
@@ -648,7 +637,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       max={360}
                       value={formData.durationMax}
                       onChange={(e) => updateField('durationMax', Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-control bg-surface-2 border border-border text-sm text-text text-center font-bold"
+                      className="w-full px-3 py-2 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text text-center font-bold"
                     />
                   </div>
                 </div>
@@ -674,7 +663,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                           updateField('relatedBook', e.target.value);
                           if (!e.target.value) updateField('lesson', '');
                         }}
-                        className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                        className="w-full px-3.5 py-2.5 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                       >
                         <option value="">{L('— Kein bestimmtes Buch / allgemein —', '— No specific book / general —')}</option>
                         {JY_BOOKS.map((b) => (
@@ -696,9 +685,9 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                         max={30}
                         value={formData.lesson}
                         onChange={(e) => updateField('lesson', e.target.value)}
-                        placeholder="z.B. 4"
+                        placeholder={L('z. B. 4', 'e.g. 4')}
                         disabled={!formData.relatedBook}
-                        className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent disabled:opacity-40"
+                        className="w-full px-3.5 py-2.5 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent disabled:opacity-40"
                       />
                     </div>
                   </div>
@@ -719,14 +708,14 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                         handleAddMaterial();
                       }
                     }}
-                    placeholder={L('z.B. Kreide, Augenbinden, Seil...', 'e.g. Chalk, blindfolds...')}
+                    placeholder={L('z.B. Kreide, Augenbinden, Seil…', 'e.g. Chalk, blindfolds…')}
                     aria-label={L('Material hinzufügen', 'Add material')}
-                    className="flex-1 px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                    className="flex-1 min-w-0 px-3.5 py-2 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                   />
                   <button
                     type="button"
                     onClick={handleAddMaterial}
-                    className="px-3 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text flex items-center gap-1 cursor-pointer"
+                    className="px-3 py-2 min-h-[44px] shrink-0 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>{L('Hinzufügen', 'Add')}</span>
@@ -737,7 +726,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                     {formData.materials.map((m, i) => (
                       <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-chip bg-surface-2 text-xs text-text font-medium border border-border">
                         <span>{m}</span>
-                        <button type="button" onClick={() => handleRemoveMaterial(i)} className="p-0.5 text-text-tertiary hover:text-text cursor-pointer">
+                        <button type="button" onClick={() => handleRemoveMaterial(i)} aria-label={L(`${m} entfernen`, `Remove ${m}`)} className="-my-2 -mr-2 inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-text-tertiary hover:text-text cursor-pointer">
                           ✕
                         </button>
                       </span>
@@ -753,7 +742,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                   <button
                     type="button"
                     onClick={handleAddStep}
-                    className="text-xs font-bold text-accent-text hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-accent-text hover:underline flex items-center gap-1 min-h-[44px] px-2 -mr-2 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>{L('Schritt ergänzen', 'Add step')}</span>
@@ -769,16 +758,17 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                         rows={2}
                         value={st}
                         onChange={(e) => handleStepChange(idx, e.target.value)}
-                        placeholder={L(`Schritt ${idx + 1} beschreiben...`, `Describe step ${idx + 1}...`)}
+                        placeholder={L(`Schritt ${idx + 1} beschreiben…`, `Describe step ${idx + 1}…`)}
                         aria-label={L(`Schritt ${idx + 1}`, `Step ${idx + 1}`)}
-                        className="flex-1 px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                        className="flex-1 px-3.5 py-2 rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                       />
                       {formData.steps.length > 3 && (
                         <button
                           type="button"
                           onClick={() => handleRemoveStep(idx)}
-                          className="p-2 text-text-tertiary hover:text-danger cursor-pointer pt-2"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-control text-text-tertiary hover:text-danger cursor-pointer"
                           title={L('Schritt löschen', 'Delete step')}
+                          aria-label={L(`Schritt ${idx + 1} löschen`, `Delete step ${idx + 1}`)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -802,7 +792,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       value={formData.objective}
                       onChange={(e) => updateField('objective', e.target.value)}
                       placeholder={L('Welche Wirkung soll die Aktion erzielen?', 'What impact should this have?')}
-                      className="w-full px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                      className="w-full px-3.5 py-2 rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                     />
                   </div>
 
@@ -820,12 +810,13 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                           }
                         }}
                         placeholder={L('z.B. Was hat euch bei dieser Aktion am meisten überrascht?', 'e.g. What surprised you most?')}
-                        className="flex-1 px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                        aria-label={L('Reflexionsfrage hinzufügen', 'Add reflection question')}
+                        className="flex-1 min-w-0 px-3.5 py-2 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                       />
                       <button
                         type="button"
                         onClick={handleAddQuestion}
-                        className="px-3 py-2 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text flex items-center gap-1 cursor-pointer"
+                        className="px-3 py-2 min-h-[44px] shrink-0 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text flex items-center gap-1 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>{L('Frage addieren', 'Add')}</span>
@@ -836,7 +827,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                         {formData.reflectionQuestions.map((q, idx) => (
                           <li key={idx} className="flex items-center justify-between gap-2">
                             <span>{q}</span>
-                            <button type="button" onClick={() => handleRemoveQuestion(idx)} className="text-text-tertiary hover:text-danger p-0.5 cursor-pointer">
+                            <button type="button" onClick={() => handleRemoveQuestion(idx)} aria-label={L(`Frage ${idx + 1} entfernen`, `Remove question ${idx + 1}`)} className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-text-tertiary hover:text-danger cursor-pointer shrink-0">
                               ✕
                             </button>
                           </li>
@@ -857,7 +848,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                     value={formData.animatorTips}
                     onChange={(e) => updateField('animatorTips', e.target.value)}
                     placeholder={L('Worauf sollte die Spielleitung besonders achten?', 'What should animators pay attention to?')}
-                    className="w-full px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                    className="w-full px-3.5 py-2 rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                   />
                 </div>
 
@@ -868,8 +859,8 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                     type="text"
                     value={formData.source}
                     onChange={(e) => updateField('source', e.target.value)}
-                    placeholder={L('z.B. Selbst erfunden, JY-Camp 2024, abgewandelt von...', 'e.g. Self-invented, JY-Camp 2024...')}
-                    className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                    placeholder={L('z.B. Selbst erfunden, JY-Camp 2024, abgewandelt von…', 'e.g. Self-invented, JY-Camp 2024…')}
+                    className="w-full px-3.5 py-2.5 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                   />
                 </div>
 
@@ -882,7 +873,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       value={formData.authorName}
                       onChange={(e) => updateField('authorName', e.target.value)}
                       placeholder={L('Wird auf Wunsch als Autor genannt', 'Shown as author if desired')}
-                      className="w-full px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                      className="w-full px-3.5 py-2 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                     />
                   </div>
                   <div>
@@ -893,7 +884,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       value={formData.authorEmail}
                       onChange={(e) => updateField('authorEmail', e.target.value)}
                       placeholder="name@beispiel.de"
-                      className="w-full px-3.5 py-2 rounded-control bg-surface-2 border border-border text-xs text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
+                      className="w-full px-3.5 py-2 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                     />
                   </div>
                 </div>
@@ -928,6 +919,25 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                   </span>
                 </label>
               </div>
+
+              {/* Fehler direkt über dem Absenden-Knopf: vorher stand er ~1400 px weiter oben und wurde nicht angesagt. */}
+              {submitError && (
+                <div ref={errorRef} role="alert" className="p-4 rounded-card bg-danger/10 border border-danger/20 text-danger text-xs font-semibold flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <div className="space-y-2 flex-1">
+                    <p>{submitError}</p>
+                    {mailtoFallback && (
+                      <a
+                        href={mailtoFallback}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control bg-danger text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>{L('Jetzt per E-Mail absenden', 'Send via email now')}</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Submit Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-3">

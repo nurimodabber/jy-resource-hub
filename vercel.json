@@ -74,6 +74,10 @@
     {
       "source": "/_design",
       "destination": "/index.html"
+    },
+    {
+      "source": "/_design/vergleich",
+      "destination": "/index.html"
     }
   ],
   "headers": [

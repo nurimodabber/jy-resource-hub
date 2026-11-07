@@ -103,7 +103,7 @@ export const GameCard: React.FC<GameCardProps> = ({
         type="button"
         onClick={(e) => onToggleFavorite(game.id, e)}
         aria-pressed={isFavorite}
-        aria-label={`${t.savedItems}: ${game.title[language]}`}
+        aria-label={`${language === 'de' ? 'Merken' : 'Save'}: ${game.title[language]}`}
         className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
           isFavorite
             ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
