@@ -55,7 +55,10 @@ const checkRateLimit = (ip: string): boolean => {
     ipRateLimit.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 });
     return true;
   }
-  if (entry.count >= 5) {
+  // 20 per hour per IP. Schools, camps and mobile carriers put many people behind one address, and
+  // 5 blocked the sixth animator in a group. Bursts are stopped earlier by the Vercel firewall
+  // (5 per minute per IP on /api/submit).
+  if (entry.count >= 20) {
     return false;
   }
   entry.count += 1;
@@ -373,7 +376,9 @@ ${JSON.stringify(jsonDraft, null, 2)}
     const publicBody = noMentions(markdownBody) + (authorEmail ? `\n\n${encryptContact({ name: authorName, email: authorEmail })}` : '');
 
     // 6. Post to GitHub Issues API
+    // Deadline so a hanging GitHub ends in the e-mail fallback instead of an endless spinner.
     const ghResponse = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues`, {
+      signal: AbortSignal.timeout(8000),
       method: 'POST',
       headers: {
         'Authorization': `token ${GITHUB_TOKEN}`,
