@@ -14,7 +14,8 @@ import {
 import { Language } from '../../types';
 import { useLocalState } from '../../hooks/useLocalState';
 import { loadPresentNames } from '../../utils/groupNames';
-import { tr, Panel } from './common';
+import { tr } from './common';
+import { Card } from '../ui/Card';
 import { useModal } from '../../hooks/useModal';
 import { useBackToClose } from '../../hooks/useBackToClose';
 
@@ -35,42 +36,42 @@ const TEAM_THEMES = [
     nameDe: 'Team Blau',
     nameEn: 'Blue Team',
     border: 'border-blue-500/30',
-    badge: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
+    badge: 'bg-blue-500/15 text-blue-800 dark:text-blue-300 border-blue-500/30',
     dot: 'bg-blue-500',
   },
   {
     nameDe: 'Team Gelb',
     nameEn: 'Yellow Team',
     border: 'border-amber-500/30',
-    badge: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
+    badge: 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30',
     dot: 'bg-amber-500',
   },
   {
     nameDe: 'Team Grün',
     nameEn: 'Green Team',
     border: 'border-emerald-500/30',
-    badge: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+    badge: 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30',
     dot: 'bg-emerald-500',
   },
   {
     nameDe: 'Team Rot',
     nameEn: 'Red Team',
     border: 'border-rose-500/30',
-    badge: 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30',
+    badge: 'bg-rose-500/15 text-rose-800 dark:text-rose-300 border-rose-500/30',
     dot: 'bg-rose-500',
   },
   {
     nameDe: 'Team Lila',
     nameEn: 'Purple Team',
     border: 'border-purple-500/30',
-    badge: 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30',
+    badge: 'bg-purple-500/15 text-purple-800 dark:text-purple-300 border-purple-500/30',
     dot: 'bg-purple-500',
   },
   {
     nameDe: 'Team Türkis',
     nameEn: 'Cyan Team',
     border: 'border-cyan-500/30',
-    badge: 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/30',
+    badge: 'bg-cyan-500/15 text-cyan-800 dark:text-cyan-300 border-cyan-500/30',
     dot: 'bg-cyan-500',
   },
   {
@@ -305,14 +306,15 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
   return (
     <>
       <div className="space-y-6">
-        {/* Action Toolbar (All in one single un-wrapped line) */}
-        <div className="flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar py-0.5 w-full bg-surface rounded-card border border-border p-2 sm:p-2.5 shadow-xs">
+        {/* Action toolbar: one line from sm up. On phones it wraps into two rows, because as one
+            scrolling line it pushed "Vollbild" (the button needed live in the group) off-screen. */}
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-1.5 w-full bg-surface rounded-card border border-border p-2 sm:p-2.5 shadow-xs">
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={handleAddTeam}
               disabled={teams.length >= MAX_TEAMS}
-              className="px-2.5 sm:px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 disabled:opacity-40 whitespace-nowrap"
+              className="px-2.5 sm:px-3 py-1.5 rounded-nested bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5 disabled:opacity-40 whitespace-nowrap"
               title={teams.length >= MAX_TEAMS ? L('Maximal 8 Teams möglich', 'Maximum 8 teams reached') : L('Neues Team hinzufügen', 'Add new team')}
             >
               <Plus className="w-3.5 h-3.5" />
@@ -325,7 +327,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
             <button
               type="button"
               onClick={handleGenerateFromGroup}
-              className="px-2.5 sm:px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 whitespace-nowrap"
+              className="px-2.5 sm:px-3 py-1.5 rounded-nested bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5 whitespace-nowrap"
               title={L('Teams aus Namensliste der Gruppe bilden', 'Create teams from group member list')}
             >
               <Users className="w-3.5 h-3.5 text-text-secondary" />
@@ -336,7 +338,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
               <button
                 type="button"
                 onClick={handleImportFromTeamsTool}
-                className="px-2.5 sm:px-3 py-1.5 rounded-control bg-accent/10 hover:bg-accent/20 border border-accent/30 text-xs font-semibold text-accent transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 whitespace-nowrap"
+                className="px-2.5 sm:px-3 py-1.5 rounded-control bg-accent/10 hover:bg-accent/20 border border-accent/30 text-xs font-semibold text-accent transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5 whitespace-nowrap"
                 title={L('Teams aus letzter Gruppeneinteilung laden', 'Load teams from last team shuffle')}
               >
                 <Download className="w-3.5 h-3.5" />
@@ -349,7 +351,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
               type="button"
               disabled={history.length === 0}
               onClick={handleUndo}
-              className="px-2.5 sm:px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 disabled:opacity-40 whitespace-nowrap"
+              className="px-2.5 sm:px-3 py-1.5 rounded-nested bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5 disabled:opacity-40 whitespace-nowrap"
               title={L('Rückgängig (Cmd/Ctrl+Z)', 'Undo (Cmd/Ctrl+Z)')}
             >
               <Undo2 className="w-3.5 h-3.5" />
@@ -362,7 +364,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
             <button
               type="button"
               onClick={handleEnterFullscreen}
-              className="px-2.5 sm:px-3 py-1.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-semibold text-xs transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 shadow-xs whitespace-nowrap"
+              className="px-2.5 sm:px-3 py-1.5 rounded-control bg-accent hover:bg-accent-hover text-accent-contrast font-semibold text-xs transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5 shadow-xs whitespace-nowrap"
               title={L('Vollbildmodus aktivieren', 'Enter full screen mode')}
             >
               <Maximize2 className="w-3.5 h-3.5" />
@@ -372,7 +374,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
             <button
               type="button"
               onClick={() => setShowHelp(!showHelp)}
-              className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[38px] min-w-[38px] transition-colors cursor-pointer ${
+              className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[44px] min-w-[38px] transition-colors cursor-pointer ${
                 showHelp
                   ? 'bg-accent/15 border-accent text-accent'
                   : 'bg-surface-2 hover:bg-surface-raised border-border text-text-secondary hover:text-text'
@@ -386,7 +388,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
             <button
               type="button"
               onClick={handleResetScores}
-              className="p-2 rounded-control text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center border border-border"
+              className="p-2 rounded-control text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer min-h-[44px] min-w-[38px] flex items-center justify-center border border-border"
               title={L('Punkte auf 0 zurücksetzen', 'Reset scores')}
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -421,9 +423,12 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
           {teams.map((team, idx) => {
             const theme = TEAM_THEMES[idx % TEAM_THEMES.length];
             return (
-              <Panel
+              // A real card, not Panel: Panel is an unframed section and drops the first item's top
+              // border and padding, which pushed team 1 up and left square, half-framed boxes.
+              <Card
+                as="div"
                 key={team.id}
-                className={`text-center p-5 space-y-4 relative flex flex-col justify-between border ${theme.border}`}
+                className="text-center space-y-4 relative flex flex-col justify-between"
               >
                 {teams.length > 2 && (
                   <button
@@ -451,6 +456,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                       const val = e.target.value;
                       setTeams((prev) => prev.map((t) => (t.id === team.id ? { ...t, name: val } : t)));
                     }}
+                    aria-label={L(`Name für Team ${idx + 1}`, `Name for Team ${idx + 1}`)}
                     className="text-center font-bold text-base sm:text-lg text-text bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-hidden px-1 py-0.5 w-full"
                   />
                 </div>
@@ -472,8 +478,8 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                       key={recentDelta[team.id]!.key}
                       className={`absolute top-0 right-4 text-xs font-black px-2 py-0.5 rounded-full animate-in fade-in zoom-in-75 duration-150 pointer-events-none ${
                         recentDelta[team.id]!.delta > 0
-                          ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                          : 'bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                          ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
+                          : 'bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-500/30'
                       }`}
                     >
                       {recentDelta[team.id]!.delta > 0 ? `+${recentDelta[team.id]!.delta}` : recentDelta[team.id]!.delta}
@@ -520,7 +526,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     <span>1</span>
                   </button>
                 </div>
-              </Panel>
+              </Card>
             );
           })}
         </div>
@@ -578,7 +584,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                 <button
                   type="button"
                   onClick={handleAddTeam}
-                  className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1"
+                  className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1"
                   title={L('Team hinzufügen (bis zu 8)', 'Add team (up to 8)')}
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -590,7 +596,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                 type="button"
                 disabled={history.length === 0}
                 onClick={handleUndo}
-                className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1 disabled:opacity-40"
+                className="px-2.5 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-semibold text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1 disabled:opacity-40"
                 title={L('Rückgängig (Cmd/Ctrl+Z)', 'Undo (Cmd/Ctrl+Z)')}
               >
                 <Undo2 className="w-3.5 h-3.5" />
@@ -605,7 +611,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
               <button
                 type="button"
                 onClick={handleResetScores}
-                className="p-2 rounded-control text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center border border-border"
+                className="p-2 rounded-control text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer min-h-[44px] min-w-[38px] flex items-center justify-center border border-border"
                 title={L('Punkte auf 0 zurücksetzen', 'Reset scores')}
                 aria-label={L('Punkte auf 0 zurücksetzen', 'Reset scores')}
               >
@@ -615,7 +621,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
               <button
                 type="button"
                 onClick={exitFullscreen}
-                className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text transition-colors cursor-pointer min-h-[38px] flex items-center gap-1.5 shadow-xs"
+                className="px-3 py-1.5 rounded-control bg-surface-2 hover:bg-surface-raised border border-border text-xs font-bold text-text transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5 shadow-xs"
                 title={L('Vollbild beenden (Esc)', 'Exit full screen (Esc)')}
               >
                 <Minimize2 className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -704,8 +710,8 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                         key={recentDelta[team.id]!.key}
                         className={`absolute top-0 right-2 sm:right-4 text-xs font-black px-2 py-0.5 rounded-full animate-in fade-in zoom-in-75 duration-150 pointer-events-none shadow-xs ${
                           recentDelta[team.id]!.delta > 0
-                            ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                            : 'bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                            ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
+                            : 'bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-500/30'
                         }`}
                       >
                         {recentDelta[team.id]!.delta > 0 ? `+${recentDelta[team.id]!.delta}` : recentDelta[team.id]!.delta}

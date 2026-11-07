@@ -23,6 +23,7 @@ export default {
         chip: 'var(--r-chip)',
         sheet: 'var(--r-sheet)',
         dialog: 'var(--r-dialog)',
+        nested: 'var(--r-nested)',
         // Semantic standard mappings to CSS variables
         sm: 'var(--r-reading)',
         md: 'var(--r-control)',

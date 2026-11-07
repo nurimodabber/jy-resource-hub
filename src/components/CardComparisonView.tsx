@@ -121,7 +121,7 @@ export const CardComparisonView: React.FC<CardComparisonViewProps> = () => {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-xs text-zinc-300 transition-colors self-start sm:self-auto"
             >
               {copiedId === 'v1' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Layers className="w-3.5 h-3.5" />}
-              {copiedId === 'v1' ? 'Favorisiert!' : 'V1 als Favorit merken'}
+              {copiedId === 'v1' ? 'Favorisiert' : 'V1 als Favorit merken'}
             </button>
           </div>
 
@@ -312,7 +312,7 @@ export const CardComparisonView: React.FC<CardComparisonViewProps> = () => {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-xs text-zinc-300 transition-colors self-start sm:self-auto"
             >
               {copiedId === 'v2' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Layers className="w-3.5 h-3.5" />}
-              {copiedId === 'v2' ? 'Favorisiert!' : 'V2 als Favorit merken'}
+              {copiedId === 'v2' ? 'Favorisiert' : 'V2 als Favorit merken'}
             </button>
           </div>
 
@@ -456,7 +456,7 @@ export const CardComparisonView: React.FC<CardComparisonViewProps> = () => {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-xs text-zinc-300 transition-colors self-start sm:self-auto"
             >
               {copiedId === 'v3' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Layers className="w-3.5 h-3.5" />}
-              {copiedId === 'v3' ? 'Favorisiert!' : 'V3 als Favorit merken'}
+              {copiedId === 'v3' ? 'Favorisiert' : 'V3 als Favorit merken'}
             </button>
           </div>
 
@@ -642,7 +642,7 @@ export const CardComparisonView: React.FC<CardComparisonViewProps> = () => {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-xs text-zinc-300 transition-colors self-start sm:self-auto"
             >
               {copiedId === 'v4' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Layers className="w-3.5 h-3.5" />}
-              {copiedId === 'v4' ? 'Favorisiert!' : 'V4 als Favorit merken'}
+              {copiedId === 'v4' ? 'Favorisiert' : 'V4 als Favorit merken'}
             </button>
           </div>
 
@@ -818,7 +818,7 @@ export const CardComparisonView: React.FC<CardComparisonViewProps> = () => {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-xs text-zinc-300 transition-colors self-start sm:self-auto"
             >
               {copiedId === 'v5' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Layers className="w-3.5 h-3.5" />}
-              {copiedId === 'v5' ? 'Favorisiert!' : 'V5 als Favorit merken'}
+              {copiedId === 'v5' ? 'Favorisiert' : 'V5 als Favorit merken'}
             </button>
           </div>
 

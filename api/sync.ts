@@ -136,7 +136,7 @@ function normalizeAccount(raw: any): StoredAccount | null {
   const username = String(raw.username).trim().toLowerCase();
   const owner = ownerUsername();
   const isOwner = Boolean(owner) && username === owner;
-  const storedRole: Role = ['editor', 'contributor', 'viewer'].includes(raw.role) ? raw.role : 'editor';
+  const storedRole: Role = ['editor', 'contributor', 'viewer'].includes(raw.role) ? raw.role : 'viewer'; // fail closed
   const role: Role = isOwner ? 'owner' : storedRole;
   return {
     id: String(raw.id),
@@ -155,6 +155,15 @@ function normalizeAccount(raw: any): StoredAccount | null {
     updatedAt: Number(raw.updatedAt || raw.createdAt) || Date.now(),
     lastLoginAt: raw.lastLoginAt ? Number(raw.lastLoginAt) : undefined,
   };
+}
+
+/**
+ * What other team members may see. Usernames are email addresses; only the Owner, who manages
+ * accounts, needs them.
+ */
+function teamAccount(acc: StoredAccount) {
+  const { username: _email, lastLoginAt: _last, ...rest } = publicAccount(acc);
+  return { ...rest, username: '' };
 }
 
 /** What clients may see about an account: never salt, hash or hash metadata. */
@@ -282,6 +291,22 @@ function rateLimited(key: string, max: number, windowMs: number): boolean {
   return entry.count > max;
 }
 
+// Failed logins only; unlike `attempts`, a check does not count as an attempt.
+const loginFailures = new Map<string, { count: number; resetAt: number }>();
+const LOGIN_WINDOW_MS = 15 * 60_000;
+
+function failureCount(key: string): number {
+  const e = loginFailures.get(key);
+  return e && Date.now() <= e.resetAt ? e.count : 0;
+}
+
+function noteFailure(key: string): void {
+  const now = Date.now();
+  const e = loginFailures.get(key);
+  if (!e || now > e.resetAt) loginFailures.set(key, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
+  else e.count += 1;
+}
+
 const failDelay = () => new Promise((r) => setTimeout(r, 600));
 
 // ---------------------------------------------------------------------------------------------
@@ -339,7 +364,9 @@ function normalizeState(raw: any): AdminCloudState {
 function decryptState(rawContent: string): AdminCloudState {
   if (!rawContent) return emptyState();
   const parsed = JSON.parse(rawContent);
-  if (!(parsed && parsed.encrypted === true)) return normalizeState(parsed);
+  // Only this server writes the Gist, and it always encrypts. Plaintext means someone else wrote
+  // it; accepting it would let them plant accounts with password hashes they know.
+  if (!(parsed && parsed.encrypted === true)) throw new Error('state_unencrypted');
   for (const secret of stateKeys()) {
     try {
       const key = crypto.createHash('sha256').update(secret).digest();
@@ -373,6 +400,13 @@ function ghHeaders(): Record<string, string> {
   };
 }
 
+async function readGistViaApi(): Promise<string> {
+  const res = await fetch(`https://api.github.com/gists/${gistId()}`, { headers: ghHeaders() });
+  if (!res.ok) throw new Error(`gist_read_${res.status}`);
+  const data: any = await res.json();
+  return data?.files?.[GIST_FILENAME]?.content || '';
+}
+
 async function loadState(): Promise<AdminCloudState> {
   if (cache && Date.now() - cache.at < 15000) return structuredClone(cache.state);
   let content: string | null = null;
@@ -386,12 +420,7 @@ async function loadState(): Promise<AdminCloudState> {
   } catch {
     /* fall back to REST */
   }
-  if (!content) {
-    const res = await fetch(`https://api.github.com/gists/${gistId()}`, { headers: ghHeaders() });
-    if (!res.ok) throw new Error(`gist_read_${res.status}`);
-    const data: any = await res.json();
-    content = data?.files?.[GIST_FILENAME]?.content || '';
-  }
+  if (!content) content = await readGistViaApi();
   const state = decryptState(content || '');
   cache = { state, fp: fingerprint(state), at: Date.now() };
   return structuredClone(state);
@@ -401,7 +430,16 @@ async function loadState(): Promise<AdminCloudState> {
 async function saveState(state: AdminCloudState): Promise<void> {
   const fp = fingerprint(state);
   if (cache && cache.fp === fp) return;
-  state.updatedAt = Date.now();
+  // A Gist PATCH has no compare-and-swap, and two admins (or two server instances with their own
+  // 15 s cache) used to overwrite each other's changes. Re-read the live copy through the API (the
+  // CDN can lag) and refuse to write over a newer one. The live copy goes into the cache, so the
+  // retry in the handler re-runs the action on fresh data. A window of one round trip remains.
+  const live = decryptState(await readGistViaApi());
+  if (live.updatedAt !== state.updatedAt) {
+    cache = { state: live, fp: fingerprint(live), at: Date.now() };
+    throw new Error('state_conflict');
+  }
+  state.updatedAt = Math.max(Date.now(), live.updatedAt + 1);
   const res = await fetch(`https://api.github.com/gists/${gistId()}`, {
     method: 'PATCH',
     headers: ghHeaders(),
@@ -423,14 +461,17 @@ function mergeRevisions(remote: any[], incoming: unknown, actor: StoredAccount):
   const map = new Map<string, any>();
   for (const r of remote) if (r?.revisionId) map.set(r.revisionId, r);
   const list = Array.isArray(incoming) ? incoming : [];
+  let added = 0;
   for (const rev of list) {
     if (!rev || typeof rev !== 'object' || typeof rev.revisionId !== 'string') continue;
     const existing = map.get(rev.revisionId);
     if (!existing) {
-      if (!canEditCatalog(actor.permissions)) continue;
+      // Server time and a per-request cap: with client timestamps, one account could push hundreds of
+      // future-dated revisions and the slice(0, 500) below would drop the real history.
+      if (!canEditCatalog(actor.permissions) || ++added > 50) continue;
       map.set(rev.revisionId, {
         ...rev,
-        timestamp: Number(rev.timestamp) || Date.now(),
+        timestamp: Date.now(),
         author: actor.displayName,
         authorId: actor.id,
         authorUsername: actor.username,
@@ -621,16 +662,32 @@ function bearer(req: IncomingMessage): string {
 // Public GET: approved community content for every visitor
 // ---------------------------------------------------------------------------------------------
 
-async function handleGet(res: ServerResponse): Promise<void> {
+/**
+ * All issues matching `state`, newest first, up to 1000. Reading only the first page (100) meant
+ * older approvals and deletions silently dropped out of the catalog once the repo grew.
+ * Returns null if any page fails: a partial list would drop deletions and revive removed entries.
+ */
+async function fetchIssues(state: 'all' | 'open', headers: Record<string, string>): Promise<any[] | null> {
   const repo = process.env.GITHUB_REPO || 'nurimodabber/jy-resource-hub';
+  const all: any[] = [];
+  for (let page = 1; page <= 10; page++) {
+    const r = await fetch(`https://api.github.com/repos/${repo}/issues?state=${state}&per_page=100&page=${page}`, { headers });
+    if (!r.ok) return null;
+    const list: unknown = await r.json();
+    if (!Array.isArray(list)) return null;
+    all.push(...list);
+    if (list.length < 100) break;
+  }
+  return all;
+}
+
+async function handleGet(res: ServerResponse): Promise<void> {
   const headers: Record<string, string> = { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'Juju Hub-Sync-Worker' };
   if (process.env.GITHUB_TOKEN) headers.Authorization = `token ${process.env.GITHUB_TOKEN}`;
   const empty = { approvedGames: [], approvedCategories: [], approvedServiceProjects: [], approvedArtsPrompts: [], deletedIds: [] };
   try {
-    const ghRes = await fetch(`https://api.github.com/repos/${repo}/issues?state=all&per_page=100`, { headers });
-    if (!ghRes.ok) return sendJson(res, 200, { ok: false, error: 'upstream', ...empty });
-    const issues: any[] = await ghRes.json();
-    if (!Array.isArray(issues)) return sendJson(res, 200, { ok: true, ...empty });
+    const issues = await fetchIssues('all', headers);
+    if (!issues) return sendJson(res, 200, { ok: false, error: 'upstream', ...empty });
 
     const approvedGames: any[] = [];
     const approvedCats: any[] = [];
@@ -644,10 +701,10 @@ async function handleGet(res: ServerResponse): Promise<void> {
       const isApproved = labelNames.some((l) => l === 'übernommen' || l === 'status:accepted');
       const isDeleted = labelNames.some((l) => l === 'gelöscht' || l === 'status:deleted');
       let parsedDraft: any = null;
-      const match = typeof issue.body === 'string' ? issue.body.match(/```json\s*([\s\S]*?)\s*```/) : null;
-      if (match?.[1]) {
+      const draftJson = typeof issue.body === 'string' ? lastJsonBlock(issue.body) : null;
+      if (draftJson) {
         try {
-          parsedDraft = JSON.parse(match[1]);
+          parsedDraft = JSON.parse(draftJson);
         } catch {
           /* ignore */
         }
@@ -686,6 +743,15 @@ async function handleGet(res: ServerResponse): Promise<void> {
   }
 }
 
+// The server writes its ```json block last in every issue body. Submitted text sits above it, so
+// reading the LAST block means a fake block typed into a free-text field can never be picked up
+// (older issues were created before submit.ts neutralised backticks).
+const JSON_BLOCK = /```json\s*([\s\S]*?)\s*```/g;
+function lastJsonBlock(body: string): string | null {
+  const blocks = [...body.matchAll(JSON_BLOCK)];
+  return blocks.length ? blocks[blocks.length - 1][1] || null : null;
+}
+
 // ---------------------------------------------------------------------------------------------
 // POST actions
 // ---------------------------------------------------------------------------------------------
@@ -707,7 +773,14 @@ async function requireSession(ctx: Ctx): Promise<{ state: AdminCloudState; actor
 async function actionLogin({ req, res, body }: Ctx) {
   const username = String(body.username || '').trim().toLowerCase().slice(0, 120);
   const password = String(body.password || '');
-  if (rateLimited(`login:${clientIp(req)}`, 10, 15 * 60_000) || rateLimited(`login-user:${username}`, 10, 15 * 60_000)) {
+  const ip = clientIp(req);
+  if (rateLimited(`login:${ip}`, 10, LOGIN_WINDOW_MS)) return sendJson(res, 429, { ok: false, code: 'rate_limited' });
+  // The old per-username limit counted every attempt, so anyone could lock the Owner out by typing
+  // wrong passwords for that address. Now an account under attack (10+ failures) only blocks
+  // connections that already failed for it: the right password from a clean connection still
+  // works, while an attacker spread over many addresses gets one guess per address.
+  const failKeys = [`user:${username}`, `user-ip:${username}|${ip}`];
+  if (failureCount(failKeys[0]) >= 10 && failureCount(failKeys[1]) > 0) {
     return sendJson(res, 429, { ok: false, code: 'rate_limited' });
   }
   const state = await loadState();
@@ -715,12 +788,14 @@ async function actionLogin({ req, res, body }: Ctx) {
   if (!acc) {
     // Spend comparable time so response timing does not reveal which usernames exist.
     pbkdf2Hex(password || 'x', 'timing-equaliser', PBKDF2_ITERATIONS);
+    failKeys.forEach(noteFailure);
     await failDelay();
     return sendJson(res, 200, { ok: false, code: 'invalid' });
   }
   const check = checkPassword(acc, password);
   if (check.resetRequired) return sendJson(res, 200, { ok: false, code: 'reset_required' });
   if (!check.ok) {
+    failKeys.forEach(noteFailure);
     await failDelay();
     return sendJson(res, 200, { ok: false, code: 'invalid' });
   }
@@ -779,9 +854,9 @@ async function actionSyncState(ctx: Ctx) {
     ok: true,
     account: publicAccount(actor),
     state: {
-      accounts: state.accounts.map(publicAccount),
+      accounts: state.accounts.map((a) => (isOwner || a.id === actor.id ? publicAccount(a) : teamAccount(a))),
       deletedAccountIds: state.deletedAccountIds,
-      revisions: state.revisions,
+      revisions: isOwner ? state.revisions : state.revisions.map(({ authorUsername: _email, ...rev }) => rev),
       proposals: proposalsFor(actor, state.proposals),
     },
     pendingRequestCount: isOwner ? state.accountRequests.filter((r) => r?.status === 'pending').length : 0,
@@ -795,12 +870,14 @@ async function actionRequestAccount({ req, res, body }: Ctx) {
   const message = String(body.message || '').trim().slice(0, 400);
   if (displayName.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return sendJson(res, 400, { ok: false, code: 'invalid' });
   if (!validPassword(body.password)) return sendJson(res, 400, { ok: false, code: 'weak_password' });
-  if (email === ownerUsername()) return sendJson(res, 400, { ok: false, code: 'reserved' });
+  // Same answer whether or not the address is known: distinct codes let anyone test which email
+  // addresses have accounts, which undid the timing equaliser in login.
+  if (email === ownerUsername()) return sendJson(res, 200, { ok: true });
 
   const state = await loadState();
-  if (state.accounts.some((a) => a.username === email)) return sendJson(res, 200, { ok: false, code: 'exists' });
+  if (state.accounts.some((a) => a.username === email)) return sendJson(res, 200, { ok: true });
   const pending = state.accountRequests.filter((r) => r?.status === 'pending');
-  if (pending.some((r) => r.email === email)) return sendJson(res, 200, { ok: false, code: 'pending' });
+  if (pending.some((r) => r.email === email)) return sendJson(res, 200, { ok: true });
   if (pending.length >= 50) return sendJson(res, 429, { ok: false, code: 'limit' });
 
   const pw = newPasswordFields(body.password);
@@ -1001,11 +1078,9 @@ async function actionListProposals(ctx: Ctx) {
   const s = await requireSession(ctx);
   if (!s) return;
   if (!s.actor.permissions.canReviewProposals) return deny(ctx.res);
-  const repo = process.env.GITHUB_REPO || 'nurimodabber/jy-resource-hub';
-  const ghRes = await fetch(`https://api.github.com/repos/${repo}/issues?state=open&per_page=50`, { headers: ghHeaders() });
-  if (!ghRes.ok) return sendJson(ctx.res, 200, { ok: false, code: 'upstream', status: ghRes.status });
-  const list: any[] = await ghRes.json();
-  const issues = (Array.isArray(list) ? list : [])
+  const list = await fetchIssues('open', ghHeaders());
+  if (!list) return sendJson(ctx.res, 200, { ok: false, code: 'upstream' });
+  const issues = list
     .filter((i) => !i.pull_request)
     .map((i) => {
       const contact = decryptContact(i.body || '');
@@ -1078,8 +1153,10 @@ async function actionIssue(ctx: Ctx) {
     delete clean.email;
     const block = '```json\n' + JSON.stringify(clean, null, 2) + '\n```';
     const existing = typeof current.body === 'string' ? current.body : '';
-    patch.body = /```json[\s\S]*?```/.test(existing)
-      ? existing.replace(/```json[\s\S]*?```/, block)
+    const blocks = [...existing.matchAll(JSON_BLOCK)];
+    const last = blocks[blocks.length - 1];
+    patch.body = last?.index !== undefined
+      ? existing.slice(0, last.index) + block + existing.slice(last.index + last[0].length)
       : `${existing}\n\n### Redaktioneller Datensatz\n${block}`.trim();
   }
   const patchRes = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
@@ -1172,10 +1249,18 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
   const run = body && typeof body.action === 'string' ? ACTIONS[body.action] : undefined;
   if (!run) return sendJson(res, 400, { ok: false, code: 'unknown_action' });
 
-  try {
-    await run({ req, res, body });
-  } catch (err) {
-    console.error('admin sync error', body.action, err instanceof Error ? err.message : err);
-    if (!res.writableEnded) sendJson(res, 503, { ok: false, code: 'unavailable' });
+  // Every action saves before its side effects (emails, GitHub calls), so re-running it after a
+  // conflict cannot send anything twice.
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await run({ req, res, body });
+      return;
+    } catch (err) {
+      const conflict = err instanceof Error && err.message === 'state_conflict';
+      if (conflict && attempt < 3 && !res.writableEnded) continue;
+      console.error('admin sync error', body.action, err instanceof Error ? err.message : err);
+      if (!res.writableEnded) sendJson(res, conflict ? 409 : 503, { ok: false, code: conflict ? 'conflict' : 'unavailable' });
+      return;
+    }
   }
 }

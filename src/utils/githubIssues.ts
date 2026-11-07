@@ -79,10 +79,12 @@ export function getGitHubRepo(): string {
 /** Parses embedded JSON draft from GitHub Issue markdown body */
 function extractJsonDraft(body: string | null): Record<string, unknown> | null {
   if (!body) return null;
-  const match = body.match(/```json\s*([\s\S]*?)\s*```/);
-  if (!match || !match[1]) return null;
+  // Last block, not first: see lastJsonBlock in api/sync.ts (a submitter could type a fake block above).
+  const blocks = [...body.matchAll(/```json\s*([\s\S]*?)\s*```/g)];
+  const json = blocks.length ? blocks[blocks.length - 1][1] : null;
+  if (!json) return null;
   try {
-    return JSON.parse(match[1]);
+    return JSON.parse(json);
   } catch {
     return null;
   }
@@ -179,7 +181,7 @@ export async function fetchSystemStatus(): Promise<{ ok: boolean; status?: Syste
 
 /** Fetches approved community content & deleted IDs from GitHub to sync with live website */
 export async function fetchApprovedGitHubContent(): Promise<SyncedApprovedContent> {
-  // 1. Try serverless /api/sync endpoint
+  // Only our own server; see the note at the end.
   try {
     const res = await fetch('/api/sync');
     if (res.ok) {
@@ -204,105 +206,11 @@ export async function fetchApprovedGitHubContent(): Promise<SyncedApprovedConten
       }
     }
   } catch {
-    /* Fallback to public GitHub API */
+    /* offline or server down */
   }
-
-  // 2. Direct public GitHub REST API call (unauthenticated; public repository)
-  const repo = getGitHubRepo();
-  try {
-    const headers: Record<string, string> = {
-      Accept: 'application/vnd.github.v3+json',
-    };
-
-    const res = await fetch(`https://api.github.com/repos/${repo}/issues?state=all&per_page=100`, { headers });
-
-    if (!res.ok) {
-      return getCachedApprovedContent();
-    }
-
-    const issues: GitHubIssue[] = await res.json();
-    if (!Array.isArray(issues)) {
-      return getCachedApprovedContent();
-    }
-
-    const approvedGames: Game[] = [];
-    const approvedCats: EmpireCategory[] = [];
-    const approvedServiceProjects: ServiceProject[] = [];
-    const approvedArtsPrompts: ArtsPrompt[] = [];
-    const deletedEntityIds: string[] = [];
-
-    for (const issue of issues) {
-      if (issue.pull_request) continue;
-      const labelNames: string[] = (issue.labels || []).map((l) => l.name);
-      const isApproved = labelNames.some((l) => l === 'übernommen' || l === 'status:accepted');
-      const isDeleted = labelNames.some((l) => l === 'gelöscht' || l === 'status:deleted');
-
-      const parsedDraft = extractJsonDraft(issue.body);
-
-      if (isDeleted) {
-        if (parsedDraft?.id) deletedEntityIds.push(parsedDraft.id as string);
-        deletedEntityIds.push(`gh_issue_${issue.number}`);
-        deletedEntityIds.push(`gh_game_${issue.number}`);
-        deletedEntityIds.push(`gh_service_${issue.number}`);
-        deletedEntityIds.push(`gh_art_${issue.number}`);
-      } else if (isApproved && parsedDraft) {
-        const isService = labelNames.includes('dienst') || parsedDraft.kind === 'dienst';
-        const isArt = labelNames.includes('kunst') || parsedDraft.kind === 'kunst' || Boolean(parsedDraft.artForm);
-        const isEmpireCat = Boolean(parsedDraft.prompt && parsedDraft.hint);
-
-        if (isEmpireCat) {
-          approvedCats.push({
-            ...(parsedDraft as unknown as EmpireCategory),
-            id: (parsedDraft.id as string) || `proposal_${issue.number}`,
-            status: 'draft',
-          });
-        } else if (isService) {
-          approvedServiceProjects.push({
-            ...(parsedDraft as unknown as ServiceProject),
-            id: (parsedDraft.id as string) || `gh_service_${issue.number}`,
-            kind: 'dienst',
-            status: 'draft',
-            submittedBy: (parsedDraft.submittedBy as string) || issue.user?.login || 'Community',
-          });
-        } else if (isArt) {
-          approvedArtsPrompts.push({
-            ...(parsedDraft as unknown as ArtsPrompt),
-            id: (parsedDraft.id as string) || `gh_art_${issue.number}`,
-            kind: 'kunst',
-            status: 'draft',
-            submittedBy: (parsedDraft.submittedBy as string) || issue.user?.login || 'Community',
-          });
-        } else {
-          approvedGames.push({
-            ...(parsedDraft as unknown as Game),
-            id: (parsedDraft.id as string) || `proposal_game_${issue.number}`,
-            status: 'draft',
-            submittedBy: (parsedDraft.submittedBy as string) || issue.user?.login || 'Community',
-          });
-        }
-      }
-    }
-
-    try {
-      localStorage.setItem(STORAGE_SYNCED_GAMES_KEY, JSON.stringify(approvedGames));
-      localStorage.setItem(STORAGE_SYNCED_CATS_KEY, JSON.stringify(approvedCats));
-      localStorage.setItem(STORAGE_SYNCED_SERVICE_KEY, JSON.stringify(approvedServiceProjects));
-      localStorage.setItem(STORAGE_SYNCED_ARTS_KEY, JSON.stringify(approvedArtsPrompts));
-      localStorage.setItem(STORAGE_SYNCED_DELETED_KEY, JSON.stringify(deletedEntityIds));
-    } catch {
-      /* ignore */
-    }
-
-    return {
-      approvedGames,
-      approvedCategories: approvedCats,
-      approvedServiceProjects,
-      approvedArtsPrompts,
-      deletedEntityIds,
-    };
-  } catch {
-    return getCachedApprovedContent();
-  }
+  // No direct call to api.github.com as a fallback: the site loads nothing from other servers,
+  // and only /api/sync strips contact details from older issues.
+  return getCachedApprovedContent();
 }
 
 /** Loads cached approved community content from localStorage */

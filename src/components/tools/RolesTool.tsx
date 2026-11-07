@@ -171,7 +171,7 @@ const SpyGame: React.FC<{ language: Language; names: string[] }> = ({ language, 
           i === deal.spy ? (
             <div className="p-6 rounded-card bg-accent-subtle border border-accent/30 space-y-2">
               <span className="text-2xs font-bold text-accent-text">{L('Geheime Rolle', 'Secret Role')}</span>
-              <p className="text-3xl font-extrabold text-accent-text">{L('Du bist der Spion!', 'You are the spy!')}</p>
+              <p className="text-3xl font-extrabold text-accent-text">{L('Du bist der Spion.', 'You are the spy.')}</p>
               <p className="text-xs text-text-secondary mt-2">
                 {L('Du kennst den Ort nicht. Höre aufmerksam zu und versuche herauszufinden, wo ihr seid, ohne dich zu verraten.', 'You do not know the location. Listen carefully and deduce it without blowing your cover.')}
               </p>

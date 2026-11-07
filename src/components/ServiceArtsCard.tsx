@@ -69,18 +69,6 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         <Bookmark className={`w-4 h-4 transition-transform duration-150 ${isFavorite ? 'fill-accent text-accent' : ''}`} strokeWidth={1.75} />
       </button>
 
-      {/* Optional image preview if imageUrl is present */}
-      {activity.imageUrl && (
-        <div className="mb-3 -mx-3.5 -mt-3.5 sm:-mx-5 sm:-mt-4 overflow-hidden rounded-t-card border-b border-border aspect-16/9 bg-surface-2 relative pointer-events-none">
-          <img
-            src={activity.imageUrl}
-            alt={activity.title[language]}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
-          />
-        </div>
-      )}
-
       {/* Clickable title & description via stretched Link */}
       <Link
         to={targetUrl}

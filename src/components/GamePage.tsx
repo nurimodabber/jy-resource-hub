@@ -211,7 +211,7 @@ export const GamePage: React.FC<GamePageProps> = ({
             </div>
 
             {/* Meta as Badges: Immer in genau einer einzigen Zeile (kein Umbruch!) */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap py-1 print:hidden select-none text-xs text-text-secondary">
+            <div tabIndex={0} role="group" aria-label={language === 'de' ? 'Eckdaten' : 'Key facts'} className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap py-1 print:hidden select-none text-xs text-text-secondary focus-visible:outline-2 focus-visible:outline-accent rounded-chip">
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-2 border border-border shrink-0 font-medium whitespace-nowrap shadow-2xs">
                 <Users className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
                 <span>{game.groupSize.min}–{game.groupSize.max} {t.peopleSuffix}</span>

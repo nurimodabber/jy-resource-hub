@@ -124,17 +124,6 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
 
       {/* 2. Main Card */}
       <div className="bg-surface rounded-card border border-border/80 overflow-hidden shadow-xs">
-        {/* Optional hero image */}
-        {activity.imageUrl && (
-          <div className="aspect-16/9 w-full bg-surface-2 border-b border-border/80 overflow-hidden">
-            <img
-              src={activity.imageUrl}
-              alt={activity.title[language]}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-
         <div className="p-5 sm:p-8 md:p-10">
           <header className={`mb-8 tone-${tone}`}>
             <div className="flex items-center justify-between gap-3 mb-4">

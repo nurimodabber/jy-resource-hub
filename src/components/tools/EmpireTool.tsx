@@ -170,8 +170,8 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
         {showHelp && (
           <p className="text-xs text-text-secondary mt-2 leading-relaxed">
             {L(
-              'Alle schreiben geheim einen Begriff zur Kategorie auf einen Zettel. Die Spielleitung liest alle Begriffe vor. Reihum erraten die Jugendlichen, wer welchen Begriff hatte – Richtige Antworten wachsen zu mächtigen Reichen zusammen!',
-              'Everyone secretly writes a term for the category. The host reads all terms twice. Players guess who wrote what – correct guesses merge into growing empires!'
+              'Alle schreiben geheim einen Begriff zur Kategorie auf einen Zettel. Die Spielleitung liest alle Begriffe vor. Reihum erraten die Jugendlichen, wer welchen Begriff hatte – Richtige Antworten wachsen zu mächtigen Reichen zusammen.',
+              'Everyone secretly writes a term for the category. The host reads all terms twice. Players guess who wrote what – correct guesses merge into growing empires.'
             )}
           </p>
         )}
@@ -407,7 +407,7 @@ export const EmpireTool: React.FC<{ language: Language }> = ({ language }) => {
             <Panel className="text-center py-10 space-y-4 bg-accent-subtle border border-accent/30 animate-in zoom-in-95 duration-200">
               <Crown className="w-12 h-12 mx-auto text-accent-text" />
               <h2 className="text-2xl sm:text-3xl font-extrabold text-accent-text">
-                {L(`${winner.king} hat das gesamte Empire vereint!`, `${winner.king} has united the entire Empire!`)}
+                {L(`${winner.king} hat das gesamte Empire vereint.`, `${winner.king} has united the entire Empire.`)}
               </h2>
               <p className="text-xs text-text-secondary max-w-sm mx-auto">
                 {L(`Alle ${names.length} Mitspielenden gehören nun zu diesem großen Reich.`, `All ${names.length} players now belong to this kingdom.`)}

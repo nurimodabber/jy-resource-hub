@@ -169,7 +169,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
           <div className="flex items-center justify-between pt-2 border-t border-border text-xs text-text-secondary">
             <span className="flex items-center gap-1.5">
               <Search className="w-3.5 h-3.5 text-accent-text" />
-              <span>{language === 'de' ? 'Findet das gefälschte Wort und klickt darauf!' : 'Locate the imposter word and click it!'}</span>
+              <span>{language === 'de' ? 'Findet das gefälschte Wort und klickt darauf.' : 'Locate the imposter word and click it.'}</span>
             </span>
 
             <button

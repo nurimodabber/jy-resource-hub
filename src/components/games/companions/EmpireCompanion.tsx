@@ -576,7 +576,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
               „{readingList[readIndex]}“
             </div>
             <p className="text-xs text-text-secondary pt-2">
-              {L('Laut und deutlich vorlesen. Alle hören gut zu!', 'Read out loud clearly. Everyone listens!')}
+              {L('Laut und deutlich vorlesen. Alle hören gut zu.', 'Read out loud clearly. Everyone listens.')}
             </p>
           </Panel>
 
@@ -619,7 +619,7 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
           <div className="p-4 rounded-card bg-surface-2 border border-border text-center space-y-1">
             <h3 className="text-base font-bold text-text flex items-center justify-center gap-2">
               <Crown className="w-4 h-4 text-accent" />
-              <span>{L('Viel Spaß beim Raten im Kreis!', 'Have fun guessing in the circle!')}</span>
+              <span>{L('Viel Spaß beim Raten im Kreis.', 'Have fun guessing in the circle.')}</span>
             </h3>
             <p className="text-xs text-text-secondary">
               {L('Das Spiel läuft frei in der Gruppe. Tippe unten auf Begriffe, um sie abzustreichen.', 'Play freely in the circle. Tap terms below to cross them off.')}

@@ -269,7 +269,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                 <div className="font-bold text-sm sm:text-base text-accent-contrast tracking-tight">
                   {L('Spiel finden', 'Find a game')}
                 </div>
-                <p className="text-2xs text-accent-contrast/85 font-medium leading-tight truncate">
+                <p className="text-2xs text-accent-contrast font-medium leading-tight truncate">
                   {L('Gruppengröße & Zeit wählen', 'Pick group size & time')}
                 </p>
               </div>
@@ -460,13 +460,14 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         </div>
       </section>
 
-      {/* 6. Zuletzt angesehen: Ansprechender Leerzustand & Verlaufskarten */}
+      {/* 6. Zuletzt angesehen: only once there is a history. The empty state repeated the two actions at
+          the top of the page and added a second filled accent button (one main action per view). */}
+      {recentViews.length > 0 && (
       <section aria-label={L('Zuletzt angesehen', 'Recently viewed')} className="space-y-3">
         <h3 className="text-xs font-bold text-text-tertiary flex items-center gap-1.5">
           <History className="w-3.5 h-3.5 text-text-tertiary" />
           <span>{L('Zuletzt angesehen', 'Recently viewed')}</span>
         </h3>
-        {recentViews.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {recentViews.map((item) => (
               <Link
@@ -497,36 +498,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               </Link>
             ))}
           </div>
-        ) : (
-          <div className="p-5 sm:p-6 rounded-card bg-surface border border-border shadow-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-3.5">
-              <History className="w-5 h-5 text-text-tertiary shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="font-bold text-text text-sm">
-                  {t.recentViewsEmptyTitle}
-                </p>
-                <p className="text-xs text-text-secondary max-w-lg leading-relaxed">
-                  {t.recentViewsEmptyDesc}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto pt-1 sm:pt-0">
-              <Link
-                to="/games"
-                className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-surface-2 hover:bg-surface-2/80 text-text text-xs font-semibold min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                {t.exploreGames}
-              </Link>
-              <Link
-                to="/quotes"
-                className="flex-1 sm:flex-none px-4 py-2 rounded-full bg-accent hover:bg-accent-hover text-accent-contrast text-xs font-bold min-h-[44px] flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                {t.exploreQuotes}
-              </Link>
-            </div>
-          </div>
-        )}
       </section>
+      )}
     </div>
   );
 };

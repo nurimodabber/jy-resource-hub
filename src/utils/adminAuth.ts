@@ -259,6 +259,10 @@ const MESSAGES: Record<string, [string, string]> = {
     'The server is not set up yet (GITHUB_TOKEN / ADMIN_SESSION_SECRET missing).',
   ],
   network: ['Keine Verbindung zum Server.', 'No connection to the server.'],
+  conflict: [
+    'Gerade hat jemand anderes gespeichert. Versuch es bitte noch einmal.',
+    'Someone else just saved. Please try again.',
+  ],
 };
 
 export function describeAuthCode(code: string | undefined): { errorDe: string; errorEn: string } {

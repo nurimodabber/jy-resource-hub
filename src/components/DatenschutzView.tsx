@@ -154,7 +154,7 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
             {cleared && (
               <span className="text-xs text-success flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" />
-                {isDe ? 'Gelöscht!' : 'Cleared!'}
+                {isDe ? 'Gelöscht' : 'Cleared'}
               </span>
             )}
           </div>
