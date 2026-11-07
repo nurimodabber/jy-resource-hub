@@ -202,8 +202,8 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
           onDone={finishDealAndPlay}
           hiddenHint={(name) =>
             L(
-              `Zeige diesen Bildschirm allen anderen im Raum – aber ${name} darf nicht hinschauen!`,
-              `Show this screen to everyone in the room – but ${name} must not look!`
+              `Zeige diesen Bildschirm allen anderen im Raum – aber ${name} darf nicht hinschauen.`,
+              `Show this screen to everyone in the room – but ${name} must not look.`
             )
           }
           renderCard={(playerIdx) => {
@@ -224,7 +224,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
 
                 <p className="text-xs text-text-secondary leading-relaxed max-w-xs mx-auto">
                   {L(
-                    `Alle außer ${p} lesen den Begriff. Wer Post-its hat, klebt den Begriff auf die Stirn von ${p}!`,
+                    `Alle außer ${p} lesen den Begriff. Wer Post-its hat, klebt den Begriff auf die Stirn von ${p}.`,
                     `Everyone except ${p} reads the word. If you have sticky notes, stick it onto ${p}'s forehead!`
                   )}
                 </p>

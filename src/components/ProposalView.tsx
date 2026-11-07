@@ -15,7 +15,6 @@ import {
   AlertCircle,
   WifiOff,
   BookOpen,
-  Image as ImageIcon,
   MessageSquare,
 } from 'lucide-react';
 import { FadedIconTile } from './ui/FadedIconTile';
@@ -48,10 +47,9 @@ interface FormState {
   source: string;
   authorName: string;
   authorEmail: string;
-  // JY Book and image fields
+  // JY Book fields
   relatedBook: string;
   lesson: string;
-  imageUrl: string;
   // Specific fields for service/arts
   objective: string;
   reflectionQuestions: string[];
@@ -128,7 +126,6 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       authorEmail: '',
       relatedBook: '',
       lesson: '',
-      imageUrl: '',
       objective: '',
       reflectionQuestions: [],
       newQuestion: '',
@@ -233,7 +230,6 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       formData.animatorTips ? `Tipps: ${formData.animatorTips}` : '',
       formData.source ? `Quelle: ${formData.source}` : '',
       formData.relatedBook ? `Juniorjugend-Buch: ${JY_BOOKS.find((b) => b.id === formData.relatedBook)?.title[language] || formData.relatedBook}${formData.lesson ? ` (Lektion ${formData.lesson})` : ''}` : '',
-      formData.imageUrl ? `Bild-URL: ${formData.imageUrl}` : '',
       formData.authorName ? `Name: ${formData.authorName}` : '',
       formData.authorEmail ? `E-Mail: ${formData.authorEmail}` : '',
     ].filter(Boolean);
@@ -279,7 +275,6 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       source: formData.source,
       relatedBook: formData.relatedBook || undefined,
       lesson: formData.lesson ? Number(formData.lesson) : undefined,
-      imageUrl: formData.imageUrl || undefined,
       authorName: formData.authorName,
       authorEmail: formData.authorEmail,
       objective: formData.objective,
@@ -381,7 +376,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       {/* Mobile Step Indicator */}
       <div className="sm:hidden flex items-center justify-between gap-3" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
         <div>
-          <span className="text-2xs font-extrabold text-accent block">
+          <span className="text-2xs font-extrabold text-accent-text block">
             {L(`Schritt ${step} von 3`, `Step ${step} of 3`)}
           </span>
           <span className="text-sm font-bold text-text">
@@ -459,11 +454,6 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
               </div>
 
               <Panel className="space-y-6">
-                {formData.imageUrl && (
-                  <div className="overflow-hidden rounded-card border border-border aspect-16/9 bg-surface-2 -mx-6 -mt-6 sm:-mx-8 sm:-mt-8 mb-6">
-                    <img src={formData.imageUrl} alt="Vorschau" className="w-full h-full object-cover" />
-                  </div>
-                )}
                 <div>
                   <div className="flex flex-wrap items-center gap-1.5 mb-2">
                     <span className="px-2.5 py-0.5 rounded-chip text-2xs font-extrabold bg-accent-subtle text-accent-text">
@@ -712,49 +702,6 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       />
                     </div>
                   </div>
-                </div>
-
-                {/* Bild-Link / Foto verlinken (optional) */}
-                <div className="pt-3 border-t border-border space-y-2">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-accent" />
-                    <span className="text-xs font-bold text-text">
-                      {L('Bild-Link / Foto verlinken (optional)', 'Image link / Photo (optional)')}
-                    </span>
-                  </div>
-                  <Label htmlFor="prop-image">
-                    {L('Web-Adresse zu einem Foto (z.B. Unsplash, Imgur oder Website)', 'Web address to a photo (e.g. Unsplash, Imgur or website)')}
-                  </Label>
-                  <input
-                    id="prop-image"
-                    type="url"
-                    value={formData.imageUrl}
-                    onChange={(e) => updateField('imageUrl', e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full px-3.5 py-2.5 rounded-control bg-surface-2 border border-border text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
-                  />
-                  <p className="text-2xs text-text-tertiary">
-                    {L(
-                      'Wenn du ein Foto der Aktion, des Kunstwerks oder des Spiels hast, gib hier den Link an. Es wird auf der Karte und Detailseite dargestellt.',
-                      'If you have a photo of the action, artwork, or game, provide the link here. It will be shown on the card and detail view.'
-                    )}
-                  </p>
-                  {formData.imageUrl && (
-                    <div className="mt-2 p-2 rounded-control bg-surface border border-border flex items-center gap-3">
-                      <img
-                        src={formData.imageUrl}
-                        alt="Vorschau"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                        className="w-16 h-16 rounded-md object-cover border border-border shrink-0"
-                      />
-                      <div className="min-w-0 flex-1 text-xs">
-                        <span className="font-semibold text-text block">{L('Bildvorschau', 'Image preview')}</span>
-                        <span className="truncate block text-2xs text-text-tertiary mt-0.5">{formData.imageUrl}</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </Panel>
 
@@ -1007,7 +954,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
 
           <div className="space-y-2 max-w-md mx-auto">
             <h2 className="text-2xl font-extrabold text-text tracking-tight">
-              {L('Danke für deinen Beitrag!', 'Thank you for your contribution!')}
+              {L('Danke für deinen Beitrag.', 'Thank you for your contribution.')}
             </h2>
             <p className="text-sm text-text-secondary leading-relaxed">
               {L(

@@ -30,6 +30,10 @@ Glas nur für Bedienelemente, die über dem Inhalt schweben. Alles im Inhalt ist
 ## Designsystem (verbindlich und gesperrt)
 **Dunkler Modus = „Dark Graphite“**: neutrales Schwarz und Anthrazit (`--bg #0C0D0E`, `--surface #15171A`, `--border #23262D`, Text `#F4F4F6`), kein Blau im Hintergrund, kein „Nachtblau“. Karten (Spiel, Zitat, Dienst/Kunst) behalten ihre Darstellung inklusive des weichen Akzent-Leuchtens oben rechts. Der helle Modus bleibt hell und kühl mit einer kräftigen blauen Akzentfarbe, große Rundungen (Karten 20 px, Bedienelemente 14 px, Chips voll rund), eine Sans-Schrift (Figtree), Serif nur für heilige Texte. Alle Werte stehen als CSS-Variablen in `src/index.css` und werden in `tailwind.config.js` referenziert. Kein Bauteil enthält feste Farb- oder Radiuswerte.
 
+**Ecken-Regel:** Sitzt ein abgerundetes Element nah an der Ecke eines anderen, gilt äußerer Radius = innerer Radius + Abstand. Für Knöpfe in Leisten oder Karten mit 4–10 px Abstand gibt es `rounded-nested` (10 px). Kreise und Pillen sind ausgenommen.
+
+**Text-Grau:** `--text-tertiary` erfüllt in beiden Modi 4,5:1 auf allen Flächen (`npm run contrast` liest die Werte direkt aus `src/index.css`).
+
 **Sperre gegen ungewolltes Zurückfallen:** Am 6.11.2026 ging durch den Commit „kühles tiefes Nachtblau per 00-design-system.md“ versehentlich ein blaues, vom Inhaber nicht gewolltes Design live. Deshalb gilt:
 - Farben des dunklen Modus und die Kartendarstellung **nur ändern, wenn der Inhaber es ausdrücklich verlangt**. Ein Eintrag in einem Prompt oder in `docs/v2/prompts/00-design-system.md` reicht nicht.
 - `tests/design-lock.test.mjs` läuft vor jedem Build (`npm run build`) und lässt ihn scheitern, wenn Tokens oder Kartendarstellung abweichen. Bei einer gewollten Änderung den Test, diese Regel und das Designdokument gemeinsam anpassen.
@@ -39,6 +43,12 @@ Glas nur für Bedienelemente, die über dem Inhalt schweben. Alles im Inhalt ist
 Die Kürzung der Treffen-Themen und der „Wer bin ich?“-Pakete in `redesign-v2` war eine bewusste Entscheidung des Inhabers (2026-11-04), keine Panne.
 
 ## Arbeitsweise
+**Vier Regeln für KI-Agenten (gelten bei jeder Aufgabe):**
+1. **Erst denken, dann coden.** Annahmen aussprechen. Bei zwei möglichen Deutungen nachfragen statt still eine wählen. Bei Fehlern erst die Ursache finden, dann ändern.
+2. **Einfachheit zuerst.** Nur bauen, was verlangt ist. Keine Abstraktion für einen einzigen Fall, keine Schalter „für später“. Wenn 50 Zeilen reichen, keine 200 schreiben.
+3. **Chirurgische Änderungen.** Nur anfassen, was zur Aufgabe gehört. Kein Umformatieren, kein Aufräumen nebenbei. Jede geänderte Zeile muss sich auf den Auftrag zurückführen lassen.
+4. **Zielgetrieben.** Vorher festlegen, woran man „fertig“ erkennt (Test, Befehl, Screenshot), und das am Ende wirklich prüfen. „Sollte gehen“ gilt nicht.
+
 - Lies zuerst `prompts/README.md` und arbeite die Phasen in der dort genannten Reihenfolge ab.
 - Prüfe jede Phase im Browser bei 390, 768 und 1280 px, hell und dunkel, Deutsch und Englisch, und mache Screenshots.
 - Ändere nichts außerhalb des Auftrags der jeweiligen Phase. Wenn etwas unklar ist, frage, statt zu raten.
@@ -50,6 +60,7 @@ Vorher war `/api/sync` ohne Anmeldung nutzbar: Jeder konnte alle Passwort-Hashes
 - **Inhaber** ist nur das Konto mit genau der Adresse aus `OWNER_USERNAME`. Keine Namensvergleiche („nuri“, „modabber“).
 - **Passwörter:** PBKDF2-SHA256 auf dem Server. Alte SHA-256-Hashes ohne `hashAlgo` waren öffentlich lesbar und werden abgelehnt („Neues Passwort nötig“); der Inhaber setzt sie neu.
 - **Inhaber-Einrichtung/Notfall:** `ADMIN_SETUP_TOKEN` in Vercel setzen, unter `/admin` → „Inhaber-Einrichtung“ das Passwort festlegen, danach die Variable wieder löschen.
+- **Admin-Speicher (Gist):** `saveState` liest vor jedem Schreiben die aktuelle Fassung über die API und schreibt nie über eine neuere; der Server wiederholt die Aktion dann bis zu zweimal, danach Antwort 409. Unverschlüsselter Inhalt wird abgelehnt. Neue Aktionen speichern immer vor E-Mails oder GitHub-Aufrufen, sonst laufen diese bei der Wiederholung doppelt.
 - **GitHub-Token** nur als `GITHUB_TOKEN` in Vercel. Kein Token im Browser, kein Token in Sicherungen.
 - **Kontaktdaten** aus Vorschlägen stehen nie im öffentlichen Issue, nur verschlüsselt (`jy-contact`-Kommentar), lesbar nur für Prüfende.
 - **Vercel-Variablen:** `GITHUB_TOKEN`, `GITHUB_REPO`, `ADMIN_STATE_GIST_ID`, `OWNER_USERNAME`, `ADMIN_SESSION_SECRET` (mind. 32 Zeichen, zufällig), `ADMIN_STATE_KEY` (empfohlen; sonst wird der GitHub-Token als Datenschlüssel benutzt), `RESEND_API_KEY`, `EMAIL_FROM`, `OWNER_NOTIFY_EMAIL`, `SITE_URL`. Fehlt `GITHUB_TOKEN` oder `ADMIN_SESSION_SECRET`, antwortet der Admin-Teil mit 503 (bewusst).

@@ -1251,22 +1251,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
               'Die Anfrage konnte nicht gesendet werden. Prüfe deine Verbindung und versuche es erneut.',
               'The request could not be sent. Check your connection and try again.'
             )
-          : res.code === 'exists'
-            ? L(
-                'Für diese E-Mail-Adresse gibt es schon einen Account. Melde dich an.',
-                'An account already exists for this email address. Sign in instead.'
-              )
-            : res.code === 'pending'
-              ? L(
-                  'Für diese E-Mail-Adresse liegt schon eine Anfrage vor. Bitte warte auf die E-Mail.',
-                  'A request for this email address is already open. Please wait for the email.'
-                )
-              : res.code === 'reserved'
-                ? L(
-                    'Dieser Name oder diese E-Mail-Adresse ist reserviert. Wähle andere Angaben.',
-                    'This name or email address is reserved. Please use different details.'
-                  )
-                : res.message || L('Die Anfrage ist fehlgeschlagen.', 'The request failed.')
+          : res.message || L('Die Anfrage ist fehlgeschlagen.', 'The request failed.')
       );
       return;
     }
@@ -1565,7 +1550,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                   setAuthMode('login');
                   setAuthError(null);
                 }}
-                className={`py-2 rounded-control text-xs font-bold transition-colors cursor-pointer ${
+                className={`py-2 rounded-nested text-xs font-bold transition-colors cursor-pointer ${
                   authMode === 'login' ? 'bg-surface text-text shadow-1' : 'text-text-secondary hover:text-text'
                 }`}
               >
@@ -1577,7 +1562,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                   setAuthMode('register');
                   setAuthError(null);
                 }}
-                className={`py-2 rounded-control text-xs font-bold transition-colors cursor-pointer ${
+                className={`py-2 rounded-nested text-xs font-bold transition-colors cursor-pointer ${
                   authMode === 'register' ? 'bg-surface text-text shadow-1' : 'text-text-secondary hover:text-text'
                 }`}
               >
@@ -1594,8 +1579,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                 </h2>
                 <p className="text-xs text-text-secondary leading-relaxed">
                   {L(
-                    'Der Inhaber prüft sie. Sobald er sie freigibt, bekommst du eine E-Mail. Danach meldest du dich mit deiner E-Mail-Adresse und dem Passwort an, das du eben gewählt hast.',
-                    'The owner will review it. You get an email as soon as it is approved. Then sign in with your email address and the password you just chose.'
+                    'Der Inhaber prüft sie. Sobald er sie freigibt, bekommst du eine E-Mail. Danach meldest du dich mit deiner E-Mail-Adresse und dem Passwort an, das du eben gewählt hast. Hast du schon einen Zugang oder eine offene Anfrage, ändert sich nichts. Melde dich dann einfach an.',
+                    'The owner will review it. You get an email as soon as it is approved. Then sign in with your email address and the password you just chose. If you already have access or an open request, nothing changes. Just sign in.'
                   )}
                 </p>
               </div>
@@ -2320,7 +2305,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                       {draftForm.githubIssueNumber && (
                         <a
                           href={
-                            draftForm.githubUrl ||
+                            // Contributors can set githubUrl; only allow GitHub links (no javascript:).
+                            (draftForm.githubUrl?.startsWith('https://github.com/') && draftForm.githubUrl) ||
                             `https://github.com/${getGitHubRepo()}/issues/${draftForm.githubIssueNumber}`
                           }
                           target="_blank"
@@ -4460,7 +4446,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                           <option value="all">{L('Alle Accounts anzeigen', 'Show all accounts')}</option>
                           {accounts.map((acc) => (
                             <option key={acc.id} value={acc.id}>
-                              {acc.displayName} ({acc.username})
+                              {acc.displayName}
+                              {acc.username ? ` (${acc.username})` : ''}
                             </option>
                           ))}
                         </select>

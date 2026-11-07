@@ -100,7 +100,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
       }
 
       setSubmitted(true);
-      showToast({ text: L('Vielen Dank für dein Feedback!', 'Thank you for your feedback!') });
+      showToast({ text: L('Vielen Dank für dein Feedback.', 'Thank you for your feedback.') });
       setTimeout(() => {
         setMessage('');
         setIsSubmitting(false);
@@ -128,12 +128,12 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
             <Check className="w-6 h-6" />
           </div>
           <h3 className="text-lg font-bold text-text">
-            {L('Feedback erhalten!', 'Feedback received!')}
+            {L('Feedback erhalten.', 'Feedback received.')}
           </h3>
           <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
             {L(
-              'Deine Rückmeldung wurde gespeichert und wird im Backend geprüft. Danke für deinen Beitrag!',
-              'Your feedback has been saved and will be reviewed in the backend. Thank you for your contribution!'
+              'Deine Rückmeldung ist gespeichert. Die Redaktion schaut sie sich an. Danke für deinen Beitrag.',
+              'Your feedback is saved. The editors will look at it. Thank you for your contribution.'
             )}
           </p>
         </div>

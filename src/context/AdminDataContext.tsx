@@ -45,6 +45,17 @@ import {
 } from '../utils/githubIssues';
 import { hasAdminSession } from '../utils/adminAuth';
 
+/**
+ * Community entries (approved GitHub issues) are only ever added. They used to replace a built-in
+ * entry with the same id, so one accepted proposal could rewrite or hide a built-in game for every
+ * visitor. Edits to built-ins go through admin revisions instead.
+ */
+function appendCommunity<T extends { id: string }>(base: readonly T[], synced: readonly T[]): T[] {
+  const ids = new Set(base.map((b) => b.id));
+  return [...base, ...synced.filter((s) => !ids.has(s.id) && ids.add(s.id))];
+}
+
+
 export type AdminSpyLocation = SpyLocation & { status?: 'draft' };
 export type EmpireCategory = EmpireCategoryV2;
 
@@ -198,15 +209,7 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const deletedIdsSet = new Set(syncedData.deletedEntityIds);
 
     // Merge static baseline + synced approved games (synced overrides static if same ID)
-    const baseAndSynced: Game[] = [...GAMES_DATA];
-    for (const sg of syncedData.approvedGames) {
-      const idx = baseAndSynced.findIndex((b) => b.id === sg.id);
-      if (idx >= 0) {
-        baseAndSynced[idx] = sg;
-      } else {
-        baseAndSynced.push(sg);
-      }
-    }
+    const baseAndSynced = appendCommunity<Game>(GAMES_DATA, syncedData.approvedGames);
 
     const result: Game[] = [];
     const processedIds = new Set<string>();
@@ -254,15 +257,7 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     const deletedIdsSet = new Set(syncedData.deletedEntityIds);
-    const baseAndSynced: ServiceProject[] = [...SERVICE_PROJECTS_DATA];
-    for (const sp of syncedData.approvedServiceProjects || []) {
-      const idx = baseAndSynced.findIndex((b) => b.id === sp.id);
-      if (idx >= 0) {
-        baseAndSynced[idx] = sp;
-      } else {
-        baseAndSynced.push(sp);
-      }
-    }
+    const baseAndSynced = appendCommunity<ServiceProject>(SERVICE_PROJECTS_DATA, syncedData.approvedServiceProjects || []);
 
     const result: ServiceProject[] = [];
     const processedIds = new Set<string>();
@@ -307,15 +302,7 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     const deletedIdsSet = new Set(syncedData.deletedEntityIds);
-    const baseAndSynced: ArtsPrompt[] = [...ARTS_PROMPTS_DATA];
-    for (const ap of syncedData.approvedArtsPrompts || []) {
-      const idx = baseAndSynced.findIndex((b) => b.id === ap.id);
-      if (idx >= 0) {
-        baseAndSynced[idx] = ap;
-      } else {
-        baseAndSynced.push(ap);
-      }
-    }
+    const baseAndSynced = appendCommunity<ArtsPrompt>(ARTS_PROMPTS_DATA, syncedData.approvedArtsPrompts || []);
 
     const result: ArtsPrompt[] = [];
     const processedIds = new Set<string>();
@@ -439,15 +426,7 @@ export const AdminDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     const deletedIdsSet = new Set(syncedData.deletedEntityIds);
-    const baseAndSynced: EmpireCategory[] = [...EMPIRE_CATEGORIES_V2];
-    for (const sc of syncedData.approvedCategories) {
-      const idx = baseAndSynced.findIndex((b) => b.id === sc.id);
-      if (idx >= 0) {
-        baseAndSynced[idx] = sc;
-      } else {
-        baseAndSynced.push(sc);
-      }
-    }
+    const baseAndSynced = appendCommunity<EmpireCategory>(EMPIRE_CATEGORIES_V2, syncedData.approvedCategories);
 
     const res: EmpireCategory[] = [];
     const seen = new Set<string>();

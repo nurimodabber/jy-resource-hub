@@ -191,7 +191,6 @@ export interface ServiceProject {
   steps: LocalizedArray;
   reflectionQuestions: LocalizedArray;
   animatorTips: LocalizedArray;
-  imageUrl?: string;
   relatedBook?: string;
   lesson?: number;
   status?: 'draft';
@@ -221,7 +220,6 @@ export interface ArtsPrompt {
   guidingSteps: LocalizedArray;
   reflectionPrompts: LocalizedArray;
   animatorTips?: LocalizedArray;
-  imageUrl?: string;
   relatedBook?: string;
   lesson?: number;
   status?: 'draft';

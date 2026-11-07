@@ -94,7 +94,7 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
             {formatTime(elapsedMs)}
           </div>
           <span className="text-xs text-text-secondary font-medium block">
-            {language === 'de' ? 'Reihum im Kreis sprechen, bis das letzte Wort ertönt!' : 'Speak in turns around the circle until the last word is spoken!'}
+            {language === 'de' ? 'Reihum im Kreis sprechen, bis das letzte Wort ertönt.' : 'Speak in turns around the circle until the last word is spoken.'}
           </span>
         </div>
 

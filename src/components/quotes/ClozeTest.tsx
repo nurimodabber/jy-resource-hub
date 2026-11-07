@@ -218,7 +218,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                   {language === 'de' ? 'Fantastisch! Alle Lücken korrekt ausgefüllt.' : 'Superb! All blanks correctly completed.'}
                 </strong>
                 <span className="text-text-secondary">
-                  {language === 'de' ? 'Jetzt das Zitat im Chor laut aufsagen!' : 'Now recite the verse aloud in unison!'}
+                  {language === 'de' ? 'Jetzt das Zitat im Chor laut aufsagen.' : 'Now recite the verse aloud in unison.'}
                 </span>
               </div>
             </div>

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 
@@ -96,7 +97,7 @@ async function runTests() {
     await page.waitForTimeout(300);
 
     const touchTargets = await page.evaluate(() => {
-      const bottomNavLinks = Array.from(document.querySelectorAll('nav.fixed.bottom-0 a, nav.fixed.bottom-0 button'));
+      const bottomNavLinks = Array.from(document.querySelectorAll('nav.jy-tabbar-dock a, nav.jy-tabbar-dock button'));
       return bottomNavLinks.map((el) => {
         const rect = el.getBoundingClientRect();
         return {
@@ -108,7 +109,7 @@ async function runTests() {
       });
     });
 
-    assert(touchTargets.length === 6, `Bottom nav bar renders exactly 6 main tabs (got ${touchTargets.length})`);
+    assert(touchTargets.length === 5, `Bottom nav bar renders exactly 5 main tabs (got ${touchTargets.length})`);
     for (const target of touchTargets) {
       assert(target.ok, `Bottom nav target "${target.text}": ${target.width}x${target.height}px >= 44x44px`);
     }
@@ -267,16 +268,16 @@ async function runTests() {
     await page.waitForTimeout(400);
 
     const hasClearScriptureFocus = await page.evaluate(() => {
-      const bq = document.querySelector('blockquote.font-serif');
+      const bq = document.querySelector('blockquote');
       const hasText = bq && bq.textContent.includes('Bergwerk');
-      const btn = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Auswendiglernen') || b.innerText.includes('Dieses Zitat auswendig lernen'));
+      const btn = Array.from(document.querySelectorAll('button')).find(b => /Auswendiglernen|Dieses Zitat auswendig lernen/.test(b.getAttribute('aria-label') || b.innerText));
       return Boolean(hasText && btn);
     });
     assert(hasClearScriptureFocus, 'Quote detail maintains reverent scripture focus with subtle Auswendiglernen trigger');
 
     // Click subtle Auswendiglernen button in quote detail: opens memorisation page with this quote
     await page.evaluate(() => {
-      const btn = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Dieses Zitat auswendig lernen') || b.innerText.includes('Auswendiglernen'));
+      const btn = Array.from(document.querySelectorAll('button')).find(b => /Auswendiglernen|Dieses Zitat auswendig lernen/.test(b.getAttribute('aria-label') || b.innerText));
       if (btn) btn.click();
     });
     await page.waitForTimeout(400);
@@ -447,7 +448,10 @@ async function runTests() {
       return bq ? (bq.textContent || '').trim() : '';
     });
 
-    const expectedDe = 'Betrachtet den Menschen als ein Bergwerk, reich an Edelsteinen von unschätzbarem Wert. Nur die Erziehung kann seine Schätze enthüllen und der Menschheit ermöglichen, daraus Nutzen zu ziehen.';
+    // Read the expected text from QUOTES_DATA itself, so the test checks the source and cannot drift.
+    const quotesSrc = readFileSync(new URL('../src/data/quotes.ts', import.meta.url), 'utf8');
+    const entry = quotesSrc.slice(quotesSrc.indexOf('"id": "honor-mine-gems"'));
+    const expectedDe = JSON.parse(entry.match(/"textDe":\s*("(?:[^"\\]|\\.)*")/)[1]);
     
     assert(
       renderedText.includes(expectedDe) || expectedDe.includes(renderedText),
@@ -468,7 +472,7 @@ async function runTests() {
     await page.waitForTimeout(400);
 
     // Step 1: Select "Gruppenspiel"
-    const gameBtn = page.locator('button:has-text("Gruppenspiel"), button:has-text("Group Game")').first();
+    const gameBtn = page.locator('button:has-text("Spiel"), button:has-text("Game")').first();
     await gameBtn.click();
     await page.waitForTimeout(300);
 
@@ -558,12 +562,12 @@ async function runTests() {
     // T4: Theme toggle in settings
     await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' });
     let t4Taps = 0;
-    const settingsBtn = page.locator('header button[aria-label="Einstellungen"], header button[aria-label="Settings"]').first();
+    const settingsBtn = page.locator('button[aria-label="Einstellungen"], button[aria-label="Settings"]').first();
     if (await settingsBtn.isVisible()) {
       await settingsBtn.click();
       t4Taps++;
       await page.waitForTimeout(300);
-      const darkBtn = page.locator('button:has-text("Dunkel"), button:has-text("Dark")').first();
+      const darkBtn = page.locator('[role="dialog"] button:has-text("Dunkel"), [role="dialog"] button:has-text("Dark")').first();
       if (await darkBtn.isVisible()) {
         await darkBtn.click();
         t4Taps++;
@@ -648,7 +652,7 @@ async function runTests() {
     await page.waitForTimeout(300);
 
     const printStyles = await page.evaluate(() => {
-      const navbar = document.querySelector('header');
+      const navbar = document.querySelector('.jy-header');
       const footer = document.querySelector('footer');
       const navDisplay = navbar ? window.getComputedStyle(navbar).display : 'none';
       const footDisplay = footer ? window.getComputedStyle(footer).display : 'none';

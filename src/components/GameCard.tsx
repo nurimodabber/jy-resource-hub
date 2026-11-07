@@ -162,6 +162,7 @@ export const GameCard: React.FC<GameCardProps> = ({
             <span
               className="w-7 h-7 min-w-[28px] min-h-[28px] inline-flex items-center justify-center rounded-full bg-accent text-accent-contrast shadow-2xs shrink-0"
               title={isDe ? 'Interaktiver Spielbegleiter vorhanden' : 'Interactive companion available'}
+              role="img"
               aria-label={isDe ? 'Interaktiver Spielbegleiter vorhanden' : 'Interactive companion available'}
             >
               <Play className="w-3 h-3 fill-current ml-0.5" />

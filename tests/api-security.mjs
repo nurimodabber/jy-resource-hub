@@ -43,6 +43,13 @@ function oldEncrypt(state, secret) {
   return JSON.stringify({ encrypted: true, v: 1, iv: iv.toString('hex'), tag: c.getAuthTag().toString('hex'), data: data.toString('base64') });
 }
 
+function decryptGist(secret = GITHUB_TOKEN) {
+  const p = JSON.parse(fake.gist);
+  const d = crypto.createDecipheriv('aes-256-gcm', crypto.createHash('sha256').update(secret).digest(), Buffer.from(p.iv, 'hex'));
+  d.setAuthTag(Buffer.from(p.tag, 'hex'));
+  return JSON.parse(Buffer.concat([d.update(Buffer.from(p.data, 'base64')), d.final()]).toString('utf8'));
+}
+
 const fake = {
   gist: '',
   gistWrites: 0,
@@ -128,7 +135,12 @@ globalThis.fetch = async (input, init = {}) => {
       fake.issues.set(number, issue);
       return json(issue, 201);
     }
-    return json(Array.from(fake.issues.values()));
+    const q = new URL(url).searchParams;
+    const perPage = Number(q.get('per_page') || 30);
+    const page = Number(q.get('page') || 1);
+    let list = Array.from(fake.issues.values());
+    if (q.get('state') === 'open') list = list.filter((i) => i.state === 'open');
+    return json(list.slice((page - 1) * perPage, page * perPage));
   }
   throw new Error(`unexpected fetch ${method} ${url}`);
 };
@@ -263,11 +275,26 @@ check(r.data.pendingRequestCount === 1, 'owner sees pending request count');
 r = await call(sync, { body: { action: 'list_account_requests' }, token: ownerToken });
 check(r.data.ok && r.data.requests.length === 1 && noSecrets(r.data), 'owner lists requests without hashes');
 
+console.log('\n— Concurrent saves');
+{
+  // Another server instance saves while this one still holds its cached copy.
+  const other = decryptGist();
+  other.updatedAt += 1000;
+  other.revisions.push({ revisionId: 'rev_other_instance', timestamp: 2, collection: 'games', entityId: 'g9', action: 'update', author: 'Ed', authorId: 'acc_editor', summary: 'y' });
+  fake.gist = oldEncrypt(other, GITHUB_TOKEN);
+  r = await call(sync, { body: { action: 'create_account', username: 'race@example.org', displayName: 'Race', password: 'password12', role: 'viewer' }, token: ownerToken });
+  const after = decryptGist();
+  check(r.data.ok && after.accounts.some((a) => a.username === 'race@example.org'), 'save after a concurrent write succeeds (retried on fresh data)');
+  check(after.revisions.some((x) => x.revisionId === 'rev_other_instance'), "the other instance's change is kept, not overwritten");
+}
+
 console.log('\n— Access requests');
 r = await call(sync, { body: { action: 'request_account', displayName: 'Nina', email: 'nina@example.org', password: 'nina-password', message: 'hi' }, ip: '5.5.5.5' });
 check(r.data.ok === true, 'public access request accepted');
 r = await call(sync, { body: { action: 'request_account', displayName: 'Xavier', email: OWNER, password: 'whatever12' }, ip: '5.5.5.6' });
-check(r.data.code === 'reserved', 'request for the owner email → reserved');
+check(r.data.ok === true, 'request for the owner email answers like any other (no enumeration)');
+r = await call(sync, { body: { action: 'request_account', displayName: 'Nina2', email: 'nina@example.org', password: 'nina-password' }, ip: '5.5.5.7' });
+check(r.data.ok === true && !r.data.code, 'duplicate request answers like a new one (no enumeration)');
 r = await call(sync, { body: { action: 'list_account_requests' }, token: ownerToken });
 const nina = r.data.requests.find((q) => q.email === 'nina@example.org');
 r = await call(sync, { body: { action: 'decide_account_request', requestId: nina.id, decision: 'approve', role: 'owner' }, token: ownerToken });
@@ -296,6 +323,10 @@ r = await call(sync, { body: { action: 'list_proposals' }, token: ninaToken });
 check(r.status === 403, 'contributor cannot list proposals');
 r = await call(sync, { body: { action: 'sync_admin_state', proposals: [] }, token: ninaToken });
 check(r.data.ok && !JSON.stringify(r.data.state.proposals).includes('submitter@example.org'), 'submitter emails hidden from non-reviewers');
+check(
+  !JSON.stringify(r.data.state).includes(OWNER) && !JSON.stringify(r.data.state).includes('editor@example.org') && r.data.state.accounts.some((a) => a.username === 'nina@example.org'),
+  "non-owners see team names but not other members' email addresses"
+);
 r = await call(sync, { body: { action: 'accept', issueNumber: 1, updatedPayload: { title: { de: 'Edited' }, authorEmail: 'x@y.z' } }, token: leaToken });
 check(r.data.ok && fake.issues.get(1).labels.some((l) => l.name === 'übernommen') && !fake.issues.get(1).body.includes('x@y.z'), 'editor accepts proposal; emails stripped from payload');
 r = await call(sync, { body: { action: 'reject', issueNumber: 1, reason: 'hey @someone' }, token: leaToken });
@@ -334,6 +365,16 @@ check(r.data.ok === false, 'change_password needs the current password');
 r = await call(sync, { body: { action: 'delete_account', targetAccountId: 'acc_owner' }, token: ownerToken });
 check(r.data.ok === false, 'owner account cannot be deleted');
 
+console.log('\n— Login lockout');
+for (let i = 0; i < 10; i++) await call(sync, { body: { action: 'login', username: 'nina@example.org', password: 'wrong-guess' }, ip: `7.0.0.${i}` });
+r = await call(sync, { body: { action: 'login', username: 'nina@example.org', password: 'wrong-guess' }, ip: '7.0.0.1' });
+check(r.status === 429, 'account under attack: a connection that already failed is blocked');
+r = await call(sync, { body: { action: 'login', username: 'nina@example.org', password: 'nina-password' }, ip: '7.0.1.1' });
+check(r.data.ok === true, 'the right password from a clean connection still works (no lockout)');
+r = await call(sync, { body: { action: 'login', username: 'nina@example.org', password: 'wrong-guess' }, ip: '7.0.1.2' });
+r = await call(sync, { body: { action: 'login', username: 'nina@example.org', password: 'nina-password' }, ip: '7.0.1.2' });
+check(r.status === 429, 'a distributed attacker gets one guess per connection');
+
 console.log('\n— Storage safety');
 const writesBefore = fake.gistWrites;
 const savedGist = fake.gist;
@@ -346,12 +387,28 @@ sync = await loadHandler('api/sync.ts');
 r = await call(sync, { body: { action: 'login', username: OWNER, password: 'new-owner-pw' } });
 check(r.data.ok, 'ADMIN_STATE_KEY keeps the state readable after rotating GITHUB_TOKEN');
 setEnv();
+{
+  const encryptedGist = fake.gist;
+  const writes = fake.gistWrites;
+  fake.gist = JSON.stringify({ version: 1, accounts: [{ id: 'evil', username: 'evil@example.org', role: 'owner', salt: 'x', passwordHash: legacyHash('x', 'evil-pass'), hashSafe: true, hashAlgo: 'sha256' }] });
+  sync = await loadHandler('api/sync.ts');
+  r = await call(sync, { body: { action: 'login', username: 'evil@example.org', password: 'evil-pass' } });
+  check(r.status === 503 && fake.gistWrites === writes, 'unencrypted (planted) state is refused, never used');
+  fake.gist = encryptedGist;
+}
 
 console.log('\n— Public GET');
 sync = await loadHandler('api/sync.ts');
 fake.issues.get(1).body = fake.issues.get(1).body.replace('"title"', '"authorEmail":"leak@example.org","title"');
 r = await call(sync, { method: 'GET' });
 check(r.data.ok && !JSON.stringify(r.data).includes('@example.org'), 'public catalog never serves emails');
+for (let n = 1000; n < 1120; n++) {
+  fake.issues.set(n, { number: n, title: 'Alt', body: '```json\n{"title":{"de":"F"}}\n```', labels: [{ name: 'übernommen' }], state: 'closed' });
+}
+fake.issues.set(1200, { number: 1200, title: 'Alt gelöscht', body: '```json\n{"id":"old_deleted"}\n```', labels: [{ name: 'gelöscht' }], state: 'closed' });
+sync = await loadHandler('api/sync.ts');
+r = await call(sync, { method: 'GET' });
+check(r.data.ok && r.data.deletedIds.includes('old_deleted'), 'issues beyond the first 100 are read (old deletions stay deleted)');
 
 console.log('\n— Submissions (api/submit.ts)');
 const submit = await loadHandler('api/submit.ts');
@@ -384,7 +441,7 @@ r = await call(submit, {
   ip: '9.9.9.12',
 });
 const longIssue = fake.createdIssues.at(-1);
-check(r.data?.ok && longIssue.body.includes('https://images.example.org/bild.jpg') && longIssue.body.includes('Lektion 4'), 'detailed (~15 KB) submission accepted; image and lesson reach the issue');
+check(r.data?.ok && !longIssue.body.includes('images.example.org') && longIssue.body.includes('Lektion 4'), 'detailed (~15 KB) submission accepted; lesson reaches the issue, outside image links do not');
 r = await call(submit, { body: { ...base, title: 'Bild', imageUrl: 'javascript:alert(1)' }, ip: '9.9.9.13' });
 check(r.data?.ok && !fake.createdIssues.at(-1).body.includes('javascript:'), 'non-https image URLs are dropped');
 r = await call(submit, { body: { type: 'spiel' }, origin: 'https://evil.example' });

@@ -30,49 +30,19 @@ function contrastRatio(hex1, hex2) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
+// Read the tokens straight from src/index.css. The palettes used to be copied here by hand and
+// drifted (the dark one was still the retired blue theme), so the check passed on colours the site
+// no longer used.
+import { readFileSync } from 'node:fs';
+const css = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8');
+const block = (selector) => {
+  const from = css.indexOf(selector);
+  const body = css.slice(from, css.indexOf('\n}', from));
+  return Object.fromEntries([...body.matchAll(/--([a-z0-9-]+):\s*(#[0-9a-fA-F]{3,6})\s*;/g)].map((m) => [m[1], m[2]]));
+};
 const PALETTES = {
-  Light: {
-    bg: '#F7F9FC',
-    surface: '#FFFFFF',
-    'surface-2': '#EEF2F8',
-    'surface-3': '#E3E9F3',
-    border: '#E3E8F0',
-    text: '#142033',
-    'text-secondary': '#4A5568',
-    'text-tertiary': '#4E5A6B',
-    accent: '#1F6FEB',
-    'accent-hover': '#1859C4',
-    'accent-subtle': '#E8F0FE',
-    'accent-text': '#1850B8',
-    'accent-contrast': '#FFFFFF',
-    amber: '#B45309',
-    'amber-subtle': '#FEF3C7',
-    'amber-text': '#92400E',
-    highlight: '#F5B82E',
-    success: '#167448',
-    danger: '#C13333',
-  },
-  Dark: {
-    bg: '#0D131F',
-    surface: '#131C2A',
-    'surface-2': '#1A2438',
-    'surface-3': '#22304A',
-    border: '#1F2C40',
-    text: '#EEF2FA',
-    'text-secondary': '#AAB6CC',
-    'text-tertiary': '#8D9AB3',
-    accent: '#6FA3FF',
-    'accent-hover': '#8DB8FF',
-    'accent-subtle': '#1B2E55',
-    'accent-text': '#A9C8FF',
-    'accent-contrast': '#0A1426',
-    amber: '#FBBF24',
-    'amber-subtle': '#2A1D0D',
-    'amber-text': '#FDE68A',
-    highlight: '#F5B82E',
-    success: '#4FC08A',
-    danger: '#FF8A8A',
-  }
+  Light: block(':root, [data-theme="light"] {'),
+  Dark: block('.dark, [data-theme="dark"] {'),
 };
 
 let totalViolations = 0;

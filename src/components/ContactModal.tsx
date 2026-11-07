@@ -146,7 +146,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
                 icon={copiedAddress ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
                 iconPosition="left"
               >
-                {copiedAddress ? L('Kopiert!', 'Copied!') : L('Kopieren', 'Copy')}
+                {copiedAddress ? L('Kopiert', 'Copied') : L('Kopieren', 'Copy')}
               </Button>
               <a
                 href={`mailto:${CONTACT_EMAILS.join(',')}`}
@@ -234,7 +234,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
               icon={copiedBody ? <Check className="w-3.5 h-3.5 text-success" /> : <Copy className="w-3.5 h-3.5" />}
               iconPosition="left"
             >
-              {copiedBody ? L('Nachrichtentext kopiert!', 'Message copied!') : L('Text kopieren (für Webmail)', 'Copy text (for Webmail)')}
+              {copiedBody ? L('Nachrichtentext kopiert.', 'Message copied.') : L('Text kopieren (für Webmail)', 'Copy text (for Webmail)')}
             </Button>
             <a
               href={generateMailtoUrl()}

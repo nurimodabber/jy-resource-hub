@@ -38,7 +38,6 @@ interface ProposalPayload {
   reflectionQuestions?: string[];
   setting?: 'drinnen' | 'draussen' | 'beides';
   occasion?: 'treffen' | 'camp' | 'beides';
-  imageUrl?: string;
   relatedBook?: string;
   lesson?: number;
   // Anti-spam fields
@@ -63,8 +62,10 @@ const checkRateLimit = (ip: string): boolean => {
   return true;
 };
 
+// Three or more backticks would let a submitter open their own ```json block in the issue body.
+// The catalog reads the server-written block, so user text must never be able to fake one.
 const sanitize = (str: string = ''): string => {
-  return str.replace(/<[^>]*>?/gm, '').trim();
+  return str.replace(/<[^>]*>?/gm, '').replace(/`{3,}/g, (m) => "'".repeat(m.length)).trim();
 };
 
 // Matches real links and domains; the old pattern also rejected sentences like "weiter.Der".
@@ -258,9 +259,9 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
     const setting = ['drinnen', 'draussen', 'beides'].includes(String(payload.setting)) ? payload.setting! : 'beides';
     const occasion = ['treffen', 'camp', 'beides'].includes(String(payload.occasion)) ? payload.occasion! : 'beides';
 
-    // Sent by the form but previously dropped, so reviewers never saw them.
-    const rawImage = String(payload.imageUrl || '').trim();
-    const imageUrl = /^https:\/\/[^\s<>"']{4,490}$/.test(rawImage) ? rawImage : '';
+    // Sent by the form but previously dropped, so reviewers never saw them. Image links are not
+    // accepted: the site loads nothing from other servers (privacy, and a linked image can be
+    // swapped after review).
     const relatedBook = sanitize(String(payload.relatedBook || '')).slice(0, 80);
     const lesson = Number.isInteger(Number(payload.lesson)) && Number(payload.lesson) > 0 ? Number(payload.lesson) : undefined;
     const groupSizeMin = Math.max(1, Number(payload.groupSizeMin) || 4);
@@ -301,7 +302,6 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       steps: { de: steps, en: [] },
       animatorTips: animatorTips ? { de: [animatorTips], en: [] } : undefined,
       source: source || 'Eingereicht von Animatoren',
-      ...(imageUrl ? { imageUrl } : {}),
       ...(relatedBook ? { relatedBook } : {}),
       ...(lesson ? { lesson } : {}),
       ...(type === 'dienst' ? {
@@ -345,7 +345,7 @@ ${JSON.stringify({ kind: 'feedback', submittedBy: authorName || 'Anonym', submit
 **Art:** ${kindLabel}  
 **Eingereicht von:** ${authorName || 'Anonym'}${authorEmail ? ' (Kontakt liegt der Redaktion vor)' : ''}  
 **Datum:** ${new Date().toLocaleDateString('de-DE')}  
-**Quelle / Herkunft:** ${source || 'Keine Angabe'}${relatedBook ? `  \n**Buch:** ${relatedBook}${lesson ? `, Lektion ${lesson}` : ''}` : ''}${imageUrl ? `  \n**Bild:** ${imageUrl}` : ''}
+**Quelle / Herkunft:** ${source || 'Keine Angabe'}${relatedBook ? `  \n**Buch:** ${relatedBook}${lesson ? `, Lektion ${lesson}` : ''}` : ''}
 
 ---
 

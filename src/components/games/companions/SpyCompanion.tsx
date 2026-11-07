@@ -358,7 +358,7 @@ export const SpyCompanion: React.FC<SpyCompanionProps> = ({ language }) => {
                       {L('Deine geheime Rolle', 'Your Secret Role')}
                     </span>
                     <h3 className="text-2xl sm:text-3xl font-black text-text tracking-tight">
-                      {L('Du bist der Spion!', 'You are the Spy!')}
+                      {L('Du bist der Spion.', 'You are the Spy.')}
                     </h3>
 
                     {imposterHint && (

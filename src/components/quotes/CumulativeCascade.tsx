@@ -165,12 +165,12 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
               <CheckCircle2 className="w-6 h-6 text-success shrink-0" />
               <div className="text-xs">
                 <strong className="font-semibold block text-sm text-success">
-                  {language === 'de' ? 'Meisterstufe erreicht!' : 'Master level unlocked!'}
+                  {language === 'de' ? 'Meisterstufe erreicht.' : 'Master level unlocked.'}
                 </strong>
                 <span className="text-text-secondary">
                   {language === 'de'
-                    ? 'Die gesamte Zitate-Treppe wurde erklommen. Jetzt das vollständige Zitat fehlerfrei im Chor aufsagen!'
-                    : 'The complete cascade has been climbed. Now recite the entire quote in unison from memory!'}
+                    ? 'Die gesamte Zitate-Treppe wurde erklommen. Jetzt das vollständige Zitat fehlerfrei im Chor aufsagen.'
+                    : 'The complete cascade has been climbed. Now recite the entire quote in unison from memory.'}
                 </span>
               </div>
             </div>

@@ -216,7 +216,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
               <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
                 <strong className="font-semibold block text-success">
-                  {language === 'de' ? 'Perfekt gemeistert!' : 'Flawlessly mastered!'}
+                  {language === 'de' ? 'Perfekt gemeistert.' : 'Flawlessly mastered.'}
                 </strong>
                 <span className="text-text-secondary">
                   {language === 'de'

@@ -134,7 +134,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
               <CheckCircle2 className="w-5 h-5 text-success shrink-0" />
               <div className="text-xs">
                 <strong className="font-semibold block text-success">
-                  {language === 'de' ? 'Durchlauf beendet!' : 'Run completed!'}
+                  {language === 'de' ? 'Durchlauf beendet.' : 'Run completed.'}
                 </strong>
                 <span className="text-text-secondary">
                   {language === 'de' ? 'Jetzt das Zitat flüssig im Chor aus dem Gedächtnis sprechen.' : 'Now recite the verse fluently from memory.'}
