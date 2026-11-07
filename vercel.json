@@ -2,6 +2,13 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "/portal",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -68,8 +75,8 @@
       "destination": "/vorschlagen/index.html"
     },
     {
-      "source": "/admin",
-      "destination": "/admin/index.html"
+      "source": "/portal",
+      "destination": "/portal/index.html"
     },
     {
       "source": "/_design",
@@ -111,7 +118,7 @@
       ]
     },
     {
-      "source": "/admin(.*)",
+      "source": "/(admin|portal)(.*)",
       "headers": [
         {
           "key": "X-Robots-Tag",

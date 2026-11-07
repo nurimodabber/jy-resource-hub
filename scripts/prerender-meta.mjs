@@ -168,12 +168,12 @@ async function run() {
       ogQuery: 'type=section&title=Datenschutz',
     },
     {
-      path: '/admin',
+      path: '/portal',
       priority: '0.1',
-      title: 'Admin-Dashboard — Juju Hub',
+      title: 'Portal — Juju Hub',
       description: 'Revisionssichere Verwaltung von Spielen, Kategorien und Vorschlägen.',
       ogType: 'website',
-      ogQuery: 'type=section&title=Admin',
+      ogQuery: 'type=section&title=Portal',
     },
   ];
 

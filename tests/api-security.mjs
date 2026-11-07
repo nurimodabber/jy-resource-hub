@@ -124,6 +124,7 @@ globalThis.fetch = async (input, init = {}) => {
         if (patch.labels) issue.labels = patch.labels.map((name) => ({ name }));
         if (patch.body) issue.body = patch.body;
         if (patch.state) issue.state = patch.state;
+        if (patch.title) issue.title = patch.title;
       }
       return json(issue);
     }
@@ -163,11 +164,11 @@ function setEnv(overrides = {}) {
   for (const [k, v] of Object.entries(overrides)) if (v === undefined) delete process.env[k];
 }
 
-async function call(handler, { method = 'POST', body, token, origin, ip = '1.2.3.4', extraHeaders = {} } = {}) {
+async function call(handler, { method = 'POST', body, token, origin, ip = '1.2.3.4', extraHeaders = {}, url = '/api/sync' } = {}) {
   const headers = { host: 'juju-hub.vercel.app', 'x-forwarded-for': ip, ...extraHeaders };
   if (token) headers.authorization = `Bearer ${token}`;
   if (origin) headers.origin = origin;
-  const req = { method, headers, body, socket: {}, url: '/api/sync' };
+  const req = { method, headers, body, socket: {}, url };
   let resolveDone;
   const done = new Promise((r) => (resolveDone = r));
   const res = {
@@ -486,6 +487,50 @@ r = await call(submit, { body: { type: 'spiel' }, extraHeaders: { 'sec-fetch-sit
 check(r.status === 403, 'sec-fetch-site cross-site submit → 403');
 r = await call(sync, { body: { action: 'session' }, extraHeaders: { 'sec-fetch-site': 'cross-site' } });
 check(r.status === 403, 'sec-fetch-site cross-site sync → 403');
+
+console.log('\n— Meine Beiträge: status, change requests, revising');
+{
+  const sub = { type: 'spiel', title: 'Portal Spiel', summary: 'Eine Zusammenfassung mit genug Text', steps: ['Eins', 'Zwei', 'Drei'], authorName: 'Pia', authorEmail: 'pia@example.org', clientTimestamp: Date.now() - 10000 };
+  r = await call(submit, { body: sub, ip: '8.8.0.1' });
+  const num = r.data?.issueNumber;
+  const editToken = r.data?.editToken;
+  const issue = fake.issues.get(num);
+  check(r.data?.ok && typeof editToken === 'string' && editToken.length >= 40, 'submission returns an edit token for this device');
+  check(/<!--\s*jy-edit:[a-f0-9]{64}\s*-->/.test(issue.body) && !issue.body.includes(editToken), 'the public issue holds only the hash of the edit token');
+  r = await call(sync, { method: 'GET', extraHeaders: {}, body: undefined, token: undefined, origin: undefined, ip: '8.8.0.2', url: `/api/sync?issues=${num},2,99999` });
+  const st = Object.fromEntries((r.data?.items || []).map((x) => [x.number, x]));
+  check(r.data?.ok && st[num]?.status === 'pending' && st[2]?.status === 'unknown' && st[99999]?.status === 'unknown', 'status: own entry pending; non-proposal and missing issues read as unknown');
+  check(/s-maxage=30/.test(String(r.headers['cache-control'])), 'status answers are cached briefly at the edge');
+  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: num, editToken, title: 'Zu früh' }, ip: '8.8.0.3' });
+  check(r.status === 409 && fake.issues.get(num).body.includes('Portal Spiel'), 'revising before the editors asked for changes → 409, nothing changed');
+  r = await call(sync, { body: { action: 'request_changes', issueNumber: num, reason: '' }, token: ownerToken });
+  check(r.status === 400 && r.data.code === 'note_required', 'change request without a note → 400');
+  r = await call(sync, { body: { action: 'request_changes', issueNumber: num, reason: 'Bitte Material ergänzen' }, token: ninaToken });
+  check(r.status === 403, 'contributor cannot request changes');
+  r = await call(sync, { body: { action: 'request_changes', issueNumber: num, reason: 'Bitte Material ergänzen @someone' }, token: ownerToken });
+  const afterReq = fake.issues.get(num);
+  check(r.data?.ok && afterReq.labels.some((l) => l.name === 'änderung-nötig') && afterReq.state === 'open', 'change request: label set, issue stays open');
+  check(fake.comments.at(-1).body.includes('Bitte Material ergänzen') && fake.comments.at(-1).body.includes('@​someone'), 'change request posts the note as a comment, mentions neutralised');
+  r = await call(sync, { method: 'GET', ip: '8.8.0.4', url: `/api/sync?issues=${num}` });
+  check(r.data?.items?.[0]?.status === 'changes_requested' && r.data.items[0].note?.includes('Material ergänzen') && r.data.items[0].decidedAt > 0, 'status shows "changes requested" with the note');
+  r = await call(sync, { body: { action: 'list_proposals' }, token: ownerToken });
+  const listedOwn = r.data.issues.find((i) => i.number === num);
+  check(listedOwn && !/jy-(edit|review|contact)/.test(listedOwn.body), 'reviewers see the body without hidden markers');
+  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: num, editToken: 'x'.repeat(43), title: 'Fremd' }, ip: '8.8.0.5' });
+  check(r.status === 403 && !fake.issues.get(num).title.includes('Fremd'), 'revising with a wrong token → 403');
+  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: 2, editToken, title: 'Bug kapern' }, ip: '8.8.0.6' });
+  check(r.status === 403 && fake.issues.get(2).title === 'Bug: something', 'the token cannot touch another issue');
+  r = await call(submit, { body: { ...sub, authorEmail: '', action: 'update', issueNumber: num, editToken, title: 'Portal Spiel neu', materials: ['Seil'] }, ip: '8.8.0.7' });
+  const revised = fake.issues.get(num);
+  check(r.data?.ok && revised.title.includes('Portal Spiel neu') && revised.body.includes('Seil'), 'revising with the right token replaces the content');
+  check(revised.labels.some((l) => l.name === 'vorschlag') && !revised.labels.some((l) => l.name === 'änderung-nötig'), 'after revising the entry is back in review');
+  check(/jy-contact:/.test(revised.body) && /jy-edit:[a-f0-9]{64}/.test(revised.body) && !revised.body.includes('pia@example.org'), 'encrypted contact and edit hash survive the revision; no e-mail in clear text');
+  r = await call(sync, { body: { action: 'reject', issueNumber: num, reason: 'Passt nicht zum Katalog' }, token: ownerToken });
+  r = await call(sync, { method: 'GET', ip: '8.8.0.8', url: `/api/sync?issues=${num}` });
+  check(r.data?.items?.[0]?.status === 'rejected' && r.data.items[0].note === 'Passt nicht zum Katalog', 'status shows "rejected" with the reason');
+  r = await call(sync, { method: 'GET', ip: '8.8.0.9', url: '/api/sync?issues=abc' });
+  check(r.status === 400, 'status with no valid issue numbers → 400');
+}
 
 console.log('\n— OpenGraph image security (api/og.ts)');
 const og = await loadHandler('api/og.ts');

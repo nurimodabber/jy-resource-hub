@@ -277,6 +277,13 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         : 'Contribute a field-tested group game, service project or arts prompt for the Juju Hub.';
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Beitragen' : 'Contribute');
+    } else if (pathname === '/portal') {
+      title = 'Portal — Juju Hub';
+      description = isDe
+        ? 'Revisionssichere Verwaltung von Spielen, Kategorien und Vorschlägen.'
+        : 'Revision-safe management of games, categories and proposals.';
+      ogParams.set('type', 'section');
+      ogParams.set('title', 'Portal');
     } else if (pathname === '/impressum') {
       title = isDe ? 'Impressum — Juju Hub' : 'Legal Notice — Juju Hub';
       description = 'Angaben gemäß § 5 DDG für den Juju Hub.';

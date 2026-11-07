@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
@@ -25,6 +25,16 @@ import { useToast } from '../context/ToastContext';
 import { JY_BOOKS } from '../utils/bookProgress';
 import { saveProposal } from '../utils/adminRevisions';
 import { FeedbackModal } from './FeedbackModal';
+import { MyContributions } from './MyContributions';
+import {
+  MySubmission,
+  MY_SUBMISSIONS_EVENT,
+  addMySubmission,
+  getEditToken,
+  getMySubmissions,
+  markRevised,
+  refreshStatuses,
+} from '../utils/mySubmissions';
 
 export interface ProposalViewProps {
   language: Language;
@@ -66,15 +76,129 @@ interface FormState {
 
 const STORAGE_DRAFT_KEY = 'jy_submit_draft';
 
+const EMPTY_FORM: FormState = {
+  type: 'spiel',
+  title: '',
+  subtitle: '',
+  summary: '',
+  groupSizeMin: 4,
+  groupSizeMax: 16,
+  durationMin: 15,
+  durationMax: 30,
+  materials: [],
+  newMaterial: '',
+  steps: ['', '', ''],
+  animatorTips: '',
+  source: '',
+  authorName: '',
+  authorEmail: '',
+  relatedBook: '',
+  lesson: '',
+  objective: '',
+  reflectionQuestions: [],
+  newQuestion: '',
+  setting: 'beides',
+  occasion: 'beides',
+  consentOriginal: false,
+  consentPrivacy: false,
+  hp_website: '',
+};
+
+/**
+ * What "Meine Beiträge" keeps to reopen an entry for a revision: no e-mail (it lives only encrypted
+ * in the issue), no honeypot, no half-typed inputs and no consent ticks (asked again on every send).
+ */
+const toStoredForm = (f: FormState): Record<string, unknown> => {
+  const {
+    authorEmail: _mail,
+    hp_website: _hp,
+    newMaterial: _m,
+    newQuestion: _q,
+    consentOriginal: _c1,
+    consentPrivacy: _c2,
+    ...rest
+  } = f;
+  return rest;
+};
+
+/** Reopens a stored form. Only values of the expected shape are taken, so an old or damaged entry cannot break the form. */
+const fromStoredForm = (stored: Record<string, unknown>): FormState => {
+  const next: Record<string, unknown> = { ...EMPTY_FORM };
+  for (const key of Object.keys(EMPTY_FORM) as (keyof FormState)[]) {
+    const value = stored[key];
+    const fallback = EMPTY_FORM[key];
+    const fits = Array.isArray(fallback)
+      ? Array.isArray(value) && value.every((v) => typeof v === 'string')
+      : typeof value === typeof fallback;
+    if (fits) next[key] = value;
+  }
+  const form = next as unknown as FormState;
+  return {
+    ...form,
+    steps: [...form.steps, '', '', ''].slice(0, Math.max(3, form.steps.length)),
+    authorEmail: '',
+    hp_website: '',
+    newMaterial: '',
+    newQuestion: '',
+    consentOriginal: false,
+    consentPrivacy: false,
+  };
+};
+
 /** Same pattern as api/submit.ts: real links and domains, not sentences like "weiter.Der". */
 const CONTAINS_LINK = /(https?:\/\/|www\.|\b[a-z0-9-]+\.(com|org|net|de|io)\b)/i;
 
-export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
+export const ProposalView: React.FC<ProposalViewProps> = (props) => {
+  const [searchParams] = useSearchParams();
+  // /vorschlagen and /vorschlagen?bearbeiten=<n> are the same route. The key starts a fresh form
+  // when switching between a new entry and a revision, instead of carrying the old state over.
+  const editParam = searchParams.get('bearbeiten');
+  return <ProposalForm key={editParam === null ? 'new' : `edit-${editParam}`} {...props} />;
+};
+
+const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
   const L = tr(language);
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  // Revision mode: the editors asked for changes ("Änderung nötig") and this device holds the edit token.
+  const isEdit = searchParams.has('bearbeiten');
+  const editNumber = /^\d+$/.test(searchParams.get('bearbeiten') || '') ? Number(searchParams.get('bearbeiten')) : null;
+  const [mine, setMine] = useState<MySubmission[]>(getMySubmissions);
+  const [statusChecked, setStatusChecked] = useState(!isEdit);
+  const [revisionSent, setRevisionSent] = useState(false);
+  const editEntry = editNumber !== null ? mine.find((s) => s.issueNumber === editNumber) : undefined;
+  const editToken = editNumber !== null ? getEditToken(editNumber) : null;
+  const editProblem: 'device' | 'status' | null =
+    !isEdit || revisionSent
+      ? null
+      : !editEntry
+      ? 'device'
+      : editEntry.status !== 'changes_requested' || editEntry.type === 'feedback'
+      ? 'status'
+      : !editToken
+      ? 'device'
+      : null;
+
+  useEffect(() => {
+    if (!isEdit) return;
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    const update = () => setMine(getMySubmissions());
+    window.addEventListener(MY_SUBMISSIONS_EVENT, update);
+    window.addEventListener('storage', update);
+    // The stored status can be old (e.g. opened from the e-mail link): ask the server first.
+    refreshStatuses(true).then(() => {
+      update();
+      setStatusChecked(true);
+    });
+    return () => {
+      window.removeEventListener(MY_SUBMISSIONS_EVENT, update);
+      window.removeEventListener('storage', update);
+    };
+  }, [isEdit]);
+
+  const [step, setStep] = useState<1 | 2 | 3>(isEdit ? 2 : 1);
   const [isPreview, setIsPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -102,6 +226,10 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
   }, []);
 
   const [formData, setFormData] = useState<FormState>(() => {
+    if (isEdit) {
+      const entry = editNumber !== null ? getMySubmissions().find((s) => s.issueNumber === editNumber) : undefined;
+      return entry ? fromStoredForm(entry.form) : EMPTY_FORM;
+    }
     try {
       const saved = localStorage.getItem(STORAGE_DRAFT_KEY);
       if (saved) {
@@ -114,43 +242,18 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
     } catch {
       /* ignore */
     }
-    return {
-      type: 'spiel',
-      title: '',
-      subtitle: '',
-      summary: '',
-      groupSizeMin: 4,
-      groupSizeMax: 16,
-      durationMin: 15,
-      durationMax: 30,
-      materials: [],
-      newMaterial: '',
-      steps: ['', '', ''],
-      animatorTips: '',
-      source: '',
-      authorName: '',
-      authorEmail: '',
-      relatedBook: '',
-      lesson: '',
-      objective: '',
-      reflectionQuestions: [],
-      newQuestion: '',
-      setting: 'beides',
-      occasion: 'beides',
-      consentOriginal: false,
-      consentPrivacy: false,
-      hp_website: '',
-    };
+    return EMPTY_FORM;
   });
 
-  // Save draft locally on edit
+  // Save draft locally on edit. Not for a revision: it would overwrite the draft of a new entry.
   useEffect(() => {
+    if (isEdit) return;
     try {
       localStorage.setItem(STORAGE_DRAFT_KEY, JSON.stringify(formData));
     } catch {
       /* ignore */
     }
-  }, [formData]);
+  }, [formData, isEdit]);
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -253,6 +356,16 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
     }
 
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      if (isEdit) {
+        // A revision has to reach the same entry; an e-mail would not. It is also not kept as a draft.
+        setSubmitError(
+          L(
+            'Du bist offline. Lass diese Seite offen und sende die Überarbeitung, sobald du wieder online bist.',
+            'You are offline. Keep this page open and send the revision once you are back online.'
+          )
+        );
+        return;
+      }
       setMailtoFallback(generateMailtoUrl());
       setSubmitError(
         L(
@@ -289,11 +402,12 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       occasion: formData.occasion,
       clientTimestamp: mountTime,
       hp_website: formData.hp_website,
+      ...(isEdit && editNumber !== null && editToken ? { action: 'update' as const, issueNumber: editNumber, editToken } : {}),
     };
 
-    // Store in admin inbox queue for local review and live sync
+    // Store in admin inbox queue for local review and live sync (a revision is not a new entry)
     try {
-      saveProposal({
+      if (!isEdit) saveProposal({
         type: formData.type === 'spiel' ? 'spiel' : formData.type === 'dienst' ? 'dienst' : 'kunst',
         title: formData.title,
         subtitle: formData.subtitle,
@@ -317,7 +431,25 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
         body: JSON.stringify(payload),
       });
       const resData = await response.json().catch(() => ({}));
+      if (response.ok && resData.ok && isEdit && editNumber !== null) {
+        markRevised(editNumber, formData.title.trim(), toStoredForm(formData));
+        setRevisionSent(true);
+        setStep(3);
+        return;
+      }
       if (response.ok && resData.ok) {
+        if (typeof resData.issueNumber === 'number') {
+          addMySubmission(
+            {
+              issueNumber: resData.issueNumber,
+              type: formData.type,
+              title: formData.title.trim(),
+              submittedAt: Date.now(),
+              form: toStoredForm(formData),
+            },
+            typeof resData.editToken === 'string' ? resData.editToken : undefined
+          );
+        }
         try {
           localStorage.removeItem(STORAGE_DRAFT_KEY);
         } catch {
@@ -325,6 +457,22 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
         }
         if (resData.issueUrl) setCreatedIssueUrl(resData.issueUrl);
         setStep(3);
+        return;
+      }
+      if (isEdit) {
+        // The server answers in German only; 403/409 are known cases, so they are shown in the page language.
+        if (response.status === 409) refreshStatuses(true);
+        setSubmitError(
+          response.status === 403
+            ? L('Dieser Beitrag kann von diesem Gerät aus nicht geändert werden.', 'This contribution cannot be changed from this device.')
+            : response.status === 409
+            ? L('Dieser Beitrag wartet gerade nicht auf Änderungen.', 'This contribution is not waiting for changes right now.')
+            : (language === 'de' && typeof resData.error === 'string' && resData.error) ||
+                L(
+                  'Die Überarbeitung konnte nicht gesendet werden. Lass diese Seite offen und versuche es gleich noch einmal.',
+                  'The revision could not be sent. Keep this page open and try again shortly.'
+                )
+        );
         return;
       }
       setMailtoFallback(generateMailtoUrl());
@@ -336,6 +484,15 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
           )
       );
     } catch {
+      if (isEdit) {
+        setSubmitError(
+          L(
+            'Keine Verbindung zum Server. Lass diese Seite offen und versuche es gleich noch einmal.',
+            'No connection to the server. Keep this page open and try again shortly.'
+          )
+        );
+        return;
+      }
       setMailtoFallback(generateMailtoUrl());
       setSubmitError(
         L(
@@ -358,7 +515,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
     <div className="max-w-6xl w-full mx-auto pb-28 space-y-6">
       {/* Header */}
       <div>
-        {step > 1 && (
+        {step > 1 && !isEdit && (
           <button
             type="button"
             onClick={() => setStep((s) => (s === 3 ? 2 : 1))}
@@ -369,18 +526,60 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
           </button>
         )}
         <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
-          {L('Erfahrungen beitragen', 'Contribute')}
+          {isEdit ? L('Beitrag überarbeiten', 'Revise your contribution') : L('Erfahrungen beitragen', 'Contribute')}
         </h1>
-        <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
+        {!isEdit && <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
           {L(
             'Du hast ein Spiel oder Projekt, das fehlt? Teile erprobte Spiele, Dienstprojekte oder künstlerische Aktivitäten mit anderen Animatoren – alle Beiträge werden vor der Veröffentlichung geprüft.',
             "Have a game or project idea that's missing? Share proven games, service projects, or creative activities with other animators – all contributions are reviewed before publishing."
           )}
-        </p>
+        </p>}
       </div>
 
+      {/* Revision: check the current status first, then either the editors' note or why it is not possible */}
+      {isEdit && !statusChecked && (
+        <p role="status" className="text-sm text-text-secondary">
+          {L('Beitrag wird geladen …', 'Loading contribution …')}
+        </p>
+      )}
+      {isEdit && statusChecked && editProblem && (
+        <Panel className="space-y-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-text-secondary" aria-hidden="true" />
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold text-text">
+                {L('Überarbeiten ist hier nicht möglich', 'You cannot revise this here')}
+              </h2>
+              <p className="text-sm text-text-secondary leading-relaxed">
+                {editProblem === 'device'
+                  ? L(
+                      'Überarbeiten geht nur auf dem Gerät, von dem du den Beitrag gesendet hast.',
+                      'You can only revise a contribution on the device you sent it from.'
+                    )
+                  : L('Dieser Beitrag wartet gerade nicht auf Änderungen.', 'This contribution is not waiting for changes right now.')}
+              </p>
+            </div>
+          </div>
+          <Link to="/vorschlagen" className={primaryBtn}>
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+            <span>{L('Zur Seite Beitragen', 'Back to Contribute')}</span>
+          </Link>
+        </Panel>
+      )}
+      {isEdit && statusChecked && !editProblem && step === 2 && (
+        <div role="note" className="p-4 rounded-card bg-surface-2 border border-border text-sm flex items-start gap-3">
+          <MessageSquare className="w-5 h-5 shrink-0 mt-0.5 text-text-secondary" aria-hidden="true" />
+          <div className="space-y-1">
+            <p className="font-semibold text-text">{L('Hinweis der Redaktion', 'Note from the editors')}</p>
+            <p className="text-text-secondary leading-relaxed whitespace-pre-line">
+              {editEntry?.note || L('Die Redaktion bittet dich, den Beitrag zu überarbeiten.', 'The editors ask you to revise your contribution.')}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Step Indicator */}
-      <div className="sm:hidden flex items-center justify-between gap-3" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
+      {!isEdit && <div className="sm:hidden flex items-center justify-between gap-3" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
         <div>
           <span className="text-2xs font-extrabold text-accent-text block">
             {L(`Schritt ${step} von 3`, `Step ${step} of 3`)}
@@ -407,10 +606,10 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             />
           ))}
         </div>
-      </div>
+      </div>}
 
       {/* Desktop Step Indicator */}
-      <div className="hidden sm:flex items-center gap-2 text-xs font-semibold" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
+      {!isEdit && <div className="hidden sm:flex items-center gap-2 text-xs font-semibold" aria-label={language === 'de' ? 'Fortschritt' : 'Progress'}>
         <span className={`px-3 py-1 rounded-chip ${step === 1 ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary'}`}>
           1. {L('Art wählen', 'Choose type')}
         </span>
@@ -422,7 +621,7 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
         <span className={`px-3 py-1 rounded-chip ${step === 3 ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary'}`}>
           3. {L('Bestätigung', 'Confirmation')}
         </span>
-      </div>
+      </div>}
 
       {/* Step 1: Type Selection — same tiles as "Projekte & mehr", 2 × 2 so it fits one phone screen */}
       {step === 1 && (
@@ -435,12 +634,12 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
       )}
 
       {/* Step 2: Form & Live Preview */}
-      {step === 2 && (
+      {step === 2 && statusChecked && !editProblem && (
         <div className="space-y-6">
           {/* Form / Preview Toggle */}
           <div className="flex items-center justify-between border-b border-border pb-3">
             <span className="text-xs font-bold text-text">
-              {formData.type === 'spiel' ? L('Neues Spiel beitragen', 'Contribute a game') : formData.type === 'dienst' ? L('Neues Dienstprojekt beitragen', 'Contribute a service project') : L('Kreative Aktivität beitragen', 'Contribute a creative activity')}
+              {isEdit ? L('Deine Überarbeitung', 'Your revision') : formData.type === 'spiel' ? L('Neues Spiel beitragen', 'Contribute a game') : formData.type === 'dienst' ? L('Neues Dienstprojekt beitragen', 'Contribute a service project') : L('Kreative Aktivität beitragen', 'Contribute a creative activity')}
             </span>
             <button
               type="button"
@@ -529,7 +728,12 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       {L('Du bist gerade offline', 'You are currently offline')}
                     </p>
                     <p className="text-text-secondary leading-relaxed">
-                      {L(
+                      {isEdit
+                        ? L(
+                            'Deine Änderungen gibt es nur auf dieser Seite. Lass sie offen und sende die Überarbeitung, sobald du wieder online bist.',
+                            'Your changes exist only on this page. Keep it open and send the revision once you are back online.'
+                          )
+                        : L(
                         'Dein Entwurf bleibt sicher lokal in diesem Browser gespeichert. Sobald du wieder online bist, kannst du ihn absenden – oder direkt per E-Mail vorbereiten.',
                         'Your draft is safely saved locally in this browser. You can submit it once back online – or prepare it via email now.'
                       )}
@@ -884,8 +1088,17 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                       value={formData.authorEmail}
                       onChange={(e) => updateField('authorEmail', e.target.value)}
                       placeholder="name@beispiel.de"
+                      aria-describedby={isEdit ? 'prop-mail-hint' : undefined}
                       className="w-full px-3.5 py-2 min-h-[44px] rounded-control bg-surface-2 border border-border text-base sm:text-sm text-text focus:outline-hidden focus:ring-2 focus:ring-accent"
                     />
+                    {isEdit && (
+                      <p id="prop-mail-hint" className="text-xs text-text-secondary mt-1.5 leading-relaxed">
+                        {L(
+                          'Nur ausfüllen, wenn sich deine Adresse geändert hat. Sonst behalten wir die bisherige.',
+                          'Only fill this in if your address has changed. Otherwise we keep the one you gave before.'
+                        )}
+                      </p>
+                    )}
                   </div>
                 </div>
               </Panel>
@@ -946,7 +1159,13 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
                   disabled={isSubmitting}
                   className={`${primaryBtn} flex-1`}
                 >
-                  <span>{isSubmitting ? L('Wird übermittelt...', 'Submitting...') : L('Beitrag absenden', 'Submit contribution')}</span>
+                  <span>
+                    {isSubmitting
+                      ? L('Wird übermittelt...', 'Submitting...')
+                      : isEdit
+                      ? L('Überarbeitung senden', 'Send revision')
+                      : L('Beitrag absenden', 'Submit contribution')}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -964,10 +1183,12 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
 
           <div className="space-y-2 max-w-md mx-auto">
             <h2 className="text-2xl font-extrabold text-text tracking-tight">
-              {L('Danke für deinen Beitrag.', 'Thank you for your contribution.')}
+              {revisionSent ? L('Überarbeitung gesendet.', 'Revision sent.') : L('Danke für deinen Beitrag.', 'Thank you for your contribution.')}
             </h2>
             <p className="text-sm text-text-secondary leading-relaxed">
-              {L(
+              {revisionSent
+                ? L('Die Redaktion schaut sich deinen Beitrag erneut an.', 'The editors will look at your contribution again.')
+                : L(
                 'Wir schauen uns deinen Beitrag an und binden ihn nach redaktioneller Prüfung in die passende Kategorie ein.',
                 'We will review your contribution and incorporate it into the matching category after editorial review.'
               )}
@@ -996,6 +1217,11 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
             <button
               type="button"
               onClick={() => {
+                // After a revision the page switches back to a new entry (fresh form with the saved draft).
+                if (isEdit) {
+                  navigate('/vorschlagen');
+                  return;
+                }
                 setStep(1);
                 setFormData((prev) => ({
                   ...prev,
@@ -1013,6 +1239,9 @@ export const ProposalView: React.FC<ProposalViewProps> = ({ language }) => {
           </div>
         </Panel>
       )}
+
+      {/* Meine Beiträge: also on the confirmation screen, so the new entry shows up right away */}
+      <MyContributions language={language} hideWhenEmpty />
 
       {/* Feedback Modal */}
       <FeedbackModal
