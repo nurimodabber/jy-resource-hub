@@ -6,6 +6,8 @@ import { Logo } from './Logo';
 import { GlassIconButton } from './ui/Button';
 import { Language, NavTab } from '../types';
 import { UI_TRANSLATIONS, TKey } from '../data/translations';
+import { useContributionAttention } from './MyContributions';
+import { tr } from './tools/common';
 
 interface NavbarProps {
   activeTab: NavTab;
@@ -66,6 +68,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   const backPath = detailBackPath(location.pathname);
   const titleKey = SECTION_TITLE_KEY[activeTab];
   const sectionTitle = titleKey ? t[titleKey] : null;
+  // Dot on "Beitragen": the editors asked for changes or declined an entry sent from this device.
+  const contributionNews = useContributionAttention() > 0;
 
   // Desktop: gleitender Hintergrund unter dem aktiven Bereich
   const desktopNavRef = useRef<HTMLDivElement>(null);
@@ -183,6 +187,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 {t[item.key]}
+                {item.id === 'vorschlagen' && contributionNews && (
+                  <>
+                    <span className="absolute top-1 right-1.5 w-2 h-2 rounded-full bg-accent ring-2 ring-surface pointer-events-none" aria-hidden="true" />
+                    <span className="sr-only">
+                      {`, ${tr(language)('neue Rückmeldung zu deinen Beiträgen', 'new feedback on your contributions')}`}
+                    </span>
+                  </>
+                )}
               </Link>
             );
           })}

@@ -75,6 +75,7 @@ import {
   purgeLegacyAdminStorage,
 } from '../utils/adminAuth';
 import { GitHubSettingsModal } from './admin/GitHubSettingsModal';
+import { MyContributions } from './MyContributions';
 import { Logo } from './Logo';
 
 interface AdminViewProps {
@@ -84,6 +85,9 @@ interface AdminViewProps {
 
 type WorkspaceSection = 'review' | 'drafts' | 'catalog' | 'quotes' | 'accounts' | 'operations';
 type ReviewStatusTab = 'pending' | 'drafts' | 'accepted' | 'rejected';
+
+/** GitHub label set by /api/sync `request_changes`; removed again when the contributor revises. */
+const CHANGES_REQUESTED_LABEL = 'änderung-nötig';
 type CatalogKindTab = 'games' | 'service' | 'arts' | 'minigames';
 type MinigameSubTab = 'empire' | 'spy' | 'whoami' | 'psych';
 
@@ -225,6 +229,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
   const [editorMode, setEditorMode] = useState<EditorMode | null>(null);
   const [draftForm, setDraftForm] = useState<UnifiedEditorDraft | null>(null);
   const [reviewComment, setReviewComment] = useState('');
+  // "Änderung anfragen": keyed by issue number so the form never leaks into another proposal.
+  const [changeRequestIssue, setChangeRequestIssue] = useState<number | null>(null);
+  const [changeNote, setChangeNote] = useState('');
+  const [changeNoteError, setChangeNoteError] = useState<string | null>(null);
+  const [isSendingChangeRequest, setIsSendingChangeRequest] = useState(false);
 
   // Quick Modals for Spy/WhoAmI/Psychiatrist & GitHub Settings
   const [isGitHubModalOpen, setIsGitHubModalOpen] = useState(false);
@@ -337,6 +346,23 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     }
     return result.sort((a, b) => b.createdAt - a.createdAt);
   }, [adminData.proposals, ghProposals]);
+
+  // Labels come only with the GitHub copy; a local copy of the same issue must show the same status.
+  const changesRequestedIssues = useMemo(() => {
+    const set = new Set<number>();
+    for (const p of ghProposals) {
+      const labels = p.payload?.labels;
+      if (p.githubIssueNumber && Array.isArray(labels) && labels.includes(CHANGES_REQUESTED_LABEL)) {
+        set.add(p.githubIssueNumber);
+      }
+    }
+    return set;
+  }, [ghProposals]);
+  const isChangesRequested = useCallback(
+    (p: ProposalItem) =>
+      p.status === 'pending' && Boolean(p.githubIssueNumber && changesRequestedIssues.has(p.githubIssueNumber)),
+    [changesRequestedIssues]
+  );
 
   // All backend-only draft items across collections
   const backendDraftItems = useMemo(() => {
@@ -503,6 +529,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
       githubUrl: p.githubUrl as string | undefined,
     });
     setReviewComment('');
+    setChangeRequestIssue(null);
+    setChangeNote('');
+    setChangeNoteError(null);
     setEditorMode({
       source: 'proposal',
       proposal: prop,
@@ -987,6 +1016,75 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     setEditorMode(null);
     setDraftForm(null);
   }, [editorMode, draftForm, reviewComment, adminAuthor, adminData, showToast, L, effectivePermissions]);
+
+  const handleRequestChanges = useCallback(async () => {
+    if (!editorMode || editorMode.source !== 'proposal') return;
+    const issueNumber = editorMode.proposal.githubIssueNumber;
+    if (!issueNumber || isSendingChangeRequest) return;
+    if (!effectivePermissions.canReviewProposals) {
+      showToast(
+        L(
+          'Dein Account hat keine Berechtigung, Änderungen anzufragen.',
+          'Your account does not have permission to request changes.'
+        )
+      );
+      return;
+    }
+    const note = changeNote.trim();
+    // Same minimum as the server (code 'note_required'); checked here too so the hint is bilingual.
+    if (note.length < 3) {
+      setChangeNoteError(
+        L(
+          'Schreib kurz, was geändert werden soll (mindestens 3 Zeichen).',
+          'Write briefly what should be changed (at least 3 characters).'
+        )
+      );
+      return;
+    }
+    setChangeNoteError(null);
+    setIsSendingChangeRequest(true);
+    const res = await updateGitHubIssueStatus(issueNumber, 'request_changes', note);
+    setIsSendingChangeRequest(false);
+    if (!res.ok) {
+      const englishError =
+        res.code === 'note_required'
+          ? 'Write briefly what should be changed (at least 3 characters).'
+          : res.code === 'forbidden' || res.code === 'not_a_proposal'
+            ? 'You do not have permission for this.'
+            : res.code === 'unauthorized'
+              ? 'Session expired. Please sign in again.'
+              : 'The request could not be sent. Try again in a moment.';
+      const message = L(res.error || 'Die Anfrage konnte nicht gesendet werden.', englishError);
+      if (res.code === 'note_required') setChangeNoteError(message);
+      else showToast(message);
+      return;
+    }
+    // Show the new status right away; the refresh below replaces this with the server's view.
+    setGhProposals((prev) =>
+      prev.map((p) => {
+        if (p.githubIssueNumber !== issueNumber) return p;
+        const labels = Array.isArray(p.payload?.labels) ? (p.payload.labels as string[]) : [];
+        return {
+          ...p,
+          payload: {
+            ...(p.payload || {}),
+            labels: [...labels.filter((l) => l !== 'vorschlag' && l !== CHANGES_REQUESTED_LABEL), CHANGES_REQUESTED_LABEL],
+          },
+        };
+      })
+    );
+    setChangeRequestIssue(null);
+    setChangeNote('');
+    setEditorMode(null);
+    setDraftForm(null);
+    showToast(
+      L(
+        'Änderung angefragt. Der Eintrag wartet jetzt auf die Überarbeitung.',
+        'Changes requested. The entry is now waiting for revision.'
+      )
+    );
+    syncWithGitHub(true);
+  }, [editorMode, isSendingChangeRequest, effectivePermissions, changeNote, showToast, L, syncWithGitHub]);
 
   // Filtered lists for Review View
   const filteredReviewProposals = useMemo(() => {
@@ -1517,7 +1615,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
     const isInitialSetup = authMode === 'register';
     const isOwnerSetup = authMode === 'setup';
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-bg">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 px-4 py-12 bg-bg">
         <div className="w-full max-w-md bg-surface border border-border rounded-card p-6 sm:p-8 shadow-1 space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -1850,6 +1948,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
               </button>
             </form>
           )}
+        </div>
+        {/* Anyone opening the portal sees what they sent from this device (owner decision 2026-11-07). */}
+        <div className="w-full max-w-md">
+          <MyContributions language={language} />
         </div>
       </div>
     );
@@ -2285,7 +2387,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                         {kindLabel(draftForm.kind)}
                       </span>
 
-                      {editorMode.source === 'proposal' ? (
+                      {editorMode.source === 'proposal' && isChangesRequested(editorMode.proposal) ? (
+                        <span className="px-2.5 py-0.5 rounded-full bg-warning/15 text-warning font-bold">
+                          {L('Änderung nötig — wartet auf Überarbeitung', 'Changes requested — waiting for revision')}
+                        </span>
+                      ) : editorMode.source === 'proposal' ? (
                         <span className="px-2.5 py-0.5 rounded-full bg-surface-2 text-text font-bold">
                           {L('Eingereicht', 'Submitted')}
                         </span>
@@ -2881,13 +2987,30 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                       )}
                       {editorMode.source === 'proposal' ? (
                         effectivePermissions.canReviewProposals && (
-                          <button
-                            type="button"
-                            onClick={handleRejectOrDeleteFromEditor}
-                            className="px-4 py-2.5 rounded-control bg-danger/15 hover:bg-danger text-danger hover:text-white font-bold text-xs transition-colors cursor-pointer min-h-[40px]"
-                          >
-                            {L('Ablehnen', 'Reject')}
-                          </button>
+                          <>
+                            {Boolean(editorMode.proposal.githubIssueNumber) && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const issue = editorMode.proposal.githubIssueNumber ?? null;
+                                  setChangeRequestIssue((cur) => (cur === issue ? null : issue));
+                                  setChangeNoteError(null);
+                                }}
+                                aria-expanded={changeRequestIssue === editorMode.proposal.githubIssueNumber}
+                                aria-controls="jy-change-request-form"
+                                className="px-4 py-2.5 rounded-control bg-surface-2 hover:bg-border text-text font-bold text-xs transition-colors cursor-pointer min-h-[44px]"
+                              >
+                                {L('Änderung anfragen', 'Request changes')}
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={handleRejectOrDeleteFromEditor}
+                              className="px-4 py-2.5 rounded-control bg-danger/15 hover:bg-danger text-danger hover:text-white font-bold text-xs transition-colors cursor-pointer min-h-[40px]"
+                            >
+                              {L('Ablehnen', 'Reject')}
+                            </button>
+                          </>
                         )
                       ) : effectivePermissions.canDeleteCatalogItems ? (
                         <button
@@ -2903,6 +3026,71 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                         </span>
                       )}
                     </div>
+
+                    {editorMode.source === 'proposal' &&
+                      effectivePermissions.canReviewProposals &&
+                      changeRequestIssue !== null &&
+                      changeRequestIssue === editorMode.proposal.githubIssueNumber && (
+                        <form
+                          id="jy-change-request-form"
+                          // Own check instead of the browser bubble, which would speak the browser's language.
+                          noValidate
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleRequestChanges();
+                          }}
+                          className="space-y-2 pt-3 border-t border-border"
+                        >
+                          <label htmlFor="jy-change-note" className="block text-xs font-semibold text-text">
+                            {L('Was soll geändert werden?', 'What should be changed?')}
+                          </label>
+                          <p id="jy-change-note-hint" className="text-2xs text-text-secondary">
+                            {L(
+                              'Die Notiz ist öffentlich im GitHub-Eintrag sichtbar. Die einreichende Person überarbeitet danach denselben Eintrag.',
+                              'The note is publicly visible in the GitHub issue. The contributor then revises the same entry.'
+                            )}
+                          </p>
+                          <textarea
+                            id="jy-change-note"
+                            rows={3}
+                            required
+                            minLength={3}
+                            maxLength={500}
+                            value={changeNote}
+                            onChange={(e) => {
+                              setChangeNote(e.target.value);
+                              if (changeNoteError) setChangeNoteError(null);
+                            }}
+                            aria-invalid={changeNoteError ? true : undefined}
+                            aria-describedby={changeNoteError ? 'jy-change-note-hint jy-change-note-error' : 'jy-change-note-hint'}
+                            className="w-full px-3 py-2 rounded-control bg-bg border border-border text-xs text-text focus:outline-hidden focus:border-accent"
+                          />
+                          {changeNoteError && (
+                            <p id="jy-change-note-error" role="alert" className="text-2xs font-semibold text-danger">
+                              {changeNoteError}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap items-center justify-end gap-2.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setChangeRequestIssue(null);
+                                setChangeNoteError(null);
+                              }}
+                              className="px-4 py-2.5 rounded-control text-text-secondary hover:text-text hover:bg-surface-2 font-bold text-xs transition-colors cursor-pointer min-h-[44px]"
+                            >
+                              {L('Abbrechen', 'Cancel')}
+                            </button>
+                            <button
+                              type="submit"
+                              disabled={isSendingChangeRequest}
+                              className="px-4 py-2.5 rounded-control bg-surface-2 hover:bg-border text-text font-bold text-xs transition-colors cursor-pointer min-h-[44px] disabled:opacity-60 disabled:cursor-wait"
+                            >
+                              {isSendingChangeRequest ? L('Wird gesendet…', 'Sending…') : L('Anfrage senden', 'Send request')}
+                            </button>
+                          </div>
+                        </form>
+                      )}
                   </div>
 
                   {/* Right Box: Accept into Catalog / Publish immediately online */}
@@ -3176,8 +3364,13 @@ export const AdminView: React.FC<AdminViewProps> = ({ language, setLanguage }) =
                                     ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 font-bold'
                                     : 'border-border text-text-secondary'
                                 }`}>
-                                  {L('Neu:', 'New:')} {kindLabel(prop.type)}
+                                  {isChangesRequested(prop) ? kindLabel(prop.type) : `${L('Neu:', 'New:')} ${kindLabel(prop.type)}`}
                                 </span>
+                                {isChangesRequested(prop) && (
+                                  <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-warning/15 text-warning">
+                                    {L('Änderung nötig — wartet auf Überarbeitung', 'Changes requested — waiting for revision')}
+                                  </span>
+                                )}
                                 {prop.githubIssueNumber && (
                                   <span className="text-2xs font-mono text-text-tertiary">
                                     #{prop.githubIssueNumber}

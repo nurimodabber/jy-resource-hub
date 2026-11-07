@@ -43,7 +43,16 @@ interface ProposalPayload {
   // Anti-spam fields
   clientTimestamp?: number;
   hp_website?: string;
+  // Revising an entry after the editors asked for changes ("Änderung nötig")
+  action?: 'update';
+  issueNumber?: number;
+  editToken?: string;
 }
+
+/** Label set by the editors in /api/sync when they ask the contributor for changes. */
+const CHANGES_LABEL = 'änderung-nötig';
+const sha256Hex = (value: string): string => crypto.createHash('sha256').update(value).digest('hex');
+const EDIT_MARKER = /<!--\s*jy-edit:([a-f0-9]{64})\s*-->/;
 
 // Simple in-memory rate limiting (max 5 requests per IP per hour)
 const ipRateLimit = new Map<string, { count: number; resetAt: number }>();
@@ -373,23 +382,46 @@ ${reflectionQuestions.length > 0 ? `#### Reflexionsfragen\n${reflectionQuestions
 ${JSON.stringify(jsonDraft, null, 2)}
 \`\`\`
 `.trim();
-    const publicBody = noMentions(markdownBody) + (authorEmail ? `\n\n${encryptContact({ name: authorName, email: authorEmail })}` : '');
+    const ghHeaders = {
+      'Authorization': `token ${GITHUB_TOKEN}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'JuniorYouthHub-ProposalBot',
+    };
+    const labels = type === 'feedback' ? ['feedback'] : ['vorschlag', type];
+
+    if (payload.action === 'update') {
+      await updateIssue(res, {
+        repo: GITHUB_REPO,
+        headers: ghHeaders,
+        issueNumber: Number(payload.issueNumber),
+        editToken: String(payload.editToken || ''),
+        title: noMentions(issueTitle),
+        markdown: noMentions(markdownBody),
+        newContact: authorEmail ? encryptContact({ name: authorName, email: authorEmail }) : '',
+        labels,
+      });
+      return;
+    }
+
+    // The device that submitted keeps this token (localStorage) so it can revise the entry when the
+    // editors ask for changes. Only its SHA-256 goes into the public issue; it cannot be reversed.
+    const editToken = crypto.randomBytes(32).toString('base64url');
+    const publicBody =
+      noMentions(markdownBody) +
+      (authorEmail ? `\n\n${encryptContact({ name: authorName, email: authorEmail })}` : '') +
+      `\n\n<!-- jy-edit:${sha256Hex(editToken)} -->`;
 
     // 6. Post to GitHub Issues API
     // Deadline so a hanging GitHub ends in the e-mail fallback instead of an endless spinner.
     const ghResponse = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues`, {
       signal: AbortSignal.timeout(8000),
       method: 'POST',
-      headers: {
-        'Authorization': `token ${GITHUB_TOKEN}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-        'User-Agent': 'JuniorYouthHub-ProposalBot',
-      },
+      headers: ghHeaders,
       body: JSON.stringify({
         title: noMentions(issueTitle),
         body: publicBody,
-        labels: type === 'feedback' ? ['feedback'] : ['vorschlag', type],
+        labels,
       }),
     });
 
@@ -413,6 +445,7 @@ ${JSON.stringify(jsonDraft, null, 2)}
       ok: true,
       issueUrl: ghData.html_url,
       issueNumber: ghData.number,
+      editToken,
     }));
   } catch (err: any) {
     console.error('Submit proposal error:', err);
@@ -424,4 +457,64 @@ ${JSON.stringify(jsonDraft, null, 2)}
       fallback: 'mailto',
     }));
   }
+}
+
+function sendError(res: ServerResponse, status: number, error: string): void {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify({ ok: false, error }));
+}
+
+/**
+ * Replaces the content of the contributor's own entry. Allowed only while the editors have asked
+ * for changes, and only with the edit token the submitting device received.
+ */
+async function updateIssue(
+  res: ServerResponse,
+  o: {
+    repo: string;
+    headers: Record<string, string>;
+    issueNumber: number;
+    editToken: string;
+    title: string;
+    markdown: string;
+    newContact: string;
+    labels: string[];
+  }
+): Promise<void> {
+  if (!Number.isInteger(o.issueNumber) || o.issueNumber <= 0) return sendError(res, 400, 'Ungültiger Beitrag.');
+  if (o.editToken.length < 20) return sendError(res, 403, 'Dieser Beitrag kann von diesem Gerät aus nicht geändert werden.');
+  const url = `https://api.github.com/repos/${o.repo}/issues/${o.issueNumber}`;
+  const current = await fetch(url, { headers: o.headers, signal: AbortSignal.timeout(8000) });
+  if (!current.ok) return sendError(res, 404, 'Beitrag nicht gefunden.');
+  const issue: any = await current.json();
+  const body = typeof issue.body === 'string' ? issue.body : '';
+  const labels: string[] = (issue.labels || []).map((l: any) => String(l.name));
+  const marker = EDIT_MARKER.exec(body);
+  const given = Buffer.from(sha256Hex(o.editToken), 'hex');
+  if (issue.pull_request || !marker || !crypto.timingSafeEqual(given, Buffer.from(marker[1], 'hex'))) {
+    return sendError(res, 403, 'Dieser Beitrag kann von diesem Gerät aus nicht geändert werden.');
+  }
+  if (!labels.includes(CHANGES_LABEL)) {
+    return sendError(res, 409, 'Dieser Beitrag wartet gerade nicht auf Änderungen.');
+  }
+  const contact = o.newContact || (body.match(/<!--\s*jy-contact:[^>]*-->/) || [''])[0];
+  const newBody = o.markdown + (contact ? `\n\n${contact}` : '') + `\n\n<!-- jy-edit:${marker[1]} -->`;
+  const keep = labels.filter((l) => ![CHANGES_LABEL, 'vorschlag', 'feedback', 'spiel', 'dienst', 'kunst'].includes(l));
+  const patch = await fetch(url, {
+    method: 'PATCH',
+    headers: o.headers,
+    signal: AbortSignal.timeout(8000),
+    body: JSON.stringify({ title: o.title, body: newBody, labels: [...keep, ...o.labels], state: 'open' }),
+  });
+  if (!patch.ok) return sendError(res, 502, 'Fehler bei der Übertragung an GitHub. Bitte versuche es später erneut.');
+  await fetch(`${url}/comments`, {
+    method: 'POST',
+    headers: o.headers,
+    signal: AbortSignal.timeout(8000),
+    body: JSON.stringify({ body: 'Überarbeitet eingereicht. Die Redaktion schaut sich den Beitrag erneut an.' }),
+  }).catch(() => undefined);
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify({ ok: true, issueNumber: o.issueNumber }));
 }

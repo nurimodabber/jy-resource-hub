@@ -153,23 +153,31 @@ export async function fetchGitHubProposals(): Promise<{ ok: boolean; issues: Pro
   return { ok: true, issues: proposals, rawCount: proposals.length };
 }
 
-/** Accept / reject / delete a community proposal issue. Only the server holds the GitHub token. */
+/**
+ * Accept / reject / delete a community proposal issue, or ask the contributor for changes
+ * (`request_changes` keeps the issue open and needs a note). Only the server holds the GitHub token.
+ */
 export async function updateGitHubIssueStatus(
   issueNumber: number,
-  action: 'accept' | 'reject' | 'delete',
+  action: 'accept' | 'reject' | 'delete' | 'request_changes',
   reason?: string,
   updatedPayload?: Record<string, unknown>
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; code?: string }> {
   const res = await adminApi({ action, issueNumber, reason, updatedPayload });
   if (res.ok) return { ok: true };
   return {
     ok: false,
+    code: res.code,
     error:
       res.code === 'forbidden' || res.code === 'not_a_proposal'
         ? 'Dafür fehlt die Berechtigung.'
-        : res.code === 'unauthorized'
-          ? 'Sitzung abgelaufen. Bitte neu anmelden.'
-          : 'GitHub-Status konnte nicht aktualisiert werden. Änderung ist lokal gespeichert.',
+        : res.code === 'note_required'
+          ? 'Schreib kurz, was geändert werden soll (mindestens 3 Zeichen).'
+          : res.code === 'unauthorized'
+            ? 'Sitzung abgelaufen. Bitte neu anmelden.'
+            : action === 'request_changes'
+              ? 'Die Anfrage konnte nicht gesendet werden. Versuch es gleich noch einmal.'
+              : 'GitHub-Status konnte nicht aktualisiert werden. Änderung ist lokal gespeichert.',
   };
 }
 

@@ -373,7 +373,8 @@ export const AppContent: React.FC = () => {
   };
 
   const t = UI_TRANSLATIONS[language];
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  // /admin only redirects to /portal, but hiding the site chrome there too avoids a flash of the navbar.
+  const isAdminRoute = location.pathname.startsWith('/portal') || location.pathname.startsWith('/admin');
 
   return (
     <div className="min-h-screen flex flex-col bg-bg text-text selection:bg-accent/20">
@@ -605,9 +606,11 @@ export const AppContent: React.FC = () => {
             />
 
             <Route
-              path="/admin"
+              path="/portal"
               element={<AdminView language={language} setLanguage={setLanguage} />}
             />
+            {/* Old address; bookmarks and older e-mails still point here. */}
+            <Route path="/admin" element={<Navigate to="/portal" replace />} />
 
             <Route path="/_design" element={<GalleryView />} />
             {/* Internal card comparison for design decisions: under /_design (robots.txt Disallow), not public. */}

@@ -320,7 +320,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         {/* FOOTER: ÜBER DIE SEITE, OFFLINE STATUS & RECHTLICHES              */}
         {/* ================================================================= */}
         <footer className="pt-4 border-t border-border/50 text-center space-y-3 select-none">
-          {/* Row 1: Legal & Nav Links + Dedicated Subtle Admin Badge */}
+          {/* Row 1: Legal & Nav Links + Dedicated Subtle Portal Badge */}
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-text-secondary">
             <Link
               to="/impressum"
@@ -344,13 +344,13 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               {t.settingsSubmitProposal}
             </Link>
             <Link
-              to="/admin"
+              to="/portal"
               onClick={onClose}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-2 hover:bg-surface-raised border border-border/70 text-text-tertiary hover:text-text transition-colors text-xs font-medium min-h-[44px]"
-              title={language === 'de' ? 'Admin-Dashboard' : 'Admin Dashboard'}
+              title={t.settingsPortalTitle}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-text-tertiary" strokeWidth={1.75} />
-              <span>Admin</span>
+              <span>{t.settingsPortal}</span>
             </Link>
           </div>
 

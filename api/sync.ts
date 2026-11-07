@@ -69,7 +69,12 @@ const PBKDF2_ITERATIONS = 310000;
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 const MAX_BODY_BYTES = 3_500_000;
 const MAX_PAYLOAD_JSON = 40_000;
-const PROPOSAL_LABELS = ['vorschlag', 'übernommen', 'abgelehnt', 'gelöscht', 'status:accepted', 'status:deleted'];
+// `änderung-nötig`: the editors asked the contributor to revise; the issue stays open meanwhile.
+const CHANGES_LABEL = 'änderung-nötig';
+const PROPOSAL_LABELS = ['vorschlag', 'übernommen', 'abgelehnt', 'gelöscht', 'status:accepted', 'status:deleted', CHANGES_LABEL];
+// Hidden markers in issue bodies: contact (encrypted), edit-token hash, editors' decision note.
+const HIDDEN_MARKERS = /<!--\s*jy-(contact|edit|review):[^>]*-->/g;
+const REVIEW_MARKER = /<!--\s*jy-review:([A-Za-z0-9_-]+)\s*-->/g;
 const REQUESTABLE_ROLES: Role[] = ['editor', 'contributor', 'viewer'];
 
 const SITE_URL = (process.env.SITE_URL || 'https://juju-hub.vercel.app').replace(/\/$/, '');
@@ -594,7 +599,7 @@ const ROLE_LABELS_MAIL: Record<string, { de: string; en: string }> = {
 
 function buildApprovalEmail(displayName: string, email: string, role: string) {
   const roleLabel = ROLE_LABELS_MAIL[role] || ROLE_LABELS_MAIL.contributor;
-  const loginUrl = `${SITE_URL}/admin`;
+  const loginUrl = `${SITE_URL}/portal`;
   const text = [
     `Hallo ${displayName},`,
     '',
@@ -769,6 +774,68 @@ async function handleGet(res: ServerResponse): Promise<void> {
   }
 }
 
+// ---------------------------------------------------------------------------------------------
+// Public GET ?issues=1,2,3: status of the visitor's own contributions ("Meine Beiträge")
+// ---------------------------------------------------------------------------------------------
+
+type ContributionStatus = 'pending' | 'changes_requested' | 'accepted' | 'rejected' | 'deleted' | 'unknown';
+
+/**
+ * Everything returned here is already public in the GitHub issue (labels, closing date, the editors'
+ * comment). Only issues created through the proposal form are answered; any other number reads as
+ * "unknown". Not on /api/submit, because the firewall limits that path to 5 requests per minute.
+ */
+async function handleStatus(raw: string, res: ServerResponse): Promise<void> {
+  const numbers = [...new Set(raw.split(',').map((n) => Number(n.trim())))]
+    .filter((n) => Number.isInteger(n) && n > 0)
+    .slice(0, 30);
+  if (numbers.length === 0) return sendJson(res, 400, { ok: false, code: 'invalid' });
+  const repo = process.env.GITHUB_REPO || 'nurimodabber/jy-resource-hub';
+  const headers: Record<string, string> = { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'Juju Hub-Sync-Worker' };
+  if (process.env.GITHUB_TOKEN) headers.Authorization = `token ${process.env.GITHUB_TOKEN}`;
+  let failed = 0;
+  const items = await Promise.all(
+    numbers.map(async (number) => {
+      const unknown = { number, status: 'unknown' as ContributionStatus };
+      try {
+        const r = await upstream(`https://api.github.com/repos/${repo}/issues/${number}`, { headers });
+        if (r.status === 404) return unknown;
+        if (!r.ok) {
+          failed++;
+          return unknown;
+        }
+        const issue: any = await r.json();
+        const labels: string[] = (issue.labels || []).map((l: any) => String(l.name));
+        if (issue.pull_request || !labels.some((l) => PROPOSAL_LABELS.includes(l) || l === 'feedback')) return unknown;
+        const status: ContributionStatus = labels.includes(CHANGES_LABEL)
+          ? 'changes_requested'
+          : labels.some((l) => l === 'übernommen' || l === 'status:accepted')
+            ? 'accepted'
+            : labels.includes('abgelehnt')
+              ? 'rejected'
+              : labels.some((l) => l === 'gelöscht' || l === 'status:deleted')
+                ? 'deleted'
+                : 'pending';
+        const markers = [...String(issue.body || '').matchAll(REVIEW_MARKER)];
+        let review: { note?: string; at?: number } = {};
+        try {
+          if (markers.length) review = JSON.parse(Buffer.from(markers[markers.length - 1][1], 'base64url').toString('utf8'));
+        } catch {
+          review = {};
+        }
+        const decidedAt = status === 'pending' ? undefined : Number(review.at) || (issue.closed_at ? Date.parse(issue.closed_at) : undefined);
+        const note = status === 'changes_requested' || status === 'rejected' ? String(review.note || '').slice(0, 500) : '';
+        return { number, status, ...(note ? { note } : {}), ...(decidedAt ? { decidedAt } : {}) };
+      } catch {
+        failed++;
+        return unknown;
+      }
+    })
+  );
+  if (failed === numbers.length) return sendJson(res, 200, { ok: false, code: 'upstream' });
+  sendJson(res, 200, { ok: true, items }, failed ? 'no-store' : 'public, max-age=0, s-maxage=30, stale-while-revalidate=60');
+}
+
 // The server writes its ```json block last in every issue body. Submitted text sits above it, so
 // reading the LAST block means a fake block typed into a free-text field can never be picked up
 // (older issues were created before submit.ts neutralised backticks).
@@ -929,10 +996,10 @@ async function actionRequestAccount({ req, res, body }: Ctx) {
     await sendEmail({
       to: notifyTo,
       subject: `Neue Zugangsanfrage: ${displayName}`,
-      text: `${displayName} (${email}) bittet um Zugang zum Redaktionsportal.\n\n${message ? `Nachricht: ${message}\n\n` : ''}Prüfen: ${SITE_URL}/admin`,
+      text: `${displayName} (${email}) bittet um Zugang zum Redaktionsportal.\n\n${message ? `Nachricht: ${message}\n\n` : ''}Prüfen: ${SITE_URL}/portal`,
       html: `<p>${escapeHtml(displayName)} (${escapeHtml(email)}) bittet um Zugang zum Redaktionsportal.</p>${
         message ? `<p>Nachricht: ${escapeHtml(message)}</p>` : ''
-      }<p><a href="${SITE_URL}/admin">Anfrage prüfen</a></p>`,
+      }<p><a href="${SITE_URL}/portal">Anfrage prüfen</a></p>`,
     });
   }
   sendJson(res, 200, { ok: true });
@@ -1113,7 +1180,7 @@ async function actionListProposals(ctx: Ctx) {
       return {
         number: i.number,
         title: i.title,
-        body: String(i.body || '').replace(/<!--\s*jy-contact:[^>]*-->/g, ''),
+        body: String(i.body || '').replace(HIDDEN_MARKERS, '').trim(),
         labels: (i.labels || []).map((l: any) => ({ name: l.name })),
         created_at: i.created_at,
         html_url: i.html_url,
@@ -1137,12 +1204,15 @@ async function actionIssue(ctx: Ctx) {
   const allowed =
     action === 'accept'
       ? p.canReviewProposals || p.canPublishLive
-      : action === 'reject'
+      : action === 'reject' || action === 'request_changes'
         ? p.canReviewProposals
         : action === 'delete'
           ? p.canDeleteCatalogItems
           : false;
   if (!allowed) return deny(ctx.res);
+  const note = String(reason || '').trim().slice(0, 500);
+  // The contributor needs to know what to change; an empty request would leave them guessing.
+  if (action === 'request_changes' && note.length < 3) return sendJson(ctx.res, 400, { ok: false, code: 'note_required' });
   if (updatedPayload !== undefined) {
     if (!updatedPayload || typeof updatedPayload !== 'object' || Array.isArray(updatedPayload)) {
       return sendJson(ctx.res, 400, { ok: false, code: 'invalid' });
@@ -1158,33 +1228,48 @@ async function actionIssue(ctx: Ctx) {
   // Only community proposal issues may be touched; never arbitrary issues or pull requests.
   if (current.pull_request || !labels.some((l) => PROPOSAL_LABELS.includes(l))) return deny(ctx.res, 403, 'not_a_proposal');
 
-  const newLabels = labels.filter((l) => !['vorschlag', 'status:accepted', 'übernommen', 'abgelehnt', 'gelöscht'].includes(l));
+  const newLabels = labels.filter((l) => !['vorschlag', 'status:accepted', 'übernommen', 'abgelehnt', 'gelöscht', CHANGES_LABEL].includes(l));
+  const why = (note || 'Keine Begründung angegeben').replace(/@/g, '@\u200b');
   let comment = '';
+  let reviewStatus = '';
   if (action === 'accept') {
     newLabels.push('übernommen');
+    reviewStatus = 'accepted';
     comment = '✅ Dieser Eintrag wurde redaktionell geprüft und live im Katalog veröffentlicht.';
   } else if (action === 'reject') {
     newLabels.push('abgelehnt');
-    const why = String(reason || 'Keine Begründung angegeben').slice(0, 500).replace(/@/g, '@\u200b');
+    reviewStatus = 'rejected';
     comment = `❌ Dieser Vorschlag wurde abgelehnt: ${why}`;
+  } else if (action === 'request_changes') {
+    newLabels.push(CHANGES_LABEL);
+    reviewStatus = 'changes_requested';
+    comment = `✏️ Bitte überarbeiten: ${why}`;
   } else {
     newLabels.push('gelöscht');
+    reviewStatus = 'deleted';
     comment = '🗑️ Dieser Eintrag wurde aus dem aktiven Katalog entfernt.';
   }
 
-  const patch: Record<string, unknown> = { state: 'closed', labels: newLabels };
+  // A change request keeps the issue open so the contributor can revise it in place.
+  const patch: Record<string, unknown> = { state: action === 'request_changes' ? 'open' : 'closed', labels: newLabels };
+  let body = typeof current.body === 'string' ? current.body : '';
   if (updatedPayload) {
     const clean = { ...updatedPayload } as Record<string, unknown>;
     delete clean.authorEmail;
     delete clean.email;
     const block = '```json\n' + JSON.stringify(clean, null, 2) + '\n```';
-    const existing = typeof current.body === 'string' ? current.body : '';
-    const blocks = [...existing.matchAll(JSON_BLOCK)];
+    const blocks = [...body.matchAll(JSON_BLOCK)];
     const last = blocks[blocks.length - 1];
-    patch.body = last?.index !== undefined
-      ? existing.slice(0, last.index) + block + existing.slice(last.index + last[0].length)
-      : `${existing}\n\n### Redaktioneller Datensatz\n${block}`.trim();
+    body = last?.index !== undefined
+      ? body.slice(0, last.index) + block + body.slice(last.index + last[0].length)
+      : `${body}\n\n### Redaktioneller Datensatz\n${block}`.trim();
   }
+  // The decision and note travel in a hidden marker, so "Meine Beiträge" (GET /api/sync?issues=)
+  // reads one issue body instead of every comment. Only the latest decision is kept.
+  const review = Buffer.from(
+    JSON.stringify({ status: reviewStatus, note: reviewStatus === 'rejected' || reviewStatus === 'changes_requested' ? note : '', at: Date.now() })
+  ).toString('base64url');
+  patch.body = `${body.replace(REVIEW_MARKER, '').trimEnd()}\n\n<!-- jy-review:${review} -->`;
   const patchRes = await upstream(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
     method: 'PATCH',
     headers: ghHeaders(),
@@ -1248,12 +1333,16 @@ const ACTIONS: Record<string, (ctx: Ctx) => Promise<void>> = {
   accept: actionIssue,
   reject: actionIssue,
   delete: actionIssue,
+  request_changes: actionIssue,
   system_status: actionSystemStatus,
 };
 
 export default async function handler(req: IncomingMessage & { body?: any }, res: ServerResponse): Promise<void> {
   // Same-origin only: no CORS headers. The admin UI is served from this domain.
-  if (req.method === 'GET') return handleGet(res);
+  if (req.method === 'GET') {
+    const issues = new URL(req.url || '/', 'http://localhost').searchParams.get('issues');
+    return issues !== null ? handleStatus(issues, res) : handleGet(res);
+  }
   if (req.method !== 'POST') {
     res.statusCode = 405;
     res.setHeader('Allow', 'GET, POST');
