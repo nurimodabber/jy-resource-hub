@@ -387,6 +387,15 @@ function fingerprint(s: AdminCloudState): string {
 
 let cache: { state: AdminCloudState; fp: string; at: number } | null = null;
 
+/**
+ * Every call to GitHub or Resend gets a deadline. Without one, a hanging upstream kept the request
+ * (and the visitor) waiting until the platform killed the function.
+ */
+const UPSTREAM_TIMEOUT_MS = 8000;
+function upstream(url: string, init: RequestInit = {}): Promise<Response> {
+  return fetch(url, { ...init, signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
+}
+
 function gistId(): string {
   return process.env.ADMIN_STATE_GIST_ID || DEFAULT_GIST_ID;
 }
@@ -401,7 +410,7 @@ function ghHeaders(): Record<string, string> {
 }
 
 async function readGistViaApi(): Promise<string> {
-  const res = await fetch(`https://api.github.com/gists/${gistId()}`, { headers: ghHeaders() });
+  const res = await upstream(`https://api.github.com/gists/${gistId()}`, { headers: ghHeaders() });
   if (!res.ok) throw new Error(`gist_read_${res.status}`);
   const data: any = await res.json();
   return data?.files?.[GIST_FILENAME]?.content || '';
@@ -413,7 +422,7 @@ async function loadState(): Promise<AdminCloudState> {
   // CDN read first: it does not count against the GitHub REST rate limit.
   try {
     const owner = process.env.ADMIN_STATE_GIST_OWNER || 'nurimodabber';
-    const raw = await fetch(`https://gist.githubusercontent.com/${owner}/${gistId()}/raw/${GIST_FILENAME}?t=${Date.now()}`, {
+    const raw = await upstream(`https://gist.githubusercontent.com/${owner}/${gistId()}/raw/${GIST_FILENAME}?t=${Date.now()}`, {
       headers: { 'Cache-Control': 'no-cache' },
     });
     if (raw.ok) content = await raw.text();
@@ -426,8 +435,19 @@ async function loadState(): Promise<AdminCloudState> {
   return structuredClone(state);
 }
 
+// One save at a time per server instance. Concurrent requests in the same instance all read the
+// same live version before any of them wrote, so each passed the check below and the last write
+// silently replaced the others (3 parallel saves lost 2 in tests/api-resilience.mjs).
+let saveQueue: Promise<unknown> = Promise.resolve();
+
 /** Throws on failure: callers report it instead of pretending a password change was saved. */
-async function saveState(state: AdminCloudState): Promise<void> {
+function saveState(state: AdminCloudState): Promise<void> {
+  const run = saveQueue.then(() => saveStateNow(state));
+  saveQueue = run.catch(() => undefined);
+  return run;
+}
+
+async function saveStateNow(state: AdminCloudState): Promise<void> {
   const fp = fingerprint(state);
   if (cache && cache.fp === fp) return;
   // A Gist PATCH has no compare-and-swap, and two admins (or two server instances with their own
@@ -440,11 +460,16 @@ async function saveState(state: AdminCloudState): Promise<void> {
     throw new Error('state_conflict');
   }
   state.updatedAt = Math.max(Date.now(), live.updatedAt + 1);
-  const res = await fetch(`https://api.github.com/gists/${gistId()}`, {
+  const res = await upstream(`https://api.github.com/gists/${gistId()}`, {
     method: 'PATCH',
     headers: ghHeaders(),
     body: JSON.stringify({ files: { [GIST_FILENAME]: { content: encryptState(state) } } }),
   });
+  if (res.status === 409) {
+    // GitHub's own answer to two writes at once: same as our version check failing.
+    cache = null;
+    throw new Error('state_conflict');
+  }
   if (!res.ok) throw new Error(`gist_write_${res.status}`);
   cache = { state: structuredClone(state), fp, at: Date.now() };
 }
@@ -550,7 +575,7 @@ async function sendEmail(params: { to: string; subject: string; text: string; ht
   if (!apiKey) return false;
   const from = process.env.EMAIL_FROM || 'Juju Hub <onboarding@resend.dev>';
   try {
-    const res = await fetch('https://api.resend.com/emails', {
+    const res = await upstream('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ from, to: [params.to], subject: params.subject, text: params.text, html: params.html }),
@@ -614,10 +639,10 @@ function buildApprovalEmail(displayName: string, email: string, role: string) {
 // HTTP helpers
 // ---------------------------------------------------------------------------------------------
 
-function sendJson(res: ServerResponse, status: number, payload: Record<string, unknown>): void {
+function sendJson(res: ServerResponse, status: number, payload: Record<string, unknown>, cacheControl = 'no-store'): void {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Cache-Control', cacheControl);
   res.end(JSON.stringify(payload));
 }
 
@@ -671,7 +696,7 @@ async function fetchIssues(state: 'all' | 'open', headers: Record<string, string
   const repo = process.env.GITHUB_REPO || 'nurimodabber/jy-resource-hub';
   const all: any[] = [];
   for (let page = 1; page <= 10; page++) {
-    const r = await fetch(`https://api.github.com/repos/${repo}/issues?state=${state}&per_page=100&page=${page}`, { headers });
+    const r = await upstream(`https://api.github.com/repos/${repo}/issues?state=${state}&per_page=100&page=${page}`, { headers });
     if (!r.ok) return null;
     const list: unknown = await r.json();
     if (!Array.isArray(list)) return null;
@@ -736,8 +761,9 @@ async function handleGet(res: ServerResponse): Promise<void> {
         }
       }
     }
-    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
-    sendJson(res, 200, { ok: true, approvedGames, approvedCategories: approvedCats, approvedServiceProjects, approvedArtsPrompts, deletedIds });
+    // Cached at the edge for 60 s: before, sendJson overwrote this with no-store, so every page view
+    // queried GitHub (5000 requests/hour limit). Errors below stay uncached.
+    sendJson(res, 200, { ok: true, approvedGames, approvedCategories: approvedCats, approvedServiceProjects, approvedArtsPrompts, deletedIds }, 'public, max-age=0, s-maxage=60, stale-while-revalidate=300');
   } catch {
     sendJson(res, 200, { ok: false, error: 'unavailable', ...empty });
   }
@@ -1125,7 +1151,7 @@ async function actionIssue(ctx: Ctx) {
   }
 
   const repo = process.env.GITHUB_REPO || 'nurimodabber/jy-resource-hub';
-  const issueRes = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, { headers: ghHeaders() });
+  const issueRes = await upstream(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, { headers: ghHeaders() });
   if (!issueRes.ok) return sendJson(ctx.res, 200, { ok: false, code: 'not_found' });
   const current = await issueRes.json();
   const labels: string[] = (current.labels || []).map((l: any) => l.name);
@@ -1159,13 +1185,13 @@ async function actionIssue(ctx: Ctx) {
       ? existing.slice(0, last.index) + block + existing.slice(last.index + last[0].length)
       : `${existing}\n\n### Redaktioneller Datensatz\n${block}`.trim();
   }
-  const patchRes = await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
+  const patchRes = await upstream(`https://api.github.com/repos/${repo}/issues/${issueNumber}`, {
     method: 'PATCH',
     headers: ghHeaders(),
     body: JSON.stringify(patch),
   });
   if (!patchRes.ok) return sendJson(ctx.res, 200, { ok: false, code: 'upstream' });
-  await fetch(`https://api.github.com/repos/${repo}/issues/${issueNumber}/comments`, {
+  await upstream(`https://api.github.com/repos/${repo}/issues/${issueNumber}/comments`, {
     method: 'POST',
     headers: ghHeaders(),
     body: JSON.stringify({ body: comment }),
@@ -1182,7 +1208,7 @@ async function actionSystemStatus(ctx: Ctx) {
   let canWrite = false;
   let rateRemaining: number | null = null;
   try {
-    const r = await fetch(`https://api.github.com/repos/${repo}`, { headers: ghHeaders() });
+    const r = await upstream(`https://api.github.com/repos/${repo}`, { headers: ghHeaders() });
     repoOk = r.ok;
     rateRemaining = Number(r.headers.get('x-ratelimit-remaining')) || null;
     if (r.ok) canWrite = Boolean((await r.json())?.permissions?.push);
@@ -1257,7 +1283,11 @@ export default async function handler(req: IncomingMessage & { body?: any }, res
       return;
     } catch (err) {
       const conflict = err instanceof Error && err.message === 'state_conflict';
-      if (conflict && attempt < 3 && !res.writableEnded) continue;
+      if (conflict && attempt < 5 && !res.writableEnded) {
+        // Short random pause so two instances retrying at once don't collide again.
+        await new Promise((r) => setTimeout(r, 40 + Math.random() * 120));
+        continue;
+      }
       console.error('admin sync error', body.action, err instanceof Error ? err.message : err);
       if (!res.writableEnded) sendJson(res, conflict ? 409 : 503, { ok: false, code: conflict ? 'conflict' : 'unavailable' });
       return;
