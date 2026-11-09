@@ -178,13 +178,12 @@ export const IceFloeIcon = make(
   </>,
 );
 
-/** Figur vor dem Seil zwischen zwei Pfosten, Blitz im Seil, Bogenpfeil zeigt: drüber. */
+/** Zaun aus zwei Pfosten und zwei Drähten mit Blitz, der Bogenpfeil führt darüber. */
 export const ElectricFenceIcon = make(
   <>
-    <Fig x={5} />
-    <path d="M12.5 11V21M21 11V21M12.5 13H15M19 13h2" />
-    <path d="M18.25 10L14.75 15h2.5L16 20.5l4-6h-2.5l1.25-4.5z" {...ink} />
-    <path d="M9 8.5C10.5 2 17.5 1.25 20 6.5M17.5 5.5L20 6.5l.75-2.75" />
+    <path d="M4 12.5V21M20 12.5V21M4 14.5h4.75M14.5 14.5H20M4 18.5h5.25M14.5 18.5H20" />
+    <path d="M13.25 11l-3.5 5.25H12l-1.25 5.25 3.5-6H12z" {...ink} />
+    <path d="M4.5 9C6.5 3.5 17.5 3.5 19.5 9M17 7.25L19.5 9l.8-2.95" />
   </>,
 );
 
