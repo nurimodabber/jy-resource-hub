@@ -8,7 +8,6 @@ import {
   ContributionType,
   MY_SUBMISSIONS_EVENT,
   getMySubmissions,
-  getEditToken,
   attentionCount,
   markAllSeen,
   refreshStatuses,
@@ -147,7 +146,6 @@ export const MyContributions: React.FC<{ language: Language; hideWhenEmpty?: boo
         <ul className="divide-y divide-line/70 border-y border-line/70">
           {sorted.map((entry) => {
             const canRevise = entry.status === 'changes_requested' && entry.type !== 'feedback';
-            const hasToken = canRevise && getEditToken(entry.issueNumber) !== null;
             return (
               <li key={entry.issueNumber} className="py-4 space-y-2">
                 <div>
@@ -172,19 +170,13 @@ export const MyContributions: React.FC<{ language: Language; hideWhenEmpty?: boo
                 )}
                 {canRevise && (
                   <div className="pl-6">
-                    {hasToken ? (
-                      <Link to={`/vorschlagen?bearbeiten=${entry.issueNumber}`} className={`${secondaryBtn} focus-visible:ring-2 focus-visible:ring-accent`}>
-                        <PencilLine className="w-4 h-4" aria-hidden="true" />
-                        <span>
-                          {L('Überarbeiten', 'Revise')}
-                          <span className="sr-only">: {entry.title}</span>
-                        </span>
-                      </Link>
-                    ) : (
-                      <p className="text-xs text-text-secondary">
-                        {L('Nur auf dem Gerät möglich, von dem du gesendet hast.', 'Only possible on the device you sent it from.')}
-                      </p>
-                    )}
+                    <Link to={`/vorschlagen?bearbeiten=${entry.issueNumber}`} className={`${secondaryBtn} focus-visible:ring-2 focus-visible:ring-accent`}>
+                      <PencilLine className="w-4 h-4" aria-hidden="true" />
+                      <span>
+                        {L('Überarbeiten', 'Revise')}
+                        <span className="sr-only">: {entry.title}</span>
+                      </span>
+                    </Link>
                   </div>
                 )}
               </li>

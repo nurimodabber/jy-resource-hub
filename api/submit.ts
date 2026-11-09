@@ -395,7 +395,9 @@ ${JSON.stringify(jsonDraft, null, 2)}
         repo: GITHUB_REPO,
         headers: ghHeaders,
         issueNumber: Number(payload.issueNumber),
-        editToken: String(payload.editToken || ''),
+        // shortcut: entries sent before 2026-11-10 kept their code in localStorage and send it in the
+        // body; drop this fallback once those entries are decided.
+        editToken: readEditCookie(req, Number(payload.issueNumber)) || String(payload.editToken || ''),
         title: noMentions(issueTitle),
         markdown: noMentions(markdownBody),
         newContact: authorEmail ? encryptContact({ name: authorName, email: authorEmail }) : '',
@@ -404,8 +406,8 @@ ${JSON.stringify(jsonDraft, null, 2)}
       return;
     }
 
-    // The device that submitted keeps this token (localStorage) so it can revise the entry when the
-    // editors ask for changes. Only its SHA-256 goes into the public issue; it cannot be reversed.
+    // The device that submitted keeps this token (httpOnly cookie) so it can revise the entry when
+    // the editors ask for changes. Only its SHA-256 goes into the public issue; it cannot be reversed.
     const editToken = crypto.randomBytes(32).toString('base64url');
     const publicBody =
       noMentions(markdownBody) +
@@ -439,13 +441,13 @@ ${JSON.stringify(jsonDraft, null, 2)}
     }
 
     const ghData = await ghResponse.json();
+    if (Number.isInteger(ghData.number)) res.setHeader('Set-Cookie', editCookie(ghData.number, editToken));
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({
       ok: true,
       issueUrl: ghData.html_url,
       issueNumber: ghData.number,
-      editToken,
     }));
   } catch (err: any) {
     console.error('Submit proposal error:', err);
@@ -457,6 +459,20 @@ ${JSON.stringify(jsonDraft, null, 2)}
       fallback: 'mailto',
     }));
   }
+}
+
+/**
+ * The edit code for an entry lives only in an httpOnly cookie for /api/submit, so page scripts
+ * (and an injected one) never see it. One cookie per entry: `jy_edit_<issue number>`.
+ */
+function editCookie(issueNumber: number, value: string): string {
+  return `jy_edit_${issueNumber}=${value}; Path=/api/submit; HttpOnly; Secure; SameSite=Strict; Max-Age=${365 * 86400}`;
+}
+
+function readEditCookie(req: IncomingMessage, issueNumber: number): string {
+  const name = `jy_edit_${issueNumber}=`;
+  const hit = String(req.headers.cookie || '').split(';').map((c) => c.trim()).find((c) => c.startsWith(name));
+  return hit ? hit.slice(name.length) : '';
 }
 
 function sendError(res: ServerResponse, status: number, error: string): void {

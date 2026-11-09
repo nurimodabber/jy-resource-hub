@@ -4,11 +4,6 @@
   "outputDirectory": "dist",
   "redirects": [
     {
-      "source": "/admin",
-      "destination": "/portal",
-      "permanent": false
-    },
-    {
       "source": "/privacy",
       "destination": "/datenschutz",
       "permanent": true

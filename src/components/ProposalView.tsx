@@ -162,7 +162,8 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
   const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
-  // Revision mode: the editors asked for changes ("Änderung nötig") and this device holds the edit token.
+  // Revision mode: the editors asked for changes ("Änderung nötig"). The edit code is an httpOnly
+  // cookie the server checks; only entries from before 2026-11-10 still send a stored code.
   const isEdit = searchParams.has('bearbeiten');
   const editNumber = /^\d+$/.test(searchParams.get('bearbeiten') || '') ? Number(searchParams.get('bearbeiten')) : null;
   const [mine, setMine] = useState<MySubmission[]>(getMySubmissions);
@@ -177,8 +178,6 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
       ? 'device'
       : editEntry.status !== 'changes_requested' || editEntry.type === 'feedback'
       ? 'status'
-      : !editToken
-      ? 'device'
       : null;
 
   useEffect(() => {
@@ -402,7 +401,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
       occasion: formData.occasion,
       clientTimestamp: mountTime,
       hp_website: formData.hp_website,
-      ...(isEdit && editNumber !== null && editToken ? { action: 'update' as const, issueNumber: editNumber, editToken } : {}),
+      ...(isEdit && editNumber !== null ? { action: 'update' as const, issueNumber: editNumber, ...(editToken ? { editToken } : {}) } : {}),
     };
 
     // Store in admin inbox queue for local review and live sync (a revision is not a new entry)
@@ -446,9 +445,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
               title: formData.title.trim(),
               submittedAt: Date.now(),
               form: toStoredForm(formData),
-            },
-            typeof resData.editToken === 'string' ? resData.editToken : undefined
-          );
+            });
         }
         try {
           localStorage.removeItem(STORAGE_DRAFT_KEY);
