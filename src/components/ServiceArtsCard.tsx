@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Bookmark, Users, Clock } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { getBookById } from '../utils/bookProgress';
+import { activityTone } from '../data/activityTones';
+import { IconTile } from './ui/IconTile';
 
 interface ServiceArtsCardProps {
   activity: ActivityItem;
@@ -40,6 +42,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
     ? activity.duration[language]
     : undefined;
 
+  const { tone, icon: toneIcon } = activityTone(activity);
   const targetUrl = isService ? `/service/${activity.id}` : `/arts/${activity.id}`;
 
   return (
@@ -73,9 +76,13 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         to={targetUrl}
         className="block group/link flex-1 min-w-0 pr-10 sm:pr-12 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0 mb-4"
       >
-        <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors tracking-tight mb-1.5 sm:mb-2">
-          {activity.title[language]}
-        </h3>
+        {/* KONZEPT: dieselbe Ton-Kachel wie auf der Detailseite, damit Bereich/Kunstform sofort sichtbar ist */}
+        <div className={`flex items-center gap-3 mb-2.5 tone-${tone}`}>
+          <IconTile icon={toneIcon} size="lg" toneClass="tone-tile" />
+          <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors tracking-tight min-w-0">
+            {activity.title[language]}
+          </h3>
+        </div>
         {description && (
           <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed relative z-[1] max-w-[60ch]">
             {description}

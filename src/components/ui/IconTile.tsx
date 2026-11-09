@@ -1,12 +1,11 @@
 import React from 'react';
-import type { LucideIcon } from 'lucide-react';
 
 /**
  * Kleine, ruhige Icon-Kachel links vom Titel. Standard: neutral (surface-2, text-secondary).
  * `toneClass` setzt für Dienst/Kunst die gedämpfte Kategorie-Farbe (Hintergrund + Icon), sonst nichts.
  */
 export const IconTile: React.FC<{
-  icon: LucideIcon;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>;
   size?: 'sm' | 'md' | 'lg';
   toneClass?: string;
   className?: string;
