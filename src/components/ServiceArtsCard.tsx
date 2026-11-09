@@ -42,7 +42,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
     ? activity.duration[language]
     : undefined;
 
-  const { tone, icon: toneIcon } = activityTone(activity);
+  const { icon: toneIcon } = activityTone(activity);
   const targetUrl = isService ? `/service/${activity.id}` : `/arts/${activity.id}`;
 
   return (
@@ -76,9 +76,9 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         to={targetUrl}
         className="block group/link flex-1 min-w-0 pr-10 sm:pr-12 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0 mb-4"
       >
-        {/* KONZEPT: dieselbe Ton-Kachel wie auf der Detailseite, damit Bereich/Kunstform sofort sichtbar ist */}
-        <div className={`flex items-center gap-3 mb-2.5 tone-${tone}`}>
-          <IconTile icon={toneIcon} size="xl" toneClass="tone-tile" />
+        {/* Icon in neutraler Kachel wie bei den Spielen: Bereich/Kunstform über die Form, nicht über Farbe */}
+        <div className="flex items-center gap-3 mb-2.5">
+          <IconTile icon={toneIcon} size="xl" />
           <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors tracking-tight min-w-0">
             {activity.title[language]}
           </h3>
