@@ -459,13 +459,12 @@ export const GameFallbackIcon = make(
 
 // ── Dienst-Bereiche ────────────────────────────────────────────
 
-/** Umwelt: großes Blatt mit ausgestanzter Mittelrippe und Stiel. */
+/** Umwelt: Keimling mit zwei Blättern in schützenden, geöffneten Händen. */
 export const EnvironmentIcon = make(
   <>
-    <Knock id="jyp-leaf" cut={<path d="M7 17L15.5 8.5" />}>
-      <path d="M20 4C9.5 3 4 9 5 19c10 1 16-4.5 15-15z" {...ink} />
-    </Knock>
-    <path d="M3 21l3-3" strokeWidth={LIMB} />
+    <path d="M3 15c0-.75.6-1.25 1.3-1 2 .75 4.2 2.75 7.7 2.75s5.7-2 7.7-2.75c.7-.25 1.3.25 1.3 1 0 3.25-4 6-9 6s-9-2.75-9-6z" {...ink} />
+    <path d="M12 14.75V8.5" />
+    <path d="M11.5 10.5C7.5 10.5 5 8.25 5 4.5c4 0 6.5 2.25 6.5 6zM12.5 8.5c0-3.75 2.5-6 6.5-6 0 3.75-2.5 6-6.5 6z" {...ink} />
   </>,
 );
 
@@ -476,22 +475,26 @@ export const NeighborhoodIcon = make(
   </Knock>,
 );
 
-/** Generationen: Ältere Person mit Gehstock (Griff in der Hand) führt ein Kind an der Hand. */
+/** Generationen: gebeugte ältere Person mit Gehstock hält ein Kind an der Hand. */
 export const GenerationsIcon = make(
   <>
-    <path d="M5 21v-8a1.5 1.5 0 0 0-3 0" />
-    <Fig x={9.5} arms={[{ side: -1, to: [[-2.75, 3]] }, { side: 1, to: [[3.25, 3.5]] }]} />
-    <Fig x={18.5} s={S} arms={[{ side: -1, to: [[-2.5, -2.25]] }]} />
+    <circle cx="11" cy="5.25" r="2.5" {...ink} />
+    <path d="M6.5 21v-7.25c0-3 1.75-4.75 4-4.75h.25c1.75 0 3.25 1.5 3.25 3.25V21h-3v-5h-1.25v5z" {...ink} />
+    <path d="M7.25 12.25L4.5 14.5M3.25 14.5h1.5M4 14.5V21M13.25 12l2.75 2.75" strokeWidth={LIMB} />
+    <Fig x={19.5} s={S} arms={[{ side: -1, to: [[-2.5, -0.75]] }]} />
   </>,
 );
 
-/** Kinder: Kind hält einen Luftballon. */
+/** Kinder: zwei Kinder an der Hand, eines mit Luftballon. */
 export const ChildrenIcon = make(
   <>
-    <Fig x={8} s={M} arms={[{ side: 1, to: [[3.5, -2.5]] }]} />
-    <ellipse cx="16.5" cy="6" rx="3.5" ry="4.25" {...ink} />
-    <path d="M16.5 10l-.75 1.25h1.5z" {...ink} />
-    <path d="M16.5 11.25c0 1.25-1.75 1.75-3.75 .75" strokeWidth={1.5} />
+    <Fig x={6.5} s={0.65} arms={[{ side: 1, to: [[3.25, 1.25]] }]} />
+    <Fig x={14.5} s={0.65} arms={[{ side: -1, to: [[-3.25, 1.25]] }, { side: 1, to: [[2.5, -3.5]] }]} />
+    <Knock id="jyp-balloon" cut={<path d="M17.75 4.5a2 2 0 0 1 1.5-1" />}>
+      <ellipse cx="19" cy="6.25" rx="3" ry="3.75" {...ink} />
+    </Knock>
+    <path d="M19 10l-.65 1h1.3z" {...ink} />
+    <path d="M19 11c-.25 1-1 1.25-1.75 1.5" strokeWidth={1.25} />
   </>,
 );
 
@@ -520,29 +523,32 @@ export const ServiceFallbackIcon = make(
 
 // ── Kunstformen ────────────────────────────────────────────────
 
-/** Theater: lachende Maske vorn, weinende dahinter, mit Abstand ausgespart. */
+/** Theater: lachende Maske vorn, weinende dahinter, leicht gegeneinander gedreht. */
 export const DramaIcon = make(
   <>
     <mask id="jyp-drama-back" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
       <rect width="24" height="24" fill="white" stroke="none" />
-      <path d="M2.5 8.5H12V14a4.75 4.75 0 0 1-9.5 0z" fill="black" stroke="black" strokeWidth={3} />
-      <path d="M13.75 6.75h2M17.75 6.75h2M14.75 11.5c1-1.25 3-1.25 4 0" stroke="black" strokeWidth={1.5} />
+      <path d="M2.5 9.5c3-1.5 6.5-1.5 9.5 0v4.75a4.75 4.75 0 0 1-9.5 0z" fill="black" stroke="black" strokeWidth={3} transform="rotate(-8 7.25 14)" />
+      <g transform="rotate(8 16.75 8)" stroke="black" strokeWidth={1.5}>
+        <path d="M13.75 7l2 .5M19.75 7l-2 .5M14.75 11.75c1-1.25 3-1.25 4 0" />
+      </g>
     </mask>
-    <path d="M12 3h9.5v5.5a4.75 4.75 0 0 1-9.5 0z" {...ink} mask="url(#jyp-drama-back)" />
-    <Knock id="jyp-drama-front" cut={<path d="M4.5 12c.5-.75 1.25-.75 1.75 0M8.25 12c.5-.75 1.25-.75 1.75 0M5.25 15c1 1.25 3 1.25 4 0" />}>
-      <path d="M2.5 8.5H12V14a4.75 4.75 0 0 1-9.5 0z" {...ink} />
-    </Knock>
+    <path d="M12 4c3-1.5 6.5-1.5 9.5 0v4.75a4.75 4.75 0 0 1-9.5 0z" {...ink} transform="rotate(8 16.75 8)" mask="url(#jyp-drama-back)" />
+    <g transform="rotate(-8 7.25 14)">
+      <Knock id="jyp-drama-front" cut={<path d="M4.5 12.75c.5-.75 1.25-.75 1.75 0M8.25 12.75c.5-.75 1.25-.75 1.75 0M5.25 15.5c1 1.25 3 1.25 4 0" />}>
+        <path d="M2.5 9.5c3-1.5 6.5-1.5 9.5 0v4.75a4.75 4.75 0 0 1-9.5 0z" {...ink} />
+      </Knock>
+    </g>
   </>,
 );
 
-/** Musik und Poesie: zwei Sechzehntelnoten mit Doppelbalken. */
+/** Musik und Poesie: eine große Achtelnote mit geschwungenem Fähnchen. */
 export const MusicIcon = make(
-  <>
-    <path d="M9 17.5V6M20 15.5V3.5" strokeWidth={LIMB} />
-    <path d="M9 5l11-2.5v2.75L9 7.75zM9 9.5L20 7v2.25L9 11.75z" {...ink} />
-    <ellipse cx="6.25" cy="18" rx="3" ry="2.25" transform="rotate(-20 6.25 18)" {...ink} />
-    <ellipse cx="17.25" cy="16" rx="3" ry="2.25" transform="rotate(-20 17.25 16)" {...ink} />
-  </>,
+  <g {...ink}>
+    <ellipse cx="8.25" cy="17.5" rx="3.75" ry="2.75" transform="rotate(-20 8.25 17.5)" />
+    <rect x="10.25" y="3" width="2.25" height="15" rx="1" />
+    <path d="M10.25 3h2.25c.5 2.75 2.75 4 4.25 5.5s2.25 4 1 6.75c-.25-2.75-2.5-4.75-5.25-5.25H10.25z" />
+  </g>,
 );
 
 /** Bildende Kunst: Palette mit Farbflecken. */
