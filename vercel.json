@@ -3,11 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "redirects": [
-    {
-      "source": "/privacy",
-      "destination": "/datenschutz",
-      "permanent": true
-    }
+
   ],
   "rewrites": [
     {
@@ -68,6 +64,10 @@
     },
     {
       "source": "/datenschutz",
+      "destination": "/datenschutz/index.html"
+    },
+    {
+      "source": "/privacy",
       "destination": "/datenschutz/index.html"
     },
     {

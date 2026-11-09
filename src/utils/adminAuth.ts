@@ -47,7 +47,8 @@ export interface AuthResult {
   errorEn?: string;
 }
 
-const SESSION_ACCOUNT_KEY = 'jy_admin_session_account';
+// Display only (name, role); the session itself is the httpOnly cookie.
+const SESSION_ACCOUNT_KEY = 'jy_admin_account';
 
 /**
  * Keys written by the old client-side auth. They held password hashes, a GitHub token and a
@@ -63,8 +64,6 @@ export const LEGACY_SENSITIVE_KEYS = [
 export function purgeLegacyAdminStorage(): void {
   try {
     LEGACY_SENSITIVE_KEYS.forEach((k) => localStorage.removeItem(k));
-    sessionStorage.removeItem('jy_admin_active_session');
-    sessionStorage.removeItem('jy_admin_authenticated');
   } catch {
     /* storage unavailable */
   }

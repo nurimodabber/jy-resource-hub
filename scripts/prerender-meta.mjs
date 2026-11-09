@@ -331,12 +331,18 @@ ${routes
       }
     }
 
+    const legalHtml = await renderLegalPages();
+
     const buildStaticRootShell = (r) => {
+      // Privacy and imprint carry their full text, so they are readable without JavaScript.
+      const body = legalHtml[r.path]
+        ? `<div class="max-w-4xl mx-auto">${legalHtml[r.path]}</div>`
+        : null;
       const cleanHeading = r.title
         .replace(/\s*[—|]\s*Juju Hub.*$/, '')
         .replace(/\s*–\s*(Spiel|Zitat|Dienstprojekt|Kunst & Ausdruck|Werkzeug).*$/, '');
       const leadText = `${r.description} Entwickelt für Animatoren von Bahá’í-Juniorjugendgruppen (11 bis 15 Jahre) zur Vorbereitung am Laptop und für den unmittelbaren Live-Einsatz auf dem Smartphone in der Gruppe – inklusive Offline-Unterstützung, Filterung nach Gruppengröße und Energielevel sowie interaktiven Werkzeuge für Treffen und Camps.`;
-      return `<div id="root"><div class="min-h-screen bg-bg text-text flex flex-col"><header class="sticky top-0 z-40 h-16 bg-surface border-b border-border flex items-center px-4 sm:px-6"><span class="font-bold text-base text-text">Juju Hub</span></header><main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-28"><div class="max-w-4xl mx-auto space-y-6"><section class="space-y-3"><h1 class="text-2xl sm:text-3xl font-bold text-text tracking-tight">${escapeHtml(cleanHeading)}</h1><p class="text-base sm:text-lg text-text leading-relaxed">${escapeHtml(leadText)}</p></section></div></main><footer class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-8 flex gap-4 text-sm"><a href="/impressum" class="text-text-secondary">Impressum</a><a href="/datenschutz" rel="privacy-policy" class="text-text-secondary">Datenschutz</a></footer></div></div>`;
+      return `<div id="root"><div class="min-h-screen bg-bg text-text flex flex-col"><header class="sticky top-0 z-40 h-16 bg-surface border-b border-border flex items-center px-4 sm:px-6"><span class="font-bold text-base text-text">Juju Hub</span></header><main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-28">${body ?? `<div class="max-w-4xl mx-auto space-y-6"><section class="space-y-3"><h1 class="text-2xl sm:text-3xl font-bold text-text tracking-tight">${escapeHtml(cleanHeading)}</h1><p class="text-base sm:text-lg text-text leading-relaxed">${escapeHtml(leadText)}</p></section></div>`}</main><footer class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-8 flex gap-4 text-sm"><a href="/impressum" class="text-text-secondary">Impressum</a><a href="/privacy" rel="privacy-policy" class="text-text-secondary">Datenschutz · Privacy</a></footer></div></div>`;
     };
 
     const buildRouteHtml = (r) => {
@@ -434,6 +440,25 @@ ${routes
     console.log(`✅ Pre-rendered ${routes.length} static route HTML files + dist/404.html.`);
 
     updateStyleCsp(baseHtml);
+  }
+}
+
+/** Renders the real privacy and imprint components (scripts/legal-static.tsx) to static HTML. */
+async function renderLegalPages() {
+  const { createServer } = await import('vite');
+  const vite = await createServer({
+    root: ROOT,
+    configFile: false,
+    logLevel: 'error',
+    appType: 'custom',
+    server: { middlewareMode: true, hmr: false },
+    optimizeDeps: { noDiscovery: true, include: [] },
+  });
+  try {
+    const mod = await vite.ssrLoadModule('/scripts/legal-static.tsx');
+    return mod.renderLegalPages();
+  } finally {
+    await vite.close();
   }
 }
 
