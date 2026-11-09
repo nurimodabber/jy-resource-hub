@@ -124,7 +124,6 @@ export const MinefieldIcon = make(
     <Knock id="jyp-mine3" cut={<path d="M14 5.5h9" />}>
       <Fig x={18.5} arms={[{ side: -1, to: [[-2.5, 3.5]] }]} />
     </Knock>
-    <path d="M20.75 5.5l1.5 1.5" strokeWidth={1.5} />
     <Knock id="jyp-cone" cut={<path d="M8 18.75h8" />}>
       <path d="M10 21l1.5-4.5h1L14 21z" {...ink} />
     </Knock>
@@ -179,15 +178,13 @@ export const IceFloeIcon = make(
   </>,
 );
 
-/** Hürdenspringer hoch über dem durchhängenden Seil, ein Blitz im Seil. */
+/** Figur vor dem Seil zwischen zwei Pfosten, Blitz im Seil, Bogenpfeil zeigt: drüber. */
 export const ElectricFenceIcon = make(
   <>
-    <path d="M5.5 14.5V21M18.5 14.5V21M5.5 15.5q6.5 3 13 0" />
-    <path d="M13.5 14.75l-3.25 3.75h2.25L11.25 21.5l3.25-4h-2.25z" {...ink} />
-    <circle cx="15.5" cy="3.5" r="2.25" {...ink} />
-    <path d="M11.25 10.5l1.75-3.75" strokeWidth={4} />
-    <path d="M11.25 10.75l6.75-.75 1.25 1.5M11.25 10.75L7.25 12 5.25 9.25" strokeWidth={2.75} />
-    <path d="M13.75 7.75l4.5-.5" strokeWidth={LIMB} />
+    <Fig x={5} />
+    <path d="M12.5 11V21M21 11V21M12.5 13H15M19 13h2" />
+    <path d="M18.25 10L14.75 15h2.5L16 20.5l4-6h-2.5l1.25-4.5z" {...ink} />
+    <path d="M9 8.5C10.5 2 17.5 1.25 20 6.5M17.5 5.5L20 6.5l.75-2.75" />
   </>,
 );
 
