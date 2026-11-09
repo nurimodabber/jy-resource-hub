@@ -109,12 +109,12 @@ export const HeliumStickIcon = make(
 
 export const MinefieldIcon = make(
   <>
-    <Knock id="jyp-mine" cut={<path d="M2 6h7" />}>
-      <Fig x={6} arms={[{ side: 1, to: [[3.5, 0]] }]} />
+    <Fig x={5} />
+    <path d="M9 9.5a3 3 0 0 1 0 4M11.5 8a6 6 0 0 1 0 7" />
+    <Knock id="jyp-mine" cut={<path d="M14 6h7" />}>
+      <Fig x={18} />
     </Knock>
-    <path d="M9 6h1.75l1 1.5" strokeWidth={1.5} />
-    <path d="M13 21l2-4 2 4zM18 21l2-4 2 4z" {...ink} />
-    <path d="M12 14c2 0 3-2.5 5.5-2.5S20 14 22 14" strokeDasharray="0.5 2.5" />
+    <path d="M13 6h-1l-1 1.5" strokeWidth={1.5} />
   </>,
 );
 
@@ -256,8 +256,8 @@ export const EvolutionIcon = make(
 
 export const ChopIcon = make(
   <>
-    <Fig x={6} arms={[{ side: 1, to: [[5.5, -5.5]] }]} />
-    <path d="M16 3a8 8 0 0 1 4.5 9.5M18.5 11l2 1.75 1.5-2.25" />
+    <Fig x={12} arms={[{ side: -1, to: [[-2, -5], [3, -4]] }, { side: 1, to: [[2, -5], [-3, -4]] }]} />
+    <path d="M5 6.5L3 5.5M5 9.5H2.5M19 6.5l2-1M19 9.5h2.5" />
   </>,
 );
 
@@ -298,28 +298,25 @@ export const WerewolfIcon = make(
   <>
     <path d="M19.5 2a3.5 3.5 0 1 0 2.5 6A3 3 0 1 1 19.5 2z" {...ink} />
     <Knock id="jyp-wolf" cut={<path d="M5.5 12.5l2 1M12.5 12.5l-2 1" strokeWidth={1.75} />}>
-      <path d="M2.5 4l4.5 4.5h4L15.5 4l.5 8.5-7 8.5-7-8.5z" {...ink} strokeLinejoin="round" />
+      <path
+        d="M4 4.5c.6-.4 1.3-.2 1.8.3L8 7.5h2l2.2-2.7c.5-.5 1.2-.7 1.8-.3.5.3.7.9.7 1.5L15 12c0 5-3 9-6 9s-6-4-6-9l.3-5.5c0-.6.2-1.2.7-1.5z"
+        {...ink}
+      />
     </Knock>
   </>,
 );
 
 export const SpyIcon = make(
-  <Knock
-    id="jyp-spy"
-    cut={
-      <>
-        <path d="M9.25 12.5h2.25M12.5 12.5h2.25" strokeWidth={1.75} />
-        <path d="M9.5 17l2.5 3 2.5-3" />
-      </>
-    }
-  >
-    <g {...ink}>
-      <path d="M8 9l.9-4.3c.2-.9 1-1.3 1.8-1l1.3.5 1.3-.5c.8-.3 1.6.1 1.8 1L16 9z" />
-      <ellipse cx="12" cy="9.25" rx="8" ry="1.5" />
-      <circle cx="12" cy="12.5" r="3" />
-      <path d="M5 21v-1a7 5.5 0 0 1 14 0v1z" />
-    </g>
-  </Knock>,
+  <>
+    <Knock id="jyp-spy" cut={<path d="M7 13.5h4M13 13.5h4" strokeWidth={2.25} />}>
+      <g {...ink}>
+        <path d="M7 9l1.2-5.2c.2-.9 1.1-1.4 2-1.1l1.8.6 1.8-.6c.9-.3 1.8.2 2 1.1L17 9z" />
+        <ellipse cx="12" cy="9.5" rx="10" ry="1.75" />
+        <path d="M7 12v2a5 5 0 0 0 10 0v-2z" />
+      </g>
+    </Knock>
+    <path d="M7 21l5-2.5 5 2.5" />
+  </>,
 );
 
 export const InvestigatorIcon = make(
@@ -345,21 +342,9 @@ export const EmpireIcon = make(
 
 export const WinkIcon = make(
   <>
-    <Knock
-      id="jyp-wink"
-      cut={
-        <>
-          <circle cx="7.75" cy="11" r="1" fill="black" stroke="none" />
-          <path d="M10.5 11.25c.7-.8 1.8-.8 2.5 0" strokeWidth={1.75} />
-        </>
-      }
-    >
-      <Bust x={10} head={11} r={4.5} w={7} />
-    </Knock>
-    <path d="M19 2v2" />
-    <Knock id="jyp-disco" cut={<path d="M15.5 6.5h7M15.5 9h7" strokeWidth={1} />}>
-      <circle cx="19" cy="7.5" r="3" {...ink} />
-    </Knock>
+    <path d="M2 12c1.5-3 3.5-4.5 5.5-4.5S11.5 9 13 12c-1.5 3-3.5 4.5-5.5 4.5S3.5 15 2 12z" />
+    <circle cx="7.5" cy="12" r="1.75" {...ink} />
+    <path d="M15 12.5c1.5 1.5 4.5 1.5 6 0M16 14l-.75 1.5M18 14.5V16M20 14l.75 1.5" />
   </>,
 );
 
