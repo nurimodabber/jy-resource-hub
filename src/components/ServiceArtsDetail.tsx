@@ -128,7 +128,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
           <header className={`mb-8 tone-${tone}`}>
             <div className="flex items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-3 min-w-0">
-                <IconTile icon={toneIcon} size="lg" toneClass="tone-tile" />
+                <IconTile icon={toneIcon} size="xl" toneClass="tone-tile" />
                 <span className="text-sm font-semibold tone-text truncate">{categoryLabel}</span>
               </div>
               {/* Mobil: Merken/Teilen neben dem Icon statt in einer eigenen leeren Zeile */}

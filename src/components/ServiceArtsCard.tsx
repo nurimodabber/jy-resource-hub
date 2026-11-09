@@ -78,7 +78,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
       >
         {/* KONZEPT: dieselbe Ton-Kachel wie auf der Detailseite, damit Bereich/Kunstform sofort sichtbar ist */}
         <div className={`flex items-center gap-3 mb-2.5 tone-${tone}`}>
-          <IconTile icon={toneIcon} size="lg" toneClass="tone-tile" />
+          <IconTile icon={toneIcon} size="xl" toneClass="tone-tile" />
           <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors tracking-tight min-w-0">
             {activity.title[language]}
           </h3>

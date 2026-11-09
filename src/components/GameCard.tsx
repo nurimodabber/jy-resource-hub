@@ -128,7 +128,7 @@ export const GameCard: React.FC<GameCardProps> = ({
       >
         {/* KONZEPT: große neutrale Kachel, Wirkung als Text unter dem Titel */}
         <div className="flex items-center gap-3 mb-2.5 relative z-[1]">
-          <IconTile icon={getGameIcon(game.id)} size="lg" />
+          <IconTile icon={getGameIcon(game.id)} size="xl" />
           <div className="min-w-0">
             <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors tracking-tight">
               {game.title[language]}

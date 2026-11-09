@@ -1,15 +1,15 @@
 import type React from 'react';
-import { Gamepad2 } from 'lucide-react';
 import {
   AcidLakeIcon, BackToBackIcon, BallKeepUpIcon, BallRunIcon, BlanketFlipIcon, BlindSquareIcon, ChopIcon, ClapCircleIcon, CountTogetherIcon, ElectricFenceIcon, EmpireIcon, EvolutionIcon, HeliumStickIcon, IceFloeIcon, InvestigatorIcon, KnotIcon, MinefieldIcon, NinjaIcon, NumberLineIcon, SaladBowlIcon, ShowdownIcon, ShrinkingIslandIcon, SilentGridIcon, SilentLineIcon, SpyIcon, StoryCircleIcon, WerewolfIcon, WhoAmIIcon, WinkIcon,
-} from './gamePictograms';
+  GameFallbackIcon,
+} from './pictograms';
 
 type GameIcon = React.ComponentType<{ className?: string; strokeWidth?: number | string }>;
 
 /**
  * Ein Icon pro Spiel, getrennt von games.ts, damit die Spieldaten (und ihre stabilen IDs) unberührt bleiben.
  * Darstellung immer einfarbig in einer neutralen Kachel (GameIconTile), nie farbcodiert.
- * Neue Spiele ohne Eintrag bekommen das neutrale Gamepad-Icon.
+ * Neue Spiele ohne Eintrag bekommen den Würfel (GameFallbackIcon).
  */
 export const GAME_ICONS: Record<string, GameIcon> = {
   'menschlicher-knoten': KnotIcon,
@@ -43,4 +43,4 @@ export const GAME_ICONS: Record<string, GameIcon> = {
   ninja: NinjaIcon,
 };
 
-export const getGameIcon = (id: string): GameIcon => GAME_ICONS[id] ?? Gamepad2;
+export const getGameIcon = (id: string): GameIcon => GAME_ICONS[id] ?? GameFallbackIcon;
