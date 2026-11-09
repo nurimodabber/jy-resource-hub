@@ -96,6 +96,13 @@ const ring = (n: number, rad: number, r: number) =>
 const waves = 'M2 21c1.7-1.2 3.3-1.2 5 0s3.3 1.2 5 0 3.3-1.2 5 0 3.3 1.2 5 0';
 const dot = { fill: 'black', stroke: 'none' } as const;
 
+/**
+ * Form aus Material Symbols (Google, Apache-2.0, https://github.com/google/material-design-icons),
+ * Stil "rounded", gefüllt. Deren Raster ist 960 mit Ursprung unten; hier auf 24 umgerechnet und um 10 %
+ * vergrößert, damit die Fläche zu den eigenen Piktogrammen passt.
+ */
+const Mat: React.FC<{ d: string }> = ({ d }) => <path d={d} transform="translate(-1.2 25.2) scale(.0275)" {...ink} />;
+
 // ── Spiele: Zusammenarbeit ─────────────────────────────────────
 
 /** Zwei Figuren, die Arme zweimal umeinander gedreht. */
@@ -459,14 +466,8 @@ export const GameFallbackIcon = make(
 
 // ── Dienst-Bereiche ────────────────────────────────────────────
 
-/** Umwelt: Keimling mit zwei Blättern in schützenden, geöffneten Händen. */
-export const EnvironmentIcon = make(
-  <>
-    <path d="M3 15c0-.75.6-1.25 1.3-1 2 .75 4.2 2.75 7.7 2.75s5.7-2 7.7-2.75c.7-.25 1.3.25 1.3 1 0 3.25-4 6-9 6s-9-2.75-9-6z" {...ink} />
-    <path d="M12 14.75V8.5" />
-    <path d="M11.5 10.5C7.5 10.5 5 8.25 5 4.5c4 0 6.5 2.25 6.5 6zM12.5 8.5c0-3.75 2.5-6 6.5-6 0 3.75-2.5 6-6.5 6z" {...ink} />
-  </>,
-);
+/** Umwelt: Blatt (Material Symbols: eco). */
+export const EnvironmentIcon = make(<Mat d="M444-80q-42 0-78.5-8T298-112q32-119 87.5-230.5T535-529q-112 54-194.5 150T228-161q-4-4-7.5-7t-7.5-7q-45-45-69-103t-24-122q0-69 26-133t75-113q70-72 175-97t303-17q20 1 36.5 8.5T765-731q13 13 21 29.5t9 36.5q10 194-17 302t-99 180q-48 50-109 76.5T444-80Z" />);
 
 /** Nachbarschaft: zwei Häuser nebeneinander. */
 export const NeighborhoodIcon = make(
@@ -475,28 +476,11 @@ export const NeighborhoodIcon = make(
   </Knock>,
 );
 
-/** Generationen: gebeugte ältere Person mit Gehstock hält ein Kind an der Hand. */
-export const GenerationsIcon = make(
-  <>
-    <circle cx="11" cy="5.25" r="2.5" {...ink} />
-    <path d="M6.5 21v-7.25c0-3 1.75-4.75 4-4.75h.25c1.75 0 3.25 1.5 3.25 3.25V21h-3v-5h-1.25v5z" {...ink} />
-    <path d="M7.25 12.25L4.5 14.5M3.25 14.5h1.5M4 14.5V21M13.25 12l2.75 2.75" strokeWidth={LIMB} />
-    <Fig x={19.5} s={S} arms={[{ side: -1, to: [[-2.5, -0.75]] }]} />
-  </>,
-);
+/** Generationen: Erwachsene Person führt ein Kind an der Hand (Material Symbols: escalator_warning). */
+export const GenerationsIcon = make(<Mat d="M260.08-727q-30.08 0-51.58-21.42t-21.5-51.5q0-30.08 21.42-51.58t51.5-21.5q30.08 0 51.58 21.42t21.5 51.5q0 30.08-21.42 51.58t-51.5 21.5ZM695-500q-25 0-42.5-17.5T635-560q0-25 17.5-42.5T695-620q25 0 42.5 17.5T755-560q0 25-17.5 42.5T695-500ZM190-110v-260h-40q-12.75 0-21.37-8.63Q120-387.25 120-400v-220q0-24.75 17.63-42.38Q155.25-680 180-680h152q17.45 0 31.72 9Q378-662 386-646l136 278 73-78q6-7 14.36-10.5 8.35-3.5 17.64-3.5h129q18.33 0 31.17 12.83Q800-434.33 800-416v136q0 13-8.5 21.5T770-250h-20v140q0 12.75-8.62 21.37Q732.75-80 720-80h-80q-12.75 0-21.37-8.63Q610-97.25 610-110v-273l-50 53q-5 5-10.5 7.5t-12.73 2.5h-36.94q-8.83 0-16.17-4.47-7.34-4.48-11.66-12.53L350-583v473q0 12.75-8.62 21.37Q332.75-80 320-80H220q-12.75 0-21.37-8.63Q190-97.25 190-110Z" />);
 
-/** Kinder: zwei Kinder an der Hand, eines mit Luftballon. */
-export const ChildrenIcon = make(
-  <>
-    <Fig x={6.5} s={0.65} arms={[{ side: 1, to: [[3.25, 1.25]] }]} />
-    <Fig x={14.5} s={0.65} arms={[{ side: -1, to: [[-3.25, 1.25]] }, { side: 1, to: [[2.5, -3.5]] }]} />
-    <Knock id="jyp-balloon" cut={<path d="M17.75 4.5a2 2 0 0 1 1.5-1" />}>
-      <ellipse cx="19" cy="6.25" rx="3" ry="3.75" {...ink} />
-    </Knock>
-    <path d="M19 10l-.65 1h1.3z" {...ink} />
-    <path d="M19 11c-.25 1-1 1.25-1.75 1.5" strokeWidth={1.25} />
-  </>,
-);
+/** Kinder: Kindergesicht (Material Symbols: child_care). */
+export const ChildrenIcon = make(<Mat d="M584-502q19 0 32-13t13-32q0-19-13-32t-32-13q-19 0-32 13t-13 32q0 19 13 32t32 13Zm-209 0q19 0 32-13t13-32q0-19-13-32t-32-13q-19 0-32 13t-13 32q0 19 13 32t32 13Zm105 216q54 0 101-29t73-80H306q26 51 73 80t101 29Zm0 166q-74 0-139.5-28.5T226-226q-49-49-77.5-114.5T120-480q0-74 28.5-139.5T226-734q49-49 114.5-77.5T480-840q74 0 139.5 28.5T734-734q49 49 77.5 114.5T840-480q0 74-28.5 139.5T734-226q-49 49-114.5 77.5T480-120Zm15-518q29 0 44-8.5t15-24.5q0-9-6.5-14.5T530-691q-7 0-15 1.5t-20 1.5q-25 0-41.5-16.5T437-746q0-10 1.5-20.5T442-784q-14 2-26 4.5t-26 7.5q-2 5-2.5 12.5T387-746q0 46 31 77t77 31Z" />);
 
 /** Institutionen: Gebäude mit Giebel und Säulen. */
 export const InstitutionIcon = make(
@@ -523,33 +507,11 @@ export const ServiceFallbackIcon = make(
 
 // ── Kunstformen ────────────────────────────────────────────────
 
-/** Theater: lachende Maske vorn, weinende dahinter, leicht gegeneinander gedreht. */
-export const DramaIcon = make(
-  <>
-    <mask id="jyp-drama-back" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
-      <rect width="24" height="24" fill="white" stroke="none" />
-      <path d="M2.5 9.5c3-1.5 6.5-1.5 9.5 0v4.75a4.75 4.75 0 0 1-9.5 0z" fill="black" stroke="black" strokeWidth={3} transform="rotate(-8 7.25 14)" />
-      <g transform="rotate(8 16.75 8)" stroke="black" strokeWidth={1.5}>
-        <path d="M13.75 7l2 .5M19.75 7l-2 .5M14.75 11.75c1-1.25 3-1.25 4 0" />
-      </g>
-    </mask>
-    <path d="M12 4c3-1.5 6.5-1.5 9.5 0v4.75a4.75 4.75 0 0 1-9.5 0z" {...ink} transform="rotate(8 16.75 8)" mask="url(#jyp-drama-back)" />
-    <g transform="rotate(-8 7.25 14)">
-      <Knock id="jyp-drama-front" cut={<path d="M4.5 12.75c.5-.75 1.25-.75 1.75 0M8.25 12.75c.5-.75 1.25-.75 1.75 0M5.25 15.5c1 1.25 3 1.25 4 0" />}>
-        <path d="M2.5 9.5c3-1.5 6.5-1.5 9.5 0v4.75a4.75 4.75 0 0 1-9.5 0z" {...ink} />
-      </Knock>
-    </g>
-  </>,
-);
+/** Theater: lachende und weinende Maske (Material Symbols: theater_comedy). */
+export const DramaIcon = make(<Mat d="M275-80q-97 0-166-70.5T40-315v-207q0-24.75 17.63-42.38Q75.25-582 100-582h349q24.75 0 42.38 17.62Q509-546.75 509-522v207q0 94-68.25 164.5T275-80Zm-86-306q13.6 0 22.8-9.2 9.2-9.2 9.2-22.8 0-13.6-9.2-22.8-9.2-9.2-22.8-9.2-13.6 0-22.8 9.2-9.2 9.2-9.2 22.8 0 13.6 9.2 22.8 9.2 9.2 22.8 9.2Zm173 0q13.6 0 22.8-9.2 9.2-9.2 9.2-22.8 0-13.6-9.2-22.8-9.2-9.2-22.8-9.2-13.6 0-22.8 9.2-9.2 9.2-9.2 22.8 0 13.6 9.2 22.8 9.2 9.2 22.8 9.2Zm558-435v217q0 95-68.25 160T686-379q-23 0-44.5-3.5T599-394q-17-6-28.5-19.85Q559-427.69 559-445v-96q0-35.35-22.81-61.68Q513.39-629 478-629q-12 0-20.5-9t-8.5-21v-162q0-24.75 17.63-42.38Q484.25-881 509-881h351q24.75 0 42.38 17.62Q920-845.75 920-821ZM601-676q13.6 0 22.8-10 9.2-10 9.2-22 0-13.6-9.2-22.8-9.2-9.2-22.8-9.2-13.6 0-22.8 9.2-9.2 9.2-9.2 22.8 0 12 9.2 22t22.8 10Zm172 0q13.6 0 22.8-10 9.2-10 9.2-22 0-13.6-9.2-22.8-9.2-9.2-22.8-9.2-13.6 0-22.8 9.2-9.2 9.2-9.2 22.8 0 12 9.2 22t22.8 10Zm-87 76q-29 0-55.5 9T588-559q-6 10 1 19.5t19.86 9.5h154.28q12.86 0 19.86-9.5t1-19.5q-16-23-42.5-32t-55.5-9ZM277-231q29.44 0 55.72-9Q359-249 375-272q6-9.67-1-19.33-7-9.67-19.56-9.67H199.56Q187-301 180-291.33q-7 9.66-1 19.33 16 23 42.28 32t55.72 9Z" />);
 
-/** Musik und Poesie: eine große Achtelnote mit geschwungenem Fähnchen. */
-export const MusicIcon = make(
-  <g {...ink}>
-    <ellipse cx="8.25" cy="17.5" rx="3.75" ry="2.75" transform="rotate(-20 8.25 17.5)" />
-    <rect x="10.25" y="3" width="2.25" height="15" rx="1" />
-    <path d="M10.25 3h2.25c.5 2.75 2.75 4 4.25 5.5s2.25 4 1 6.75c-.25-2.75-2.5-4.75-5.25-5.25H10.25z" />
-  </g>,
-);
+/** Musik und Poesie: Note (Material Symbols: music_note). */
+export const MusicIcon = make(<Mat d="M393-120q-63 0-106.5-43.5T243-270q0-63 43.5-106.5T393-420q28 0 50.5 8t39.5 22v-420q0-13 8.5-21.5T513-840h174q13 0 21.5 8.5T717-810v75q0 13-8.5 21.5T687-705H543v435q0 63-43.5 106.5T393-120Z" />);
 
 /** Bildende Kunst: Palette mit Farbflecken. */
 export const PaletteIcon = make(
