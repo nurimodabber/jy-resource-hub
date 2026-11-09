@@ -1,12 +1,7 @@
 import type React from 'react';
+import { Gamepad2 } from 'lucide-react';
 import {
-  Activity, ArrowUp10, ArrowUpFromLine, Brain, Crown, Eye, Gamepad2,
-  Grid3x3, Hand, Hash, Megaphone, MessageSquareText, Route, Salad, Scissors,
-  Square, Swords, VenetianMask, Waves, Zap,
-} from 'lucide-react';
-import {
-  BallKeepUpIcon, BlanketFlipIcon, HeliumStickIcon, IceFloeIcon, KnotIcon, MinefieldIcon, ShrinkingIslandIcon,
-  SilentLineIcon, WerewolfIcon, WhoAmIIcon,
+  AcidLakeIcon, BackToBackIcon, BallKeepUpIcon, BallRunIcon, BlanketFlipIcon, BlindSquareIcon, ChopIcon, ClapCircleIcon, CountTogetherIcon, ElectricFenceIcon, EmpireIcon, EvolutionIcon, HeliumStickIcon, IceFloeIcon, InvestigatorIcon, KnotIcon, MinefieldIcon, NinjaIcon, NumberLineIcon, SaladBowlIcon, ShowdownIcon, ShrinkingIslandIcon, SilentGridIcon, SilentLineIcon, SpyIcon, StoryCircleIcon, WerewolfIcon, WhoAmIIcon, WinkIcon,
 } from './gamePictograms';
 
 type GameIcon = React.ComponentType<{ className?: string; strokeWidth?: number | string }>;
@@ -18,34 +13,34 @@ type GameIcon = React.ComponentType<{ className?: string; strokeWidth?: number |
  */
 export const GAME_ICONS: Record<string, GameIcon> = {
   'menschlicher-knoten': KnotIcon,
-  'gemeinsam-zaehlen': Hash,
+  'gemeinsam-zaehlen': CountTogetherIcon,
   minenfeld: MinefieldIcon,
-  'ein-wort-geschichte': MessageSquareText,
+  'ein-wort-geschichte': StoryCircleIcon,
   'helium-stick': HeliumStickIcon,
-  'stand-up-ruecken': ArrowUpFromLine,
+  'stand-up-ruecken': BackToBackIcon,
   'stumme-reihe': SilentLineIcon,
   'eisschollen-rettung': IceFloeIcon,
-  'lebender-balltransport': Route,
-  'blindes-quadrat': Square,
+  'lebender-balltransport': BallRunIcon,
+  'blindes-quadrat': BlindSquareIcon,
   'decke-wenden': BlanketFlipIcon,
   '100-schlaege-ball': BallKeepUpIcon,
-  'blindes-zahlen-sortieren': ArrowUp10,
-  'elektrischer-zaun': Zap,
-  saeuresee: Waves,
-  'stille-matrix': Grid3x3,
+  'blindes-zahlen-sortieren': NumberLineIcon,
+  'elektrischer-zaun': ElectricFenceIcon,
+  saeuresee: AcidLakeIcon,
+  'stille-matrix': SilentGridIcon,
   'schrumpfende-insel': ShrinkingIslandIcon,
-  'ssp-evolution': Scissors,
-  'impuls-kreis': Activity,
+  'ssp-evolution': EvolutionIcon,
+  'impuls-kreis': ClapCircleIcon,
   'wer-bin-ich': WhoAmIIcon,
   werwolf: WerewolfIcon,
-  spion: VenetianMask,
-  psychiater: Brain,
-  empire: Crown,
-  'schlafmuetze-moerder': Eye,
-  'ssp-showdown': Megaphone,
-  'salad-bowl': Salad,
-  'hi-ha-ho': Hand,
-  ninja: Swords,
+  spion: SpyIcon,
+  psychiater: InvestigatorIcon,
+  empire: EmpireIcon,
+  'schlafmuetze-moerder': WinkIcon,
+  'ssp-showdown': ShowdownIcon,
+  'salad-bowl': SaladBowlIcon,
+  'hi-ha-ho': ChopIcon,
+  ninja: NinjaIcon,
 };
 
 export const getGameIcon = (id: string): GameIcon => GAME_ICONS[id] ?? Gamepad2;
