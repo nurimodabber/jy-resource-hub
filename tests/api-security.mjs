@@ -166,7 +166,7 @@ function setEnv(overrides = {}) {
 
 async function call(handler, { method = 'POST', body, token, origin, ip = '1.2.3.4', extraHeaders = {}, url = '/api/sync' } = {}) {
   const headers = { host: 'juju-hub.vercel.app', 'x-forwarded-for': ip, ...extraHeaders };
-  if (token) headers.authorization = `Bearer ${token}`;
+  if (token) headers.cookie = `jy_admin_session=${token}`;
   if (origin) headers.origin = origin;
   const req = { method, headers, body, socket: {}, url };
   let resolveDone;
@@ -191,6 +191,13 @@ async function call(handler, { method = 'POST', body, token, origin, ip = '1.2.3
     data = res.body ? JSON.parse(res.body) : null;
   } catch {
     data = res.body;
+  }
+  // The session token only travels as httpOnly cookie; surface it as data.token for the checks below.
+  const cookie = String(res.headers['set-cookie'] || '');
+  const sessionValue = cookie.match(/^jy_admin_session=([^;]*)/)?.[1];
+  if (sessionValue && data && typeof data === 'object') {
+    if ('token' in data) throw new Error('session token leaked into JSON body');
+    data.token = sessionValue;
   }
   return { status: res.statusCode, data, headers: res.headers };
 }
@@ -264,6 +271,12 @@ check(r.data.ok === false, 'right token but non-owner username (even with "Nuri"
 r = await call(sync, { body: { action: 'setup_owner', setupToken: SETUP_TOKEN, username: OWNER, displayName: 'Owner', password: 'new-owner-pw' } });
 check(r.data.ok === true && r.data.token && r.data.account.role === 'owner' && noSecrets(r.data), 'owner setup → owner session, no hashes in response');
 const ownerToken = r.data.token;
+{
+  const c = String(r.headers['set-cookie'] || '');
+  check(/HttpOnly/.test(c) && /Secure/.test(c) && /SameSite=Strict/.test(c) && /Path=\/api\/sync/.test(c), 'session cookie is HttpOnly, Secure, SameSite=Strict, scoped to /api/sync');
+  const out = await call(sync, { body: { action: 'logout' }, token: ownerToken });
+  check(out.data.ok === true && /Max-Age=0/.test(String(out.headers['set-cookie'])), 'logout deletes the session cookie');
+}
 setEnv({ ADMIN_SETUP_TOKEN: undefined });
 r = await call(sync, { body: { action: 'setup_owner', setupToken: SETUP_TOKEN, username: OWNER, password: 'another-pw-1' } });
 check(r.data.code === 'setup_disabled', 'setup disabled once ADMIN_SETUP_TOKEN is removed');

@@ -611,6 +611,7 @@ export const AppContent: React.FC = () => {
             />
             {/* Old address; bookmarks and older e-mails still point here. */}
             <Route path="/admin" element={<Navigate to="/portal" replace />} />
+            <Route path="/privacy" element={<Navigate to="/datenschutz" replace />} />
 
             <Route path="/_design" element={<GalleryView />} />
             {/* Internal card comparison for design decisions: under /_design (robots.txt Disallow), not public. */}

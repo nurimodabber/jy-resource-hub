@@ -252,11 +252,23 @@ function b64url(input: Buffer | string): string {
   return Buffer.from(input).toString('base64url');
 }
 
-function signSession(acc: StoredAccount): { token: string; expiresAt: number } {
+const SESSION_COOKIE = 'jy_admin_session';
+
+/**
+ * The session lives only in an httpOnly cookie, so injected page scripts cannot read it.
+ * SameSite=Strict plus isSameOrigin() keep other sites from riding on it (CSRF).
+ */
+function sessionCookie(value: string, maxAgeSec: number): string {
+  return `${SESSION_COOKIE}=${value}; Path=/api/sync; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAgeSec}`;
+}
+
+/** Signs a session, sets it as cookie and answers with the public account (never the token). */
+function sendSession(res: ServerResponse, acc: StoredAccount): void {
   const expiresAt = Date.now() + SESSION_TTL_MS;
   const payload = b64url(JSON.stringify({ sub: acc.id, pv: passwordVersion(acc), exp: expiresAt }));
   const sig = b64url(crypto.createHmac('sha256', sessionSecret()).update(payload).digest());
-  return { token: `${payload}.${sig}`, expiresAt };
+  res.setHeader('Set-Cookie', sessionCookie(`${payload}.${sig}`, SESSION_TTL_MS / 1000));
+  sendJson(res, 200, { ok: true, expiresAt, account: publicAccount(acc) });
 }
 
 function readSession(token: string, state: AdminCloudState): StoredAccount | null {
@@ -683,9 +695,10 @@ async function readBody(req: IncomingMessage & { body?: any }): Promise<any> {
   return JSON.parse(raw || '{}');
 }
 
-function bearer(req: IncomingMessage): string {
-  const h = String(req.headers.authorization || '');
-  return h.startsWith('Bearer ') ? h.slice(7).trim() : '';
+function sessionToken(req: IncomingMessage): string {
+  const cookies = String(req.headers.cookie || '').split(';');
+  const hit = cookies.map((c) => c.trim()).find((c) => c.startsWith(`${SESSION_COOKIE}=`));
+  return hit ? hit.slice(SESSION_COOKIE.length + 1) : '';
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -855,8 +868,9 @@ const deny = (res: ServerResponse, status = 403, code = 'forbidden') => sendJson
 
 async function requireSession(ctx: Ctx): Promise<{ state: AdminCloudState; actor: StoredAccount } | null> {
   const state = await loadState();
-  const actor = readSession(bearer(ctx.req), state);
+  const actor = readSession(sessionToken(ctx.req), state);
   if (!actor) {
+    ctx.res.setHeader('Set-Cookie', sessionCookie('', 0));
     sendJson(ctx.res, 401, { ok: false, code: 'unauthorized' });
     return null;
   }
@@ -896,8 +910,7 @@ async function actionLogin({ req, res, body }: Ctx) {
   if (check.upgrade) Object.assign(acc, newPasswordFields(password), { updatedAt: Date.now() });
   acc.lastLoginAt = Date.now();
   if (check.upgrade) await saveState(state);
-  const session = signSession(acc);
-  sendJson(res, 200, { ok: true, ...session, account: publicAccount(acc) });
+  sendSession(res, acc);
 }
 
 /** One-time Owner setup/recovery: needs ADMIN_SETUP_TOKEN (remove it from Vercel afterwards). */
@@ -926,7 +939,7 @@ async function actionSetupOwner({ req, res, body }: Ctx) {
     lastLoginAt: now,
   });
   await saveState(state);
-  sendJson(res, 200, { ok: true, ...signSession(acc), account: publicAccount(acc) });
+  sendSession(res, acc);
 }
 
 async function actionSession(ctx: Ctx) {
@@ -1164,7 +1177,7 @@ async function actionChangePassword(ctx: Ctx) {
   Object.assign(actor, newPasswordFields(ctx.body.newPassword), { updatedAt: Date.now() });
   await saveState(state);
   // The old token is now invalid (password version changed); hand out a fresh one.
-  sendJson(ctx.res, 200, { ok: true, ...signSession(actor), account: publicAccount(actor) });
+  sendSession(ctx.res, actor);
 }
 
 async function actionListProposals(ctx: Ctx) {
@@ -1329,6 +1342,10 @@ const ACTIONS: Record<string, (ctx: Ctx) => Promise<void>> = {
   reset_password: actionResetPassword,
   delete_account: actionDeleteAccount,
   change_password: actionChangePassword,
+  logout: async ({ res }: Ctx) => {
+    res.setHeader('Set-Cookie', sessionCookie('', 0));
+    sendJson(res, 200, { ok: true });
+  },
   list_proposals: actionListProposals,
   accept: actionIssue,
   reject: actionIssue,
