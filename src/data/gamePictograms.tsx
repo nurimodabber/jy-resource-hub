@@ -246,11 +246,20 @@ export const CountTogetherIcon = make(
   </>,
 );
 
+// Huhn (Stufe am Boden) steigt per Bogenpfeil zum aufrechten Menschen auf
 export const EvolutionIcon = make(
   <>
-    <ellipse cx="4" cy="18.5" rx="2" ry="2.5" {...ink} />
-    <Fig x={10.5} s={0.6} />
-    <Fig x={18.5} s={1} />
+    <Knock id="jyp-evo" cut={<circle cx="9.4" cy="8.4" r=".6" fill="black" stroke="none" />}>
+      <g {...ink}>
+        <path d="M2 9.5l2.75 3.25c1-.5 2-.75 3-.75l.25-1.5h2l.25 2c.75.75 1.25 1.75 1.25 3 0 2.75-2.25 4.5-5 4.5S2 18.25 2 15.5z" />
+        <circle cx="9" cy="8.75" r="2.25" />
+        <path d="M7.25 6.75a1 1 0 0 1 1.5-1.25 1 1 0 0 1 1.75.25 1 1 0 0 1 .75 1.5z" />
+        <path d="M11 8l1.75.85L11 9.7z" />
+      </g>
+    </Knock>
+    <path d="M5.5 20v1.5M8 20v1.5" strokeWidth={1.75} />
+    <path d="M3 3h11M12 1l2 2-2 2" />
+    <Fig x={19} s={0.85} />
   </>,
 );
 
