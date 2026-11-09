@@ -1,17 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
 import { Blocks, Brush, Drama, HandHeart, House, Landmark, Music, Paintbrush, Palette, Sprout } from 'lucide-react';
-import type { ActivityItem, GamePurpose } from '../types';
+import type { ActivityItem } from '../types';
 
 export type Tone = 'green' | 'teal' | 'blue' | 'violet' | 'rose' | 'ochre';
-
-/** KONZEPT: Spiele bekommen den Ton ihrer Wirkung, damit man die Art des Spiels schon an der Kachel erkennt. */
-export const PURPOSE_TONE: Record<GamePurpose, Tone> = {
-  kennenlernen: 'ochre',
-  energie: 'rose',
-  zusammenarbeit: 'blue',
-  ruhe: 'teal',
-  raten: 'violet',
-};
 
 /** Ein Ton + ein Icon je Dienst-Bereich bzw. Kunstform. Farben stehen als CSS-Variablen in index.css (.tone-*). */
 const SERVICE: Record<string, { tone: Tone; icon: LucideIcon }> = {

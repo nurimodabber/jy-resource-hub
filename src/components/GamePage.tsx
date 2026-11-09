@@ -20,7 +20,6 @@ import { GameCard, EnergyDots } from './GameCard';
 import { ShareMenu } from './ui/ShareMenu';
 import { IconTile } from './ui/IconTile';
 import { getGameIcon } from '../data/gameIcons';
-import { PURPOSE_TONE } from '../data/activityTones';
 import { SegmentedControl } from './ui/SegmentedControl';
 import { tr } from './tools/common';
 
@@ -191,8 +190,8 @@ export const GamePage: React.FC<GamePageProps> = ({
           <header className="mb-4 sm:mb-5 space-y-2.5">
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-3">
-                <div className={`flex items-center gap-3 min-w-0 tone-${PURPOSE_TONE[game.purpose]}`}>
-                  <IconTile icon={getGameIcon(game.id)} size="lg" toneClass="tone-tile" />
+                <div className="flex items-center gap-3 min-w-0">
+                  <IconTile icon={getGameIcon(game.id)} size="lg" />
                   <span className="text-sm font-semibold text-text-secondary truncate">{categoryBadge}</span>
                 </div>
                 {/* Mobil: Merken/Teilen neben dem Icon statt in einer eigenen leeren Zeile */}
