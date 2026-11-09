@@ -199,6 +199,9 @@ async function call(handler, { method = 'POST', body, token, origin, ip = '1.2.3
     if ('token' in data) throw new Error('session token leaked into JSON body');
     data.token = sessionValue;
   }
+  const editValue = cookie.match(/^jy_edit_\d+=([^;]*)/)?.[1];
+  if (data && typeof data === 'object' && 'editToken' in data) throw new Error('edit code leaked into JSON body');
+  if (editValue && data && typeof data === 'object') data.editToken = editValue;
   return { status: res.statusCode, data, headers: res.headers };
 }
 
@@ -509,11 +512,17 @@ console.log('\n— Meine Beiträge: status, change requests, revising');
   const editToken = r.data?.editToken;
   const issue = fake.issues.get(num);
   check(r.data?.ok && typeof editToken === 'string' && editToken.length >= 40, 'submission returns an edit token for this device');
+  {
+    const c = String(r.headers['set-cookie'] || '');
+    check(c.startsWith(`jy_edit_${num}=`) && /HttpOnly/.test(c) && /Secure/.test(c) && /SameSite=Strict/.test(c) && /Path=\/api\/submit/.test(c), 'edit code comes only as HttpOnly, Secure, SameSite=Strict cookie for /api/submit');
+  }
+  const asCookie = (n, t) => ({ cookie: `jy_edit_${n}=${t}` });
   check(/<!--\s*jy-edit:[a-f0-9]{64}\s*-->/.test(issue.body) && !issue.body.includes(editToken), 'the public issue holds only the hash of the edit token');
   r = await call(sync, { method: 'GET', extraHeaders: {}, body: undefined, token: undefined, origin: undefined, ip: '8.8.0.2', url: `/api/sync?issues=${num},2,99999` });
   const st = Object.fromEntries((r.data?.items || []).map((x) => [x.number, x]));
   check(r.data?.ok && st[num]?.status === 'pending' && st[2]?.status === 'unknown' && st[99999]?.status === 'unknown', 'status: own entry pending; non-proposal and missing issues read as unknown');
   check(/s-maxage=30/.test(String(r.headers['cache-control'])), 'status answers are cached briefly at the edge');
+  // Legacy path: entries from before 2026-11-10 send the code in the body.
   r = await call(submit, { body: { ...sub, action: 'update', issueNumber: num, editToken, title: 'Zu früh' }, ip: '8.8.0.3' });
   check(r.status === 409 && fake.issues.get(num).body.includes('Portal Spiel'), 'revising before the editors asked for changes → 409, nothing changed');
   r = await call(sync, { body: { action: 'request_changes', issueNumber: num, reason: '' }, token: ownerToken });
@@ -529,11 +538,11 @@ console.log('\n— Meine Beiträge: status, change requests, revising');
   r = await call(sync, { body: { action: 'list_proposals' }, token: ownerToken });
   const listedOwn = r.data.issues.find((i) => i.number === num);
   check(listedOwn && !/jy-(edit|review|contact)/.test(listedOwn.body), 'reviewers see the body without hidden markers');
-  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: num, editToken: 'x'.repeat(43), title: 'Fremd' }, ip: '8.8.0.5' });
+  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: num, title: 'Fremd' }, extraHeaders: asCookie(num, 'x'.repeat(43)), ip: '8.8.0.5' });
   check(r.status === 403 && !fake.issues.get(num).title.includes('Fremd'), 'revising with a wrong token → 403');
-  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: 2, editToken, title: 'Bug kapern' }, ip: '8.8.0.6' });
+  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: 2, title: 'Bug kapern' }, extraHeaders: asCookie(2, editToken), ip: '8.8.0.6' });
   check(r.status === 403 && fake.issues.get(2).title === 'Bug: something', 'the token cannot touch another issue');
-  r = await call(submit, { body: { ...sub, authorEmail: '', action: 'update', issueNumber: num, editToken, title: 'Portal Spiel neu', materials: ['Seil'] }, ip: '8.8.0.7' });
+  r = await call(submit, { body: { ...sub, authorEmail: '', action: 'update', issueNumber: num, title: 'Portal Spiel neu', materials: ['Seil'] }, extraHeaders: asCookie(num, editToken), ip: '8.8.0.7' });
   const revised = fake.issues.get(num);
   check(r.data?.ok && revised.title.includes('Portal Spiel neu') && revised.body.includes('Seil'), 'revising with the right token replaces the content');
   check(revised.labels.some((l) => l.name === 'vorschlag') && !revised.labels.some((l) => l.name === 'änderung-nötig'), 'after revising the entry is back in review');

@@ -65,7 +65,6 @@ export function purgeLegacyAdminStorage(): void {
     LEGACY_SENSITIVE_KEYS.forEach((k) => localStorage.removeItem(k));
     sessionStorage.removeItem('jy_admin_active_session');
     sessionStorage.removeItem('jy_admin_authenticated');
-    sessionStorage.removeItem('jy_admin_session_token'); // pre-cookie sessions
   } catch {
     /* storage unavailable */
   }

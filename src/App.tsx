@@ -610,7 +610,6 @@ export const AppContent: React.FC = () => {
               element={<AdminView language={language} setLanguage={setLanguage} />}
             />
             {/* Old address; bookmarks and older e-mails still point here. */}
-            <Route path="/admin" element={<Navigate to="/portal" replace />} />
             <Route path="/privacy" element={<Navigate to="/datenschutz" replace />} />
 
             <Route path="/_design" element={<GalleryView />} />

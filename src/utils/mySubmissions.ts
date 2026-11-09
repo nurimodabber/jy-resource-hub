@@ -1,8 +1,8 @@
 /**
  * "Meine Beiträge": the contributions sent from this device, without any account (owner decision,
- * 2026-11-07). The list lives in `jy_my_submissions` and is part of the backup. The edit tokens
- * live separately in `jy_submission_tokens` and never go into a backup (AGENTS.md rule 6): whoever
- * holds a token can revise that entry while the editors ask for changes.
+ * 2026-11-07). The list lives in `jy_my_submissions` and is part of the backup. The edit codes are
+ * httpOnly cookies set by /api/submit (since 2026-11-10), so scripts never see them. Older entries
+ * still have theirs in `jy_submission_tokens`, which never goes into a backup (AGENTS.md rule 6).
  */
 
 export type ContributionStatus = 'pending' | 'changes_requested' | 'accepted' | 'rejected' | 'deleted' | 'unknown';
@@ -59,20 +59,17 @@ function saveList(list: MySubmission[]): void {
   notify();
 }
 
+/** Legacy edit code (entries sent before 2026-11-10); newer ones live only in a cookie. */
 export function getEditToken(issueNumber: number): string | null {
   const tokens = read<Record<string, string>>(SUBMISSION_TOKENS_KEY, {});
   return typeof tokens[String(issueNumber)] === 'string' ? tokens[String(issueNumber)] : null;
 }
 
 /** Call after the server confirmed a new submission. */
-export function addMySubmission(entry: Omit<MySubmission, 'status' | 'seenStatus'>, editToken?: string): void {
+export function addMySubmission(entry: Omit<MySubmission, 'status' | 'seenStatus'>): void {
   const { authorEmail: _omit, ...form } = entry.form as Record<string, unknown> & { authorEmail?: unknown };
   const list = getMySubmissions().filter((s) => s.issueNumber !== entry.issueNumber);
   saveList([{ ...entry, form, status: 'pending', seenStatus: 'pending' }, ...list]);
-  if (editToken) {
-    const tokens = read<Record<string, string>>(SUBMISSION_TOKENS_KEY, {});
-    write(SUBMISSION_TOKENS_KEY, { ...tokens, [String(entry.issueNumber)]: editToken });
-  }
 }
 
 /** Call after the server confirmed a revision: the entry is back in review. */
