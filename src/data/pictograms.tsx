@@ -466,8 +466,8 @@ export const GameFallbackIcon = make(
 
 // ── Dienst-Bereiche ────────────────────────────────────────────
 
-/** Umwelt: Blatt (Material Symbols: eco). */
-export const EnvironmentIcon = make(<Mat d="M444-80q-42 0-78.5-8T298-112q32-119 87.5-230.5T535-529q-112 54-194.5 150T228-161q-4-4-7.5-7t-7.5-7q-45-45-69-103t-24-122q0-69 26-133t75-113q70-72 175-97t303-17q20 1 36.5 8.5T765-731q13 13 21 29.5t9 36.5q10 194-17 302t-99 180q-48 50-109 76.5T444-80Z" />);
+/** Umwelt: Hand, die etwas Wertvolles hält – Fürsorge (Material Symbols: volunteer_activism). */
+export const EnvironmentIcon = make(<Mat d="M549-53q8 2 17 2t17-2l297-91q0-54-30.5-80.5T762-251H587q-45 0-69.5-4.5T477-265l-61-21q-6-2-8.5-7.5T407-305q2-6 7.5-8.5t11.5-.5l59 19q24 8 44 11t46 3h73q8 0 13-5t5-13q0-23-16-45.5T604-378l-245-92q-5-2-10.5-3t-10.5-1h-83v337l294 84ZM40-140q0 25 17.5 42.5T100-80h34q25 0 42.5-17.5T194-140v-274q0-25-17.5-42.5T134-474h-34q-25 0-42.5 17.5T40-414v274Zm606-340q-11 0-22-4.5T604-497L482-616q-30-29-50-64.5T412-758q0-51 35.5-86.5T534-880q34 0 62 17.5t50 43.5q22-26 50-43.5t62-17.5q51 0 86.5 35.5T880-758q0 42-20 77.5T810-616L688-497q-9 8-20 12.5t-22 4.5Z" />);
 
 /** Nachbarschaft: zwei Häuser nebeneinander. */
 export const NeighborhoodIcon = make(
@@ -476,11 +476,19 @@ export const NeighborhoodIcon = make(
   </Knock>,
 );
 
-/** Generationen: Erwachsene Person führt ein Kind an der Hand (Material Symbols: escalator_warning). */
-export const GenerationsIcon = make(<Mat d="M260.08-727q-30.08 0-51.58-21.42t-21.5-51.5q0-30.08 21.42-51.58t51.5-21.5q30.08 0 51.58 21.42t21.5 51.5q0 30.08-21.42 51.58t-51.5 21.5ZM695-500q-25 0-42.5-17.5T635-560q0-25 17.5-42.5T695-620q25 0 42.5 17.5T755-560q0 25-17.5 42.5T695-500ZM190-110v-260h-40q-12.75 0-21.37-8.63Q120-387.25 120-400v-220q0-24.75 17.63-42.38Q155.25-680 180-680h152q17.45 0 31.72 9Q378-662 386-646l136 278 73-78q6-7 14.36-10.5 8.35-3.5 17.64-3.5h129q18.33 0 31.17 12.83Q800-434.33 800-416v136q0 13-8.5 21.5T770-250h-20v140q0 12.75-8.62 21.37Q732.75-80 720-80h-80q-12.75 0-21.37-8.63Q610-97.25 610-110v-273l-50 53q-5 5-10.5 7.5t-12.73 2.5h-36.94q-8.83 0-16.17-4.47-7.34-4.48-11.66-12.53L350-583v473q0 12.75-8.62 21.37Q332.75-80 320-80H220q-12.75 0-21.37-8.63Q190-97.25 190-110Z" />);
+/** Generationen: gebeugte ältere Person mit Gehstock hält ein Kind an der Hand. */
+export const GenerationsIcon = make(
+  <>
+    <circle cx="12" cy="5" r="2.5" {...ink} />
+    <path d="M7.25 21v-7c0-3.1 1.9-5.25 4.4-5.25 1.9 0 3.35 1.5 3.35 3.4V21h-3v-5h-1.5v5z" {...ink} />
+    <path d="M8.25 12.25L5.5 14.25M14.25 12.25l2.25 2.25" strokeWidth={LIMB} />
+    <path d="M3.5 21v-6.75a1 1 0 0 1 2 0" />
+    <Fig x={20} s={S} arms={[{ side: -1, to: [[-2.25, -0.5]] }]} />
+  </>,
+);
 
-/** Kinder: Kindergesicht (Material Symbols: child_care). */
-export const ChildrenIcon = make(<Mat d="M584-502q19 0 32-13t13-32q0-19-13-32t-32-13q-19 0-32 13t-13 32q0 19 13 32t32 13Zm-209 0q19 0 32-13t13-32q0-19-13-32t-32-13q-19 0-32 13t-13 32q0 19 13 32t32 13Zm105 216q54 0 101-29t73-80H306q26 51 73 80t101 29Zm0 166q-74 0-139.5-28.5T226-226q-49-49-77.5-114.5T120-480q0-74 28.5-139.5T226-734q49-49 114.5-77.5T480-840q74 0 139.5 28.5T734-734q49 49 77.5 114.5T840-480q0 74-28.5 139.5T734-226q-49 49-114.5 77.5T480-120Zm15-518q29 0 44-8.5t15-24.5q0-9-6.5-14.5T530-691q-7 0-15 1.5t-20 1.5q-25 0-41.5-16.5T437-746q0-10 1.5-20.5T442-784q-14 2-26 4.5t-26 7.5q-2 5-2.5 12.5T387-746q0 46 31 77t77 31Z" />);
+/** Kinder: Gruppe aus drei Köpfen, die mittlere vorn (Material Symbols: diversity_3). */
+export const ChildrenIcon = make(<Mat d="M40-190v-130q0-29 20.5-49.5T110-390h141q17 0 32.5 8.5T310-358q29 42 74 65t96 23q51 0 96-23t75-65q11-15 26-23.5t32-8.5h141q29 0 49.5 20.5T920-320v130q0 13-8.5 21.5T890-160H690q-13 0-21.5-8.5T660-190v-89q-36 33-82.5 51T480-210q-51 0-97-18t-83-51v89q0 13-8.5 21.5T270-160H70q-13 0-21.5-8.5T40-190Zm440-140q-35 0-67.5-16.5T360-392q-16-23-38.5-37T273-448q29-30 91-46t116-16q54 0 116.5 16t91.5 46q-26 5-48.5 19T601-392q-20 29-52.5 45.5T480-330ZM160-460q-45 0-77.5-32.5T50-570q0-46 32.5-78t77.5-32q46 0 78 32t32 78q0 45-32 77.5T160-460Zm640 0q-45 0-77.5-32.5T690-570q0-46 32.5-78t77.5-32q46 0 78 32t32 78q0 45-32 77.5T800-460ZM480-580q-45 0-77.5-32.5T370-690q0-46 32.5-78t77.5-32q46 0 78 32t32 78q0 45-32 77.5T480-580Z" />);
 
 /** Institutionen: Gebäude mit Giebel und Säulen. */
 export const InstitutionIcon = make(
@@ -507,11 +515,35 @@ export const ServiceFallbackIcon = make(
 
 // ── Kunstformen ────────────────────────────────────────────────
 
-/** Theater: lachende und weinende Maske (Material Symbols: theater_comedy). */
-export const DramaIcon = make(<Mat d="M275-80q-97 0-166-70.5T40-315v-207q0-24.75 17.63-42.38Q75.25-582 100-582h349q24.75 0 42.38 17.62Q509-546.75 509-522v207q0 94-68.25 164.5T275-80Zm-86-306q13.6 0 22.8-9.2 9.2-9.2 9.2-22.8 0-13.6-9.2-22.8-9.2-9.2-22.8-9.2-13.6 0-22.8 9.2-9.2 9.2-9.2 22.8 0 13.6 9.2 22.8 9.2 9.2 22.8 9.2Zm173 0q13.6 0 22.8-9.2 9.2-9.2 9.2-22.8 0-13.6-9.2-22.8-9.2-9.2-22.8-9.2-13.6 0-22.8 9.2-9.2 9.2-9.2 22.8 0 13.6 9.2 22.8 9.2 9.2 22.8 9.2Zm558-435v217q0 95-68.25 160T686-379q-23 0-44.5-3.5T599-394q-17-6-28.5-19.85Q559-427.69 559-445v-96q0-35.35-22.81-61.68Q513.39-629 478-629q-12 0-20.5-9t-8.5-21v-162q0-24.75 17.63-42.38Q484.25-881 509-881h351q24.75 0 42.38 17.62Q920-845.75 920-821ZM601-676q13.6 0 22.8-10 9.2-10 9.2-22 0-13.6-9.2-22.8-9.2-9.2-22.8-9.2-13.6 0-22.8 9.2-9.2 9.2-9.2 22.8 0 12 9.2 22t22.8 10Zm172 0q13.6 0 22.8-10 9.2-10 9.2-22 0-13.6-9.2-22.8-9.2-9.2-22.8-9.2-13.6 0-22.8 9.2-9.2 9.2-9.2 22.8 0 12 9.2 22t22.8 10Zm-87 76q-29 0-55.5 9T588-559q-6 10 1 19.5t19.86 9.5h154.28q12.86 0 19.86-9.5t1-19.5q-16-23-42.5-32t-55.5-9ZM277-231q29.44 0 55.72-9Q359-249 375-272q6-9.67-1-19.33-7-9.67-19.56-9.67H199.56Q187-301 180-291.33q-7 9.66-1 19.33 16 23 42.28 32t55.72 9Z" />);
+/** Theater: lachende Maske vorn, weinende dahinter, leicht gegeneinander gedreht; Augen und offene Münder ausgestanzt. */
+export const DramaIcon = make(
+  <>
+    <mask id="jyp-drama-back" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+      <rect width="24" height="24" fill="white" stroke="none" />
+      <path d="M2.5 9.5c3.1-1.6 6.4-1.6 9.5 0V14c0 2.9-2.1 5.25-4.75 5.25S2.5 16.9 2.5 14z" fill="black" stroke="black" strokeWidth={3} transform="rotate(-8 7.25 14)" />
+      <g transform="rotate(8 16.75 8)">
+        <path d="M13.75 7.25l2-.75M19.75 7.25l-2-.75" stroke="black" strokeWidth={1.75} />
+        <path d="M14.5 12.25a2.25 2 0 0 1 4.5 0z" fill="black" stroke="none" />
+      </g>
+    </mask>
+    <path d="M12 4c3.1-1.6 6.4-1.6 9.5 0v4.5c0 2.9-2.1 5.25-4.75 5.25S12 11.4 12 8.5z" {...ink} transform="rotate(8 16.75 8)" mask="url(#jyp-drama-back)" />
+    <mask id="jyp-drama-front" maskUnits="userSpaceOnUse" x="-4" y="-4" width="32" height="32">
+      <rect x="-4" y="-4" width="32" height="32" fill="white" stroke="none" />
+      <path d="M4.5 12.25c.55-.8 1.45-.8 2 0M8 12.25c.55-.8 1.45-.8 2 0" stroke="black" strokeWidth={1.75} fill="none" />
+      <path d="M5 14.5h4.5a2.25 2.25 0 0 1-4.5 0z" fill="black" stroke="none" />
+    </mask>
+    <path d="M2.5 9.5c3.1-1.6 6.4-1.6 9.5 0V14c0 2.9-2.1 5.25-4.75 5.25S2.5 16.9 2.5 14z" {...ink} transform="rotate(-8 7.25 14)" mask="url(#jyp-drama-front)" />
+  </>,
+);
 
-/** Musik und Poesie: Note (Material Symbols: music_note). */
-export const MusicIcon = make(<Mat d="M393-120q-63 0-106.5-43.5T243-270q0-63 43.5-106.5T393-420q28 0 50.5 8t39.5 22v-420q0-13 8.5-21.5T513-840h174q13 0 21.5 8.5T717-810v75q0 13-8.5 21.5T687-705H543v435q0 63-43.5 106.5T393-120Z" />);
+/** Musik und Poesie: eine große Achtelnote mit geschwungenem, spitz auslaufendem Fähnchen. */
+export const MusicIcon = make(
+  <g {...ink}>
+    <ellipse cx="8" cy="17.75" rx="4" ry="2.9" transform="rotate(-22 8 17.75)" />
+    <rect x="10.75" y="2.5" width="2" height="15.5" rx="1" />
+    <path d="M10.75 2.5h2c.4 2.6 2.4 3.9 4 5.4 1.7 1.6 2.6 4 1.4 7.1-.4-2.9-2.6-4.9-5.4-5.5V10h-2z" />
+  </g>,
+);
 
 /** Bildende Kunst: Palette mit Farbflecken. */
 export const PaletteIcon = make(
