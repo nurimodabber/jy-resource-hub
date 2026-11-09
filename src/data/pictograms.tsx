@@ -181,9 +181,10 @@ export const IceFloeIcon = make(
 /** Zaun aus zwei Pfosten und zwei Drähten mit Blitz, der Bogenpfeil führt darüber. */
 export const ElectricFenceIcon = make(
   <>
-    <path d="M4 12.5V21M20 12.5V21M4 14.5h4.75M14.5 14.5H20M4 18.5h5.25M14.5 18.5H20" />
+    <path d="M4 13V21M20 13V21M4 15h4.5M14.25 15H20M4 19h5.25M14.25 19H20" />
     <path d="M13.25 11l-3.5 5.25H12l-1.25 5.25 3.5-6H12z" {...ink} />
-    <path d="M4.5 9C6.5 3.5 17.5 3.5 19.5 9M17 7.25L19.5 9l.8-2.95" />
+    <path d="M5 10C5 5.5 8.5 3.5 12 3.5s7 2 7 4.75" />
+    <path d="M16.5 7.75h5L19 11.25z" {...ink} />
   </>,
 );
 
