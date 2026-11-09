@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -431,7 +432,35 @@ ${routes
     });
     fs.writeFileSync(path.join(DIST, '404.html'), notFoundHtml, 'utf8');
     console.log(`✅ Pre-rendered ${routes.length} static route HTML files + dist/404.html.`);
+
+    updateStyleCsp(baseHtml);
   }
+}
+
+/**
+ * CSP without 'unsafe-inline' for styles: allow exactly the inline <style> blocks we ship, by hash.
+ * There are two: the critical CSS inlined above and the one glisse injects at runtime. The hashes
+ * change with every CSS change, so the build writes them into vercel.json. Vercel reads vercel.json
+ * from the commit, so a deploy whose committed hashes are stale fails here instead of going live
+ * with unstyled pages.
+ */
+function updateStyleCsp(html) {
+  const sha = (text) => `'sha256-${crypto.createHash('sha256').update(text, 'utf8').digest('base64')}'`;
+  const critical = html.match(/<style id="jy-critical-css">([\s\S]*?)<\/style>/);
+  const glisseJs = fs.readFileSync(path.join(ROOT, 'node_modules/glisse/dist/index.js'), 'utf8');
+  const glisse = glisseJs.match(/var styles_default = ("(?:[^"\\]|\\.)*");/);
+  if (!critical || !glisse) throw new Error('CSP: inline style blocks not found (prerender or glisse changed)');
+  const styleSrc = `style-src 'self' ${sha(critical[1])} ${sha(JSON.parse(glisse[1]))}`;
+
+  const vercelPath = path.join(ROOT, 'vercel.json');
+  const raw = fs.readFileSync(vercelPath, 'utf8');
+  const next = raw.replace(/style-src [^;"]*/, styleSrc);
+  if (next === raw) return console.log('✅ CSP style hashes in vercel.json are current.');
+  if (process.env.VERCEL) {
+    throw new Error(`CSP style hashes in vercel.json are stale. Run npm run build locally and commit vercel.json. Expected: ${styleSrc}`);
+  }
+  fs.writeFileSync(vercelPath, next, 'utf8');
+  console.log('⚠️  Updated CSP style hashes in vercel.json. Commit it with this change.');
 }
 
 run().catch((err) => {
