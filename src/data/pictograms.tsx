@@ -116,25 +116,34 @@ export const HeliumStickIcon = make(
   </>,
 );
 
-/** Rufer links, Person mit Augenbinde tastet sich heran. */
+/** Begleitung führt die Person mit Augenbinde an der Hand und spricht mit ihr; Hütchen am Boden. */
 export const MinefieldIcon = make(
   <>
-    <Fig x={5} />
-    <path d="M9.25 4a3.5 3.5 0 0 1 0 5M11.75 2.75a6 6 0 0 1 0 7.5" />
-    <Knock id="jyp-mine" cut={<path d="M15.5 5.5h8" />}>
-      <Fig x={19} arms={[{ side: -1, to: [[-3.25, 0]] }]} />
+    <Fig x={5.5} arms={[{ side: 1, to: [[5.25, 3.5]] }]} />
+    <path d="M9.75 4a2.5 2.5 0 0 1 0 3.5M12 2.75a4.5 4.5 0 0 1 0 6" />
+    <Knock id="jyp-mine3" cut={<path d="M14 5.5h9" />}>
+      <Fig x={18.5} arms={[{ side: -1, to: [[-2.5, 3.5]] }]} />
     </Knock>
-    <path d="M16.25 5.5h-1.5l-.75 1.25" strokeWidth={1.5} />
+    <path d="M20.75 5.5l1.5 1.5" strokeWidth={1.5} />
+    <Knock id="jyp-cone" cut={<path d="M8 18.75h8" />}>
+      <path d="M10 21l1.5-4.5h1L14 21z" {...ink} />
+    </Knock>
   </>,
 );
 
-/** Ball rollt über Rohrstücke, die zwei Figuren hochhalten. */
+/** Zwei Figuren halten je ein schräges Rohrstück vor der Brust, der Ball rollt oben los. */
 export const BallRunIcon = make(
   <>
-    <circle cx="4.25" cy="3.75" r="1.75" {...ink} />
-    <path d="M2 6.5h9M13 6.5h9" />
-    <Fig x={6} s={S + 0.1} arms={[{ side: 1, to: [[1, -1], [0, -5.85]] }]} />
-    <Fig x={18} s={S + 0.1} arms={[{ side: -1, to: [[-1, -1], [0, -5.85]] }]} />
+    <mask id="jyp-pipe" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+      <rect width="24" height="24" fill="white" />
+      <path d="M2 12l9 2.25M13 14.5l9 2.25" stroke="black" strokeWidth={4.5} />
+    </mask>
+    <g mask="url(#jyp-pipe)">
+      <Fig x={7} s={M} />
+      <Fig x={17} s={M} />
+    </g>
+    <path d="M2 12l9 2.25M13 14.5l9 2.25" />
+    <circle cx="4" cy="9.5" r="1.75" {...ink} />
   </>,
 );
 
@@ -170,11 +179,15 @@ export const IceFloeIcon = make(
   </>,
 );
 
-/** Figur im Sprung über das Seil, Funke im Seil. */
+/** Hürdenspringer hoch über dem durchhängenden Seil, ein Blitz im Seil. */
 export const ElectricFenceIcon = make(
   <>
-    <path d="M3 12v9M21 12v9M3 15h4l1.5-2 2 4 1.5-2H21" />
-    <Fig x={12} base={12.25} s={0.55} arms={[{ side: -1, to: [[-2.5, -2.5]] }, { side: 1, to: [[2.5, -2.5]] }]} />
+    <path d="M5.5 14.5V21M18.5 14.5V21M5.5 15.5q6.5 3 13 0" />
+    <path d="M13.5 14.75l-3.25 3.75h2.25L11.25 21.5l3.25-4h-2.25z" {...ink} />
+    <circle cx="15.5" cy="3.5" r="2.25" {...ink} />
+    <path d="M11.25 10.5l1.75-3.75" strokeWidth={4} />
+    <path d="M11.25 10.75l6.75-.75 1.25 1.5M11.25 10.75L7.25 12 5.25 9.25" strokeWidth={2.75} />
+    <path d="M13.75 7.75l4.5-.5" strokeWidth={LIMB} />
   </>,
 );
 
@@ -219,14 +232,18 @@ export const ShrinkingIslandIcon = make(
   </>,
 );
 
-/** Zwei sitzen Rücken an Rücken, Arme eingehakt, und stehen auf. */
+/** Zwei in der Hocke, Rücken an Rücken und Arme eingehakt, drücken sich hoch. */
 export const BackToBackIcon = make(
   <>
-    <circle cx="9" cy="5.5" r="2.5" {...ink} />
-    <circle cx="15" cy="5.5" r="2.5" {...ink} />
-    <path d="M7 15.5V11a2 2 0 0 1 4 0v4.5zM13 15.5V11a2 2 0 0 1 4 0v4.5z" {...ink} />
-    <path d="M8 15.5l-3 2.5v3M16 15.5l3 2.5v3M10.5 12.5h3" strokeWidth={LIMB} />
-    <path d="M3 9.5V3M1 5l2-2 2 2" />
+    <circle cx="9.25" cy="4.5" r="2.25" {...ink} />
+    <circle cx="14.75" cy="4.5" r="2.25" {...ink} />
+    <path
+      d="M7 13V9.5a2.125 2.125 0 0 1 4.25 0V13a1.5 1.5 0 0 1-1.5 1.5H8.5A1.5 1.5 0 0 1 7 13zM12.75 13V9.5a2.125 2.125 0 0 1 4.25 0V13a1.5 1.5 0 0 1-1.5 1.5h-1.25a1.5 1.5 0 0 1-1.5-1.5z"
+      {...ink}
+    />
+    <path d="M9.5 13.25H7a2 2 0 0 0-2 2V20.5M14.5 13.25H17a2 2 0 0 1 2 2V20.5" strokeWidth={3} />
+    <path d="M10 10.75h4" strokeWidth={LIMB} />
+    <path d="M3 9.5V3.5M1.25 5.25L3 3.5l1.75 1.75M21 9.5V3.5M19.25 5.25L21 3.5l1.75 1.75" />
   </>,
 );
 
@@ -241,11 +258,16 @@ export const BallKeepUpIcon = make(
 
 // ── Spiele: Kennenlernen, Energie, Ruhe ───────────────────────
 
-/** Köpfe im Kreis, in der Mitte die Geschichte. */
+/** Drei Büsten, darüber eine gemeinsame Sprechblase, die weitergeht (…). */
 export const StoryCircleIcon = make(
   <>
-    {ring(6, 8.5, 2.25)}
-    <path d="M8.5 9h7a1.5 1.5 0 0 1 1.5 1.5V13a1.5 1.5 0 0 1-1.5 1.5h-3l-2 1.75V14.5h-2A1.5 1.5 0 0 1 7 13v-2.5A1.5 1.5 0 0 1 8.5 9z" />
+    <path d="M5.5 2h13A2.5 2.5 0 0 1 21 4.5v2A2.5 2.5 0 0 1 18.5 9H14l-2 2-2-2H5.5A2.5 2.5 0 0 1 3 6.5v-2A2.5 2.5 0 0 1 5.5 2z" />
+    <circle cx="8" cy="5.5" r="1.25" {...ink} />
+    <circle cx="12" cy="5.5" r="1.25" {...ink} />
+    <circle cx="16" cy="5.5" r="1.25" {...ink} />
+    <Bust x={5} head={15.25} r={2} w={3} />
+    <Bust x={12} head={15.25} r={2} w={3} />
+    <Bust x={19} head={15.25} r={2} w={3} />
   </>,
 );
 
@@ -304,12 +326,22 @@ export const NinjaIcon = make(
 
 // ── Spiele: Raten ──────────────────────────────────────────────
 
-/** Karte mit Fragezeichen auf der Stirn. */
+/** Zettel mit Fragezeichen klebt schräg auf der Stirn. */
 export const WhoAmIIcon = make(
   <>
-    <rect x="7" y="2" width="10" height="7" rx="1.5" />
-    <path d="M10.5 4.4a1.5 1.5 0 1 1 2.2 1.3c-.5.3-.7.6-.7 1.05" strokeWidth={1.75} />
-    <Bust x={12} head={12.75} r={2.75} w={6.5} />
+    <mask id="jyp-who-head" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+      <rect width="24" height="24" fill="white" />
+      <rect x="7" y=".5" width="10" height="9" rx="2" fill="black" transform="rotate(-8 12 5)" />
+    </mask>
+    <g mask="url(#jyp-who-head)">
+      <Bust x={12} head={11} r={3.5} w={6.5} />
+    </g>
+    <mask id="jyp-who-q" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+      <rect width="24" height="24" fill="white" />
+      <path d="M10.75 3.75a1.25 1.25 0 1 1 1.85 1.1c-.4.2-.6.45-.6.85" stroke="black" strokeWidth={1.5} fill="none" />
+      <circle cx="12" cy="7.5" r=".8" fill="black" />
+    </mask>
+    <rect x="8" y="1.5" width="8" height="7" rx="1" transform="rotate(-8 12 5)" mask="url(#jyp-who-q)" {...ink} />
   </>,
 );
 
