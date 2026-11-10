@@ -291,7 +291,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
       ogParams.set('title', isDe ? 'Impressum' : 'Legal Notice');
     } else if (pathname === '/datenschutz') {
       title = isDe ? 'Datenschutzerklärung — Juju Hub' : 'Privacy Policy — Juju Hub';
-      description = 'Datenschutz nach DSGVO: Keine Cookies, kein Tracking, 100 % lokale Speicherung auf deinem Gerät.';
+      description = 'Datenschutz nach DSGVO: kein Tracking, keine Werbung, so wenig Daten wie möglich.';
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Datenschutzerklärung' : 'Privacy Policy');
     } else if (pathname === '/nutzungsbedingungen') {

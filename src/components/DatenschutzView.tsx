@@ -141,6 +141,11 @@ export const DatenschutzView: React.FC<DatenschutzViewProps> = ({ language, onBa
               ? 'Damit du die Web-App komfortabel und offline nutzen kannst, werden deine persönlichen Einstellungen (Sprachwahl DE/EN, Farbschema, Lesezeichen/Merkliste sowie lokal in den Werkzeugen geführte Namenslisten) ausschließlich im lokalen Speicher deines Browsers (LocalStorage) abgelegt. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG (technisch erforderlich zur Bereitstellung der von dir aufgerufenen Funktionen). Diese Daten verlassen dein Gerät zu keinem Zeitpunkt.'
               : 'To enable offline functionality and preserve your preferences (language, theme mode, bookmarks, and local tool rosters), data is stored strictly in your browser’s local storage pursuant to § 25 (2) No. 2 TDDDG. These items never leave your device.'}
           </p>
+          <p>
+            {isDe
+              ? 'Zwei Cookies setzen wir nur, wenn du eine bestimmte Funktion nutzt. Beide sind technisch erforderlich und dienen nicht dem Tracking: Meldest du dich im Redaktionsportal an, hält das Cookie „jy_admin_session“ deine Anmeldung für höchstens 12 Stunden; beim Abmelden wird es gelöscht. Sendest du einen Vorschlag ein, speichert das Cookie „jy_edit_…“ für ein Jahr den Bearbeitungscode, mit dem du deinen Beitrag von diesem Gerät aus überarbeiten kannst, wenn die Redaktion darum bittet. Skripte auf Webseiten können diese Cookies nicht auslesen, dein Browser schickt sie nur an unseren eigenen Server. Du kannst sie jederzeit in den Einstellungen deines Browsers löschen. Rechtsgrundlage ist ebenfalls § 25 Abs. 2 Nr. 2 TDDDG.'
+              : 'We set two cookies only when you use a specific feature. Both are strictly necessary and are not used for tracking: if you sign in to the editors’ portal, the cookie “jy_admin_session” keeps you signed in for at most 12 hours and is deleted when you sign out. If you send a proposal, the cookie “jy_edit_…” keeps the edit code for one year, so you can revise your entry from this device if the editors ask for changes. Scripts on web pages cannot read these cookies; your browser sends them only to our own server. You can delete them at any time in your browser settings. The legal basis is likewise § 25 (2) No. 2 TDDDG.'}
+          </p>
 
           <div className="pt-2 flex items-center gap-3">
             <Button
