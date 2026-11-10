@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -158,6 +159,14 @@ async function run() {
       description: 'Angaben gemäß § 5 DDG für den Juju Hub.',
       ogType: 'website',
       ogQuery: 'type=section&title=Impressum',
+    },
+    {
+      path: '/nutzungsbedingungen',
+      priority: '0.3',
+      title: 'Nutzungsbedingungen — Juju Hub',
+      description: 'Regeln für die Nutzung von Juju Hub und für eigene Beiträge.',
+      ogType: 'website',
+      ogQuery: 'type=section&title=Nutzungsbedingungen',
     },
     {
       path: '/datenschutz',
@@ -330,12 +339,18 @@ ${routes
       }
     }
 
+    const legalHtml = await renderLegalPages();
+
     const buildStaticRootShell = (r) => {
+      // Privacy and imprint carry their full text, so they are readable without JavaScript.
+      const body = legalHtml[r.path]
+        ? `<div class="max-w-4xl mx-auto">${legalHtml[r.path]}</div>`
+        : null;
       const cleanHeading = r.title
         .replace(/\s*[—|]\s*Juju Hub.*$/, '')
         .replace(/\s*–\s*(Spiel|Zitat|Dienstprojekt|Kunst & Ausdruck|Werkzeug).*$/, '');
       const leadText = `${r.description} Entwickelt für Animatoren von Bahá’í-Juniorjugendgruppen (11 bis 15 Jahre) zur Vorbereitung am Laptop und für den unmittelbaren Live-Einsatz auf dem Smartphone in der Gruppe – inklusive Offline-Unterstützung, Filterung nach Gruppengröße und Energielevel sowie interaktiven Werkzeuge für Treffen und Camps.`;
-      return `<div id="root"><div class="min-h-screen bg-bg text-text flex flex-col"><header class="sticky top-0 z-40 h-16 bg-surface border-b border-border flex items-center px-4 sm:px-6"><span class="font-bold text-base text-text">Juju Hub</span></header><main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-28"><div class="max-w-4xl mx-auto space-y-6"><section class="space-y-3"><h1 class="text-2xl sm:text-3xl font-bold text-text tracking-tight">${escapeHtml(cleanHeading)}</h1><p class="text-base sm:text-lg text-text leading-relaxed">${escapeHtml(leadText)}</p></section></div></main></div></div>`;
+      return `<div id="root"><div class="min-h-screen bg-bg text-text flex flex-col"><header class="sticky top-0 z-40 h-16 bg-surface border-b border-border flex items-center px-4 sm:px-6"><span class="font-bold text-base text-text">Juju Hub</span></header><main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-28">${body ?? `<div class="max-w-4xl mx-auto space-y-6"><section class="space-y-3"><h1 class="text-2xl sm:text-3xl font-bold text-text tracking-tight">${escapeHtml(cleanHeading)}</h1><p class="text-base sm:text-lg text-text leading-relaxed">${escapeHtml(leadText)}</p></section></div>`}</main><footer class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-8 flex gap-4 text-sm"><a href="/impressum" class="text-text-secondary">Impressum</a><a href="/privacy" rel="privacy-policy" class="text-text-secondary">Datenschutz · Privacy</a><a href="/terms" rel="terms-of-service" class="text-text-secondary">Nutzungsbedingungen · Terms</a></footer></div></div>`;
     };
 
     const buildRouteHtml = (r) => {
@@ -431,7 +446,54 @@ ${routes
     });
     fs.writeFileSync(path.join(DIST, '404.html'), notFoundHtml, 'utf8');
     console.log(`✅ Pre-rendered ${routes.length} static route HTML files + dist/404.html.`);
+
+    updateStyleCsp(baseHtml);
   }
+}
+
+/** Renders the real privacy and imprint components (scripts/legal-static.tsx) to static HTML. */
+async function renderLegalPages() {
+  const { createServer } = await import('vite');
+  const vite = await createServer({
+    root: ROOT,
+    configFile: false,
+    logLevel: 'error',
+    appType: 'custom',
+    server: { middlewareMode: true, hmr: false },
+    optimizeDeps: { noDiscovery: true, include: [] },
+  });
+  try {
+    const mod = await vite.ssrLoadModule('/scripts/legal-static.tsx');
+    return mod.renderLegalPages();
+  } finally {
+    await vite.close();
+  }
+}
+
+/**
+ * CSP without 'unsafe-inline' for styles: allow exactly the inline <style> blocks we ship, by hash.
+ * There are two: the critical CSS inlined above and the one glisse injects at runtime. The hashes
+ * change with every CSS change, so the build writes them into vercel.json. Vercel reads vercel.json
+ * from the commit, so a deploy whose committed hashes are stale fails here instead of going live
+ * with unstyled pages.
+ */
+function updateStyleCsp(html) {
+  const sha = (text) => `'sha256-${crypto.createHash('sha256').update(text, 'utf8').digest('base64')}'`;
+  const critical = html.match(/<style id="jy-critical-css">([\s\S]*?)<\/style>/);
+  const glisseJs = fs.readFileSync(path.join(ROOT, 'node_modules/glisse/dist/index.js'), 'utf8');
+  const glisse = glisseJs.match(/var styles_default = ("(?:[^"\\]|\\.)*");/);
+  if (!critical || !glisse) throw new Error('CSP: inline style blocks not found (prerender or glisse changed)');
+  const styleSrc = `style-src 'self' ${sha(critical[1])} ${sha(JSON.parse(glisse[1]))}`;
+
+  const vercelPath = path.join(ROOT, 'vercel.json');
+  const raw = fs.readFileSync(vercelPath, 'utf8');
+  const next = raw.replace(/style-src [^;"]*/, styleSrc);
+  if (next === raw) return console.log('✅ CSP style hashes in vercel.json are current.');
+  if (process.env.VERCEL) {
+    throw new Error(`CSP style hashes in vercel.json are stale. Run npm run build locally and commit vercel.json. Expected: ${styleSrc}`);
+  }
+  fs.writeFileSync(vercelPath, next, 'utf8');
+  console.log('⚠️  Updated CSP style hashes in vercel.json. Commit it with this change.');
 }
 
 run().catch((err) => {

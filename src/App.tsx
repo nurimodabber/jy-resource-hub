@@ -27,6 +27,7 @@ import { NotFoundView } from './components/NotFoundView';
 // Lazy-loaded secondary routes
 const ToolkitsView = lazy(() => import('./components/ToolkitsView').then(m => ({ default: m.ToolkitsView })));
 const ImpressumView = lazy(() => import('./components/ImpressumView').then(m => ({ default: m.ImpressumView })));
+const NutzungsbedingungenView = lazy(() => import('./components/NutzungsbedingungenView').then(m => ({ default: m.NutzungsbedingungenView })));
 const DatenschutzView = lazy(() => import('./components/DatenschutzView').then(m => ({ default: m.DatenschutzView })));
 const SavedView = lazy(() => import('./components/SavedView').then(m => ({ default: m.SavedView })));
 const GalleryView = lazy(() => import('./components/ui/Gallery').then(m => ({ default: m.Gallery })));
@@ -92,6 +93,7 @@ export const AppContent: React.FC = () => {
     if (root === 'saved') return 'saved';
     if (root === 'impressum') return 'impressum';
     if (root === 'datenschutz') return 'datenschutz';
+    if (root === 'nutzungsbedingungen') return 'nutzungsbedingungen';
     return 'home';
   }, [location.pathname]);
 
@@ -610,7 +612,12 @@ export const AppContent: React.FC = () => {
               element={<AdminView language={language} setLanguage={setLanguage} />}
             />
             {/* Old address; bookmarks and older e-mails still point here. */}
-            <Route path="/admin" element={<Navigate to="/portal" replace />} />
+            <Route path="/privacy" element={<Navigate to="/datenschutz" replace />} />
+            <Route
+              path="/nutzungsbedingungen"
+              element={<NutzungsbedingungenView language={language} onBack={() => handleTabChange('home')} />}
+            />
+            <Route path="/terms" element={<Navigate to="/nutzungsbedingungen" replace />} />
 
             <Route path="/_design" element={<GalleryView />} />
             {/* Internal card comparison for design decisions: under /_design (robots.txt Disallow), not public. */}
@@ -702,6 +709,12 @@ export const AppContent: React.FC = () => {
               >
                 {t.footerDatenschutz}
               </Link>
+              <Link
+                to="/nutzungsbedingungen"
+                className="inline-flex items-center justify-center h-[22px] font-medium text-text hover:text-accent transition-colors leading-none"
+              >
+                {t.footerTerms}
+              </Link>
             </div>
           </div>
 
@@ -729,11 +742,11 @@ export const AppContent: React.FC = () => {
             </div>
 
             {/* Zeile 2: Experimentell links, Kontakt / Impressum / Datenschutz rechts */}
-            <div className="flex items-center justify-between gap-3 text-2xs">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-2xs">
               <span className="inline-flex items-center justify-center h-[22px] text-2xs font-medium text-text-secondary px-2.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0 leading-none">
                 {t.footerExperimental}
               </span>
-              <div className="flex items-center gap-3.5 ml-auto font-medium text-text">
+              <div className="flex flex-wrap items-center justify-end gap-x-3.5 gap-y-1 ml-auto font-medium text-text">
                 <button
                   type="button"
                   onClick={() => setIsContactOpen(true)}
@@ -746,6 +759,9 @@ export const AppContent: React.FC = () => {
                 </Link>
                 <Link to="/datenschutz" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
                   {t.footerDatenschutz}
+                </Link>
+                <Link to="/nutzungsbedingungen" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
+                  {t.footerTerms}
                 </Link>
               </div>
             </div>

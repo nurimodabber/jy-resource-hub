@@ -3,11 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "redirects": [
-    {
-      "source": "/admin",
-      "destination": "/portal",
-      "permanent": false
-    }
+
   ],
   "rewrites": [
     {
@@ -71,6 +67,18 @@
       "destination": "/datenschutz/index.html"
     },
     {
+      "source": "/privacy",
+      "destination": "/datenschutz/index.html"
+    },
+    {
+      "source": "/nutzungsbedingungen",
+      "destination": "/nutzungsbedingungen/index.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/nutzungsbedingungen/index.html"
+    },
+    {
       "source": "/vorschlagen",
       "destination": "/vorschlagen/index.html"
     },
@@ -93,7 +101,11 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'sha256-BIPV5mTpMghcqwte1ezvOpGJ2e17QKZEJDLYzySIN0g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src https://www.bahaisongs.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' 'sha256-BIPV5mTpMghcqwte1ezvOpGJ2e17QKZEJDLYzySIN0g='; style-src 'self' 'sha256-JGq6s7QVv/M/DhTMbeiU6M8qJRJwzFhgiqsog9DerS8=' 'sha256-bVgAdEEAE/WP77lbqj8SwOiPhFzFKBkxOAXmIIIKEIM='; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src https://www.bahaisongs.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://juju-hub.vercel.app"
         },
         {
           "key": "X-Content-Type-Options",

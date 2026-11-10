@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:vorschau": "JY_MOCK_API=1 vite",
     "build": "node tests/design-lock.test.mjs && tsc && vite build && node scripts/prerender-meta.mjs",
     "test:design": "node tests/design-lock.test.mjs",
     "preview": "vite preview",

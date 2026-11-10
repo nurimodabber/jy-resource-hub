@@ -41,6 +41,7 @@ const SECTION_TITLE_KEY: Partial<Record<NavTab, TKey>> = {
   vorschlagen: 'tabProposalShort',
   impressum: 'footerImpressum',
   datenschutz: 'footerDatenschutz',
+  nutzungsbedingungen: 'footerTerms',
 };
 
 /** Detailseite = zweites Pfadsegment unter einem Listenbereich. Zurück führt immer zur Liste, nie ins Leere. */

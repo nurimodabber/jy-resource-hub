@@ -136,7 +136,7 @@ export interface EmpirePlayer {
   isEliminated: boolean;
 }
 
-export type NavTab = 'home' | 'games' | 'quotes' | 'service' | 'arts' | 'tools' | 'saved' | 'impressum' | 'datenschutz' | 'vorschlagen';
+export type NavTab = 'home' | 'games' | 'quotes' | 'service' | 'arts' | 'tools' | 'saved' | 'impressum' | 'datenschutz' | 'nutzungsbedingungen' | 'vorschlagen';
 
 export interface DevotionalSong {
   id: string;

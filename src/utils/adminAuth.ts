@@ -2,8 +2,9 @@
  * Admin authentication client.
  *
  * The server (/api/sync) is the only authority for accounts, passwords and permissions. This module
- * only holds what the UI needs to render: the signed session token (sessionStorage, per tab), the
- * signed-in account and the team list the server returned. Permission checks here are for showing
+ * only holds what the UI needs to render: the signed-in account (sessionStorage, per tab) and the
+ * team list the server returned. The session token itself is an httpOnly cookie that page scripts
+ * never see; the browser sends it to /api/sync on its own. Permission checks here are for showing
  * or hiding UI; the server re-checks every action. Nothing secret is written to localStorage.
  */
 
@@ -46,8 +47,8 @@ export interface AuthResult {
   errorEn?: string;
 }
 
-const SESSION_TOKEN_KEY = 'jy_admin_session_token';
-const SESSION_ACCOUNT_KEY = 'jy_admin_session_account';
+// Display only (name, role); the session itself is the httpOnly cookie.
+const SESSION_ACCOUNT_KEY = 'jy_admin_account';
 
 /**
  * Keys written by the old client-side auth. They held password hashes, a GitHub token and a
@@ -63,8 +64,6 @@ export const LEGACY_SENSITIVE_KEYS = [
 export function purgeLegacyAdminStorage(): void {
   try {
     LEGACY_SENSITIVE_KEYS.forEach((k) => localStorage.removeItem(k));
-    sessionStorage.removeItem('jy_admin_active_session');
-    sessionStorage.removeItem('jy_admin_authenticated');
   } catch {
     /* storage unavailable */
   }
@@ -143,20 +142,12 @@ export function getEffectivePermissions(account: AdminAccount | null | undefined
 
 // --- Session ------------------------------------------------------------------------------------
 
-export function getSessionToken(): string {
-  try {
-    return sessionStorage.getItem(SESSION_TOKEN_KEY) || '';
-  } catch {
-    return '';
-  }
-}
-
+/** UI hint only: whether this tab signed in. The server decides via the cookie. */
 export function hasAdminSession(): boolean {
-  return Boolean(getSessionToken());
+  return Boolean(getActiveSessionAccount());
 }
 
 export function getActiveSessionAccount(): AdminAccount | null {
-  if (!getSessionToken()) return null;
   try {
     const raw = sessionStorage.getItem(SESSION_ACCOUNT_KEY);
     return raw ? (JSON.parse(raw) as AdminAccount) : null;
@@ -165,14 +156,12 @@ export function getActiveSessionAccount(): AdminAccount | null {
   }
 }
 
-function storeSession(token: string | null, account: AdminAccount | null): void {
+function storeSession(account: AdminAccount | null): void {
   try {
-    if (token && account) {
-      sessionStorage.setItem(SESSION_TOKEN_KEY, token);
+    if (account) {
       sessionStorage.setItem(SESSION_ACCOUNT_KEY, JSON.stringify(account));
       sessionStorage.setItem('jy_admin_author', account.displayName);
     } else {
-      sessionStorage.removeItem(SESSION_TOKEN_KEY);
       sessionStorage.removeItem(SESSION_ACCOUNT_KEY);
     }
   } catch {
@@ -181,15 +170,15 @@ function storeSession(token: string | null, account: AdminAccount | null): void 
   window.dispatchEvent(new CustomEvent('jy_accounts_updated'));
 }
 
-/** Signs out locally (the server token simply expires). */
+/** `null` signs out: clears the local account and asks the server to delete the cookie. */
 export function setActiveSessionAccount(account: AdminAccount | null): void {
   if (!account) {
     teamAccounts = [];
-    storeSession(null, null);
+    storeSession(null);
+    void adminApi({ action: 'logout' });
     return;
   }
-  const token = getSessionToken();
-  if (token) storeSession(token, account);
+  if (hasAdminSession()) storeSession(account);
 }
 
 // --- Team list (from the last authenticated sync) -------------------------------------------------
@@ -214,20 +203,17 @@ export interface ApiResult {
   [key: string]: unknown;
 }
 
-/** POSTs an action to /api/sync with the session token. A 401 ends the local session. */
+/** POSTs an action to /api/sync; the browser adds the session cookie. A 401 ends the local session. */
 export async function adminApi<T extends ApiResult = ApiResult>(payload: Record<string, unknown>): Promise<T> {
-  const token = getSessionToken();
   try {
     const res = await fetch('/api/sync', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     const data = (await res.json().catch(() => ({}))) as T;
-    if (res.status === 401 && token) storeSession(null, null);
+    if (res.status === 401 && hasAdminSession()) storeSession(null);
     if (data && typeof data.ok === 'boolean') return data;
     return { ok: false, code: res.status === 503 ? 'not_configured' : 'network' } as T;
   } catch {
@@ -274,12 +260,12 @@ function fail(code: string | undefined): AuthResult {
   return { ok: false, code, ...describeAuthCode(code) };
 }
 
-type SessionResponse = ApiResult & { token?: string; account?: AdminAccount };
+type SessionResponse = ApiResult & { account?: AdminAccount };
 
 export async function verifyAdminLogin(username: string, password: string): Promise<AuthResult> {
   const res = await adminApi<SessionResponse>({ action: 'login', username: username.trim().toLowerCase(), password });
-  if (!res.ok || !res.token || !res.account) return fail(res.code);
-  storeSession(res.token, res.account);
+  if (!res.ok || !res.account) return fail(res.code);
+  storeSession(res.account);
   return { ok: true, account: res.account };
 }
 
@@ -291,8 +277,8 @@ export async function setupOwnerAccount(params: {
   password: string;
 }): Promise<AuthResult> {
   const res = await adminApi<SessionResponse>({ action: 'setup_owner', ...params, username: params.username.trim().toLowerCase() });
-  if (!res.ok || !res.token || !res.account) return fail(res.code);
-  storeSession(res.token, res.account);
+  if (!res.ok || !res.account) return fail(res.code);
+  storeSession(res.account);
   return { ok: true, account: res.account };
 }
 
@@ -330,9 +316,9 @@ export async function resetAdminAccountPasswordByOwner(targetAccountId: string, 
 
 export async function changeAdminPassword(currentPassword: string, newPassword: string): Promise<AuthResult> {
   const res = await adminApi<SessionResponse>({ action: 'change_password', currentPassword, newPassword });
-  if (!res.ok || !res.token || !res.account) return fail(res.code);
+  if (!res.ok || !res.account) return fail(res.code);
   // The old token died with the old password; keep working with the fresh one.
-  storeSession(res.token, res.account);
+  storeSession(res.account);
   return { ok: true, account: res.account };
 }
 

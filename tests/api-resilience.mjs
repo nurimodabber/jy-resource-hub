@@ -92,7 +92,7 @@ globalThis.fetch = async (input, init = {}) => {
 
 async function call(handler, { method = 'POST', body, token, ip = '1.2.3.4' } = {}) {
   const headers = { host: 'juju-hub.vercel.app', 'x-forwarded-for': ip, 'x-real-ip': ip };
-  if (token) headers.authorization = `Bearer ${token}`;
+  if (token) headers.cookie = `jy_admin_session=${token}`;
   const req = { method, headers, body, socket: {}, url: '/api/x' };
   let done;
   const finished = new Promise((r) => (done = r));
@@ -116,6 +116,13 @@ async function call(handler, { method = 'POST', body, token, ip = '1.2.3.4' } = 
     data = res.body ? JSON.parse(res.body) : null;
   } catch {
     data = res.body;
+  }
+  // The session token only travels as httpOnly cookie; surface it as data.token for the checks below.
+  const cookie = String(res.headers['set-cookie'] || '');
+  const sessionValue = cookie.match(/^jy_admin_session=([^;]*)/)?.[1];
+  if (sessionValue && data && typeof data === 'object') {
+    if ('token' in data) throw new Error('session token leaked into JSON body');
+    data.token = sessionValue;
   }
   return { status: res.statusCode, data, headers: res.headers };
 }

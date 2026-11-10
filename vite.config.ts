@@ -3,10 +3,14 @@ import react from '@vitejs/plugin-react';
 import { renderOgSvg } from './api/og';
 import syncHandler from './api/sync';
 import submitHandler from './api/submit';
+import { installMockGitHub } from './scripts/dev-mock-github.mjs';
 
 const ogApiPlugin = (): Plugin => ({
   name: 'jy-og-api-middleware',
   configureServer(server) {
+    // `npm run dev:vorschau`: full local preview with simulated GitHub and test accounts
+    // (scripts/dev-mock-github.mjs). Dev server only; never in a build or on Vercel.
+    if (process.env.JY_MOCK_API === '1') void installMockGitHub(syncHandler);
     server.middlewares.use('/api/og', (req, res) => {
       const url = new URL(req.url || '', 'http://localhost');
       const svg = renderOgSvg(url.searchParams);
