@@ -46,7 +46,6 @@ interface ProposalPayload {
   // Revising an entry after the editors asked for changes ("Änderung nötig")
   action?: 'update';
   issueNumber?: number;
-  editToken?: string;
 }
 
 /** Label set by the editors in /api/sync when they ask the contributor for changes. */
@@ -395,9 +394,8 @@ ${JSON.stringify(jsonDraft, null, 2)}
         repo: GITHUB_REPO,
         headers: ghHeaders,
         issueNumber: Number(payload.issueNumber),
-        // shortcut: entries sent before 2026-11-10 kept their code in localStorage and send it in the
-        // body; drop this fallback once those entries are decided.
-        editToken: readEditCookie(req, Number(payload.issueNumber)) || String(payload.editToken || ''),
+        // Only the httpOnly cookie counts; a code in the body is ignored.
+        editToken: readEditCookie(req, Number(payload.issueNumber)),
         title: noMentions(issueTitle),
         markdown: noMentions(markdownBody),
         newContact: authorEmail ? encryptContact({ name: authorName, email: authorEmail }) : '',

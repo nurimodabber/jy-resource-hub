@@ -1,13 +1,11 @@
 import { LEGACY_SENSITIVE_KEYS } from './adminAuth';
-import { SUBMISSION_TOKENS_KEY } from './mySubmissions';
 
 /**
  * Credentials, tokens and sessions never go into a backup file and can't be planted by importing
  * one (old backups may still contain a GitHub token or password hashes).
  */
-// Edit tokens for "Meine Beiträge" act like passwords for those entries: never in a backup file.
 const isBackupKey = (k: string): boolean =>
-  k.startsWith('jy_') && !LEGACY_SENSITIVE_KEYS.includes(k) && !k.startsWith('jy_admin_session') && k !== SUBMISSION_TOKENS_KEY;
+  k.startsWith('jy_') && !LEGACY_SENSITIVE_KEYS.includes(k) && !k.startsWith('jy_admin_session');
 
 /** Local-only data backup: everything the site stores lives under `jy_*` keys. */
 export const exportLocalData = (): string => {

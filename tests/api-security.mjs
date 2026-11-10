@@ -522,8 +522,7 @@ console.log('\n— Meine Beiträge: status, change requests, revising');
   const st = Object.fromEntries((r.data?.items || []).map((x) => [x.number, x]));
   check(r.data?.ok && st[num]?.status === 'pending' && st[2]?.status === 'unknown' && st[99999]?.status === 'unknown', 'status: own entry pending; non-proposal and missing issues read as unknown');
   check(/s-maxage=30/.test(String(r.headers['cache-control'])), 'status answers are cached briefly at the edge');
-  // Legacy path: entries from before 2026-11-10 send the code in the body.
-  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: num, editToken, title: 'Zu früh' }, ip: '8.8.0.3' });
+  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: num, title: 'Zu früh' }, extraHeaders: asCookie(num, editToken), ip: '8.8.0.3' });
   check(r.status === 409 && fake.issues.get(num).body.includes('Portal Spiel'), 'revising before the editors asked for changes → 409, nothing changed');
   r = await call(sync, { body: { action: 'request_changes', issueNumber: num, reason: '' }, token: ownerToken });
   check(r.status === 400 && r.data.code === 'note_required', 'change request without a note → 400');
@@ -538,6 +537,8 @@ console.log('\n— Meine Beiträge: status, change requests, revising');
   r = await call(sync, { body: { action: 'list_proposals' }, token: ownerToken });
   const listedOwn = r.data.issues.find((i) => i.number === num);
   check(listedOwn && !/jy-(edit|review|contact)/.test(listedOwn.body), 'reviewers see the body without hidden markers');
+  r = await call(submit, { body: { ...sub, action: 'update', issueNumber: num, editToken, title: 'Nur Body' }, ip: '8.8.0.4' });
+  check(r.status === 403 && !fake.issues.get(num).title.includes('Nur Body'), 'a code in the body (old way) is ignored → 403');
   r = await call(submit, { body: { ...sub, action: 'update', issueNumber: num, title: 'Fremd' }, extraHeaders: asCookie(num, 'x'.repeat(43)), ip: '8.8.0.5' });
   check(r.status === 403 && !fake.issues.get(num).title.includes('Fremd'), 'revising with a wrong token → 403');
   r = await call(submit, { body: { ...sub, action: 'update', issueNumber: 2, title: 'Bug kapern' }, extraHeaders: asCookie(2, editToken), ip: '8.8.0.6' });

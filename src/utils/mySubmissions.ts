@@ -1,8 +1,7 @@
 /**
  * "Meine Beiträge": the contributions sent from this device, without any account (owner decision,
  * 2026-11-07). The list lives in `jy_my_submissions` and is part of the backup. The edit codes are
- * httpOnly cookies set by /api/submit (since 2026-11-10), so scripts never see them. Older entries
- * still have theirs in `jy_submission_tokens`, which never goes into a backup (AGENTS.md rule 6).
+ * httpOnly cookies set by /api/submit, so scripts never see them and they are never in a backup.
  */
 
 export type ContributionStatus = 'pending' | 'changes_requested' | 'accepted' | 'rejected' | 'deleted' | 'unknown';
@@ -25,7 +24,6 @@ export interface MySubmission {
 }
 
 export const MY_SUBMISSIONS_KEY = 'jy_my_submissions';
-export const SUBMISSION_TOKENS_KEY = 'jy_submission_tokens';
 export const MY_SUBMISSIONS_EVENT = 'jy_my_submissions_updated';
 
 const read = <T,>(key: string, fallback: T): T => {
@@ -57,12 +55,6 @@ export function getMySubmissions(): MySubmission[] {
 function saveList(list: MySubmission[]): void {
   write(MY_SUBMISSIONS_KEY, list);
   notify();
-}
-
-/** Legacy edit code (entries sent before 2026-11-10); newer ones live only in a cookie. */
-export function getEditToken(issueNumber: number): string | null {
-  const tokens = read<Record<string, string>>(SUBMISSION_TOKENS_KEY, {});
-  return typeof tokens[String(issueNumber)] === 'string' ? tokens[String(issueNumber)] : null;
 }
 
 /** Call after the server confirmed a new submission. */
