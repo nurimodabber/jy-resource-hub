@@ -294,6 +294,11 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
       description = 'Datenschutz nach DSGVO: Keine Cookies, kein Tracking, 100 % lokale Speicherung auf deinem Gerät.';
       ogParams.set('type', 'section');
       ogParams.set('title', isDe ? 'Datenschutzerklärung' : 'Privacy Policy');
+    } else if (pathname === '/nutzungsbedingungen') {
+      title = isDe ? 'Nutzungsbedingungen — Juju Hub' : 'Terms of Use — Juju Hub';
+      description = isDe ? 'Regeln für die Nutzung von Juju Hub und für eigene Beiträge.' : 'Rules for using Juju Hub and for your contributions.';
+      ogParams.set('type', 'section');
+      ogParams.set('title', isDe ? 'Nutzungsbedingungen' : 'Terms of Use');
     } else if (pathname.startsWith('/_design')) {
       title = 'Designsystem — Juju Hub';
       description = 'Komponenten-Galerie und Design-Tokens des Juju Hub.';
