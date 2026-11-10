@@ -337,6 +337,13 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
               {t.datenschutzTitle}
             </Link>
             <Link
+              to="/nutzungsbedingungen"
+              onClick={onClose}
+              className="hover:text-text transition-colors py-1 min-h-[44px] inline-flex items-center"
+            >
+              {t.footerTerms}
+            </Link>
+            <Link
               to="/vorschlagen"
               onClick={onClose}
               className="hover:text-accent font-medium transition-colors py-1 min-h-[44px] inline-flex items-center"
