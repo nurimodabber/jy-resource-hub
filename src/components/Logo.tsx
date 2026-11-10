@@ -1,5 +1,7 @@
 import React from 'react';
-import logoPng from '../assets/logo.png';
+// Inlined as data URL (5.6 KB, above Vite's 4 KB default): the logo appears with the first render
+// instead of after a separate request, during which the browser showed the alt text.
+import logoPng from '../assets/logo.png?inline';
 
 interface LogoProps {
   className?: string;
@@ -10,7 +12,8 @@ interface LogoProps {
 export const Logo: React.FC<LogoProps> = ({
   className = 'w-6 h-6',
   size,
-  alt = 'Juju Hub Logo',
+  // Decorative: every use sits next to the site name or inside a labelled link.
+  alt = '',
 }) => {
   return (
     <img
