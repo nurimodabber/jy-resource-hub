@@ -30,7 +30,6 @@ import {
   MySubmission,
   MY_SUBMISSIONS_EVENT,
   addMySubmission,
-  getEditToken,
   getMySubmissions,
   markRevised,
   refreshStatuses,
@@ -163,14 +162,13 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
 
   const [searchParams] = useSearchParams();
   // Revision mode: the editors asked for changes ("Änderung nötig"). The edit code is an httpOnly
-  // cookie the server checks; only entries from before 2026-11-10 still send a stored code.
+  // cookie the server checks.
   const isEdit = searchParams.has('bearbeiten');
   const editNumber = /^\d+$/.test(searchParams.get('bearbeiten') || '') ? Number(searchParams.get('bearbeiten')) : null;
   const [mine, setMine] = useState<MySubmission[]>(getMySubmissions);
   const [statusChecked, setStatusChecked] = useState(!isEdit);
   const [revisionSent, setRevisionSent] = useState(false);
   const editEntry = editNumber !== null ? mine.find((s) => s.issueNumber === editNumber) : undefined;
-  const editToken = editNumber !== null ? getEditToken(editNumber) : null;
   const editProblem: 'device' | 'status' | null =
     !isEdit || revisionSent
       ? null
@@ -401,7 +399,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
       occasion: formData.occasion,
       clientTimestamp: mountTime,
       hp_website: formData.hp_website,
-      ...(isEdit && editNumber !== null ? { action: 'update' as const, issueNumber: editNumber, ...(editToken ? { editToken } : {}) } : {}),
+      ...(isEdit && editNumber !== null ? { action: 'update' as const, issueNumber: editNumber } : {}),
     };
 
     // Store in admin inbox queue for local review and live sync (a revision is not a new entry)
