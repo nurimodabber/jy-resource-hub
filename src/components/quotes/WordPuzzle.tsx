@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { RotateCcw, Undo2, CheckCircle2 } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
+import { tr } from '../tools/common';
 
 interface WordPuzzleProps {
   quote: QuoteItem;
@@ -61,21 +62,21 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
   const isCorrect = isComplete && placedTiles.every((t, i) => t.originalIndex === i);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-start sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.wordPuzzleSubtitle}</p>
         <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-control text-text self-start sm:self-auto shrink-0">
-          {placedTiles.length} / {originalWords.length} {t.wordsRemaining}
+          {placedTiles.length} / {originalWords.length} {tr(language)('Wörter gelegt', 'words placed')}
         </span>
       </div>
 
       {/* Assembly Zone */}
-      <div className="bg-surface rounded-card border border-border p-5 sm:p-8 shadow-xs space-y-4">
+      <div className="bg-surface rounded-card border border-border p-4 sm:p-8 shadow-xs space-y-4">
         <span className="text-2xs font-semibold text-text-tertiary block">
           {language === 'de' ? 'Zusammengesetzter Satz:' : 'Assembled Sentence:'}
         </span>
 
-        <div className="min-h-[110px] p-5 rounded-card bg-surface-2 border border-border flex flex-wrap items-center gap-2 font-serif text-lg sm:text-2xl text-text leading-relaxed">
+        <div className="min-h-[88px] p-3 sm:p-5 rounded-card bg-surface-2 border border-border flex flex-wrap items-center gap-2 font-serif text-lg sm:text-2xl text-text leading-relaxed">
           {placedTiles.length === 0 ? (
             <span className="text-sm font-sans text-text-tertiary italic">
               {language === 'de' ? 'Klicke unten auf die Wort-Bausteine, um zu beginnen...' : 'Tap the word chips below to start assembling...'}
@@ -116,8 +117,30 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
           </div>
         )}
 
+        {/* Word pool in the same card, right under the sentence: no scrolling between them on a phone. */}
+        {!isComplete && (
+        <div className="pt-4 border-t border-border space-y-3">
+          <span className="text-2xs font-semibold text-text-tertiary block">
+            {t.clickTilePrompt}
+          </span>
+
+          <div className="flex flex-wrap gap-2 pt-1">
+            {availableTiles.map((tile) => (
+              <button
+                type="button"
+                key={tile.id}
+                onClick={() => handleTileClick(tile)}
+                className="px-3.5 py-2 bg-surface-2 hover:bg-surface-raised text-text text-sm font-medium rounded-control border border-border shadow-xs transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center"
+              >
+                {tile.word}
+              </button>
+            ))}
+          </div>
+        </div>
+        )}
+
         {/* Toolbar */}
-        <div className="flex items-center justify-between pt-2 border-t border-border">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -144,28 +167,6 @@ export const WordPuzzle: React.FC<WordPuzzleProps> = ({ quote, language }) => {
         </div>
       </div>
 
-      {/* Available Word Chips Pool */}
-      <div className="bg-surface rounded-card border border-border p-5 sm:p-6 shadow-xs space-y-3">
-        <span className="text-2xs font-semibold text-text-tertiary block">
-          {t.clickTilePrompt}
-        </span>
-
-        <div className="flex flex-wrap gap-2 pt-1">
-          {availableTiles.length === 0 && !isComplete && (
-            <span className="text-xs text-text-secondary">Alle Wörter platziert.</span>
-          )}
-          {availableTiles.map((tile) => (
-            <button
-              type="button"
-              key={tile.id}
-              onClick={() => handleTileClick(tile)}
-              className="px-3.5 py-2 bg-surface-2 hover:bg-surface-raised text-text text-xs font-medium rounded-control border border-border shadow-xs transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center"
-            >
-              {tile.word}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

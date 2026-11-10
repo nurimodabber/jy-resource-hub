@@ -2,6 +2,9 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Shuffle } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
+import { splitWord } from './textParts';
+
+const keyOf = (word: string) => splitWord(word).core.toLowerCase();
 
 interface CodeClickerProps {
   quote: QuoteItem;
@@ -30,7 +33,7 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
 
   const pickRandomCodeWords = useCallback(() => {
     const uniqueCleanWords = Array.from(
-      new Set(rawWords.map((w) => w.replace(/[.,;:!?„"«»]/g, '').toLowerCase()))
+      new Set(rawWords.map(keyOf))
     ).filter((w) => w.length >= 2);
 
     if (uniqueCleanWords.length === 0) return;
@@ -49,22 +52,21 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
     pickRandomCodeWords();
   }, [pickRandomCodeWords]);
 
-  const handleToggleTaboo = (word: string) => {
-    const clean = word.replace(/[.,;:!?„"«»]/g, '').toLowerCase();
+  // Each tap moves a word to the next action (Klatschen, Schnippen, Stampfen) and then back to normal.
+  const handleToggleTaboo = (clean: string) => {
+    if (!clean) return;
     setTabooWords((prev) => {
       const next = { ...prev };
-      if (next[clean]) {
-        delete next[clean];
-      } else {
-        next[clean] = ACTIONS[0];
-      }
+      const pos = next[clean] ? ACTIONS.indexOf(next[clean]) : -1;
+      if (pos === ACTIONS.length - 1) delete next[clean];
+      else next[clean] = ACTIONS[pos + 1];
       return next;
     });
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-start sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.codeClickerSubtitle}</p>
         <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
           {Object.keys(tabooWords).length} {language === 'de' ? 'Aktionswörter aktiv' : 'Action words active'}
@@ -72,9 +74,9 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
       </div>
 
       {/* Main Reading Canvas */}
-      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-4 sm:p-10 shadow-xs space-y-4 sm:space-y-6">
         {/* Active Action Words Pills */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-border">
+        <div className="pb-3 border-b border-border">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold text-text-secondary">{t.codeWordsLabel}</span>
             {Object.entries(tabooWords).length === 0 ? (
@@ -87,52 +89,41 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
                   type="button"
                   key={word}
                   onClick={() => handleToggleTaboo(word)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold bg-accent-subtle text-accent-text border border-accent/20 cursor-pointer hover:bg-accent/20 transition-colors min-h-[36px]"
-                  title={language === 'de' ? 'Klicken zum Entfernen' : 'Click to remove'}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs bg-accent-subtle text-accent-text border border-accent/20 cursor-pointer hover:bg-accent/20 transition-colors min-h-[44px]"
+                  title={language === 'de' ? 'Klicken zum Wechseln' : 'Click to change'}
                 >
-                  <span className="capitalize">{word}</span>
-                  <span className="text-2xs text-accent-text font-bold">[{language === 'de' ? action.labelDe : action.labelEn}]</span>
+                  <span className="font-semibold">{word}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{language === 'de' ? action.labelDe : action.labelEn}</span>
                 </button>
               ))
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={pickRandomCodeWords}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs text-text hover:bg-surface-2 rounded-control transition-colors border border-border cursor-pointer min-h-[44px]"
-          >
-            <Shuffle className="w-3.5 h-3.5 text-accent-text" />
-            <span>{t.newCodeWords}</span>
-          </button>
         </div>
 
         {/* Text with replaced words */}
-        <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px]">
+        <div className="flex flex-wrap justify-center items-center gap-0 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px] pr-[var(--quote-gap)]">
           {rawWords.map((word, idx) => {
-            const clean = word.replace(/[.,;:!?„"«»]/g, '').toLowerCase();
-            const punctuation = word.replace(/[a-zA-ZäöüÄÖÜß0-9]/g, '');
-            const action = tabooWords[clean];
+            const { lead, core, trail } = splitWord(word);
+            const action = tabooWords[core.toLowerCase()];
 
             return (
               <button
                 type="button"
                 key={idx}
-                onClick={() => handleToggleTaboo(word)}
-                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-control font-serif text-xl sm:text-3xl ${
-                  action
-                    ? 'bg-accent-subtle text-accent-text font-bold border border-accent/30'
-                    : 'hover:bg-surface-2'
-                }`}
-                title={language === 'de' ? 'Klicken zum Umschalten' : 'Click to toggle'}
+                onClick={() => handleToggleTaboo(core.toLowerCase())}
+                className="cursor-pointer transition-colors duration-200 select-none px-1 min-h-[44px] rounded-control font-serif text-xl sm:text-3xl hover:bg-surface-2 outline-hidden focus-visible:ring-2 focus-visible:ring-accent"
+                title={language === 'de' ? 'Klicken zum Wechseln' : 'Click to change'}
               >
                 {action ? (
-                  <span className="inline-flex items-center gap-1">
-                    <span className="text-xs font-sans uppercase font-bold text-accent-text px-2 py-0.5 rounded-control bg-accent/20 border border-accent/40">
-                      [{language === 'de' ? action.labelDe : action.labelEn}]
+                  <>
+                    {lead}
+                    <span className="inline-flex items-center align-middle px-2.5 py-1 rounded-control bg-accent-subtle text-accent-text border border-accent/30 font-sans text-sm sm:text-base font-semibold">
+                      {language === 'de' ? action.labelDe : action.labelEn}
                     </span>
-                    <span className="opacity-70">{punctuation}</span>
-                  </span>
+                    {trail}
+                  </>
                 ) : (
                   word
                 )}
@@ -141,10 +132,19 @@ export const CodeClicker: React.FC<CodeClickerProps> = ({ quote, language }) => 
           })}
         </div>
 
+        {/* Shuffle sits under the text: it is used once per round and cost a line above the quote. */}
         <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-3 text-xs text-text-secondary">
+          <button
+            type="button"
+            onClick={pickRandomCodeWords}
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs text-text hover:bg-surface-2 rounded-control transition-colors border border-border cursor-pointer min-h-[44px]"
+          >
+            <Shuffle className="w-3.5 h-3.5 text-accent-text" />
+            <span>{t.newCodeWords}</span>
+          </button>
           <span className="font-serif italic">— {quote.source[language]}</span>
           <span className="text-2xs text-text-tertiary">
-            {language === 'de' ? 'Tipp: Klicke auf jedes Wort, um es als Aktionswort festzulegen.' : 'Tip: Click any word to set or unset it as an action trigger.'}
+            {language === 'de' ? 'Tippe auf ein Wort: Klatschen, Schnippen, Stampfen, dann wieder normal.' : 'Tap a word: clap, snap, stomp, then back to normal.'}
           </span>
         </div>
       </div>

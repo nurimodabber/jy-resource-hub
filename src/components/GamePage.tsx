@@ -191,7 +191,7 @@ export const GamePage: React.FC<GamePageProps> = ({
             <div className="space-y-1">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <IconTile icon={getGameIcon(game.id)} size="lg" />
+                  <IconTile icon={getGameIcon(game.id)} size="xl" />
                   <span className="text-sm font-semibold text-text-secondary truncate">{categoryBadge}</span>
                 </div>
                 {/* Mobil: Merken/Teilen neben dem Icon statt in einer eigenen leeren Zeile */}

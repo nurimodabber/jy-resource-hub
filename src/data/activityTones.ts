@@ -1,25 +1,30 @@
-import type { LucideIcon } from 'lucide-react';
-import { Blocks, Brush, Drama, HandHeart, House, Landmark, Music, Paintbrush, Palette, Sprout } from 'lucide-react';
+import type React from 'react';
 import type { ActivityItem } from '../types';
+import {
+  ChildrenIcon, CreativeIcon, DramaIcon, EnvironmentIcon, GenerationsIcon, InstitutionIcon, MuralIcon, MusicIcon,
+  NeighborhoodIcon, PaletteIcon, ServiceFallbackIcon,
+} from './pictograms';
+
+type ToneIcon = React.ComponentType<{ className?: string; strokeWidth?: number | string }>;
 
 export type Tone = 'green' | 'teal' | 'blue' | 'violet' | 'rose' | 'ochre';
 
 /** Ein Ton + ein Icon je Dienst-Bereich bzw. Kunstform. Farben stehen als CSS-Variablen in index.css (.tone-*). */
-const SERVICE: Record<string, { tone: Tone; icon: LucideIcon }> = {
-  environmental: { tone: 'green', icon: Sprout },
-  neighborhood: { tone: 'blue', icon: House },
-  intergenerational: { tone: 'ochre', icon: HandHeart },
-  children: { tone: 'rose', icon: Blocks },
-  institutional: { tone: 'violet', icon: Landmark },
-  creative: { tone: 'teal', icon: Paintbrush },
+const SERVICE: Record<string, { tone: Tone; icon: ToneIcon }> = {
+  environmental: { tone: 'green', icon: EnvironmentIcon },
+  neighborhood: { tone: 'blue', icon: NeighborhoodIcon },
+  intergenerational: { tone: 'ochre', icon: GenerationsIcon },
+  children: { tone: 'rose', icon: ChildrenIcon },
+  institutional: { tone: 'violet', icon: InstitutionIcon },
+  creative: { tone: 'teal', icon: CreativeIcon },
 };
 
-const ARTS: Record<string, { tone: Tone; icon: LucideIcon }> = {
-  drama: { tone: 'rose', icon: Drama },
-  music_poetry: { tone: 'violet', icon: Music },
-  visual_arts: { tone: 'teal', icon: Palette },
-  collaborative_mural: { tone: 'ochre', icon: Brush },
+const ARTS: Record<string, { tone: Tone; icon: ToneIcon }> = {
+  drama: { tone: 'rose', icon: DramaIcon },
+  music_poetry: { tone: 'violet', icon: MusicIcon },
+  visual_arts: { tone: 'teal', icon: PaletteIcon },
+  collaborative_mural: { tone: 'ochre', icon: MuralIcon },
 };
 
-export const activityTone = (a: ActivityItem): { tone: Tone; icon: LucideIcon } =>
-  (a.kind === 'dienst' ? SERVICE[a.category] : ARTS[a.artForm]) ?? { tone: 'blue', icon: a.kind === 'dienst' ? HandHeart : Palette };
+export const activityTone = (a: ActivityItem): { tone: Tone; icon: ToneIcon } =>
+  (a.kind === 'dienst' ? SERVICE[a.category] : ARTS[a.artForm]) ?? { tone: 'blue', icon: a.kind === 'dienst' ? ServiceFallbackIcon : PaletteIcon };
