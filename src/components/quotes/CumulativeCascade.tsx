@@ -49,9 +49,9 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Subtitle & Step Counter */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
+      <div className="flex items-start sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>
           {language === 'de'
             ? 'Lerne das Zitat schrittweise Satz für Satz: Neuer Abschnitt lesen, vorangegangene aus dem Kopf ergänzen.'
@@ -67,9 +67,9 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
       </div>
 
       {/* Main Cascade Steps Canvas */}
-      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-4 sm:p-10 shadow-xs space-y-4 sm:space-y-6">
         {/* Step Indicator Progress Dots */}
-        <div className="flex items-center justify-center gap-2 pb-2">
+        <div className="flex items-center justify-center gap-2 sm:pb-2">
           {Array.from({ length: totalSteps + 1 }).map((_, idx) => {
             const isDone = idx < currentStep;
             const isCurrent = idx === currentStep;
@@ -90,10 +90,13 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
         </div>
 
         {/* Phrases List with Stepwise Reveal */}
-        <div className="space-y-3 max-w-3xl mx-auto py-2">
+        <div className="space-y-2 sm:space-y-3 max-w-3xl mx-auto sm:py-2">
           {phrases.map((phrase, pIdx) => {
             const isPast = pIdx < currentStep;
             const isCurrent = pIdx === currentStep;
+            // Later lines stay out: faded they still gave the text away, and on a phone they pushed
+            // the "next step" button a full screen down.
+            if (!isPast && !isCurrent && !isFinalStep) return null;
 
             // In final step (currentStep === totalSteps), ALL phrases are hidden unless peeking
             const isHiddenFromMemory = isFinalStep ? !isPeeking : isPast && !isPeeking;
@@ -101,12 +104,10 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
             return (
               <div
                 key={pIdx}
-                className={`p-4 rounded-2xl border transition-all duration-300 flex items-start gap-3 ${
+                className={`p-3 sm:p-4 rounded-2xl border transition-all duration-300 flex items-start gap-3 ${
                   isCurrent
                     ? 'bg-accent/10 border-accent/40 shadow-xs'
-                    : isPast
-                    ? 'bg-surface-2/60 border-border/60'
-                    : 'opacity-20 bg-surface-2/20 border-transparent pointer-events-none'
+                    : 'bg-surface-2/60 border-border/60'
                 }`}
               >
                 {/* Step badge */}
@@ -153,7 +154,7 @@ export const CumulativeCascade: React.FC<CumulativeCascadeProps> = ({ quote, lan
               <CheckCircle2 className="w-6 h-6 text-success shrink-0" />
               <div className="text-xs">
                 <strong className="font-semibold block text-sm text-success">
-                  {language === 'de' ? 'Meisterstufe erreicht.' : 'Master level unlocked.'}
+                  {language === 'de' ? 'Letzte Stufe erreicht.' : 'Final step reached.'}
                 </strong>
                 <span className="text-text-secondary">
                   {language === 'de'

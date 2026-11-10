@@ -71,7 +71,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
   const isFinished = currentIndex >= chunks.length - 1 && !isPlaying;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Top Header & Settings */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>
@@ -111,7 +111,7 @@ export const FlashReader: React.FC<FlashReaderProps> = ({ quote, language }) => 
       </div>
 
       {/* Main Flash Canvas */}
-      <div className="bg-surface rounded-card border border-border p-6 sm:p-12 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-4 sm:p-12 shadow-xs space-y-4 sm:space-y-6">
         {/* Progress Bar */}
         <div className="w-full bg-surface-2 h-1.5 rounded-full overflow-hidden border border-border">
           <div

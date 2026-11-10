@@ -3,6 +3,7 @@ import { RotateCcw, HelpCircle, CheckCircle2, Award, Keyboard } from 'lucide-rea
 import { QuoteItem, Language } from '../../types';
 import { SegmentedControl } from '../ui/SegmentedControl';
 import { splitWord, hasLetter, normalizeTyped } from './textParts';
+import { LetterSlots } from './LetterSlots';
 
 interface TypeRecallProps {
   quote: QuoteItem;
@@ -128,7 +129,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
     : Math.round((typedNormLength / Math.max(1, normQuote.length)) * 100);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Top Header & Mode Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>
@@ -155,7 +156,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
       {/* Main Typing Canvas */}
       <div
         onClick={() => inputRef.current?.focus()}
-        className={`bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6 cursor-text transition-all ${
+        className={`bg-surface rounded-card border border-border p-4 sm:p-10 shadow-xs space-y-4 sm:space-y-6 cursor-text transition-all ${
           shake ? 'ring-2 ring-danger/40 bg-danger/5' : ''
         }`}
       >
@@ -169,7 +170,7 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
 
         {/* Render for Mode 'initials' */}
         {mode === 'initials' && (
-          <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-center min-h-[140px] pr-[var(--quote-gap)]">
+          <div className="flex flex-wrap justify-center items-center gap-0 font-serif text-xl sm:text-3xl leading-relaxed text-center min-h-[140px] pr-[var(--quote-gap)]">
             {words.map((w, idx) => {
               const word = w.lead + w.core + w.trail;
               if (!hasLetter(w.core)) {
@@ -181,33 +182,27 @@ export const TypeRecall: React.FC<TypeRecallProps> = ({ quote, language }) => {
                   </span>
                 );
               }
-              const initial = w.core.charAt(0);
               const isTyped = askBefore[idx] < typedCount;
               const isCurrent = askBefore[idx] === typedCount;
 
               return (
                 <span
                   key={idx}
-                  className={`px-2 py-0.5 rounded-xl transition-all duration-150 select-none ${
+                  className={`px-1 py-0.5 rounded-control border transition-colors duration-150 select-none ${
                     isTyped
-                      ? 'text-success font-bold bg-success/15 border border-success/30'
+                      ? 'text-text border-transparent'
                       : isCurrent
-                      ? 'bg-accent/20 text-accent-text border border-accent ring-2 ring-accent/30 motion-safe:animate-pulse font-bold'
-                      : 'text-text-tertiary opacity-40'
+                      ? 'bg-accent-subtle text-accent-text border-accent'
+                      : 'text-text-tertiary border-transparent'
                   }`}
                 >
+                  {/* Untyped words show only their letter count: the first letter is what the group recalls. */}
                   {isTyped ? (
                     <span>{word}</span>
-                  ) : isCurrent ? (
-                    <span>
-                      <strong className="underline underline-offset-4">{initial}</strong>
-                      <span className="opacity-50">...</span>
-                    </span>
                   ) : (
                     <span>
                       {w.lead}
-                      {initial}
-                      <span className="opacity-40">{'_'.repeat(Math.max(1, w.core.length - 1))}</span>
+                      <LetterSlots text={w.core} language={language} />
                       {w.trail}
                     </span>
                   )}

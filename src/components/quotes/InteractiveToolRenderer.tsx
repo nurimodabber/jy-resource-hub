@@ -95,16 +95,30 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
 }) => {
   const isDe = language === 'de';
   const currentMethod = getToolMethod(tool);
+  const hasSwitcher = showSwitcher && !!onSelectTool;
+  const chipsRef = React.useRef<HTMLDivElement>(null);
+
+  // Keep the selected method visible in the sideways-scrolling row (scrollLeft, not scrollIntoView,
+  // which would also move the page while it scrolls to the tool).
+  React.useEffect(() => {
+    const row = chipsRef.current;
+    const chip = row?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!row || !chip) return;
+    const left = chip.offsetLeft - row.offsetLeft;
+    const hidden = left < row.scrollLeft || left + chip.offsetWidth > row.scrollLeft + row.clientWidth;
+    if (hidden) row.scrollLeft = left - 16;
+  }, [tool]);
 
   // No outer card: each tool already draws its own card, and a frame around it was a card in a card.
   return (
     <section 
       aria-label={currentMethod?.name[language] || (isDe ? 'Interaktive Web-App' : 'Interactive Web-App')}
-      className="space-y-4 animate-in fade-in duration-200"
+      className="space-y-3 sm:space-y-4 animate-in fade-in duration-200"
     >
-      {/* Tool Header */}
-      <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
-        <div className="min-w-0">
+      {/* Tool Header. On phones the method row takes the title's place next to the close button:
+          the selected chip already names the method, and the second line cost scrolling. */}
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-3 border-b border-border pb-2 sm:pb-0 sm:border-b-0">
+        <div className={`min-w-0 col-start-1 row-start-1 ${hasSwitcher ? 'hidden sm:block' : ''}`}>
           <h2 className="font-bold text-sm sm:text-base text-text truncate">
             {currentMethod?.name[language] || (isDe ? 'Interaktive Web-App' : 'Interactive Web-App')}
           </h2>
@@ -118,21 +132,21 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] shrink-0"
+          className="col-start-2 row-start-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-control text-xs font-semibold text-text-secondary hover:text-text hover:bg-surface-2 transition-colors cursor-pointer min-h-[44px] min-w-[44px] justify-center shrink-0"
           aria-label={isDe ? 'Web-App schließen' : 'Close Web-App'}
         >
           <X className="w-4 h-4" />
           <span className="hidden sm:inline">{isDe ? 'Web-App schließen' : 'Close Web-App'}</span>
         </button>
-      </div>
 
-      {/* Quick switcher to other web-apps */}
-      {showSwitcher && onSelectTool && (
-        <div className="space-y-1.5 pt-1">
-          <div className="text-2xs text-text-tertiary font-medium">
+        {/* Quick switcher to other web-apps */}
+        {hasSwitcher && (
+        <div className="col-start-1 row-start-1 sm:col-span-2 sm:row-start-2 min-w-0 space-y-1.5 sm:border-t sm:border-border sm:pt-4">
+          {/* Hidden on phones: the row of method names speaks for itself and the line cost scrolling. */}
+          <div className="hidden sm:block text-2xs text-text-tertiary font-medium">
             {isDe ? 'Andere Web-App wählen:' : 'Switch to another Web-App:'}
           </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+          <div ref={chipsRef} className="flex items-center gap-1.5 overflow-x-auto no-scrollbar sm:py-1">
             {INTERACTIVE_TOOLS.map(({ id: tId, methodId }) => {
               const m = QUOTE_METHODS_DATA.find((method) => method.id === methodId);
               if (!m) return null;
@@ -141,7 +155,7 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
                 <button
                   key={tId}
                   type="button"
-                  onClick={() => onSelectTool(tId)}
+                  onClick={() => onSelectTool?.(tId)}
                   className={`px-3 py-1.5 rounded-full text-xs whitespace-nowrap transition-all min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 select-none outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                     isActive
                       ? 'bg-accent text-accent-contrast font-semibold shadow-xs border border-accent'
@@ -155,7 +169,8 @@ export const InteractiveToolRenderer: React.FC<InteractiveToolRendererProps> = (
             })}
           </div>
         </div>
-      )}
+        )}
+      </div>
 
       {/* Simulator Component. Keyed by quote and language: tools keep word indices in state, and
           switching the quote while a tool is open rendered stale indices (crash in ClozeTest). */}

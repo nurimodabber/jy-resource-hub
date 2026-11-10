@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { CheckCircle2, RotateCcw, HelpCircle } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { splitWord } from './textParts';
+import { LetterSlots } from './LetterSlots';
 
 interface ClozeTestProps {
   quote: QuoteItem;
@@ -120,7 +121,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
   }, [allFilled, blankIndices, wordParts, filledWords]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Top Bar with Difficulty & Status */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>
@@ -146,15 +147,15 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                 ? (language === 'de' ? 'Leicht' : 'Easy')
                 : d === 'medium'
                 ? (language === 'de' ? 'Mittel' : 'Medium')
-                : (language === 'de' ? 'Meister' : 'Master')}
+                : (language === 'de' ? 'Schwer' : 'Hard')}
             </button>
           ))}
         </div>
       </div>
 
       {/* Main Quote Canvas with Interactive Blanks */}
-      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
-        <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-3 font-serif text-lg sm:text-2xl leading-relaxed text-text text-center min-h-[140px] pr-[var(--quote-gap)]">
+      <div className="bg-surface rounded-card border border-border p-4 sm:p-10 shadow-xs space-y-4 sm:space-y-6">
+        <div className="flex flex-wrap justify-center items-center gap-0 font-serif text-lg sm:text-2xl leading-relaxed text-text text-center min-h-[140px] pr-[var(--quote-gap)]">
           {rawWords.map((word, idx) => {
             const isBlank = blankIndices.includes(idx);
             const { lead, core: cleanExpected, trail } = wordParts[idx];
@@ -186,7 +187,7 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                       setSelectedBlank(idx);
                     }
                   }}
-                  className={`min-w-[70px] sm:min-w-[90px] px-3 py-1.5 rounded-control text-base sm:text-xl font-medium font-serif border transition-all cursor-pointer select-none inline-block min-h-[44px] ${
+                  className={`px-2.5 py-1 rounded-control text-lg sm:text-2xl font-serif border transition-all cursor-pointer select-none inline-block min-h-[44px] outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                     isSlotCorrect
                       ? 'bg-success/15 border-success/40 text-success font-semibold'
                       : isSlotWrong
@@ -199,13 +200,47 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
                   }`}
                   title={currentVal ? (language === 'de' ? 'Klicken zum Entfernen' : 'Click to remove') : (language === 'de' ? 'Klicken zum Auswählen' : 'Click to select')}
                 >
-                  {currentVal ? `${currentVal}${trail}` : '______'}
+                  {currentVal ? `${currentVal}${trail}` : <LetterSlots text={cleanExpected} language={language} />}
                 </button>
                 {trail && !currentVal && <span className="select-none">{trail}</span>}
               </span>
             );
           })}
         </div>
+
+        {/* Word Pool: directly under the text, so on a phone the words are near their gaps. */}
+        {!isAllCorrect && (
+          <div className="pt-4 border-t border-border space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-2xs font-semibold text-text-tertiary block">
+                {language === 'de' ? 'Wortspeicher (Klicken zum Einfügen):' : 'Word Pool (Click to insert):'}
+              </span>
+              <span className="text-2xs text-text-tertiary">
+                {Object.keys(filledWords).length} / {blankIndices.length} {language === 'de' ? 'eingesetzt' : 'placed'}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {candidatePool.map((word, pIdx) => {
+                // Used words leave the pool, so it shrinks as the gaps fill (less scrolling on a phone).
+                // With duplicates ("Liebe" twice) the first copies are the used ones.
+                const copiesBefore = candidatePool.slice(0, pIdx).filter((w) => w === word).length;
+                if (copiesBefore < (usedCandidates[word] || 0)) return null;
+
+                return (
+                  <button
+                    key={`${word}-${pIdx}`}
+                    type="button"
+                    onClick={() => handleSelectWordForBlank(word)}
+                    className="px-3.5 py-2 rounded-control text-sm font-medium border shadow-xs transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center bg-surface-2 hover:bg-surface-raised border-border text-text hover:border-accent"
+                  >
+                    {word}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Success Banner */}
         {allFilled && isAllCorrect && (
@@ -275,44 +310,6 @@ export const ClozeTest: React.FC<ClozeTestProps> = ({ quote, language }) => {
         </div>
       </div>
 
-      {/* Word Pool */}
-      {!isAllCorrect && (
-        <div className="bg-surface rounded-card border border-border p-5 sm:p-6 shadow-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-2xs font-semibold text-text-tertiary block">
-              {language === 'de' ? 'Wortspeicher (Klicken zum Einfügen):' : 'Word Pool (Click to insert):'}
-            </span>
-            <span className="text-2xs text-text-tertiary">
-              {Object.keys(filledWords).length} / {blankIndices.length} {language === 'de' ? 'eingesetzt' : 'placed'}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2 pt-1">
-            {candidatePool.map((word, pIdx) => {
-              // Check how many times this word appears in pool vs used
-              const totalInPool = candidatePool.filter((w) => w === word).length;
-              const timesUsed = usedCandidates[word] || 0;
-              const isExhausted = timesUsed >= totalInPool;
-
-              return (
-                <button
-                  key={`${word}-${pIdx}`}
-                  type="button"
-                  disabled={isExhausted}
-                  onClick={() => handleSelectWordForBlank(word)}
-                  className={`px-3.5 py-2 rounded-control text-xs font-medium border shadow-xs transition-all select-none cursor-pointer min-h-[44px] flex items-center justify-center ${
-                    isExhausted
-                      ? 'opacity-30 border-border bg-surface-2 text-text-tertiary pointer-events-none'
-                      : 'bg-surface-2 hover:bg-surface-raised border-border text-text  hover:border-accent'
-                  }`}
-                >
-                  {word}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

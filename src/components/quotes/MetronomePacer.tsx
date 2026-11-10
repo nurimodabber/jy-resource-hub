@@ -78,16 +78,16 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-start sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.metronomeSubtitle}</p>
         <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-control text-text self-start sm:self-auto shrink-0">
-          {bpm} BPM (4/4 Takt)
+          {language === 'de' ? `${bpm} Schläge pro Minute` : `${bpm} beats per minute`}
         </span>
       </div>
 
       {/* Main Studio Canvas with Pulsing Highlighting */}
-      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-4 sm:p-10 shadow-xs space-y-4 sm:space-y-6">
         {/* Visual Beat Indicator (4 dots) */}
         <div className="flex items-center justify-center gap-3 pb-2">
           {[0, 1, 2, 3].map((b) => {
@@ -106,13 +106,13 @@ export const MetronomePacer: React.FC<MetronomePacerProps> = ({ quote, language 
         </div>
 
         {/* Text with active beat tracking */}
-        <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px]">
+        <div className="flex flex-wrap justify-center items-center gap-0 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px] pr-[var(--quote-gap)]">
           {rawWords.map((word, idx) => {
             const isActive = isPlaying && activeWordIndex === idx;
             return (
               <span
                 key={idx}
-                className={`px-2 py-0.5 rounded-xl transition-all duration-150 select-none ${
+                className={`px-1 py-0.5 rounded-xl transition-all duration-150 select-none ${
                   isActive
                     ? 'bg-accent text-accent-contrast shadow-xs font-bold scale-105'
                     : 'text-text'
