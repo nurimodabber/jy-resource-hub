@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Eraser, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { QuoteItem, Language } from '../../types';
 import { UI_TRANSLATIONS } from '../../data/translations';
+import { splitWord } from './textParts';
+import { LetterSlots } from './LetterSlots';
 
 interface ChalkboardProps {
   quote: QuoteItem;
@@ -31,19 +33,19 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
   const visibleCount = currentWords.length - hiddenIndices.length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-start sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.boardSubtitle}</p>
         <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-lg text-text self-start sm:self-auto shrink-0">
           {visibleCount} / {currentWords.length} {t.wordsRemaining}
         </span>
       </div>
 
-      <div className="bg-surface rounded-card border border-border p-6 sm:p-12 text-center space-y-6 shadow-xs">
-        <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text min-h-[140px]">
+      <div className="bg-surface rounded-card border border-border p-4 sm:p-12 text-center space-y-4 sm:space-y-6 shadow-xs">
+        <div className="flex flex-wrap justify-center items-center gap-0 font-serif text-xl sm:text-3xl leading-relaxed text-text min-h-[140px] pr-[var(--quote-gap)]">
           {currentWords.map((word, idx) => {
             const isHidden = hiddenIndices.includes(idx);
-            const punctuation = word.replace(/[a-zA-ZäöüÄÖÜß0-9]/g, '');
+            const { lead, core, trail } = splitWord(word);
 
             return (
               <button
@@ -54,31 +56,29 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
                     prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
                   );
                 }}
-                className={`cursor-pointer transition-all duration-200 select-none px-2 py-0.5 rounded-control font-serif text-xl sm:text-3xl focus:outline-hidden ${
+                className={`cursor-pointer transition-all duration-200 select-none px-1 min-h-[44px] rounded-control font-serif text-xl sm:text-3xl outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                   isHidden
-                    ? 'text-text-tertiary border-b-2 border-border opacity-40 tabular-nums tracking-widest'
+                    ? 'text-text-tertiary hover:bg-surface-2'
                     : 'text-text hover:text-accent-text hover:bg-surface-2'
                 }`}
                 title={language === 'de' ? 'Klicken zum Ein-/Ausblenden' : 'Click to toggle'}
               >
-                {isHidden ? `____${punctuation}` : word}
+                {isHidden ? (
+                  <>
+                    {lead}
+                    <LetterSlots text={core} language={language} />
+                    {trail}
+                  </>
+                ) : (
+                  word
+                )}
               </button>
             );
           })}
         </div>
 
-        {allHidden ? (
-          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-center gap-2 text-success font-semibold text-xs animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-success" />
-            <span>{t.allWordsHidden}</span>
-          </div>
-        ) : (
-          <p className="text-xs text-text-tertiary font-serif italic">
-            — {quote.source[language]} ({quote.book[language]})
-          </p>
-        )}
-
-        <div className="flex items-center justify-center gap-3 pt-3 border-t border-border">
+        {/* Buttons right under the text: on a phone they stay on screen while words disappear. */}
+        <div className="flex items-center justify-center gap-3">
           <button
             type="button"
             onClick={handleEraseMoreWords}
@@ -98,6 +98,17 @@ export const Chalkboard: React.FC<ChalkboardProps> = ({ quote, language }) => {
             <span>{t.resetBoard}</span>
           </button>
         </div>
+        {allHidden ? (
+          <div className="p-4 bg-success/10 border border-success/20 rounded-card flex items-center justify-center gap-2 text-success font-semibold text-xs animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-success" />
+            <span>{t.allWordsHidden}</span>
+          </div>
+        ) : (
+          <p className="text-xs text-text-tertiary font-serif italic pt-3 border-t border-border">
+            — {quote.source[language]} ({quote.book[language]})
+          </p>
+        )}
+
       </div>
     </div>
   );

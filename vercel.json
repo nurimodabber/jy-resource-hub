@@ -101,7 +101,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'sha256-2Lu6kTCsXi7Y1MzQuU/ODrXV5MYdH+mEpnZ3SkJOwlA='; style-src 'self' 'sha256-7dD56zVEhF9UPyb1wSssjnYWJdWCMjLVB8roltOBuVg=' 'sha256-bVgAdEEAE/WP77lbqj8SwOiPhFzFKBkxOAXmIIIKEIM='; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src https://www.bahaisongs.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' 'sha256-2Lu6kTCsXi7Y1MzQuU/ODrXV5MYdH+mEpnZ3SkJOwlA='; style-src 'self' 'sha256-scZr15ZhyNVkyxOzdmwkOegOq9Yw+FxSIH8bUMwZt38=' 'sha256-bVgAdEEAE/WP77lbqj8SwOiPhFzFKBkxOAXmIIIKEIM='; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src https://www.bahaisongs.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
         },
         {
           "key": "Access-Control-Allow-Origin",

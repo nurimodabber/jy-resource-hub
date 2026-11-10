@@ -70,8 +70,8 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-start sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.speedRunSubtitle}</p>
         {bestTimeMs !== null && (
           <span className="tabular-nums text-2xs bg-accent-subtle text-accent-text border border-accent/20 px-3 py-1 rounded-lg self-start sm:self-auto shrink-0 flex items-center gap-1.5 font-semibold">
@@ -82,7 +82,7 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
       </div>
 
       {/* Quote on its own calm card: no timer or trophy directly at the sacred text. */}
-      <figure className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs text-center space-y-2">
+      <figure className="bg-surface rounded-card border border-border p-4 sm:p-10 shadow-xs text-center space-y-2">
         <blockquote className="font-serif italic text-lg sm:text-2xl text-text leading-relaxed pr-[var(--quote-gap)]">
           {language === 'de' ? `„${quoteText}“` : `“${quoteText}”`}
         </blockquote>
@@ -92,7 +92,7 @@ export const SpeedRunTimer: React.FC<SpeedRunTimerProps> = ({ quote, language })
       </figure>
 
       {/* Stopwatch Card */}
-      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-surface rounded-card border border-border p-4 sm:p-10 shadow-xs space-y-4 sm:space-y-6">
         {/* Digital Stopwatch Display */}
         <div className="py-4 text-center space-y-2">
           <div className="tabular-nums text-5xl sm:text-7xl font-bold tracking-tight text-accent-text select-none">

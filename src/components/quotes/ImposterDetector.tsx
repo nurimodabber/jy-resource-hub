@@ -106,8 +106,8 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-text-secondary">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex items-start sm:items-center justify-between gap-3 text-xs text-text-secondary">
         <p>{t.imposterSubtitle}</p>
         <span className="tabular-nums text-2xs bg-surface-2 border border-border px-3 py-1 rounded-control text-text self-start sm:self-auto shrink-0">
           {isResolved ? '100% Original' : (language === 'de' ? '1 Fehler versteckt' : '1 Decoy hidden')}
@@ -115,8 +115,8 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
       </div>
 
       {/* Main Reading Canvas */}
-      <div className="bg-surface rounded-card border border-border p-6 sm:p-10 shadow-xs space-y-6">
-        <div className="flex flex-wrap justify-center items-center gap-x-2.5 gap-y-3 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px] pr-[var(--quote-gap)]">
+      <div className="bg-surface rounded-card border border-border p-4 sm:p-10 shadow-xs space-y-4 sm:space-y-6">
+        <div className="flex flex-wrap justify-center items-center gap-0 font-serif text-xl sm:text-3xl leading-relaxed text-text text-center min-h-[140px] pr-[var(--quote-gap)]">
           {rawWords.map((word, idx) => {
             const isImposter = idx === imposterIndex;
             const displayedWord = isImposter && !isResolved ? decoyWord : word;
@@ -127,7 +127,7 @@ export const ImposterDetector: React.FC<ImposterDetectorProps> = ({ quote, langu
                 type="button"
                 key={idx}
                 onClick={() => handleWordClick(idx)}
-                className={`cursor-pointer transition-all duration-200 select-none inline-flex items-center min-h-[44px] px-2 py-0.5 rounded-control font-serif text-xl sm:text-3xl outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`cursor-pointer transition-all duration-200 select-none inline-flex items-center min-h-[44px] px-1 rounded-control font-serif text-xl sm:text-3xl outline-hidden focus-visible:ring-2 focus-visible:ring-accent ${
                   isImposter && isResolved
                     ? 'bg-success/15 text-success font-bold border border-success/30'
                     : isShaking
