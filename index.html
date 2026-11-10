@@ -36,8 +36,9 @@
     <script>
       (function() {
         try {
+          document.documentElement.classList.add('js');
           var saved = localStorage.getItem('jy_theme');
-          var isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var isDark = saved === 'dark' || (saved !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
           if (isDark) {
             document.documentElement.classList.add('dark');
           } else {

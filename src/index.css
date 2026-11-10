@@ -585,6 +585,16 @@
 }
 
 /* Refined Micro-Motion Suite (Polished, Fast & Aesthetic) */
+/* Pre-rendered placeholder (crawlers, no JavaScript): hidden while the app loads, so a reload shows
+   only the page background. If the app never starts, it appears after 4 s. */
+.js .jy-static-shell {
+  visibility: hidden;
+  animation: jy-shell-fallback 0s linear 4s forwards;
+}
+@keyframes jy-shell-fallback {
+  to { visibility: visible; }
+}
+
 @keyframes pageFadeIn {
   from {
     opacity: 0;
