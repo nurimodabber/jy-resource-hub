@@ -10,8 +10,8 @@ export interface NutzungsbedingungenViewProps {
 
 type Text = { de: string; en: string };
 
-// ENTWURF (2026-11-10), vom Inhaber noch nicht freigegeben. Liability, licence for contributions and
-// governing law are legal statements: the owner decides them, ideally after a legal check.
+// Freigegeben vom Inhaber am 2026-11-10. Liability, licence for contributions and governing law are
+// legal statements: change them only with the owner.
 const SECTIONS: { title: Text; paragraphs: Text[] }[] = [
   {
     title: { de: '1. Worum es geht', en: '1. Scope' },
