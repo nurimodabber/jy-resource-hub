@@ -172,7 +172,7 @@ async function run() {
       path: '/datenschutz',
       priority: '0.3',
       title: 'Datenschutzerklärung — Juju Hub',
-      description: 'Datenschutz nach DSGVO: Keine Cookies, kein Tracking, 100 % lokale Speicherung.',
+      description: 'Datenschutz nach DSGVO: kein Tracking, keine Werbung, so wenig Daten wie möglich.',
       ogType: 'website',
       ogQuery: 'type=section&title=Datenschutz',
     },
