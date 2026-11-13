@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HelpCircle, Home, ChevronRight } from 'lucide-react';
+import { SearchX, Home, ChevronRight } from 'lucide-react';
 import { Language } from '../types';
 import { tr, primaryBtn } from './tools/common';
 
@@ -23,11 +23,10 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({ language }) => {
   return (
     <div className="max-w-2xl mx-auto py-12 px-4 text-center animate-in fade-in duration-200">
       <div className="w-16 h-16 rounded-3xl bg-accent/10 text-accent flex items-center justify-center mx-auto mb-6">
-        <HelpCircle className="w-8 h-8" />
+        <SearchX className="w-8 h-8" />
       </div>
 
-      <span className="text-xs font-bold text-accent-text">{L('Fehler 404', 'Error 404')}</span>
-      <h1 className="text-3xl sm:text-4xl font-serif font-bold text-text mt-2 mb-3">
+      <h1 className="text-3xl sm:text-4xl font-serif font-bold text-text mb-3">
         {isDe ? 'Seite nicht gefunden' : 'Page Not Found'}
       </h1>
       <p className="text-sm sm:text-base text-text-secondary max-w-md mx-auto mb-8">

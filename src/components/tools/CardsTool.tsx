@@ -177,7 +177,7 @@ export const CardsTool: React.FC<{ language: Language }> = ({ language }) => {
                     {formattedQuote}
                   </blockquote>
                   {card.source && (
-                    <cite className="not-italic block text-xs sm:text-sm text-text-secondary font-sans font-medium">
+                    <cite className="not-italic flex items-baseline gap-1 text-xs sm:text-sm text-text-secondary font-sans font-medium">
                       —{' '}
                       <a
                         href={getBahaiLibraryUrl(card.source[language], language)}

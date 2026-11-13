@@ -10,6 +10,7 @@ import {
   Play,
   BookOpen,
   Flame,
+  Check,
 } from 'lucide-react';
 import { Game, Language } from '../types';
 import { GAMES_DATA } from '../data/games';
@@ -334,7 +335,7 @@ export const GamePage: React.FC<GamePageProps> = ({
                                 : 'border-border-strong bg-surface'
                             }`}
                           >
-                            {isChecked && <span className="text-xs font-bold">✓</span>}
+                            {isChecked && <Check className="w-3.5 h-3.5" strokeWidth={3} aria-hidden="true" />}
                           </span>
                         </button>
 

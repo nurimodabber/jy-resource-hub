@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { Search, X, ArrowLeft, BookOpen, Tag, HeartHandshake, Palette } from 'lucide-react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { Search, X, BookOpen, Tag, HeartHandshake, Palette } from 'lucide-react';
 import { FilterToggle } from './ui/FilterToggle';
 import {
   Language,
@@ -276,20 +276,12 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
       return (
         <div className="max-w-3xl mx-auto py-12 px-4">
           <EmptyState
+            as="h1"
             title={t.activityNotFoundTitle}
             description={t.activityNotFoundDesc}
             actionLabel={overviewLabel}
             onAction={() => window.location.assign(overviewPath)}
           />
-          <div className="mt-6 text-center">
-            <Link
-              to={overviewPath}
-              className="inline-flex items-center gap-1.5 text-sm text-accent-text hover:underline"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {overviewLabel}
-            </Link>
-          </div>
         </div>
       );
     }
@@ -320,25 +312,22 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
     <div className="max-w-6xl mx-auto pb-20">
       {/* 1. Header: H1, one sentence, count on search/filter */}
       <header className="mb-6 sm:mb-8">
-        <div className="flex items-baseline gap-3.5 flex-wrap">
-          <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
-            {pageTitle}
-          </h1>
-          {hasActiveFilterOrSearch && (
-            <div aria-live="polite" aria-atomic="true">
-              <Badge category="neutral" size="md">
-                {filteredList.length} {L('gefunden', 'found')}
-              </Badge>
-            </div>
-          )}
-        </div>
-        <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
-          {pageDesc}
-        </p>
-        {fixedKind && (
-          <div className="mt-4 sm:mt-5 sm:max-w-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-baseline gap-x-3.5 gap-y-1 flex-wrap min-w-0">
+            <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
+              {pageTitle}
+            </h1>
+            {hasActiveFilterOrSearch && (
+              <div aria-live="polite" aria-atomic="true">
+                <Badge category="neutral" size="md">
+                  {filteredList.length} {L('gefunden', 'found')}
+                </Badge>
+              </div>
+            )}
+          </div>
+          {fixedKind && (
             <SegmentedControl<'dienst' | 'kunst'>
-              fullWidth
+              className="shrink-0"
               options={[
                 { id: 'dienst', label: L('Dienst', 'Service') },
                 { id: 'kunst', label: L('Kunst', 'Arts') },
@@ -349,8 +338,11 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
                 if (val !== fixedKind) navigate(val === 'dienst' ? '/service' : '/arts', { replace: true });
               }}
             />
-          </div>
-        )}
+          )}
+        </div>
+        <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
+          {pageDesc}
+        </p>
       </header>
 
       {/* 2. Search Input + Filter Toggle Button */}

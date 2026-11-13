@@ -4,7 +4,11 @@ import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
   Bookmark,
+  BookOpen,
   ChevronDown,
+  Clock,
+  MapPin,
+  Users,
 } from 'lucide-react';
 import { ActivityItem, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -13,6 +17,10 @@ import { ShareMenu } from './ui/ShareMenu';
 import { IconTile } from './ui/IconTile';
 import { activityTone } from '../data/activityTones';
 import { tr } from './tools/common';
+
+// Gleiche Felder wie die Eckdaten auf der Spielseite (GamePage). Ohne shrink-0: nur das Buch-Feld
+// (min-w-0) darf schrumpfen und kürzen, die anderen hält ihr Inhalt auf voller Breite.
+const FACT = 'inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-surface-2 border border-border font-medium whitespace-nowrap shadow-2xs';
 
 interface ServiceArtsDetailProps {
   activity: ActivityItem;
@@ -142,28 +150,32 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
                 <ShareMenu textToCopy={shareText} urlToCopy={currentUrl} language={language} align="right" glass />
               </div>
             </div>
-            {/* Der erste Trennpunkt entfällt, weil die Kategorie jetzt in eigener Zeile steht */}
-            <div className="flex items-center gap-2 mb-3 text-xs text-text-tertiary font-medium flex-wrap [&>span:first-child]:hidden">
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text text-balance leading-[1.14]">
+              {activity.title[language]}
+            </h1>
+
+            {/* Eckdaten wie auf der Spielseite: unter dem Titel, je ein Feld mit Icon (kein hängender Trennpunkt beim Umbruch) */}
+            <div role="group" aria-label={L('Eckdaten', 'Key facts')} className="flex items-center gap-1 sm:gap-1.5 flex-wrap mt-3 text-xs text-text-secondary">
               {activity.duration && (
-                <>
-                  <span className="text-border" aria-hidden="true">·</span>
-                  <span className="text-xs text-text-secondary">{activity.duration[language]}</span>
-                </>
+                <span className={FACT}>
+                  <Clock className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
+                  <span>{activity.duration[language]}</span>
+                </span>
               )}
               {activity.groupSize && (
-                <>
-                  <span className="text-border" aria-hidden="true">·</span>
-                  <span className="text-xs text-text-secondary">
+                <span className={FACT}>
+                  <Users className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
+                  <span>
                     {language === 'de'
                       ? `${activity.groupSize.min}–${activity.groupSize.max} Personen`
                       : `${activity.groupSize.min}–${activity.groupSize.max} youth`}
                   </span>
-                </>
+                </span>
               )}
               {activity.setting && activity.setting !== 'beides' && (
-                <>
-                  <span className="text-border" aria-hidden="true">·</span>
-                  <span className="text-xs text-text-secondary">
+                <span className={FACT}>
+                  <MapPin className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
+                  <span>
                     {activity.setting === 'draussen'
                       ? language === 'de'
                         ? 'Draußen'
@@ -172,21 +184,17 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
                       ? 'Drinnen'
                       : 'Indoors'}
                   </span>
-                </>
+                </span>
               )}
               {bookTitle && (
-                <>
-                  <span className="text-border" aria-hidden="true">·</span>
-                  <span className="text-xs text-text-secondary font-medium">
+                <span className={`${FACT} min-w-0`}>
+                  <BookOpen className="w-3.5 h-3.5 text-text-tertiary shrink-0" aria-hidden="true" />
+                  <span className="truncate">
                     {bookTitle}{activity.lesson ? ` · L. ${activity.lesson}` : ''}
                   </span>
-                </>
+                </span>
               )}
             </div>
-
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight text-text text-balance leading-[1.14]">
-              {activity.title[language]}
-            </h1>
 
             {themeLabel && themeLabel !== categoryLabel && (
               <p className="text-xs text-text-secondary mt-2.5 font-medium">
@@ -197,7 +205,7 @@ export const ServiceArtsDetail: React.FC<ServiceArtsDetailProps> = ({
 
           {/* Section 1: Was uns geleitet hat (Leitgedanke & Motivation) */}
           <section className="mb-10 py-1">
-            <h2 className="text-xs font-semibold text-accent mb-2">
+            <h2 className="text-xs font-bold text-text-tertiary mb-2">
               {L('Was uns geleitet hat', 'What guided our initiative')}
             </h2>
             {/* Normale Schrift ohne Anführungszeichen: Serif kursiv mit „…“ ist heiligen Texten vorbehalten. */}

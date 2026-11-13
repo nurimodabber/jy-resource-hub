@@ -79,7 +79,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
         {/* Icon in neutraler Kachel wie bei den Spielen: Bereich/Kunstform über die Form, nicht über Farbe */}
         <div className="flex items-center gap-3 mb-2.5">
           <IconTile icon={toneIcon} size="xl" />
-          <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors tracking-tight min-w-0">
+          <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-3 group-hover:text-accent transition-colors tracking-tight min-w-0">
             {activity.title[language]}
           </h3>
         </div>
