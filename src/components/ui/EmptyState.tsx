@@ -7,6 +7,8 @@ export interface EmptyStateProps {
   description: string;
   actionLabel?: string;
   onAction?: () => void;
+  /** 'h1' nur, wenn der Hinweis die ganze Seite ist. In einer Liste ist er Text, keine Überschrift. */
+  as?: 'h1' | 'p';
   className?: string;
 }
 
@@ -17,6 +19,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   description,
   actionLabel,
   onAction,
+  as: Title = 'p',
   className = '',
 }) => (
   <div className={`py-12 px-6 text-center flex flex-col items-center justify-center max-w-md mx-auto ${className}`}>
@@ -25,7 +28,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         {icon}
       </div>
     )}
-    <h3 className="text-lg font-bold text-text mb-1.5">{title}</h3>
+    <Title className="text-lg font-bold text-text mb-1.5">{title}</Title>
     <p className="text-sm text-text-secondary mb-5 leading-relaxed">{description}</p>
     {actionLabel && onAction && (
       <Button onClick={onAction} variant="primary" size="md">

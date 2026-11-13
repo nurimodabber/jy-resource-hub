@@ -100,6 +100,18 @@ export const AppContent: React.FC = () => {
   const searchQuery = '';
   const [isBahaiSongsOpen, setIsBahaiSongsOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  // Die Suche wird erst geladen, wenn sie offen ist. Ihr eigenes ⌘K kann sie deshalb nur schließen, öffnen muss es hier.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      // Im Portal gibt es keine öffentliche Suche.
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k' && !window.location.pathname.startsWith('/portal')) {
+        e.preventDefault();
+        setIsCommandPaletteOpen(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
 
@@ -750,7 +762,7 @@ export const AppContent: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsContactOpen(true)}
-                  className="h-[22px] flex items-center hover:text-accent transition-colors cursor-pointer leading-none"
+                  className="h-[22px] min-w-[44px] flex items-center justify-center hover:text-accent transition-colors cursor-pointer leading-none"
                 >
                   {t.footerContact}
                 </button>

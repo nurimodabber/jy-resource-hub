@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   Search,
-  Compass,
+  Dices,
   BookOpen,
   Palette,
   Music,
   HeartHandshake,
-  Bookmark,
+  Album,
   Settings,
   X,
   ArrowRight,
-  Award,
+  Tally5,
   Users,
   Timer,
   UserCheck,
@@ -116,16 +116,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 
     // Tools dataset
     const TOOLS_SEARCH = [
-      { id: 'teams', title: isDe ? 'Teams & Zweiergruppen' : 'Teams & pairs', desc: isDe ? 'Zufällig und fair Gruppen einteilen' : 'Random and balanced team builder', icon: Users },
-      { id: 'timer', title: 'Timer', desc: isDe ? 'Große Countdown-Anzeige mit Signalton' : 'Large countdown display with chime', icon: Timer },
-      { id: 'scoreboard', title: isDe ? 'Punktetafel' : 'Scoreboard', desc: isDe ? 'Punkte für Stationen oder Quizrunden ohne Rangliste' : 'Track points for stations or quiz rounds without rankings', icon: Award },
+      { id: 'teams', title: isDe ? 'Gruppeneinteiler' : 'Group divider', desc: isDe ? 'Teams und Zweiergruppen zufällig und fair einteilen' : 'Random and balanced teams and pairs', icon: Users },
+      { id: 'timer', title: isDe ? 'Timer & Intervall' : 'Timer & Interval', desc: isDe ? 'Große Countdown-Anzeige mit Signalton' : 'Large countdown display with chime', icon: Timer },
+      { id: 'scoreboard', title: isDe ? 'Punktetafel' : 'Scoreboard', desc: isDe ? 'Punkte für Stationen oder Quizrunden ohne Rangliste' : 'Track points for stations or quiz rounds without rankings', icon: Tally5 },
       { id: 'cards', title: isDe ? 'Gesprächskarten' : 'Conversation cards', desc: isDe ? 'Fragen und Zitate für den Kreis' : 'Questions and quotes for group circles', icon: MessageSquareQuote },
       { id: 'group', title: isDe ? 'Meine Gruppe' : 'My group', desc: isDe ? 'Gemeinsame Namens- und Anwesenheitsliste' : 'Shared member presence list', icon: UserCheck },
     ];
 
     // Static Pages
     const PAGES_SEARCH = [
-      { id: 'saved', title: isDe ? 'Gemerkt (Merkliste)' : 'Saved Items', desc: isDe ? 'Deine gespeicherten Favoriten auf einen Blick' : 'All your bookmarked favorites in one place', icon: Bookmark },
+      { id: 'saved', title: isDe ? 'Gemerkt (Merkliste)' : 'Saved Items', desc: isDe ? 'Deine gespeicherten Favoriten auf einen Blick' : 'All your bookmarked favorites in one place', icon: Album },
       { id: 'settings', title: isDe ? 'Einstellungen' : 'Settings', desc: isDe ? 'Darstellung, Sprache, Gruppe und Sicherung' : 'Appearance, language, group and backup', icon: Settings },
     ];
 
@@ -139,7 +139,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           title: isDe ? 'Gemerkt' : 'Saved Items',
           subtitle: isDe ? 'Deine gespeicherten Favoriten' : 'Your saved favorites',
           badge: isDe ? 'Seite' : 'Page',
-          icon: Bookmark,
+          icon: Album,
         },
         {
           id: allGames[0]?.id || 'menschlicher-knoten',
@@ -148,7 +148,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           title: (allGames[0] || GAMES_DATA[0]).title[language],
           subtitle: (allGames[0] || GAMES_DATA[0]).summary[language],
           badge: isDe ? 'Spiel' : 'Game',
-          icon: Compass,
+          icon: Dices,
         },
         {
           id: 'timer',
@@ -215,7 +215,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           title: g.title[language],
           subtitle: g.summary[language],
           badge: isDe ? 'Spiel' : 'Game',
-          icon: Compass,
+          icon: Dices,
         });
       }
     });

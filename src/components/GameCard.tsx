@@ -112,7 +112,8 @@ export const GameCard: React.FC<GameCardProps> = ({
         onClick={(e) => onToggleFavorite(game.id, e)}
         aria-pressed={isFavorite}
         aria-label={`${language === 'de' ? 'Merken' : 'Save'}: ${game.title[language]}`}
-        className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+        // after: vergrößert nur die Tippfläche am Handy von 40 auf 44 px, sichtbar bleibt der Knopf gleich (Karte ist gesperrt).
+        className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] after:absolute after:-inset-0.5 after:rounded-full after:content-[''] sm:after:hidden inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
           isFavorite
             ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
             : 'text-text-tertiary hover:text-text hover:bg-surface-2'

@@ -235,7 +235,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: '‘Abdu’l-Bahá',
     },
     book: {
-      de: 'Den geraden Pfad beschreiten',
+      de: 'Den geraden Pfad gehen',
       en: 'Walking the Straight Path',
     },
     coreQuestion: {
@@ -305,16 +305,16 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: 'Harmony of Diversity & Overcoming Prejudice',
     },
     quoteSnippet: {
-      de: '„Ihr seid die Früchte eines Baumes und die Blätter eines Zweiges. Verhaltet euch zueinander in größter Liebe und Eintracht.“',
-      en: '"Ye are the fruits of one tree, and the leaves of one branch. Deal ye one with another with the utmost love and harmony."',
+      de: '„Ihr seid die Früchte eines Baumes und die Blätter eines Zweiges. Verkehrt miteinander in inniger Liebe und Eintracht, in Freundschaft und Verbundenheit.“',
+      en: '"Ye are the fruits of one tree, and the leaves of one branch. Deal ye one with another with the utmost love and harmony, with friendliness and fellowship."',
     },
     source: {
-      de: "Bahá'u'lláh (Ährenlese)",
-      en: "Bahá'u'lláh (Gleanings)",
+      de: 'Bahá’u’lláh (Ährenlese aus den Schriften Bahá’u’lláhs, 132:3)',
+      en: 'Bahá’u’lláh (Gleanings from the Writings of Bahá’u’lláh, 132:3)',
     },
     book: {
-      de: 'Brise der Bestätigung',
-      en: 'Breezes of Confirmation',
+      de: 'Wellen eines Meeres',
+      en: 'Waves of One Sea',
     },
     coreQuestion: {
       de: 'Wie bereichert die Vielfalt an Herkunft, Persönlichkeiten und Gaben unsere Gruppe, statt Trennung zu erzeugen?',
@@ -345,15 +345,15 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: 'Love for All Mankind',
     },
     quoteSnippet: {
-      de: '„Ihr wurdet erschaffen, einander Liebe zu erzeigen und nicht Widerspenstigkeit und Groll. Seid nicht stolz auf die Liebe zu euch selbst, sondern auf die Liebe zur gesamten Menschheit.“',
-      en: '"Ye were created to show love one to another and not perversity and rancour. Take pride not in love for yourselves but in love for all mankind."',
+      de: '„Ihr seid erschaffen, einander Liebe zu bezeigen, nicht Eigensinn und Groll. Seid nicht stolz auf eure Eigenliebe, sondern auf die Liebe zu euren Mitgeschöpfen. Rühmt euch nicht der Liebe zu eurem Vaterland, sondern der Liebe zur ganzen Menschheit.“',
+      en: '"Ye were created to show love one to another and not perversity and rancour. Take pride not in love for yourselves but in love for your fellow-creatures. Glory not in love for your country, but in love for all mankind."',
     },
     source: {
-      de: "Bahá'u'lláh (Botschaften aus Akka, Lawh-i-Maqsúd)",
-      en: "Bahá'u'lláh (Tablets of Bahá'u'lláh, Lawh-i-Maqsúd)",
+      de: 'Bahá’u’lláh (Botschaften aus ʿAkká, Lawḥ-i-Ḥikmat, 9:5)',
+      en: 'Bahá’u’lláh (Tablets of Bahá’u’lláh, Lawḥ-i-Ḥikmat, 9:5)',
     },
     book: {
-      de: 'Brise der Bestätigung',
+      de: 'Brisen der Bestätigung',
       en: 'Breezes of Confirmation',
     },
     coreQuestion: {
@@ -363,7 +363,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
     deepeningQuestions: {
       de: [
         'Wo fällt es uns leicht, liebevoll zu sein – und wo spüren wir inneren Widerstand?',
-        'Was bewirkt der Satz „Seid nicht stolz auf die Liebe zu euch selbst“ in einer Welt voller Selbstdarstellung?',
+        'Was bewirkt der Satz „Seid nicht stolz auf eure Eigenliebe“ in einer Welt voller Selbstdarstellung?',
         'Wie kann unsere Juniorjugendgruppe zu einem Ort bedingungsloser Herzlichkeit werden?',
       ],
       en: [
@@ -393,7 +393,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: "Bahá'u'lláh (Tablets of Bahá'u'lláh, Words of Paradise)",
     },
     book: {
-      de: 'Brise der Bestätigung',
+      de: 'Brisen der Bestätigung',
       en: 'Breezes of Confirmation',
     },
     coreQuestion: {
@@ -429,12 +429,12 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: '"Truthfulness is the foundation of all human virtues."',
     },
     source: {
-      de: '‘Abdu’l-Bahá',
-      en: '‘Abdu’l-Bahá',
+      de: '‘Abdu’l-Bahá (zitiert in: Das Kommen Göttlicher Gerechtigkeit, 40)',
+      en: '‘Abdu’l-Bahá (quoted in: The Advent of Divine Justice, 40)',
     },
     book: {
-      de: 'Den geraden Pfad beschreiten',
-      en: 'Walking the Straight Path',
+      de: 'Etwas über Vortrefflichkeit lernen',
+      en: 'Learning About Excellence',
     },
     coreQuestion: {
       de: 'Warum stürzt jedes geistige Gebäude ein, wenn die Wahrhaftigkeit als Fundament bröckelt?',
@@ -509,12 +509,12 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: '"Regard man as a mine rich in gems of inestimable value. Education can, alone, cause it to reveal its treasures, and enable mankind to benefit therefrom."',
     },
     source: {
-      de: "Bahá'u'lláh (Botschaften aus Akka, Lawh-i-Maqsúd)",
-      en: "Bahá'u'lláh (Tablets of Bahá'u'lláh, Lawh-i-Maqsúd)",
+      de: 'Bahá’u’lláh (Ährenlese aus den Schriften Bahá’u’lláhs, 122:1)',
+      en: 'Bahá’u’lláh (Gleanings from the Writings of Bahá’u’lláh, 122:1)',
     },
     book: {
-      de: 'Nach Vortrefflichkeit streben',
-      en: 'Learning About Excellence',
+      de: 'Die Würde des Menschen',
+      en: 'Human Honor',
     },
     coreQuestion: {
       de: 'Welche verborgenen Edelsteine (Tugenden, Begabungen, Einsichten) nimmst du in deinen Freunden wahr?',
@@ -553,7 +553,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: "Bahá'u'lláh",
     },
     book: {
-      de: 'Nach Vortrefflichkeit streben',
+      de: 'Etwas über Vortrefflichkeit lernen',
       en: 'Learning About Excellence',
     },
     coreQuestion: {
@@ -584,16 +584,16 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: 'Thoughts of Peace',
     },
     quoteSnippet: {
-      de: '„Wenn der Gedanke des Krieges kommt, setzt ihm den Gedanken des Friedens entgegen, der stärker ist. Der Gedanke des Hasses muss durch den Gedanken der Liebe überwunden werden.“',
+      de: '„Wenn ein Kriegsgedanke kommt, so widersteht ihm mit einem stärkeren Gedanken des Friedens. Ein Hassgedanke muss durch einen mächtigeren Gedanken der Liebe vernichtet werden.“',
       en: '"When a thought of war comes, oppose it by a stronger thought of peace. A thought of hatred must be destroyed by a more powerful thought of love."',
     },
     source: {
-      de: '‘Abdu’l-Bahá (Ansprachen in Paris)',
-      en: '‘Abdu’l-Bahá (Paris Talks)',
+      de: '‘Abdu’l-Bahá (Ansprachen in Paris, 6:7)',
+      en: '‘Abdu’l-Bahá (Paris Talks, 6:7)',
     },
     book: {
-      de: 'Hoffnungsvolle Funken',
-      en: 'Drawing on the Power of the Word',
+      de: 'Hoffnungsschimmer',
+      en: 'Glimmerings of Hope',
     },
     coreQuestion: {
       de: 'Wie schaffen wir es, aufkeimenden Streit oder Ärger im Kopf zu stoppen, bevor er zu verletzenden Worten wird?',
@@ -624,12 +624,12 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: 'The Eye of Forgiveness',
     },
     quoteSnippet: {
-      de: '„Verschließt eure Augen vor den Fehlern anderer und blickt mit dem Auge der Nachsicht und des Verständnisses.“',
-      en: '"Breathe not the sins of others so long as thou art thyself a sinner. Look with the eye of forgiveness upon the shortcomings of your fellows."',
+      de: '„O Sohn des Menschen! Sprich nicht über die Sünden anderer, solange du selbst ein Sünder bist. So du dieses Gebot übertrittst, bist du verworfen – dies bezeuge Ich dir.“',
+      en: '"O Son of Man! Breathe not the sins of others so long as thou art thyself a sinner. Shouldst thou transgress this command, accursed wouldst thou be, and to this I bear witness."',
     },
     source: {
-      de: "Bahá'u'lláh (Verborgene Worte, Persisch 26)",
-      en: "Bahá'u'lláh (The Hidden Words, Persian 26)",
+      de: 'Bahá’u’lláh (Die Verborgenen Worte, Arabisch Nr. 27)',
+      en: 'Bahá’u’lláh (The Hidden Words, Arabic No. 27)',
     },
     book: {
       de: 'Den geraden Pfad gehen',
@@ -664,15 +664,15 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: 'Joy Gives Wings',
     },
     quoteSnippet: {
-      de: '„Freude verleiht uns Flügel! Wenn wir fröhlich sind, ist unsere Kraft lebendiger, unser Verstand wacher und unsere Einsicht klarer.“',
-      en: '"Joy gives us wings! In times of joy our strength is more vital, our intellect keener, and our understanding less clouded."',
+      de: '„Die Freude verleiht uns Schwingen. In Zeiten der Freude ist unsere Kraft belebter, unser Intellekt geschärfter und unser Begriffsvermögen weniger getrübt.“',
+      en: '"Joy gives us wings! In times of joy our strength is more vital, our intellect keener, and our understanding less obscured."',
     },
     source: {
-      de: '‘Abdu’l-Bahá (Ansprachen in Paris)',
-      en: '‘Abdu’l-Bahá (Paris Talks)',
+      de: '‘Abdu’l-Bahá (Ansprachen in Paris, 35:2)',
+      en: '‘Abdu’l-Bahá (Paris Talks, 35:2)',
     },
     book: {
-      de: 'Der Quell der Freude',
+      de: 'Quelle der Freude',
       en: 'Wellspring of Joy',
     },
     coreQuestion: {
@@ -744,19 +744,19 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: 'The Radiant Heart',
     },
     quoteSnippet: {
-      de: '„Besitze ein reines, gütiges und strahlendes Herz, auf dass dir eine Herrschaft zuteilwerde, die ewig ist und unvergänglich.“',
-      en: '"Possess a pure, kindly and radiant heart, that thine may be a sovereignty ancient, imperishable and everlasting."',
+      de: '„O Sohn des Geistes! Dies ist Mein erster Rat: Besitze ein reines, gütiges und strahlendes Herz, damit du unvergängliche Souveränität erlangest, während von Ewigkeit zu Ewigkeit.“',
+      en: '"O Son of Spirit! My first counsel is this: Possess a pure, kindly and radiant heart, that thine may be a sovereignty ancient, imperishable and everlasting."',
     },
     source: {
-      de: "Bahá'u'lláh (Verborgene Worte, Arabisch 1)",
-      en: "Bahá'u'lláh (The Hidden Words, Arabic 1)",
+      de: 'Bahá’u’lláh (Die Verborgenen Worte, Arabisch Nr. 1)',
+      en: 'Bahá’u’lláh (The Hidden Words, Arabic No. 1)',
     },
     book: {
-      de: 'Ein edles Erbe',
-      en: 'A Noble Heritage',
+      de: 'Die Würde des Menschen',
+      en: 'Human Honor',
     },
     coreQuestion: {
-      de: 'Was bedeutet es für dich ganz praktisch im Umgang mit Freunden, ein „reines und gütiges Herz“ zu bewahren?',
+      de: 'Was bedeutet es für dich ganz praktisch im Umgang mit Freunden, ein „reines, gütiges und strahlendes Herz“ zu bewahren?',
       en: 'What does it look like in real relationships to maintain a pure, compassionate, and transparent heart?',
     },
     deepeningQuestions: {
@@ -824,16 +824,16 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       en: 'Shielding Trust',
     },
     quoteSnippet: {
-      de: '„Üble Nachrede löscht das Leuchten des Herzens aus und erstickt das Leben der Seele.“',
+      de: '„Auch soll der Sucher üble Nachrede als schweres Vergehen betrachten und sich von ihrem Einfluss fernhalten, denn sie verlöscht das Licht des Herzens und erstickt das Leben der Seele.“',
       en: '"Backbiting quencheth the light of the heart, and extinguisheth the life of the soul."',
     },
     source: {
-      de: "Bahá'u'lláh (Tafeln von Bahá'u'lláh)",
-      en: "Bahá'u'lláh (Tablets of Bahá'u'lláh)",
+      de: 'Bahá’u’lláh (Das Buch der Gewissheit / Kitáb-i-Íqán, Abs. 214)',
+      en: 'Bahá’u’lláh (The Kitáb-i-Íqán, para. 214)',
     },
     book: {
-      de: 'Den geraden Pfad gehen',
-      en: 'Walking the Straight Path',
+      de: 'Ruhi Buch 5 / Grundlagentexte',
+      en: 'Ruhi Book 5 / Core Texts',
     },
     coreQuestion: {
       de: 'Warum zersetzt Lästern das Vertrauen in einer Gruppe – selbst bei denen, die nur stumm zuhören?',

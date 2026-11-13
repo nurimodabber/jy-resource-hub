@@ -155,7 +155,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
                     onClick={() => setCategory(cat.id)}
                     className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-control text-xs font-semibold border transition-all cursor-pointer min-h-[48px] ${
                       isSelected
-                        ? 'bg-accent/10 border-accent text-accent font-bold shadow-2xs'
+                        ? 'bg-accent/10 border-accent text-accent-text font-bold shadow-2xs'
                         : 'bg-surface border-border text-text-secondary hover:text-text hover:bg-surface-2'
                     }`}
                   >

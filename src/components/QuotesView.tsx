@@ -450,6 +450,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
     return (
       <div className="max-w-3xl mx-auto py-12 px-4">
         <EmptyState
+          as="h1"
           title={t.quoteNotFoundTitle}
           description={t.quoteNotFoundDesc}
           actionLabel={t.backToQuotesOverview}
@@ -703,12 +704,6 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                       {practiceQuote.book[language]}
                     </span>
                   </div>
-
-                  <span className="text-2xs font-bold text-text-tertiary tabular-nums shrink-0">
-                    {isDe 
-                      ? `Zitat ${currentQuoteIndexInBook + 1} von ${currentBookQuotes.length}` 
-                      : `Quote ${currentQuoteIndexInBook + 1} of ${currentBookQuotes.length}`}
-                  </span>
                 </div>
 
                 {/* 2. Main Content: Holy text and attribution */}

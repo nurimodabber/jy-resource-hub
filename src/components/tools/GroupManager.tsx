@@ -224,7 +224,7 @@ export const GroupManager: React.FC<GroupManagerProps> = ({
       <p className="text-2xs text-text-tertiary">
         {compact
           ? L('Mehrere Namen können mit Komma getrennt werden.', 'Multiple names can be separated by commas.')
-          : L('Tipp: Ein Klick auf einen Namen schaltet zwischen anwesend und abwesend um. Mehrere Namen mit Komma trennen.', 'Tip: Tap a name to toggle between present and absent. Separate multiple names with commas.')}
+          : L('Tipp: Namen antippen, um zwischen anwesend und abwesend zu wechseln. Mehrere Namen mit Komma trennen.', 'Tip: Tap a name to toggle between present and absent. Separate multiple names with commas.')}
       </p>
     </Panel>
   );
