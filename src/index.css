@@ -503,6 +503,8 @@
 .jy-mobile-tab-bar .lg-tab-lens {
   z-index: 1 !important;
   background-color: rgb(var(--surface-rgb) / 0.88) !important;
+  /* glisse adds a bright rim image while pressed/dragging; it snapped white→dark on every tap. */
+  background-image: none !important;
   backdrop-filter: blur(12px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
   box-shadow: 
@@ -524,7 +526,8 @@
 /* FIX: Prevent tab face icon from disappearing (turning transparent) on tab switch */
 .jy-mobile-tab-bar .lg-tab > .lg-tab-face {
   color: var(--text-secondary) !important;
-  transition: color 150ms ease;
+  /* Same length and curve as the sliding highlight, so the color changes with it, not before it. */
+  transition: color 300ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .jy-mobile-tab-bar:not([data-away]) .lg-tab[data-selected] > .lg-tab-face,
@@ -598,18 +601,22 @@
 @keyframes pageFadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(5px);
+  }
+  60% {
+    opacity: 1;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
 .animate-fade-in {
   /* `backwards`, not `both`: a kept final transform makes this wrapper the containing block for
      every position: fixed child, so full-screen views (Punktetafel, Teams) sat inside the page. */
-  animation: pageFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  /* Opacity settles before the movement, so the page is readable at once and then glides into place. */
+  animation: pageFadeIn 240ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 /* Tactile button & card active spring */

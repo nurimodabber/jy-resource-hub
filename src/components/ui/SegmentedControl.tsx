@@ -70,7 +70,7 @@ export function SegmentedControl<T extends string = string>({
       {/* Liquid Glass / Surface Sliding Pill Indicator */}
       {indicator && (
         <div
-          className="absolute left-0 top-1 bottom-1 rounded-full bg-surface text-text shadow-1 border border-border/40 transition-all duration-220 cubic-bezier(0.16, 1, 0.3, 1) pointer-events-none motion-reduce:transition-none"
+          className="absolute left-0 top-1 bottom-1 rounded-full bg-surface text-text shadow-1 border border-border/40 transition-[transform,width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] pointer-events-none motion-reduce:transition-none"
           style={{
             transform: `translate3d(${indicator.left}px, 0, 0)`,
             width: `${indicator.width}px`,
