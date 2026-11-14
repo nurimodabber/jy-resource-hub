@@ -4,7 +4,7 @@ import {
   Users,
   Timer,
   MessageSquareQuote,
-  Award,
+  Tally5,
   UserCheck,
   LucideIcon,
 } from 'lucide-react';
@@ -67,7 +67,7 @@ const TOOLS: ToolDef[] = [
   },
   {
     id: 'scoreboard',
-    icon: Award,
+    icon: Tally5,
     title: ['Punktetafel', 'Scoreboard'],
     desc: ['Punkte für Stationen oder Quizrunden ohne Beschämung erfassen.', 'Track points for stations or quiz rounds without shaming.'],
     group: 'run',

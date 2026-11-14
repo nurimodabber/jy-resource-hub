@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bookmark, Settings, ArrowLeft } from 'lucide-react';
+import { Search, Album, Settings, ArrowLeft } from 'lucide-react';
 import { Glass } from 'glisse';
 import { Logo } from './Logo';
 import { GlassIconButton } from './ui/Button';
@@ -225,7 +225,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="relative">
             <GlassIconButton
               label={favoriteCount > 0 ? `${t.savedItems} (${favoriteCount})` : t.savedItems}
-              icon={<Bookmark className="w-[18px] h-[18px]" strokeWidth={1.9} />}
+              icon={<Album className="w-[18px] h-[18px]" strokeWidth={1.9} />}
               onClick={() => navigate('/saved')}
               aria-current={activeTab === 'saved' ? 'page' : undefined}
             />

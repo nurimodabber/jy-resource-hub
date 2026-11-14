@@ -111,9 +111,10 @@ export const FinderTool: React.FC<{ language: Language }> = ({ language }) => {
         {matches.length > 0 && (
           <Link
             to={`/games?${searchParams}`}
-            className="text-xs text-accent-text hover:underline font-semibold"
+            className="inline-flex items-center gap-1 text-xs text-accent-text hover:underline font-semibold"
           >
-            {L('In Spieleliste öffnen', 'Open in games list')} →
+            {L('In Spieleliste öffnen', 'Open in games list')}
+            <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
           </Link>
         )}
       </div>

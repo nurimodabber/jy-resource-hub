@@ -17,6 +17,14 @@ export const COMPANION_GAME_IDS = new Set([
   'psychiater',
 ]);
 
+const PURPOSE_LABEL = {
+  kennenlernen: 'purposeKennenlernen',
+  energie: 'purposeEnergie',
+  zusammenarbeit: 'purposeZusammenarbeit',
+  ruhe: 'purposeRuhe',
+  raten: 'purposeRaten',
+} as const;
+
 interface GameCardProps {
   game: Game;
   language: Language;
@@ -104,7 +112,8 @@ export const GameCard: React.FC<GameCardProps> = ({
         onClick={(e) => onToggleFavorite(game.id, e)}
         aria-pressed={isFavorite}
         aria-label={`${language === 'de' ? 'Merken' : 'Save'}: ${game.title[language]}`}
-        className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+        // after: vergrößert nur die Tippfläche am Handy von 40 auf 44 px, sichtbar bleibt der Knopf gleich (Karte ist gesperrt).
+        className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-10 min-w-[40px] min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] after:absolute after:-inset-0.5 after:rounded-full after:content-[''] sm:after:hidden inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
           isFavorite
             ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
             : 'text-text-tertiary hover:text-text hover:bg-surface-2'
@@ -118,11 +127,15 @@ export const GameCard: React.FC<GameCardProps> = ({
         to={`/games/${game.id}`}
         className="block flex-1 min-w-0 pr-10 sm:pr-12 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0 mb-4"
       >
-        <div className="flex items-center gap-3 mb-2 relative z-[1]">
-          <IconTile icon={getGameIcon(game.id)} size="sm" />
-          <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors min-w-0 tracking-tight">
-            {game.title[language]}
-          </h3>
+        {/* KONZEPT: große neutrale Kachel, Wirkung als Text unter dem Titel */}
+        <div className="flex items-center gap-3 mb-2.5 relative z-[1]">
+          <IconTile icon={getGameIcon(game.id)} size="xl" />
+          <div className="min-w-0">
+            <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors tracking-tight">
+              {game.title[language]}
+            </h3>
+            <p className="text-2xs sm:text-xs font-semibold text-text-secondary mt-0.5">{t[PURPOSE_LABEL[game.purpose]]}</p>
+          </div>
         </div>
         {description && (
           <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed relative z-[1] max-w-[60ch]">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TabBar } from 'glisse';
-import { Compass, BookOpen, HeartHandshake, Wrench, Plus } from 'lucide-react';
+import { Dices, BookOpen, HeartHandshake, Wrench, Plus } from 'lucide-react';
 import { NavTab, Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
 import { useContributionAttention } from './MyContributions';
@@ -67,7 +67,7 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
     </>
   );
   const items = [
-    { value: 'games', label: t.tabGames, href: '/games', icon: <Compass className="w-5 h-5" strokeWidth={1.75} /> },
+    { value: 'games', label: t.tabGames, href: '/games', icon: <Dices className="w-5 h-5" strokeWidth={1.75} /> },
     { value: 'quotes', label: t.tabQuotes, href: '/quotes', icon: <BookOpen className="w-5 h-5" strokeWidth={1.75} /> },
     { value: 'projects', label: t.tabProjects, href: projectsHref, icon: <HeartHandshake className="w-5 h-5" strokeWidth={1.75} /> },
     { value: 'tools', label: t.tabTools, href: '/tools', icon: <Wrench className="w-5 h-5" strokeWidth={1.75} /> },

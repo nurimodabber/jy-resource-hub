@@ -13,8 +13,8 @@ interface DocumentHeadProps {
 
 const TOOL_META: Record<string, { de: [string, string]; en: [string, string] }> = {
   teams: {
-    de: ['Teams und Zweiergruppen', 'Zufällig und fair einteilen, ohne dieselben Paare zu wiederholen.'],
-    en: ['Teams and pairs', 'Split fairly at random without repeating the same pairs.'],
+    de: ['Gruppeneinteiler', 'Zufällig und fair einteilen, ohne dieselben Paare zu wiederholen.'],
+    en: ['Group divider', 'Split fairly at random without repeating the same pairs.'],
   },
   timer: {
     de: ['Timer & Intervall', 'Große Anzeige mit Signalton und Runden für die Gruppe.'],

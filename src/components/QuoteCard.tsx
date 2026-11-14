@@ -120,7 +120,9 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
               onClick={(e) => onToggleFavorite(quote.id, e)}
               aria-pressed={isFavorite}
               aria-label={`${isDe ? 'Merken' : 'Save'}: ${quote.source[language]}`}
-              className={`w-[40px] h-[40px] min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
+              // after: vergrößert nur die Tippfläche von 40 auf 44 px, sichtbar bleibt der Knopf gleich (Karte ist gesperrt).
+              // Nur nach links und unten: rechts sitzt „Teilen“ ohne Abstand, oben schneidet der Kürzungsrahmen nach 1 px ab.
+              className={`relative after:absolute after:-top-px after:-bottom-[3px] after:-left-1 after:right-0 after:content-[''] w-[40px] h-[40px] min-w-[40px] min-h-[40px] inline-flex items-center justify-center rounded-full transition-all duration-150 active:scale-90 motion-reduce:transform-none focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
                 isFavorite
                   ? 'text-accent bg-accent-subtle/80 hover:bg-accent-subtle shadow-2xs'
                   : 'text-text-tertiary hover:text-text hover:bg-surface-2'
@@ -197,7 +199,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
           onClick={() => onPracticeQuote(quote)}
           aria-label={isDe ? 'Auswendiglernen' : 'Memorise'}
           title={isDe ? 'Auswendiglernen' : 'Memorise'}
-          className="w-[40px] h-[40px] min-w-[40px] min-h-[40px] -mr-[10px] inline-flex items-center justify-center rounded-full bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent shrink-0"
+          className="relative after:absolute after:-inset-0.5 after:rounded-full after:content-[''] w-[40px] h-[40px] min-w-[40px] min-h-[40px] -mr-[10px] inline-flex items-center justify-center rounded-full bg-accent/8 hover:bg-accent/15 text-accent hover:text-accent-hover transition-all active:scale-90 motion-reduce:transform-none cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent shrink-0"
         >
           <Brain className="w-[16px] h-[16px] text-accent" />
         </button>

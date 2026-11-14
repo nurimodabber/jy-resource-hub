@@ -12,8 +12,12 @@ import {
   HeartHandshake,
   History,
   BookOpen,
-  Plus,
   Music,
+  Users,
+  Timer,
+  Tally5,
+  Dices,
+  MessageSquareQuote,
   Share2,
   } from 'lucide-react';
 import { Language } from '../types';
@@ -319,7 +323,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                     aria-label={L('Spielfinder schließen', 'Close game finder')}
                     className="text-text-tertiary hover:text-text min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
                   >
-                    ✕
+                    <X className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
 
@@ -443,29 +447,19 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         </section>
       )}
 
-      {/* Projekte & mehr: Dienst, Kunst und Beitragen haben keinen eigenen Tab unten, darum hier als Kacheln.
+      {/* Live in der Gruppe: direkte Wege zu den Werkzeugen, die man mitten im Treffen braucht.
+          Dienst, Kunst und Beitragen stehen in der Tab-Leiste und werden hier nicht wiederholt.
           Bewusst neutral (keine Kategorie-Farbe): die Startseite soll ruhig bleiben. */}
-      <section aria-labelledby="home-projects-title" className="space-y-3">
-        <h2 id="home-projects-title" className="text-base sm:text-lg font-bold text-text tracking-tight">
-          {L('Projekte & mehr', 'Projects & more')}
+      <section aria-labelledby="home-tools-title" className="space-y-3">
+        <h2 id="home-tools-title" className="text-base sm:text-lg font-bold text-text tracking-tight">
+          {L('Live in der Gruppe', 'Live in the group')}
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
           {[
-            {
-              to: '/service',
-              Icon: HeartHandshake,
-              title: L('Dienst', 'Service'),
-            },
-            {
-              to: '/arts',
-              Icon: Palette,
-              title: L('Kunst', 'Arts'),
-            },
-            {
-              to: '/vorschlagen',
-              Icon: Plus,
-              title: L('Beitragen', 'Contribute'),
-            },
+            { to: '/tools/teams', Icon: Users, title: L('Gruppeneinteiler', 'Group divider') },
+            { to: '/tools/timer', Icon: Timer, title: L('Timer & Intervall', 'Timer & Interval') },
+            { to: '/tools/scoreboard', Icon: Tally5, title: L('Punktetafel', 'Scoreboard') },
+            { to: '/tools/cards', Icon: MessageSquareQuote, title: L('Gesprächskarten', 'Conversation cards') },
           ].map(({ to, Icon, title }) => (
             <FadedIconTile key={to} to={to} Icon={Icon} title={title} className="min-h-[76px] sm:min-h-[112px] lg:min-h-[150px]" />
           ))}
@@ -489,7 +483,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               >
                 <div className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors flex items-center justify-center shrink-0">
                   {item.type === 'game' ? (
-                    <Compass className="w-4 h-4" />
+                    <Dices className="w-4 h-4" />
                   ) : item.type === 'quote' ? (
                     <BookOpen className="w-4 h-4" />
                   ) : item.type === 'service' ? (

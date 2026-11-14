@@ -3,8 +3,9 @@ import { quoteAuthor } from '../utils/quoteAuthor';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Bookmark,
+  Album,
   ArrowRight,
-  Compass,
+  Dices,
   BookOpen,
   Brain,
   HeartHandshake,
@@ -70,7 +71,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
         duration: g.durationMinutes,
         groupSize: `${g.groupSize.min}–${g.groupSize.max} ${isDe ? 'Pers.' : 'pers.'}`,
         href: `/games/${g.id}`,
-        icon: Compass,
+        icon: Dices,
       }));
 
     // 2. Sacred Quotes (serene typography, reverence, NO redundant theme tag like "Gesegnet ist die Stätte")
@@ -133,7 +134,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
   };
 
   const groupIcons: Record<Group, LucideIcon> = {
-    games: Compass,
+    games: Dices,
     quotes: BookOpen,
     methods: Brain,
     projects: HeartHandshake,
@@ -170,7 +171,7 @@ export const SavedView: React.FC<SavedViewProps> = ({ language, favorites, onTog
       {nonEmpty.length === 0 ? (
         <div className="py-8 max-w-2xl mx-auto">
           <EmptyState
-            icon={<Bookmark className="w-6 h-6 text-accent" strokeWidth={1.75} />}
+            icon={<Album className="w-6 h-6 text-accent" strokeWidth={1.75} />}
             title={t.savedEmptyTitle}
             description={t.savedEmptyHint}
             actionLabel={t.savedEmptyAction}

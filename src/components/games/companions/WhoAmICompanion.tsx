@@ -225,7 +225,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
                 <p className="text-xs text-text-secondary leading-relaxed max-w-xs mx-auto">
                   {L(
                     `Alle außer ${p} lesen den Begriff. Wer Post-its hat, klebt den Begriff auf die Stirn von ${p}.`,
-                    `Everyone except ${p} reads the word. If you have sticky notes, stick it onto ${p}'s forehead!`
+                    `Everyone except ${p} reads the word. If you have sticky notes, stick it onto ${p}'s forehead.`
                   )}
                 </p>
               </div>

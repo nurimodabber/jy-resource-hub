@@ -13,7 +13,7 @@ Das Designsystem des Junior Youth Hub (Version 2) folgt der gestalterischen Rich
    Zitate und Gebete werden in der klassischen Serifenschrift **Lora** auf ruhigem Hintergrund dargestellt. Keine Farbcodierung, keine Emojis, keine spielerischen Elemente direkt am heiligen Text.
 
 3. **Kein KI-Look:**
-   Keine Farbverläufe, kein Glas-Morphismus / Backdrop-Blur-Gimmicks, kein Glühen, keine Emojis als Dekoration, keine Pillen-Badges über Überschriften („✨ Neu“), keine verschachtelten Karten in Karten.
+   Keine Farbverläufe, kein Glas im Inhalt (Glas nur aus `glisse` für schwebende Bedienelemente, siehe Glas-Regel in `AGENTS.md`), kein Glühen, keine Emojis als Dekoration, keine Pillen-Badges über Überschriften („✨ Neu“), keine verschachtelten Karten in Karten.
 
 4. **100% Token-basiert:**
    Kein Bauteil enthält fest verdrahtete Hex-Farbcodes, feste Pixel-Radien oder willkürliche Schatten. Alle visuellen Attribute werden über CSS-Variablen in `src/index.css` und Tokens in `tailwind.config.js` gesteuert.
@@ -26,22 +26,24 @@ Das Designsystem des Junior Youth Hub (Version 2) folgt der gestalterischen Rich
 
 | Token | Hell | Dunkel | Verwendung & Kontrast |
 |---|---|---|---|
-| `--bg` | `#F7F9FC` | `#0E1626` | App-Hintergrund |
-| `--surface` | `#FFFFFF` | `#162036` | Karten, Dialoge, Sheets |
-| `--surface-2` | `#EEF2F8` | `#1E2A44` | Eingabefelder, Chips, neutrale Badges |
-| `--surface-raised` | `#FFFFFF` | `#202D49` | Angehobene Ebenen |
-| `--border` | `#E3E8F0` | `#2A3858` | Listentrenner, dezent |
-| `--text` | `#142033` | `#EEF2FA` | Primärer Text (15.5:1 / 16.1:1 AA) |
-| `--text-secondary` | `#4A5568` | `#AAB6CC` | Sekundärer Text (7.1:1 / 8.8:1 AA) |
-| `--text-tertiary` | `#5F6B7C` | `#8D9AB3` | Metadaten, Zähler (4.8:1 / 5.0:1 AA) |
-| `--accent` | `#1F6FEB` | `#6FA3FF` | Primäre Aktionen, Fokus-Ring |
-| `--accent-hover` | `#1859C4` | `#8DB8FF` | Hover-Zustand primärer Buttons |
-| `--accent-subtle` | `#E8F0FE` | `#1B2E55` | Hintergründe aktiver Chips & Symbolkreise |
-| `--accent-text` | `#1850B8` | `#A9C8FF` | Text auf accent-subtle (6.4:1 / 7.9:1 AA) |
-| `--accent-contrast` | `#FFFFFF` | `#0A1426` | Text auf accent-Button (4.6:1 / 7.3:1 AA) |
+| `--bg` | `#F7F9FC` | `#0C0D0E` | App-Hintergrund |
+| `--surface` | `#FFFFFF` | `#15171A` | Karten, Dialoge, Sheets |
+| `--surface-2` | `#EEF2F8` | `#1E2025` | Eingabefelder, Chips, neutrale Badges |
+| `--surface-raised` | `#FFFFFF` | `#1A1C20` | Angehobene Ebenen |
+| `--border` | `#E3E8F0` | `#23262D` | Listentrenner, dezent |
+| `--text` | `#142033` | `#F4F4F6` | Primärer Text (15.5:1 / 16.4:1 AA) |
+| `--text-secondary` | `#4A5568` | `#A1A1AA` | Sekundärer Text (7.1:1 / 7.0:1 AA) |
+| `--text-tertiary` | `#5D6679` | `#93939C` | Metadaten, Zähler (5.8:1 / 5.9:1 AA) |
+| `--accent` | `#1F6FEB` | `#3B82F6` | Primäre Aktionen, Fokus-Ring |
+| `--accent-hover` | `#1859C4` | `#60A5FA` | Hover-Zustand primärer Buttons |
+| `--accent-subtle` | `#E8F0FE` | `#162238` | Hintergründe aktiver Chips & Symbolkreise |
+| `--accent-text` | `#1850B8` | `#93C5FD` | Text auf accent-subtle (6.4:1 / 8.8:1 AA) |
+| `--accent-contrast` | `#FFFFFF` | `#080C14` | Text auf accent-Button (4.6:1 / 5.3:1 AA) |
 | `--highlight` | `#F5B82E` | `#F5B82E` | Nur kleine Markierungen (z. B. Heute-Punkt) |
-| `--success` | `#167448` | `#4FC08A` | Erfolgsstatus, Bestätigungen (5.2:1 / 6.3:1 AA) |
-| `--danger` | `#C13333` | `#FF8A8A` | Warnungen, Löschaktionen (4.9:1 / 6.3:1 AA) |
+| `--success` | `#167448` | `#4FC08A` | Erfolgsstatus, Bestätigungen (5.2:1 / 7.9:1 AA) |
+| `--danger` | `#C13333` | `#FF8A8A` | Warnungen, Löschaktionen (4.9:1 / 7.9:1 AA) |
+
+Die Dunkel-Spalte ist „Dark Graphite“ und gesperrt (siehe `AGENTS.md`). Die Dunkel-Kontraste gelten gegen `--surface`, gemessen mit `npm run contrast`.
 
 > **Begründung Akzentfarbe #1F6FEB:**
 > Das Logo (`public/logo.png`) besitzt ein tiefes Marineblau (`#23496D`), Gold (`#E5A43B`) und Salbeigrün (`#4D8065`). Ein Farbwert wie `#23496D` ist für primäre Schaltflächen und aktive Filterzustände zu dunkel und unzugänglich. `#1F6FEB` liegt in derselben blauen Farbfamilie (216° Hue vs 209° Hue im Logo), sorgt für einen frischen, einladenden Charakter und erfüllt auf Weiß und auf `#142033` streng die WCAG-AA-Kontrastanforderungen.
@@ -65,7 +67,7 @@ Das Designsystem des Junior Youth Hub (Version 2) folgt der gestalterischen Rich
 
 ### Typografie-Skala
 
-- **Schriftfamilie:** `Figtree` (UI), `Lora` (Heilige Texte / Zitate)
+- **Schriftfamilie:** `Figtree` (UI), `Lora` (heilige Texte und Zitate; für Überschriften und Kacheltitel ebenfalls erlaubt, Entscheidung des Inhabers 2026-11-13)
 - **H1:** 32 px / Zeilenhöhe 40 px (mobil 28 px / 36 px), `font-bold`
 - **H2:** 22 px / Zeilenhöhe 30 px, `font-bold`
 - **H3:** 18 px / Zeilenhöhe 26 px, `font-bold`

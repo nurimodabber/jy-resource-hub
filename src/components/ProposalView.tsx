@@ -6,7 +6,8 @@ import {
   CheckCircle2,
   Copy,
   Mail,
-  Compass,
+  Dices,
+  ChevronRight,
   HeartHandshake,
   Palette,
   Eye,
@@ -17,6 +18,7 @@ import {
   WifiOff,
   BookOpen,
   MessageSquare,
+  X,
 } from 'lucide-react';
 import { FadedIconTile } from './ui/FadedIconTile';
 import { Language } from '../types';
@@ -608,11 +610,11 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
         <span className={`px-3 py-1 rounded-chip ${step === 1 ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary'}`}>
           1. {L('Art wählen', 'Choose type')}
         </span>
-        <span className="text-text-tertiary">→</span>
+        <ChevronRight className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
         <span className={`px-3 py-1 rounded-chip ${step === 2 ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary'}`}>
           2. {L('Details & Ablauf', 'Details & Steps')}
         </span>
-        <span className="text-text-tertiary">→</span>
+        <ChevronRight className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
         <span className={`px-3 py-1 rounded-chip ${step === 3 ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary'}`}>
           3. {L('Bestätigung', 'Confirmation')}
         </span>
@@ -621,7 +623,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
       {/* Step 1: Type Selection — same tiles as "Projekte & mehr", 2 × 2 so it fits one phone screen */}
       {step === 1 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <FadedIconTile Icon={Compass} title={L('Spiel', 'Game')} onClick={() => { updateField('type', 'spiel'); setStep(2); }} className="!min-h-[84px] sm:!min-h-[128px] lg:!min-h-[180px]" />
+          <FadedIconTile Icon={Dices} title={L('Spiel', 'Game')} onClick={() => { updateField('type', 'spiel'); setStep(2); }} className="!min-h-[84px] sm:!min-h-[128px] lg:!min-h-[180px]" />
           <FadedIconTile Icon={HeartHandshake} title={L('Dienstprojekt', 'Service project')} onClick={() => { updateField('type', 'dienst'); setStep(2); }} className="!min-h-[84px] sm:!min-h-[128px] lg:!min-h-[180px]" />
           <FadedIconTile Icon={Palette} title={L('Kreative Aktivität', 'Creative activity')} onClick={() => { updateField('type', 'kunst'); setStep(2); }} className="!min-h-[84px] sm:!min-h-[128px] lg:!min-h-[180px]" />
           <FadedIconTile Icon={MessageSquare} title={L('Feedback & Ideen', 'Feedback & ideas')} onClick={() => setIsFeedbackOpen(true)} className="!min-h-[84px] sm:!min-h-[128px] lg:!min-h-[180px]" />
@@ -926,7 +928,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
                       <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-chip bg-surface-2 text-xs text-text font-medium border border-border">
                         <span>{m}</span>
                         <button type="button" onClick={() => handleRemoveMaterial(i)} aria-label={L(`${m} entfernen`, `Remove ${m}`)} className="-my-2 -mr-2 inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-text-tertiary hover:text-text cursor-pointer">
-                          ✕
+                          <X className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </span>
                     ))}
@@ -1027,7 +1029,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
                           <li key={idx} className="flex items-center justify-between gap-2">
                             <span>{q}</span>
                             <button type="button" onClick={() => handleRemoveQuestion(idx)} aria-label={L(`Frage ${idx + 1} entfernen`, `Remove question ${idx + 1}`)} className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-text-tertiary hover:text-danger cursor-pointer shrink-0">
-                              ✕
+                              <X className="w-3.5 h-3.5" aria-hidden="true" />
                             </button>
                           </li>
                         ))}

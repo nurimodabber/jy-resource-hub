@@ -11,6 +11,7 @@ import {
   Download,
   Maximize2,
   Minimize2,
+  X,
 } from 'lucide-react';
 import { Language } from '../../types';
 import { useLocalState } from '../../hooks/useLocalState';
@@ -376,7 +377,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
             <button
               type="button"
               onClick={() => setShowHelp(!showHelp)}
-              className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[44px] min-w-[38px] transition-colors cursor-pointer ${
+              className={`p-2 rounded-control border text-xs font-semibold flex items-center justify-center min-h-[44px] min-w-[44px] transition-colors cursor-pointer ${
                 showHelp
                   ? 'bg-accent/15 border-accent text-accent'
                   : 'bg-surface-2 hover:bg-surface-raised border-border text-text-secondary hover:text-text'
@@ -390,7 +391,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
             <button
               type="button"
               onClick={handleResetScores}
-              className="p-2 rounded-control text-text-tertiary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer min-h-[44px] min-w-[38px] flex items-center justify-center border border-border"
+              className="p-2 rounded-control text-text-tertiary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center border border-border"
               title={L('Punkte auf 0 zurücksetzen', 'Reset scores to 0')}
               aria-label={L('Punkte auf 0 zurücksetzen', 'Reset scores to 0')}
             >
@@ -439,8 +440,9 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                     onClick={() => handleRemoveTeam(team.id)}
                     className="absolute top-3 right-3 text-text-tertiary hover:text-danger p-1 rounded-full cursor-pointer text-xs min-h-[44px] min-w-[44px] flex items-center justify-center"
                     title={L('Team entfernen', 'Remove team')}
+                    aria-label={L('Team entfernen', 'Remove team')}
                   >
-                    ✕
+                    <X className="w-4 h-4" aria-hidden="true" />
                   </button>
                 )}
 
@@ -457,7 +459,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                       setTeams((prev) => prev.map((t) => (t.id === team.id ? { ...t, name: val } : t)));
                     }}
                     aria-label={L(`Name für Team ${idx + 1}`, `Name for Team ${idx + 1}`)}
-                    className="text-center font-bold text-base sm:text-lg text-text bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-hidden px-1 py-0.5 w-full"
+                    className="text-center font-bold text-base sm:text-lg text-text bg-transparent border-b border-transparent hover:border-border focus:border-accent focus:outline-hidden px-1 py-0.5 w-full min-h-[44px]"
                   />
                 </div>
 
@@ -618,7 +620,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
               <button
                 type="button"
                 onClick={handleResetScores}
-                className="p-2 rounded-control text-text-tertiary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer min-h-[44px] min-w-[38px] flex items-center justify-center border border-border"
+                className="p-2 rounded-control text-text-tertiary hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center border border-border"
                 title={L('Punkte auf 0 zurücksetzen', 'Reset scores to 0')}
                 aria-label={L('Punkte auf 0 zurücksetzen', 'Reset scores to 0')}
               >
@@ -679,7 +681,7 @@ export const ScoreboardTool: React.FC<{ language: Language }> = ({ language }) =
                         title={L('Team entfernen', 'Remove team')}
                         aria-label={L('Team entfernen', 'Remove team')}
                       >
-                        ✕
+                        <X className="w-4 h-4" aria-hidden="true" />
                       </button>
                     )}
                   </div>

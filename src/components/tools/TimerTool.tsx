@@ -282,9 +282,9 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
               fill="none"
               stroke={
                 remaining <= 10 && remaining > 0 && running
-                  ? '#EF4444'
+                  ? 'var(--danger)'
                   : intervalPhase === 'pause'
-                  ? '#F59E0B'
+                  ? 'var(--warning)'
                   : 'var(--accent)'
               }
               strokeWidth="6"

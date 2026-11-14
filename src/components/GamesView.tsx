@@ -199,6 +199,7 @@ export const GamesView: React.FC<GamesViewProps> = ({
       return (
         <div className="max-w-3xl mx-auto py-12 px-4">
           <EmptyState
+            as="h1"
             title={t.gameNotFoundTitle}
             description={t.gameNotFoundDesc}
             actionLabel={t.backToGamesOverview}

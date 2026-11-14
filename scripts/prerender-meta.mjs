@@ -41,7 +41,7 @@ async function run() {
     empire: ['Empire', 'Kategorien, Begriffe vorlesen und Reiche verfolgen für das Gruppenspiel Empire.'],
     roles: ['Rollenverteiler', 'Geheime Rollen für Spion, Wer bin ich, Werwölfe und Mörder auf einem Handy verteilen.'],
     scoreboard: ['Punktetafel', 'Punkte für Stationen oder Quizrunden ohne Beschämung erfassen.'],
-    teams: ['Teams und Zweiergruppen', 'Zufällig und fair einteilen, ohne dieselben Paare zu wiederholen.'],
+    teams: ['Gruppeneinteiler', 'Zufällig und fair einteilen, ohne dieselben Paare zu wiederholen.'],
     timer: ['Timer & Intervall', 'Große Anzeige mit Signalton und Runden für die Gruppe.'],
     finder: ['Spielfinder', 'Gruppengröße und Zeit eingeben und sofort passende Spiele erhalten.'],
     ideas: ['Spontane Impulse', 'Sortierkriterien, Geschichtenanfänge und Psychiater-Regeln für die Gruppe.'],
