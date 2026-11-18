@@ -23,7 +23,7 @@ export const FadedIconTile: React.FC<FadedIconTileProps> = ({ title, sub, Icon, 
     <>
       <Icon
         className={`absolute top-1 right-1 w-14 h-14 sm:w-[72px] sm:h-[72px] transition-colors ${
-          selected ? 'text-accent/25' : 'text-text-tertiary/20 group-hover:text-accent/25'
+          selected ? 'text-accent/25' : 'text-text-tertiary/40 group-hover:text-accent/40'
         }`}
         strokeWidth={1.5}
         aria-hidden="true"
