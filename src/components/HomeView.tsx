@@ -62,7 +62,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
       if (typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches) {
         return false;
       }
-      return localStorage.getItem('jy_dismiss_install') !== 'true';
+      if (localStorage.getItem('jy_dismiss_install') === 'true') return false;
+      // Tipp erst ab dem zweiten Besuch: Erstbesucher sollen zuerst die Seite sehen.
+      // Gezählt wird einmal pro Sitzung, nicht bei jedem Aufruf der Startseite.
+      let visits = Number(localStorage.getItem('jy_visits') || 0);
+      if (!sessionStorage.getItem('jy_visit_counted')) {
+        visits += 1;
+        localStorage.setItem('jy_visits', String(visits));
+        sessionStorage.setItem('jy_visit_counted', '1');
+      }
+      return visits >= 2;
     } catch {
       return false;
     }
