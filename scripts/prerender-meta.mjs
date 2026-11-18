@@ -302,7 +302,7 @@ async function run() {
   // 1. Generate public/sitemap.xml
   const today = new Date().toISOString().slice(0, 10);
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${routes
   .map((r) => {
     const url = `${SITE_ORIGIN}${r.path}`;
@@ -310,9 +310,6 @@ ${routes
     <loc>${escapeHtml(url)}</loc>
     <lastmod>${today}</lastmod>
     <priority>${r.priority}</priority>
-    <xhtml:link rel="alternate" hreflang="de" href="${escapeHtml(url)}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${escapeHtml(url)}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeHtml(url)}" />
   </url>`;
   })
   .join('\n')}
