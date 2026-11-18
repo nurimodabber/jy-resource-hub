@@ -127,7 +127,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
     return '20';
   });
 
-  const [showCompactFinder, setShowCompactFinder] = useState(false);
+  const [showCompactFinder, setShowCompactFinder] = useState(true);
 
   const handleSearchGames = () => {
     try {
@@ -308,7 +308,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             </Link>
           </nav>
 
-          {/* Spielfinder kompakt (nur bei Klick auf "Spiel finden") */}
+          {/* Spielfinder kompakt (standardmäßig offen, per Klick auf "Spiel finden" zu schließen) */}
           {showCompactFinder && (
             <section id="home-quick-finder" aria-label={L('Kompakter Spielfinder', 'Compact game finder')} className="animate-in fade-in duration-200">
               <Panel className="space-y-4 border border-border bg-surface rounded-card p-4 sm:p-5 shadow-xs">
