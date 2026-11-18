@@ -696,7 +696,8 @@ export const AppContent: React.FC = () => {
               <span className="text-2xs text-text-tertiary whitespace-nowrap leading-none">
                 {t.footerCluster}
               </span>
-              <span className="inline-flex items-center justify-center h-[22px] text-2xs font-medium text-text-secondary px-2.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0 leading-none">
+              <span className="text-border-strong select-none leading-none">·</span>
+              <span className="text-2xs text-text-tertiary whitespace-nowrap leading-none">
                 {t.footerExperimental}
               </span>
             </div>
@@ -753,11 +754,9 @@ export const AppContent: React.FC = () => {
               </span>
             </div>
 
-            {/* Zeile 2: Experimentell links, Kontakt / Impressum / Datenschutz rechts */}
+            {/* Zeile 2: Hinweis links, Kontakt / Impressum / Datenschutz rechts */}
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-2xs">
-              <span className="inline-flex items-center justify-center h-[22px] text-2xs font-medium text-text-secondary px-2.5 rounded-full border border-border-strong/80 bg-surface/40 shrink-0 leading-none">
-                {t.footerExperimental}
-              </span>
+              <span className="text-2xs text-text-tertiary leading-none">{t.footerExperimental}</span>
               <div className="flex flex-wrap items-center justify-end gap-x-3.5 gap-y-1 ml-auto font-medium text-text">
                 <button
                   type="button"
