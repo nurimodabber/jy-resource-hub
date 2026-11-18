@@ -37,6 +37,12 @@ export interface Game {
   idea: LocalizedString;
   rules: LocalizedArray;
   animatorTips: LocalizedArray;
+  /** Short story the animator tells before the game starts */
+  intro?: LocalizedString;
+  variants?: LocalizedArray;
+  safety?: LocalizedArray;
+  /** Questions for the talk after the game */
+  reflection?: LocalizedArray;
   isFavoriteDefault?: boolean;
   status?: 'draft';
   submittedBy?: string;

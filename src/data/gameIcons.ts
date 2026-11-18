@@ -1,8 +1,9 @@
 import type React from 'react';
 import {
-  AcidLakeIcon, BackToBackIcon, BallKeepUpIcon, BallRunIcon, BlanketFlipIcon, BlindSquareIcon, ChopIcon, ClapCircleIcon, CountTogetherIcon, ElectricFenceIcon, EmpireIcon, EvolutionIcon, HeliumStickIcon, IceFloeIcon, InvestigatorIcon, KnotIcon, MinefieldIcon, NinjaIcon, NumberLineIcon, SaladBowlIcon, ShowdownIcon, ShrinkingIslandIcon, SilentGridIcon, SilentLineIcon, SpyIcon, StoryCircleIcon, WerewolfIcon, WhoAmIIcon, WinkIcon,
+  BackToBackIcon, BallKeepUpIcon, BallRunIcon, BlanketFlipIcon, BlindSquareIcon, ChopIcon, ClapCircleIcon, CountTogetherIcon, ElectricFenceIcon, EmpireIcon, EvolutionIcon, HeliumStickIcon, IceFloeIcon, InvestigatorIcon, KnotIcon, MinefieldIcon, NinjaIcon, NumberLineIcon, SaladBowlIcon, ShowdownIcon, SilentLineIcon, SpyIcon, StoryCircleIcon, WerewolfIcon, WhoAmIIcon,
   GameFallbackIcon,
 } from './pictograms';
+import { PROPOSED_GAME_ICONS } from './pictogramsProposal';
 
 type GameIcon = React.ComponentType<{ className?: string; strokeWidth?: number | string }>;
 
@@ -26,9 +27,6 @@ export const GAME_ICONS: Record<string, GameIcon> = {
   '100-schlaege-ball': BallKeepUpIcon,
   'blindes-zahlen-sortieren': NumberLineIcon,
   'elektrischer-zaun': ElectricFenceIcon,
-  saeuresee: AcidLakeIcon,
-  'stille-matrix': SilentGridIcon,
-  'schrumpfende-insel': ShrinkingIslandIcon,
   'ssp-evolution': EvolutionIcon,
   'impuls-kreis': ClapCircleIcon,
   'wer-bin-ich': WhoAmIIcon,
@@ -36,11 +34,11 @@ export const GAME_ICONS: Record<string, GameIcon> = {
   spion: SpyIcon,
   psychiater: InvestigatorIcon,
   empire: EmpireIcon,
-  'schlafmuetze-moerder': WinkIcon,
   'ssp-showdown': ShowdownIcon,
   'salad-bowl': SaladBowlIcon,
   'hi-ha-ho': ChopIcon,
   ninja: NinjaIcon,
+  ...PROPOSED_GAME_ICONS,
 };
 
 export const getGameIcon = (id: string): GameIcon => GAME_ICONS[id] ?? GameFallbackIcon;

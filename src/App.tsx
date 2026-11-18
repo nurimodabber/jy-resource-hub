@@ -38,6 +38,7 @@ const SettingsSheet = lazy(() => import('./components/SettingsSheet').then(m => 
 const CommandPalette = lazy(() => import('./components/CommandPalette').then(m => ({ default: m.CommandPalette })));
 const BahaiSongsModal = lazy(() => import('./components/BahaiSongsModal').then(m => ({ default: m.BahaiSongsModal })));
 const ContactModal = lazy(() => import('./components/ContactModal').then(m => ({ default: m.ContactModal })));
+const IconProposalView = lazy(() => import('./components/IconProposalView'));
 
 const RouteLoading: React.FC<{ language: Language }> = ({ language }) => (
   <div className="max-w-4xl mx-auto py-8 space-y-6 animate-pulse" role="status" aria-label={language === 'de' ? 'Wird geladen' : 'Loading'}>
@@ -636,6 +637,7 @@ export const AppContent: React.FC = () => {
             <Route path="/_design/vergleich" element={<CardComparisonView language={language} />} />
 
             {/* Real 404 Route */}
+            {import.meta.env.DEV && <Route path="/vorschlag/icons" element={<IconProposalView language={language} />} />}
             <Route path="*" element={<NotFoundView language={language} />} />
           </Routes>
           </div>
