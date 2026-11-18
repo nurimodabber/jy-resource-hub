@@ -162,15 +162,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
   const [recentViews] = useState(() => loadRecentViews());
   const [groupTitle] = useState(() => loadGroupTitle());
 
-  // Dates: Gregorian & Badí'
+  // Badí'-Datum
   const badiDate = React.useMemo(() => getBadiDate(new Date()), []);
-  const gregorianFormatted = React.useMemo(() => {
-    return new Date().toLocaleDateString(language === 'de' ? 'de-DE' : 'en-US', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-    });
-  }, [language]);
 
 
   // Time-of-day greeting (re-evaluated on client time; updates periodically)
@@ -256,14 +249,11 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
             {fullGreeting}
           </h1>
-          {/* Dezente Datumszeile (Gregorianisch & Badí') */}
-          <div className="flex flex-wrap items-center gap-2 pt-1 text-2xs sm:text-xs text-text-tertiary">
-            <span className="font-medium text-text-secondary">{gregorianFormatted}</span>
-            <span className="text-border-strong select-none" aria-hidden="true">·</span>
-            <span className="font-medium text-accent-text bg-accent-subtle/70 px-2.5 py-0.5 rounded-full inline-flex items-center">
-              {language === 'de' ? badiDate.formattedDe : badiDate.formattedEn}
-            </span>
-          </div>
+          {/* Kurze Zeile statt Wochentag; das Badí'-Datum bleibt als kleine Meta-Angabe. */}
+          <p className="text-sm sm:text-base text-text-secondary">{L('Heute im Kreis', 'Today in the circle')}</p>
+          <p className="text-2xs sm:text-xs text-text-tertiary">
+            {language === 'de' ? badiDate.formattedDe : badiDate.formattedEn}
+          </p>
         </header>
 
         {/* Rechte Spalte: Die zwei CTAs als edle Pill-Buttons */}
