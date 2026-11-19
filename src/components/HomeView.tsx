@@ -269,10 +269,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               onClick={() => setShowCompactFinder(!showCompactFinder)}
               aria-expanded={showCompactFinder}
               aria-controls="home-quick-finder"
-              className={`relative overflow-hidden rounded-full px-5 py-3.5 sm:py-4 active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px] ${
+              className={`relative overflow-hidden rounded-full px-5 py-3.5 sm:py-4 active:scale-[0.98] transition-transform duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px] ${
                 showCompactFinder
-                  ? 'bg-surface border border-line text-text shadow-sm hover:bg-surface-2/90'
-                  : 'bg-accent text-accent-contrast shadow-md hover:bg-accent-hover border border-white/25'
+                  ? 'bg-surface border border-line text-text shadow-sm [@media(hover:hover)]:hover:bg-surface-2/90'
+                  : 'bg-accent text-accent-contrast shadow-md [@media(hover:hover)]:hover:bg-accent-hover border border-white/25'
               }`}
             >
               <div className="min-w-0 pr-2 relative z-10">
@@ -293,7 +293,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             {/* Aktion 2: Zitate & Gebete (solide, sekundär) */}
             <Link
               to="/quotes"
-              className="relative overflow-hidden rounded-full bg-surface border border-line text-text px-5 py-3.5 sm:py-4 shadow-sm hover:bg-surface-2/90 active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
+              className="relative overflow-hidden rounded-full bg-surface border border-line text-text px-5 py-3.5 sm:py-4 shadow-sm [@media(hover:hover)]:hover:bg-surface-2/90 active:scale-[0.98] transition-transform duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
             >
               <div className="min-w-0 pr-2 relative z-10">
                 <div className="font-bold text-sm sm:text-base text-text group-hover:text-accent tracking-tight transition-colors">
