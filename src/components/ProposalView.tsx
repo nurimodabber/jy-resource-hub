@@ -622,7 +622,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
 
       {/* Step 1: Type Selection — same tiles as "Projekte & mehr", 2 × 2 so it fits one phone screen */}
       {step === 1 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           <FadedIconTile Icon={Dices} title={L('Spiel', 'Game')} onClick={() => { updateField('type', 'spiel'); setStep(2); }} className="!min-h-[84px] sm:!min-h-[128px] lg:!min-h-[180px]" />
           <FadedIconTile Icon={HeartHandshake} title={L('Dienstprojekt', 'Service project')} onClick={() => { updateField('type', 'dienst'); setStep(2); }} className="!min-h-[84px] sm:!min-h-[128px] lg:!min-h-[180px]" />
           <FadedIconTile Icon={Palette} title={L('Kreative Aktivität', 'Creative activity')} onClick={() => { updateField('type', 'kunst'); setStep(2); }} className="!min-h-[84px] sm:!min-h-[128px] lg:!min-h-[180px]" />
