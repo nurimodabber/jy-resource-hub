@@ -1,35 +1,58 @@
 import React from 'react';
 import type { Language } from '../types';
-import { Fig, ink, LIMB, SW, type Arm } from './pictograms';
+import { ink, LIMB, SW, type Arm } from './pictograms';
 
 /**
  * Aufbau-Szenen für Spiel-Detailseiten: zeigen Aufstellung und Bewegung, bevor jemand den Text liest.
  * Prinzip angelehnt an die Szenenbilder des NEVEREST-Methodariums, gezeichnet aber nur mit unseren Piktogramm-Figuren.
  * Regeln:
- * - Gleiche Figuren und Strichstärken wie die Icons (Fig, LIMB, SW); Größen L/M/S geben Tiefe: hinten klein, vorne groß.
+ * - Figuren im Logo-Stil wie die Icons (breiter Bogen-Körper, Kopf mit Abstand, kleine Beinkerbe); Größe s gibt Tiefe: hinten klein, vorne groß.
  * - Farben nur über Tokens: Figuren `text`, hintere Reihe und Bodenmarken `text-tertiary`,
- *   genau eine Akzentfarbe für die Rolle, um die es geht. Keine Verläufe, Schatten oder Animation.
+ *   genau eine Akzentfarbe (Logo-Gold `text-amber`, wie in den Icons) für die Rolle, um die es geht. Blau bleibt Bedienelementen vorbehalten.
+ *   Keine Verläufe, Schatten oder Animation.
  * - Bodenmarken gestrichelt mit 0,75 Strich, Bewegung als gestrichelte Bahn oder kurze Striche.
  * - Spiele ohne Eintrag zeigen keine Szene.
  */
 
 const BACK = 'text-text-tertiary';
-const ACCENT = 'text-accent';
+const ACCENT = 'text-amber';
 const floor = { strokeWidth: 0.75, strokeDasharray: '2 2' } as const;
+
+// Logo-Figur der Szenen: Maße pro Größe s. Höhe 12 · s wie bisher, damit alle Aufstellungen passen.
+const HALF = 3;
+const headR = (s: number) => Math.max(2.5 * s, 1.75);
+const headGap = (s: number) => Math.max(1.2 * s, 0.6);
+
+/** Stehende Figur wie im Logo: runder Kopf mit Abstand über einem Bogen-Körper mit kleiner Beinkerbe. */
+const Fig: React.FC<{ x: number; base?: number; s?: number; arms?: Arm[] }> = ({ x, base = 21, s = 1, arms = [] }) => {
+  const half = HALF * s;
+  const top = base - 12 * s;
+  const r = headR(s);
+  const n = Math.max(0.8 * s, 0.6);
+  return (
+    <g>
+      <circle cx={x} cy={top - headGap(s) - r} r={r} {...ink} />
+      <path d={`M${x - half} ${base}V${top + half}a${half} ${half} 0 0 1 ${2 * half} 0V${base}H${x + n}v${-2.4 * s}a${n} ${n} 0 0 0 ${-2 * n} 0V${base}z`} {...ink} />
+      {arms.map(({ side, to }, i) => (
+        <path key={i} d={`M${x + side * (half - 0.9 * s)} ${top + half + 0.25}${to.map(([dx, dy]) => `l${dx} ${dy}`).join('')}`} strokeWidth={LIMB} />
+      ))}
+    </g>
+  );
+};
 
 // Maße wie in Fig, damit Hände genau an Schultern, Bäuchen oder Händen anderer landen.
 type P = { x: number; base: number; s: number };
-const shoulder = (p: P, side: -1 | 1) => [p.x + side * (2.5 * p.s - 0.75), p.base - 9.5 * p.s + 0.25] as const;
+const shoulder = (p: P, side: -1 | 1) => [p.x + side * (HALF * p.s - 0.9 * p.s), p.base - 12 * p.s + HALF * p.s + 0.25] as const;
 /** Arm, dessen Hand genau auf `to` liegt. Armlänge bis etwa 8 · s wirkt natürlich. */
 const reach = (p: P, side: -1 | 1, [tx, ty]: readonly [number, number]): Arm => {
   const [sx, sy] = shoulder(p, side);
   return { side, to: [[tx - sx, ty - sy]] };
 };
-const headTop = (p: P) => p.base - 12 * p.s - Math.max(p.s, 0.6) - 2 * Math.max(2.5 * p.s, 1.75);
+const headTop = (p: P) => p.base - 12 * p.s - headGap(p.s) - 2 * headR(p.s);
 
 /** Augenbinde: Band in der Farbe der Szenenfläche (surface-2) quer über den Kopf, wie beim Minenfeld. */
 const Blindfold: React.FC<{ p: P }> = ({ p }) => {
-  const r = Math.max(2.5 * p.s, 1.75);
+  const r = headR(p.s);
   return (
     <path
       d={`M${p.x - r - 0.6} ${headTop(p) + r}h${2 * r + 1.2}`}
@@ -85,15 +108,15 @@ const Svg: React.FC<{ box: string; className: string; children: React.ReactNode 
 const Kneel: React.FC<{ x: number; side: -1 | 1; base?: number; s?: number; arm?: [number, number][] }> = ({
   x, side, base = 24, s = 0.8, arm = [],
 }) => {
-  const half = 2.5 * s;
+  const half = HALF * s;
   const hip = base - 4 * s;
   const top = hip - 7 * s;
   const shY = top + half;
-  const hr = Math.max(2.5 * s, 1.75);
+  const hr = headR(s);
   const leg = 1.6 * half;
   return (
     <g>
-      <circle cx={x} cy={top - s - hr} r={hr} {...ink} />
+      <circle cx={x} cy={top - headGap(s) - hr} r={hr} {...ink} />
       <path d={`M${x - half} ${hip}V${shY}a${half} ${half} 0 0 1 ${2 * half} 0V${hip}z`} {...ink} />
       <path d={`M${x} ${hip - 0.5}h${side * 4 * s}V${base}`} strokeWidth={leg} />
       <path d={`M${x} ${hip - 0.5}L${x - side * 0.5 * s} ${base}h${-side * 3 * s}`} strokeWidth={leg} />
@@ -211,7 +234,7 @@ const Minefield = () => {
         <path d="M20 39C30 39 34 34 44 34" strokeWidth={0.9} strokeDasharray="2 2" />
         <Fig x={52} base={36} s={0.8} arms={[{ side: -1, to: [[-2.5, -1.5]] }, { side: 1, to: [[3, -1]] }]} />
       </g>
-      <path d="M49.4 23.6h5.2" strokeWidth={1.5} className="text-surface-2" />
+      <Blindfold p={{ x: 52, base: 36, s: 0.8 }} />
       <Fig x={112} base={41} s={0.8} arms={[{ side: -1, to: [[-2, -3], [-1, -2.5]] }]} />
       <path d="M104 25.5a3 3 0 0 0 0 4M101.5 24a5 5 0 0 0 0 7" strokeWidth={0.9} />
     </Svg>
@@ -547,8 +570,8 @@ const WhoAmI = () => {
 
 /** Kopfmitte und Radius wie in Fig. */
 const head = (p: P) => {
-  const r = Math.max(2.5 * p.s, 1.75);
-  return { x: p.x, y: p.base - 12 * p.s - Math.max(p.s, 0.6) - r, r };
+  const r = headR(p.s);
+  return { x: p.x, y: p.base - 12 * p.s - headGap(p.s) - r, r };
 };
 
 /** Rollen als Zeichen am Kopf: Werwolf Ohren, Seherin Auge, Hexe Hut. Spielleitung steht außen, darüber der Mond. */
