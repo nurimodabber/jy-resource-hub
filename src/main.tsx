@@ -22,6 +22,20 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   </React.StrictMode>
 );
 
+// An installed app can stay open across a deploy; its old page chunks are then gone from the server.
+// Reload once to get the new version instead of showing a blank page (at most every 30 s, so no loop).
+window.addEventListener('vite:preloadError', (e) => {
+  try {
+    const last = Number(sessionStorage.getItem('jy_chunk_reload') || 0);
+    if (Date.now() - last < 30_000) return;
+    sessionStorage.setItem('jy_chunk_reload', String(Date.now()));
+  } catch {
+    return; // without storage there is no loop guard, so leave the error to the page
+  }
+  e.preventDefault();
+  window.location.reload();
+});
+
 if ('serviceWorker' in navigator) {
   if (import.meta.env.PROD) {
     window.addEventListener('load', () => {

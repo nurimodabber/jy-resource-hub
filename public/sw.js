@@ -1,12 +1,19 @@
 /* Offline support: cache pages and assets as they are used or bookmarked, serve them when the network is gone. */
-const CACHE = 'jy-hub-v3';
+const CACHE = 'jy-hub-v4';
 const CORE_URLS = ['/', '/index.html', '/games', '/quotes', '/service-arts', '/treffen', '/saved', '/tools'];
+// Filled by scripts/sw-precache.mjs at build time: every built file, so pages never opened online still work offline.
+const PRECACHE = [];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => c.addAll(CORE_URLS).catch(() => c.add('/')))
+      .then((c) =>
+        c
+          .addAll(CORE_URLS)
+          .catch(() => c.add('/'))
+          .then(() => Promise.all(PRECACHE.map((url) => c.add(url).catch(() => {})))),
+      )
       .then(() => self.skipWaiting()),
   );
 });
@@ -72,7 +79,8 @@ self.addEventListener('fetch', (e) => {
   }
 
   e.respondWith(
-    caches.match(req).then((hit) => {
+    // ignoreVary: precached files were stored without an Origin header, but module scripts send one.
+    caches.match(req, { ignoreVary: true }).then((hit) => {
       const net = fetch(req)
         .then((res) => {
           if (res.ok) {

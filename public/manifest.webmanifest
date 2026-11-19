@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Juju Hub",
   "short_name": "Juju Hub",
   "description": "Spiele, heilige Zitate, Treffen-Planer und Werkzeuge für Animatoren von Juniorjugendgruppen.",
@@ -6,11 +7,16 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0E1626",
-  "theme_color": "#0E1626",
+  "background_color": "#F7F9FC",
+  "theme_color": "#F7F9FC",
   "icons": [
-    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Spiele", "url": "/games", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Timer", "url": "/tools/timer", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Gruppeneinteiler", "url": "/tools/teams", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
   ]
 }

@@ -19,6 +19,7 @@ import {
   Dices,
   MessageSquareQuote,
   Share2,
+  Share,
   } from 'lucide-react';
 import { Language } from '../types';
 import { UI_TRANSLATIONS } from '../data/translations';
@@ -44,7 +45,13 @@ export interface HomeViewProps {
   onToggleFavorite?: (id: string, e: React.MouseEvent) => void;
 }
 
-export const getDayOfYear = (d: Date = new Date()): number => {
+// iPhone and iPad have no install prompt; there it only works via Share → Add to Home Screen.
+// iPadOS reports itself as a Mac, so touch support tells the two apart.
+const isIos = () =>
+  typeof navigator !== 'undefined' &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+
+export const getDayOfYear =(d: Date = new Date()): number => {
   const start = new Date(Date.UTC(d.getFullYear(), 0, 0));
   const diff = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - start.getTime();
   return Math.floor(diff / 86400000);
@@ -213,12 +220,23 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         >
           <div className="flex items-center gap-2 min-w-0">
             <Smartphone className="w-4 h-4 text-accent shrink-0" />
-            <p>
-              {L(
-                'Tipp: Zum Startbildschirm hinzufügen, um die Seite wie eine App und offline zu nutzen.',
-                'Tip: Add to home screen to use the hub offline like an app.'
-              )}
-            </p>
+            {isIos() ? (
+              <p>
+                {L('Als App nutzen: Tippe auf Teilen', 'Use it as an app: tap Share')}{' '}
+                <Share className="inline w-3.5 h-3.5 -mt-0.5 text-accent" aria-hidden="true" />{' '}
+                {L(
+                  'und dann auf „Zum Home-Bildschirm“. So geht es auch offline.',
+                  'and then “Add to Home Screen”. It then works offline too.'
+                )}
+              </p>
+            ) : (
+              <p>
+                {L(
+                  'Tipp: Zum Startbildschirm hinzufügen, um die Seite wie eine App und offline zu nutzen.',
+                  'Tip: Add to home screen to use the hub offline like an app.'
+                )}
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
             {deferredInstallPrompt && (

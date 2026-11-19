@@ -460,7 +460,7 @@ export const AppContent: React.FC = () => {
         className={
           isAdminRoute
             ? 'flex-1 w-full focus:outline-hidden'
-            : 'short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8 short:py-4 pb-6 md:pb-8 focus:outline-hidden'
+            : 'jy-main short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8 short:py-4 pb-6 md:pb-8 focus:outline-hidden'
         }
       >
         <Suspense fallback={<RouteLoading language={language} />}>
@@ -680,6 +680,7 @@ export const AppContent: React.FC = () => {
             language={language}
             setLanguage={setLanguage}
             onOpenBahaiSongs={() => setIsBahaiSongsOpen(true)}
+            onOpenContact={() => setIsContactOpen(true)}
           />
         </Suspense>
       )}
@@ -698,7 +699,7 @@ export const AppContent: React.FC = () => {
       )}
 
       {!isAdminRoute && (
-      <footer className="short-content-pad border-t border-line mt-2 sm:mt-6 py-2.5 sm:py-3.5 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
+      <footer className="jy-site-footer short-content-pad border-t border-line mt-2 sm:mt-6 py-2.5 sm:py-3.5 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           {/* Desktop Footer (alles in einer Zeile angeordnet) */}
           <div className="hidden md:flex items-center justify-between gap-4">
