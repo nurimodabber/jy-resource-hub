@@ -27,6 +27,18 @@ const reach = (p: P, side: -1 | 1, [tx, ty]: readonly [number, number]): Arm => 
 };
 const headTop = (p: P) => p.base - 12 * p.s - Math.max(p.s, 0.6) - 2 * Math.max(2.5 * p.s, 1.75);
 
+/** Augenbinde: Band in der Farbe der Szenenfläche (surface-2) quer über den Kopf, wie beim Minenfeld. */
+const Blindfold: React.FC<{ p: P }> = ({ p }) => {
+  const r = Math.max(2.5 * p.s, 1.75);
+  return (
+    <path
+      d={`M${p.x - r - 0.6} ${headTop(p) + r}h${2 * r + 1.2}`}
+      strokeWidth={Math.max(1.9 * p.s, 1.2)}
+      className="text-surface-2"
+    />
+  );
+};
+
 /** Sprechblase über dem Kopf von `p`. */
 const Bubble: React.FC<{ p: P; text: string }> = ({ p, text }) => {
   const x = p.x;
@@ -168,20 +180,22 @@ const BillyBillyBob: React.FC<{ language: Language }> = ({ language }) => (
 
 const wide = 'block mx-auto w-full max-w-xl h-auto text-text';
 
-/** Fünf Personen eng beieinander, alle Hände kreuz und quer in der Mitte. */
+/** Fünf Personen im Kreis; die vorderen greifen über Kreuz zur gegenüberliegenden Seite, so entsteht der Knoten. */
 const Knot = () => {
-  const a = { x: 47, base: 33, s: 0.7 }, b = { x: 60, base: 33, s: 0.7 }, c = { x: 73, base: 33, s: 0.7 };
-  const d = { x: 51, base: 42, s: 1 }, e = { x: 69, base: 42, s: 1 };
+  const a = { x: 44, base: 34, s: 0.7 }, b = { x: 60, base: 32, s: 0.65 }, c = { x: 76, base: 34, s: 0.7 };
+  const d = { x: 50, base: 42, s: 1 }, e = { x: 70, base: 42, s: 1 };
   return (
-    <Svg box="32 18 56 26" className={wide}>
-      <ellipse cx={60} cy={37} rx={18} ry={4.5} className={BACK} {...floor} />
+    <Svg box="30 16 60 28" className={wide}>
+      <ellipse cx={60} cy={37} rx={20} ry={4.5} className={BACK} {...floor} />
       <g className={BACK}>
-        <Fig {...a} arms={[reach(a, 1, [53, 28]), reach(a, -1, [51, 26])]} />
-        <Fig {...b} arms={[reach(b, -1, [57, 29]), reach(b, 1, [63, 28.5])]} />
-        <Fig {...c} arms={[reach(c, -1, [67, 28]), reach(c, 1, [69, 26])]} />
+        <Fig {...a} arms={[reach(a, 1, [47.5, 30]), reach(a, -1, [41, 31])]} />
+        <Fig {...b} arms={[reach(b, -1, [56.5, 28.5]), reach(b, 1, [63.5, 28.5])]} />
+        <Fig {...c} arms={[reach(c, -1, [72.5, 30]), reach(c, 1, [79, 31])]} />
       </g>
-      <Fig {...d} arms={[reach(d, 1, [59, 28]), reach(d, -1, [55, 28])]} />
-      <Fig {...e} arms={[reach(e, -1, [61, 28]), reach(e, 1, [65, 28])]} />
+      <g className={ACCENT}>
+        <Fig {...d} arms={[reach(d, 1, [63.5, 28.5]), reach(d, -1, [47.5, 30])]} />
+      </g>
+      <Fig {...e} arms={[reach(e, -1, [56.5, 28.5]), reach(e, 1, [72.5, 30])]} />
     </Svg>
   );
 };
@@ -281,13 +295,14 @@ const WordStory: React.FC<{ language: Language }> = ({ language }) => (
   <Chain words={language === 'de' ? ['Es', 'war', 'einmal'] : ['Once', 'upon', 'a time']} />
 );
 
+/** Zwei Reihen, der Stab liegt auf Brusthöhe nur auf den Zeigefingern. */
 const HeliumStick = () => (
-  <Svg box="20 16 82 28" className={wide}>
+  <Svg box="20 20 82 24" className={wide}>
     <g className={BACK}>
-      {[40, 60, 80].map(x => <Fig key={x} x={x} base={30} s={0.6} arms={[{ side: 1, to: [[1, 2.5]] }]} />)}
+      {[40, 60, 80].map(x => <Fig key={x} x={x} base={36.5} s={0.6} arms={[{ side: 1, to: [[1, 3]] }]} />)}
     </g>
-    <path d="M24 27H98" strokeWidth={1.5} className={ACCENT} />
-    {[30, 50, 70, 90].map(x => <Fig key={x} x={x} base={42} arms={[{ side: 1, to: [[1.5, -5.5]] }]} />)}
+    {[30, 50, 70, 90].map(x => <Fig key={x} x={x} base={42} arms={[{ side: 1, to: [[1.75, 2.75]] }]} />)}
+    <path d="M24 34.25H98" strokeWidth={1.5} className={ACCENT} />
   </Svg>
 );
 
@@ -347,11 +362,19 @@ const MarbleRun = () => (
   <Svg box="16 10 84 34" className={wide}>
     <path d="M26 22C40 12 80 12 92 24" className={BACK} {...trail} />
     <path d="M92 24l-.5-2.5M92 24l-2.5-.5" className={BACK} strokeWidth={0.9} />
-    {([[30, -1.4], [46, 0.2], [62, 1.7], [78, 3.3]] as const).map(([x, dy]) => (
-      <Fig key={x} x={x} base={41} s={0.85} arms={[{ side: 1, to: [[2.5, dy]] }]} />
-    ))}
-    <path d="M24 30L86 36" strokeWidth={2} />
-    <g className={ACCENT}><Ball x={91} y={34.8} /></g>
+    {[30, 46, 62, 78].map((x, i) => {
+      // Jede Person hält ein eigenes kurzes Rohrstück, leicht abfallend; dazwischen bleibt eine Lücke.
+      const p = { x, base: 41, s: 0.85 };
+      // Rohr seitlich neben dem Körper, sonst verschmelzen Rohr, Arme und Körper zu einer Fläche.
+      const y = 33.5 + i * 1.1;
+      return (
+        <g key={x}>
+          <Fig {...p} arms={[reach(p, 1, [x + 5, y + 0.2])]} />
+          <path d={`M${x + 3} ${y}L${x + 12.5} ${y + 1.1}`} strokeWidth={1.75} />
+        </g>
+      );
+    })}
+    <g className={ACCENT}><Ball x={93} y={37.4} /></g>
   </Svg>
 );
 
@@ -364,6 +387,9 @@ const BlindSquare = () => (
     <path d="M42 27H78L90 35H30z" className={ACCENT} strokeWidth={1.5} />
     <Fig x={30} base={41} s={0.95} arms={[{ side: -1, to: [[-0.5, 3]] }, { side: 1, to: [[0.5, 3]] }]} />
     <Fig x={90} base={41} s={0.95} arms={[{ side: -1, to: [[-0.5, 3]] }, { side: 1, to: [[0.5, 3]] }]} />
+    {[{ x: 42, base: 30, s: 0.65 }, { x: 78, base: 30, s: 0.65 }, { x: 30, base: 41, s: 0.95 }, { x: 90, base: 41, s: 0.95 }].map(p => (
+      <Blindfold key={p.x} p={p} />
+    ))}
   </Svg>
 );
 
@@ -413,13 +439,14 @@ const BlindNumbers = () => {
   );
 };
 
+/** Seil auf Brusthöhe; zwei Personen heben eine dritte darüber, ihre Hände tragen sie an den Füßen. */
 const ElectricFence = () => (
-  <Svg box="24 6 76 38" className={wide}>
-    <path d="M30 41V24M90 41V24" className={BACK} strokeWidth={1.25} />
-    <path d="M30 28H90" className={ACCENT} strokeWidth={1.5} />
-    <Fig x={60} base={25} s={0.8} />
-    <Fig x={46} base={41} arms={[{ side: 1, to: [[3, -5], [3, -2]] }]} />
-    <Fig x={74} base={41} arms={[{ side: -1, to: [[-3, -5], [-3, -2]] }]} />
+  <Svg box="24 8 72 36" className={wide}>
+    <path d="M30 41V30M90 41V30" className={BACK} strokeWidth={1.25} />
+    <path d="M30 33H90" className={ACCENT} strokeWidth={1.5} />
+    <Fig x={60} base={24} s={0.8} />
+    <Fig x={51} base={41} arms={[reach({ x: 51, base: 41, s: 1 }, 1, [58.25, 24.75])]} />
+    <Fig x={69} base={41} arms={[reach({ x: 69, base: 41, s: 1 }, -1, [61.75, 24.75])]} />
   </Svg>
 );
 
@@ -735,10 +762,16 @@ const Robot = () => (
   </Svg>
 );
 
+/** Die Gruppe lenkt den Delfin (Akzent) nur mit Klatschen: je näher am Ziel, desto lauter. */
 const Dolphin = () => (
-  <Svg box="20 14 80 30" className={wide}>
+  <Svg box="20 12 80 32" className={wide}>
     <g className={BACK}>
-      {[60, 72, 84].map(x => <Fig key={x} x={x} base={29} s={0.6} arms={[{ side: 1, to: [[0, -3]] }, { side: -1, to: [[0, -3]] }]} />)}
+      {[60, 72, 84].map(x => (
+        <g key={x}>
+          <Fig x={x} base={30} s={0.6} arms={[{ side: 1, to: [[2, -3]] }, { side: -1, to: [[-2, -3]] }]} />
+          <path d={`M${x - 3.5} 15.5l.75 1.25M${x} 14v1.5M${x + 3.5} 15.5l-.75 1.25`} strokeWidth={0.9} />
+        </g>
+      ))}
     </g>
     <path d="M90 41l3-5 3 5z" className={BACK} {...ink} />
     <g className={ACCENT}>
@@ -845,16 +878,66 @@ const DropCurtain = () => (
     <g className={BACK}>
       {[20, 30, 90, 100].map(x => <Fig key={x} x={x} base={34} s={0.65} />)}
     </g>
-    <Fig x={44} base={42} arms={[{ side: 1, to: [[3, -1.5]] }]} />
-    <Fig x={76} base={42} arms={[{ side: -1, to: [[-3, -1.5]] }]} />
+    <g className={BACK}>
+      {/* Zwei Personen halten das Tuch an den oberen Ecken. */}
+      <Fig x={49} base={36} s={0.7} arms={[reach({ x: 49, base: 36, s: 0.7 }, 1, [54, 22.5])]} />
+      <Fig x={71} base={36} s={0.7} arms={[reach({ x: 71, base: 36, s: 0.7 }, -1, [66, 22.5])]} />
+    </g>
+    <Fig x={38} base={42} arms={[{ side: 1, to: [[3, -1.5]] }]} />
+    <Fig x={82} base={42} arms={[{ side: -1, to: [[-3, -1.5]] }]} />
     <g className={ACCENT}>
-      <rect x={56} y={14} width={8} height={20} rx={1} {...ink} />
-      <path d="M58 37v4M62 37v4M56.5 39.5L58 41l1.5-1.5M60.5 39.5L62 41l1.5-1.5" strokeWidth={0.9} />
+      <rect x={54} y={22} width={12} height={14} rx={1} {...ink} />
+      <path d="M58 38v3.5M62 38v3.5M56.5 40L58 41.5l1.5-1.5M60.5 40L62 41.5l1.5-1.5" strokeWidth={0.9} />
     </g>
   </Svg>
 );
 
+/** Vorn ein Paar mit gedachter Spiegelfläche dazwischen, der Spiegel (Akzent) macht die Bewegung seitenverkehrt mit; hinten ein zweites Paar. */
+const Mirror = () => {
+  const lead = { x: 46, base: 41, s: 1 }, mirror = { x: 66, base: 41, s: 1 };
+  const backA = { x: 84, base: 33, s: 0.65 }, backB = { x: 98, base: 33, s: 0.65 };
+  return (
+    <Svg box="26 15 80 29" className={wide}>
+      <path d="M28 41H104" className={BACK} strokeWidth={0.75} />
+      <g className={BACK}>
+        <Fig {...backA} arms={[reach(backA, 1, [89, 24.5]), { side: -1, to: [[-2.5, 2]] }]} />
+        <Fig {...backB} arms={[reach(backB, -1, [93, 24.5]), { side: 1, to: [[2.5, 2]] }]} />
+        <path d="M56 18V43" {...floor} />
+      </g>
+      <Fig {...lead} arms={[reach(lead, 1, [54.5, 26.5]), { side: -1, to: [[-3, 4]] }]} />
+      <g className={ACCENT}>
+        <Fig {...mirror} arms={[reach(mirror, -1, [57.5, 26.5]), { side: 1, to: [[3, 4]] }]} />
+      </g>
+    </Svg>
+  );
+};
+
+/** Eine Kleingruppe steht erstarrt als Standbild auf einer Fläche; die anderen gehen herum und beschreiben, was sie sehen. */
+const Sculpture = () => {
+  const a = { x: 46, base: 40, s: 0.95 }, b = { x: 60, base: 40, s: 0.95 }, c = { x: 74, base: 40, s: 0.95 };
+  const viewer = { x: 26, base: 37, s: 0.7 };
+  return (
+    <Svg box="16 12 88 34" className={wide}>
+      <path d="M38 41.25H82" className={BACK} strokeWidth={2} />
+      <g className={BACK}>
+        <Fig {...viewer} arms={[reach(viewer, 1, [33, 29])]} />
+        <Fig x={94} base={37} s={0.7} />
+        <Fig x={84} base={30} s={0.55} />
+        <path d="M28 41C40 46 80 46 94 40.5" {...trail} />
+        <path d="M94 40.5l-2.4.1M94 40.5l-1.3 2" strokeWidth={0.9} />
+      </g>
+      <Fig {...a} arms={[reach(a, 1, [53, 25]), { side: -1, to: [[-3, -5.5]] }]} />
+      <Fig {...c} arms={[reach(c, -1, [67, 25]), { side: 1, to: [[3, -5.5]] }]} />
+      <g className={ACCENT}>
+        <Fig {...b} arms={[reach(b, -1, [53, 25]), reach(b, 1, [67, 25])]} />
+      </g>
+    </Svg>
+  );
+};
+
 const SCENES: Record<string, React.FC<{ language: Language }>> = {
+  spiegel: Mirror,
+  'lebendige-skulptur': Sculpture,
   'billy-billy-bob': BillyBillyBob,
   'menschlicher-knoten': Knot,
   minenfeld: Minefield,

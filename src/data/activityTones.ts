@@ -1,9 +1,11 @@
 import type React from 'react';
 import type { ActivityItem } from '../types';
+import { ServiceFallbackIcon } from './pictograms';
 import {
-  ChildrenIcon, CreativeIcon, DramaIcon, EnvironmentIcon, GenerationsIcon, InstitutionIcon, MuralIcon, MusicIcon,
-  NeighborhoodIcon, PaletteIcon, ServiceFallbackIcon,
-} from './pictograms';
+  ChildrenLogo as ChildrenIcon, CreativeLogo as CreativeIcon, DramaLogo as DramaIcon, EnvironmentLogo as EnvironmentIcon,
+  GenerationsLogo as GenerationsIcon, InstitutionLogo as InstitutionIcon, MuralLogo as MuralIcon, MusicLogo as MusicIcon,
+  NeighborhoodLogo as NeighborhoodIcon, PaletteLogo as PaletteIcon,
+} from './pictogramsLogo';
 
 type ToneIcon = React.ComponentType<{ className?: string; strokeWidth?: number | string }>;
 
