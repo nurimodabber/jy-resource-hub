@@ -29,6 +29,7 @@ type ToolDef = {
   icon: LucideIcon;
   title: [string, string];
   desc: [string, string];
+  short: [string, string];
   group: 'group' | 'run' | 'ideas';
   customHref?: string;
   Component?: React.ComponentType<{ language: Language }>;
@@ -45,6 +46,7 @@ const TOOLS: ToolDef[] = [
     id: 'cards',
     icon: MessageSquareQuote,
     title: ['Gesprächskarten', 'Conversation cards'],
+    short: ['Fragen für den Kreis', 'Circle questions'],
     desc: ['Fragen und heilige Zitate für das Gespräch im Kreis.', 'Questions and sacred scripture for circle conversation.'],
     group: 'ideas',
     Component: CardsTool,
@@ -53,6 +55,7 @@ const TOOLS: ToolDef[] = [
     id: 'teams',
     icon: Users,
     title: ['Gruppeneinteiler', 'Group divider'],
+    short: ['Faire Teams und Paare', 'Fair teams and pairs'],
     desc: ['Faire Teams und Zweiergruppen bilden, ohne dieselben Paare zu wiederholen.', 'Form fair teams and pairs without repeating pairings.'],
     group: 'group',
     Component: TeamsTool,
@@ -61,6 +64,7 @@ const TOOLS: ToolDef[] = [
     id: 'timer',
     icon: Timer,
     title: ['Timer & Intervall', 'Timer & Interval'],
+    short: ['Runden mit Signalton', 'Rounds with a chime'],
     desc: ['Große Anzeige mit Signalton und Runden.', 'Large display with chime and rounds.'],
     group: 'run',
     Component: TimerTool,
@@ -69,6 +73,7 @@ const TOOLS: ToolDef[] = [
     id: 'scoreboard',
     icon: Tally5,
     title: ['Punktetafel', 'Scoreboard'],
+    short: ['Punkte fair zählen', 'Keep score fairly'],
     desc: ['Punkte für Stationen oder Quizrunden ohne Beschämung erfassen.', 'Track points for stations or quiz rounds without shaming.'],
     group: 'run',
     Component: ScoreboardTool,
@@ -77,6 +82,7 @@ const TOOLS: ToolDef[] = [
     id: 'group',
     icon: UserCheck,
     title: ['Meine Gruppe', 'My group'],
+    short: ['Namen und Anwesenheit', 'Names and attendance'],
     desc: ['Gemeinsame Namens- und Anwesenheitsliste für alle Werkzeuge.', 'Shared presence and member list across all tools.'],
     group: 'group',
     Component: GroupManagerToolWrapper,
@@ -174,10 +180,10 @@ export const ToolkitsView: React.FC<ToolkitsViewProps> = ({ language, toolId: pr
         </p>
       </div>
 
-      {/* Tools as tiles: title + faded icon, no description, no category pill */}
+      {/* Tools as tiles: title, one short line, faded icon; no category pill */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
         {TOOLS.map((x, i) => (
-          <FadedIconTile key={x.id} to={x.customHref || `/tools/${x.id}`} Icon={x.icon} title={x.title[isDe ? 0 : 1]} className={`min-h-[76px] sm:min-h-[112px] lg:min-h-[160px] ${i === TOOLS.length - 1 ? 'col-span-2 lg:col-span-1' : ''}`} />
+          <FadedIconTile key={x.id} to={x.customHref || `/tools/${x.id}`} Icon={x.icon} title={x.title[isDe ? 0 : 1]} sub={x.short[isDe ? 0 : 1]} className={`min-h-[76px] sm:min-h-[112px] lg:min-h-[160px] ${i === TOOLS.length - 1 ? 'col-span-2 lg:col-span-1' : ''}`} />
         ))}
       </div>
     </div>

@@ -29,7 +29,7 @@ export const FadedIconTile: React.FC<FadedIconTileProps> = ({ title, sub, Icon, 
         aria-hidden="true"
       />
       <span className="relative block font-serif text-base sm:text-lg font-medium text-text tracking-tight leading-snug">{title}</span>
-      {sub && <span className="relative block text-2xs sm:text-xs text-text-secondary mt-0.5 leading-snug">{sub}</span>}
+      {sub && <span className="relative block text-2xs sm:text-xs text-text-secondary mt-0.5 leading-snug line-clamp-1">{sub}</span>}
     </>
   );
   if (to) {
