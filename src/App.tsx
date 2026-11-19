@@ -444,7 +444,7 @@ export const AppContent: React.FC = () => {
         className={
           isAdminRoute
             ? 'flex-1 w-full focus:outline-hidden'
-            : 'short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8 short:py-4 pb-24 md:pb-8 focus:outline-hidden'
+            : 'short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8 short:py-4 pb-6 md:pb-8 focus:outline-hidden'
         }
       >
         <Suspense fallback={<RouteLoading language={language} />}>
@@ -681,7 +681,7 @@ export const AppContent: React.FC = () => {
       )}
 
       {!isAdminRoute && (
-      <footer className="short-content-pad border-t border-line mt-4 sm:mt-6 py-3 sm:py-3.5 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
+      <footer className="short-content-pad border-t border-line mt-2 sm:mt-6 py-2.5 sm:py-3.5 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           {/* Desktop Footer (alles in einer Zeile angeordnet) */}
           <div className="hidden md:flex items-center justify-between gap-4">
@@ -734,13 +734,9 @@ export const AppContent: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile / Vertikal Footer:
-              - Tausche Experimentell mit Cluster Rhein Neckar
-              - Verschiebe Kontakt Impressum Datenschutz nach rechts
-              - Geringerer Abstand / kompaktere Größe, alle Elemente horizontal exakt auf gleicher Höhe */}
-          <div className="md:hidden space-y-2">
-            {/* Zeile 1: Brand links, Cluster Rhein-Neckar rechts */}
-            <div className="flex items-center justify-between gap-2">
+          {/* Mobil: zwei Zeilen, damit der Footer über der Tab-Leiste wenig Höhe kostet. */}
+          <div className="md:hidden space-y-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-4 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
                   <Logo className="w-2.5 h-2.5 text-accent" />
@@ -751,33 +747,31 @@ export const AppContent: React.FC = () => {
                 <span className="text-2xs text-text-tertiary select-none leading-none">
                   © {new Date().getFullYear()}
                 </span>
+                <span className="text-border-strong select-none leading-none">·</span>
+                <span className="text-2xs text-text-tertiary leading-none">{t.footerExperimental}</span>
               </div>
-              <span className="text-2xs text-text-tertiary font-medium shrink-0 leading-none">
+              <span className="text-2xs text-text-tertiary leading-none">
                 {t.footerCluster}
               </span>
             </div>
 
-            {/* Zeile 2: Hinweis links, Kontakt / Impressum / Datenschutz rechts */}
-            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-2xs">
-              <span className="text-2xs text-text-tertiary leading-none">{t.footerExperimental}</span>
-              <div className="flex flex-wrap items-center justify-end gap-x-3.5 gap-y-1 ml-auto font-medium text-text">
-                <button
-                  type="button"
-                  onClick={() => setIsContactOpen(true)}
-                  className="h-[22px] min-w-[44px] flex items-center justify-center hover:text-accent transition-colors cursor-pointer leading-none"
-                >
-                  {t.footerContact}
-                </button>
-                <Link to="/impressum" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
-                  {t.footerImpressum}
-                </Link>
-                <Link to="/datenschutz" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
-                  {t.footerDatenschutz}
-                </Link>
-                <Link to="/nutzungsbedingungen" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
-                  {t.footerTerms}
-                </Link>
-              </div>
+            <div className="flex flex-wrap items-center justify-between gap-x-3 text-2xs font-medium text-text">
+              <button
+                type="button"
+                onClick={() => setIsContactOpen(true)}
+                className="h-6 flex items-center hover:text-accent transition-colors cursor-pointer leading-none"
+              >
+                {t.footerContact}
+              </button>
+              <Link to="/impressum" className="h-6 flex items-center hover:text-accent transition-colors leading-none">
+                {t.footerImpressum}
+              </Link>
+              <Link to="/datenschutz" className="h-6 flex items-center hover:text-accent transition-colors leading-none">
+                {t.footerDatenschutz}
+              </Link>
+              <Link to="/nutzungsbedingungen" className="h-6 flex items-center hover:text-accent transition-colors leading-none">
+                {t.footerTerms}
+              </Link>
             </div>
           </div>
         </div>
