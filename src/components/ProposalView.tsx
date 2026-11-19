@@ -585,7 +585,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
             {step === 1
               ? L('Art wählen', 'Choose type')
               : step === 2
-              ? L('Details & Ablauf', 'Details & Steps')
+              ? L('Details und Ablauf', 'Details & Steps')
               : L('Bestätigung', 'Confirmation')}
           </span>
         </div>
@@ -612,7 +612,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
         </span>
         <ChevronRight className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
         <span className={`px-3 py-1 rounded-chip ${step === 2 ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary'}`}>
-          2. {L('Details & Ablauf', 'Details & Steps')}
+          2. {L('Details und Ablauf', 'Details & Steps')}
         </span>
         <ChevronRight className="w-3.5 h-3.5 text-text-tertiary" aria-hidden="true" />
         <span className={`px-3 py-1 rounded-chip ${step === 3 ? 'bg-accent text-accent-contrast' : 'bg-surface-2 text-text-secondary'}`}>
@@ -626,7 +626,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
           <FadedIconTile Icon={Dices} title={L('Spiel', 'Game')} onClick={() => { updateField('type', 'spiel'); setStep(2); }} className="!min-h-[88px] sm:!min-h-[128px] lg:!min-h-[180px]" />
           <FadedIconTile Icon={HeartHandshake} title={L('Dienstprojekt', 'Service project')} onClick={() => { updateField('type', 'dienst'); setStep(2); }} className="!min-h-[88px] sm:!min-h-[128px] lg:!min-h-[180px]" />
           <FadedIconTile Icon={Palette} title={L('Kreative Aktivität', 'Creative activity')} onClick={() => { updateField('type', 'kunst'); setStep(2); }} className="!min-h-[88px] sm:!min-h-[128px] lg:!min-h-[180px]" />
-          <FadedIconTile Icon={MessageSquare} title={L('Feedback & Ideen', 'Feedback & ideas')} onClick={() => setIsFeedbackOpen(true)} className="!min-h-[88px] sm:!min-h-[128px] lg:!min-h-[180px]" />
+          <FadedIconTile Icon={MessageSquare} title={L('Feedback und Ideen', 'Feedback & ideas')} onClick={() => setIsFeedbackOpen(true)} className="!min-h-[88px] sm:!min-h-[128px] lg:!min-h-[180px]" />
         </div>
       )}
 
@@ -658,7 +658,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
               <Panel className="space-y-6">
                 <div>
                   <p className="text-xs font-semibold text-text-secondary mb-2">
-                    {formData.type === 'spiel' ? L('Spiel', 'Game') : formData.type === 'dienst' ? L('Dienstprojekt', 'Service project') : L('Kunst & Ausdruck', 'Arts & expression')} · {L('Entwurf', 'Draft')}
+                    {formData.type === 'spiel' ? L('Spiel', 'Game') : formData.type === 'dienst' ? L('Dienstprojekt', 'Service project') : L('Kunst und Ausdruck', 'Arts & expression')} · {L('Entwurf', 'Draft')}
                     {formData.relatedBook && (
                       <>
                         {' · '}
@@ -848,7 +848,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
                   <div className="flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-accent" />
                     <span className="text-xs font-bold text-text">
-                      {L('Juniorjugend-Buch & Lektion (optional)', 'Junior Youth Book & Lesson (optional)')}
+                      {L('Juniorjugend-Buch und Lektion (optional)', 'Junior Youth Book & Lesson (optional)')}
                     </span>
                   </div>
 
@@ -983,7 +983,7 @@ const ProposalForm: React.FC<ProposalViewProps> = ({ language }) => {
               {(formData.type === 'dienst' || formData.type === 'kunst') && (
                 <Panel className="space-y-4">
                   <h3 className="text-xs font-bold text-accent-text">
-                    {L('Zusatzangaben für Projekt & Reflexion', 'Project & reflection details')}
+                    {L('Zusatzangaben für Projekt und Reflexion', 'Project & reflection details')}
                   </h3>
                   <div>
                     <Label htmlFor="prop-obj">{L('Ziel des Projekts', 'Objective')}</Label>

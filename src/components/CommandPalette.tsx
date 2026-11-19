@@ -117,7 +117,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     // Tools dataset
     const TOOLS_SEARCH = [
       { id: 'teams', title: isDe ? 'Gruppeneinteiler' : 'Group divider', desc: isDe ? 'Teams und Zweiergruppen zufällig und fair einteilen' : 'Random and balanced teams and pairs', icon: Users },
-      { id: 'timer', title: isDe ? 'Timer & Intervall' : 'Timer & Interval', desc: isDe ? 'Große Countdown-Anzeige mit Signalton' : 'Large countdown display with chime', icon: Timer },
+      { id: 'timer', title: isDe ? 'Timer und Intervall' : 'Timer & Interval', desc: isDe ? 'Große Countdown-Anzeige mit Signalton' : 'Large countdown display with chime', icon: Timer },
       { id: 'scoreboard', title: isDe ? 'Punktetafel' : 'Scoreboard', desc: isDe ? 'Punkte für Stationen oder Quizrunden ohne Rangliste' : 'Track points for stations or quiz rounds without rankings', icon: Tally5 },
       { id: 'cards', title: isDe ? 'Gesprächskarten' : 'Conversation cards', desc: isDe ? 'Fragen und Zitate für den Kreis' : 'Questions and quotes for group circles', icon: MessageSquareQuote },
       { id: 'group', title: isDe ? 'Meine Gruppe' : 'My group', desc: isDe ? 'Gemeinsame Namens- und Anwesenheitsliste' : 'Shared member presence list', icon: UserCheck },

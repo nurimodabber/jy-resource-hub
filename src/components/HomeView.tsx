@@ -297,7 +297,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                   {L('Spiel finden', 'Find a game')}
                 </div>
                 <p className={`text-2xs font-medium leading-tight truncate ${showCompactFinder ? 'text-text-secondary' : 'text-accent-contrast'}`}>
-                  {L('Gruppengröße & Zeit wählen', 'Pick group size & time')}
+                  {L('Gruppengröße und Zeit wählen', 'Pick group size & time')}
                 </p>
               </div>
               <ArrowRight
@@ -307,17 +307,17 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               />
             </button>
 
-            {/* Aktion 2: Zitate & Gebete (solide, sekundär) */}
+            {/* Aktion 2: Zitate und Gebete (solide, sekundär) */}
             <Link
               to="/quotes"
               className="relative overflow-hidden rounded-full bg-surface border border-line text-text px-5 py-3.5 sm:py-4 shadow-sm [@media(hover:hover)]:hover:bg-surface-2/90 active:scale-[0.98] transition-transform duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
             >
               <div className="min-w-0 pr-2 relative z-10">
                 <div className="font-bold text-sm sm:text-base text-text group-hover:text-accent tracking-tight transition-colors">
-                  {L('Zitate & Gebete', 'Quotes & Prayers')}
+                  {L('Zitate und Gebete', 'Quotes & Prayers')}
                 </div>
                 <p className="text-2xs text-text-secondary leading-tight truncate">
-                  {L('Texte nachschlagen & vertiefen', 'Look up texts & reflect')}
+                  {L('Texte nachschlagen und vertiefen', 'Look up texts & reflect')}
                 </p>
               </div>
               <ArrowRight className="w-4 h-4 text-text-tertiary group-hover:text-accent group-hover:translate-x-1 transition-all shrink-0 relative z-10" />
@@ -467,7 +467,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {[
             { to: '/tools/teams', Icon: Users, title: L('Gruppeneinteiler', 'Group divider') },
-            { to: '/tools/timer', Icon: Timer, title: L('Timer & Intervall', 'Timer & Interval') },
+            { to: '/tools/timer', Icon: Timer, title: L('Timer und Intervall', 'Timer & Interval') },
             { to: '/tools/scoreboard', Icon: Tally5, title: L('Punktetafel', 'Scoreboard') },
             { to: '/tools/cards', Icon: MessageSquareQuote, title: L('Gesprächskarten', 'Conversation cards') },
           ].map(({ to, Icon, title }) => (

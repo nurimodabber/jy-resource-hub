@@ -553,8 +553,8 @@ export const EmpireCompanion: React.FC<EmpireCompanionProps> = ({ language }) =>
                     <EyeOff className="w-4 h-4" />
                     <span>
                       {passIndex + 1 < playerCount
-                        ? L('Verbergen & an nächste Person', 'Hide & pass to next player')
-                        : L('Verbergen & zum Vorlesen', 'Hide & proceed to reading')}
+                        ? L('Verbergen und an nächste Person', 'Hide & pass to next player')
+                        : L('Verbergen und zum Vorlesen', 'Hide & proceed to reading')}
                     </span>
                   </button>
                 </div>

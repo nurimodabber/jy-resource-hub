@@ -235,8 +235,8 @@ export const TimerTool: React.FC<{ language: Language }> = ({ language }) => {
                 ? 'bg-accent/15 border-accent text-accent'
                 : 'bg-surface-2 hover:bg-surface-raised border-border text-text-secondary hover:text-text'
             }`}
-            title={L('Hilfe & Anleitung', 'Help & instructions')}
-            aria-label={L('Hilfe & Anleitung', 'Help & instructions')}
+            title={L('Hilfe und Anleitung', 'Help & instructions')}
+            aria-label={L('Hilfe und Anleitung', 'Help & instructions')}
           >
             <HelpCircle className="w-4 h-4" />
           </button>

@@ -4,9 +4,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
   {
     id: 'breezes-two-roads-skit',
     kind: 'kunst',
+    status: 'draft',
     title: {
-      de: 'Theater: Die Weggabelung der Bestätigungen',
-      en: 'Drama: The Fork in the Road of Confirmation'
+      de: 'Theaterstück: Aufgeben oder weitergehen',
+      en: 'Short play: give up or keep going'
     },
     book: {
       de: 'Brisen der Bestätigung',
@@ -24,12 +25,12 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
     setting: 'drinnen',
     occasion: 'beides',
     theme: {
-      de: 'Entscheidungen & Bestätigungen',
-      en: 'Choices & Divine Confirmations'
+      de: 'Entscheidungen und Bestätigung',
+      en: 'Choices and confirmation'
     },
     description: {
-      de: 'Ein kurzes Szenenspiel in zwei Akten: Wie verändert sich der Ausgang einer scheinbar unlösbaren Situation, wenn jemand aufgibt vs. wenn jemand mutig die ersten Schritte wagt und unerwartete Hilfe erfährt?',
-      en: 'A two-act drama comparing outcomes: what transpires when a protagonist yields to helplessness versus when they step forward with courage and attract unseen support?'
+      de: 'Ein kurzes Stück in zwei Szenen. In der ersten gibt jemand in einer schwierigen Lage auf. In der zweiten wagt die Person den ersten Schritt und bekommt Hilfe, mit der sie nicht gerechnet hat.',
+      en: 'A short play in two scenes. In the first, someone in a hard situation gives up. In the second, they take the first step and get help they did not expect.'
     },
     materials: {
       de: ['Alltägliche Requisiten (Rucksack, Stuhl, Handy)', 'Kleines Glöckchen als Symbol für Bestätigung'],
@@ -73,9 +74,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
   {
     id: 'straight-path-stepping-stones-mural',
     kind: 'kunst',
+    status: 'draft',
     title: {
-      de: 'Gemeinschafts-Wandbild: Trittsteine des geraden Pfades',
-      en: 'Collaborative Mural: Stepping Stones of the Straight Path'
+      de: 'Wandbild: Trittsteine über den Fluss',
+      en: 'Mural: stepping stones across the river'
     },
     book: {
       de: 'Den geraden Pfad gehen',
@@ -93,15 +95,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
     setting: 'drinnen',
     occasion: 'camp',
     theme: {
-      de: 'Wahrhaftigkeit & Geradlinigkeit',
-      en: 'Truthfulness & Steadfastness'
+      de: 'Wahrhaftigkeit und Geradlinigkeit',
+      en: 'Truthfulness and steadfastness'
     },
     description: {
-      de: 'Die Gruppe gestaltet eine große Wand-Collage mit einem gewundenen Fluss und leuchtenden Trittsteinen, die Tugenden und moralische Entscheidungen symbolisieren.',
-      en: 'The group paints an expansive collaborative mural depicting a rushing river crossed by luminous stepping stones representing virtues.'
+      de: 'Die Gruppe malt gemeinsam ein großes Bild mit einem Fluss und Trittsteinen. Jeder Stein steht für eine Tugend oder eine gute Entscheidung.',
+      en: 'The group paints one large picture together: a river with stepping stones. Each stone stands for a virtue or a good choice.'
     },
     materials: {
-      de: ['Große Papierrolle / Packpapier (3–4 Meter)', 'Acrylfarben & Pinsel', 'Wachsmalstifte & Fineliner', 'Schablonen für Steine und Wasser'],
+      de: ['Große Papierrolle / Packpapier (3–4 Meter)', 'Acrylfarben und Pinsel', 'Wachsmalstifte und Fineliner', 'Schablonen für Steine und Wasser'],
       en: ['Large craft butcher paper roll (3–4 meters)', 'Acrylic paints & wide brushes', 'Oil pastels & permanent markers', 'Cardboard stencils for river stones']
     },
     guidingSteps: {
@@ -142,9 +144,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
   {
     id: 'power-word-rhythm-cypher',
     kind: 'kunst',
+    status: 'draft',
     title: {
-      de: 'Wort-Kraft: Spoken Word & Percussion-Cypher',
-      en: 'Power of the Word: Spoken Word & Percussion Cypher'
+      de: 'Sprechgesang mit Rhythmus',
+      en: 'Spoken word with rhythm'
     },
     book: {
       de: 'Entdecke die Macht der Worte',
@@ -162,15 +165,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
     setting: 'beides',
     occasion: 'beides',
     theme: {
-      de: 'Geistige Schöpferkraft der Sprache',
-      en: 'The Transformative Potency of Language'
+      de: 'Die Kraft der Worte',
+      en: 'The power of words'
     },
     description: {
-      de: 'Ein dynamischer Rhythmus-Kreis: Die Jugendlichen verweben Verse der Heiligen Schriften mit eigenen gereimten Zeilen über Schöpferkraft, Gedanken und Taten.',
-      en: 'A rhythmic acoustic cypher weaving sacred scripture passages with original spoken word poetry on thought, speech, and noble action.'
+      de: 'Die Gruppe sitzt im Kreis und klopft einen Rhythmus. Dazu sprechen alle Verse aus den Heiligen Schriften und eigene gereimte Zeilen über Gedanken, Worte und Taten.',
+      en: 'The group sits in a circle and taps out a rhythm. Over it, everyone speaks verses from the Holy Writings and their own rhymed lines about thoughts, words and deeds.'
     },
     materials: {
-      de: ['Djemben, Cajóns oder Schreibtisch-Trommeln', 'Shaker & Body-Percussion', 'Schreibblöcke & Stifte'],
+      de: ['Djemben, Cajóns oder Schreibtisch-Trommeln', 'Shaker und Body-Percussion', 'Schreibblöcke und Stifte'],
       en: ['Djembes, cajóns or tabletop beats', 'Egg shakers & body percussion', 'Writing pads & pens']
     },
     guidingSteps: {
@@ -211,9 +214,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
   {
     id: 'tableau-living-sculptures',
     kind: 'kunst',
+    status: 'draft',
     title: {
-      de: 'Standbilder: Lebendige Skulpturen von Tugenden',
-      en: 'Living Sculptures: Frozen Tableaux of Virtues'
+      de: 'Standbilder zu Tugenden',
+      en: 'Still images of virtues'
     },
     book: {
       de: 'Den geraden Pfad gehen',
@@ -231,12 +235,12 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
     setting: 'beides',
     occasion: 'beides',
     theme: {
-      de: 'Körpersprache & moralische Haltung',
-      en: 'Body Language & Moral Posture'
+      de: 'Körpersprache und Haltung',
+      en: 'Body language and attitude'
     },
     description: {
-      de: 'Ohne Worte stellen Gruppen durch ihre Körperhaltungen abstrakte Begriffe dar (z.B. Heuchelei vs. Aufrichtigkeit, Zwietracht vs. Eintracht). Die anderen Gruppen deuten die Skulptur.',
-      en: 'Without speaking a word, youth sculpt their bodies into frozen emotional tableaux embodying spiritual contrasts (e.g. Gossip vs. Shielding, Despair vs. Radiance).'
+      de: 'Ohne Worte stellen Kleingruppen mit ihrem Körper Gegensätze dar, etwa Heuchelei und Aufrichtigkeit oder Streit und Eintracht. Die anderen raten, was gemeint ist.',
+      en: 'Without words, small groups use their bodies to show opposites, such as gossip and protecting others, or despair and joy. The others guess what is meant.'
     },
     materials: {
       de: ['Keine (reine Körper- und Raumübung)'],
@@ -280,9 +284,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
   {
     id: 'spirit-faith-clay-sculptures',
     kind: 'kunst',
+    status: 'draft',
     title: {
-      de: 'Ton-Metaphern: Das Gefäß des reinen Herzens',
-      en: 'Clay Metaphors: Vessel of a Pure Heart'
+      de: 'Schalen aus Ton',
+      en: 'Clay bowls'
     },
     book: {
       de: 'Geist des Glaubens',
@@ -300,12 +305,12 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
     setting: 'drinnen',
     occasion: 'beides',
     theme: {
-      de: 'Reinheit des Herzens & Demut',
-      en: 'Purity of Heart & Receptivity'
+      de: 'Ein reines Herz und Demut',
+      en: 'A pure and open heart'
     },
     description: {
-      de: 'Jeder Jugendliche formt aus lufttrocknendem Ton ein symbolisches Gefäß oder eine Schale, die darstellt, wie das menschliche Herz bereit wird, göttliches Licht aufzunehmen.',
-      en: 'Each participant sculpts a symbolic clay vessel or chalice illustrating how the human heart becomes receptive to divine light and wisdom.'
+      de: 'Alle formen aus lufttrocknendem Ton eine Schale. Sie steht für ein Herz, das bereit ist, Licht aufzunehmen.',
+      en: 'Everyone shapes a bowl from air-dry clay. It stands for a heart that is ready to take in light.'
     },
     materials: {
       de: ['Lufttrocknender Modellierton', 'Modellierwerkzeuge (Zahnstocher, Löffel)', 'Gold- oder Acrylfarbe', 'Stempel für Schriftzeichen'],
@@ -349,9 +354,10 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
   {
     id: 'drawing-miner-parable-comic',
     kind: 'kunst',
+    status: 'draft',
     title: {
-      de: 'Graphic Novel: Der Bergmann und die verborgenen Edelsteine',
-      en: 'Graphic Novel: The Miner & The Hidden Gems'
+      de: 'Comic: Der Mensch als Bergwerk',
+      en: 'Comic: man as a mine'
     },
     book: {
       de: 'Brisen der Bestätigung',
@@ -369,15 +375,15 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
     setting: 'drinnen',
     occasion: 'treffen',
     theme: {
-      de: 'Innewohnende Schätze des Menschen',
-      en: 'Inherent Nobility & Hidden Gems'
+      de: 'Die Schätze in jedem Menschen',
+      en: 'The gems in every person'
     },
     description: {
-      de: 'Gestaltung eines 4-Panel-Comics basierend auf dem berühmten Zitat: „Betrachte den Menschen als ein Bergwerk, reich an Edelsteinen von unschätzbarem Werte...“',
-      en: 'Crafting a dynamic four-panel comic strip interpreting the classic scripture: "Regard man as a mine rich in gems of inestimable value..."'
+      de: 'Alle zeichnen einen Comic aus vier Bildern zu dem Zitat: „Betrachte den Menschen als ein Bergwerk, reich an Edelsteinen von unschätzbarem Werte...“',
+      en: 'Everyone draws a four-panel comic about the passage: "Regard man as a mine rich in gems of inestimable value..."'
     },
     materials: {
-      de: ['Comic-Vorlagen (4 leere Panels auf Zeichenpapier)', 'Schwarze Fineliner (verschiedene Stärken)', 'Buntstifte & Marker'],
+      de: ['Comic-Vorlagen (4 leere Panels auf Zeichenpapier)', 'Schwarze Fineliner (verschiedene Stärken)', 'Buntstifte und Marker'],
       en: ['Blank four-panel comic template boards', 'Fine-point waterproof black ink pens', 'Colored markers & pencils']
     },
     guidingSteps: {
@@ -418,12 +424,13 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
   {
     id: 'interactive-songwriting-circle',
     kind: 'kunst',
+    status: 'draft',
     title: {
-      de: 'Liederschmiede: Zitate vertonen mit Akustikgitarre',
-      en: 'Songwriting Atelier: Setting Scripture to Acoustic Melody'
+      de: 'Ein Zitat vertonen',
+      en: 'Setting a quote to music'
     },
     book: {
-      de: 'Brisen der Bestätigung & Den geraden Pfad gehen',
+      de: 'Brisen der Bestätigung und Den geraden Pfad gehen',
       en: 'Breezes of Confirmation & Walking the Straight Path'
     },
     relatedBook: 'breezes',
@@ -438,12 +445,12 @@ export const ARTS_PROMPTS_DATA: ArtsPrompt[] = [
     setting: 'beides',
     occasion: 'camp',
     theme: {
-      de: 'Lied & Andacht',
-      en: 'Music & Devotional Elevation'
+      de: 'Lied und Andacht',
+      en: 'Song and devotion'
     },
     description: {
-      de: 'Gemeinsames Komponieren eines einfachen, eingängigen Liedes zu einem gelernten Zitat. Akkorde auf Gitarre oder Ukulele begleiten.',
-      en: 'Collaborative songwriting workshop: crafting an accessible, memorable choral melody to carry a newly memorized scripture verse.'
+      de: 'Die Gruppe denkt sich gemeinsam eine einfache Melodie zu einem gelernten Zitat aus und begleitet sie mit Gitarre oder Ukulele.',
+      en: 'The group makes up a simple tune for a quote they have learned and plays it on guitar or ukulele.'
     },
     materials: {
       de: ['Gitarre, Ukulele oder Keyboard', 'Aufnahmegerät / Smartphone', 'Großes Whiteboard für Akkorde und Text'],

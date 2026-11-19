@@ -1114,6 +1114,7 @@ export const GAMES_DATA: Game[] = [
   // 7. Schnick Schnack Schnuck Evolution
   {
     id: 'ssp-evolution',
+    status: 'draft',
     title: {
       de: 'Schnick-Schnack-Schnuck Evolution',
       en: 'Rock Paper Scissors Evolution'
@@ -1146,14 +1147,14 @@ export const GAMES_DATA: Game[] = [
       de: [
         'Alle starten auf Stufe 1 als „Ei“ (in der Hocke watschelnd).',
         'Man sucht sich ein anderes Ei und spielt eine Runde Schere-Stein-Papier.',
-        'Wer gewinnt, steigt eine Entwicklungsstufe auf: Ei ➔ Huhn (mit den Armen gackernd) ➔ Affe (hüpfend) ➔ Mensch (aufrecht, gibt die Hand).',
+        'Wer gewinnt, steigt eine Entwicklungsstufe auf: vom Ei zum Huhn (gackert und schlägt mit den Armen), dann zum Affen (hüpft), dann zum Menschen (steht aufrecht und gibt die Hand).',
         'Wer verliert, bleibt auf der Stufe und sucht sofort einen neuen Spielpartner auf gleicher Stufe.',
         'Wer als Mensch das Duell gewinnt, hat die Evolution gemeistert und feuert die anderen an.'
       ],
       en: [
         'Everyone starts at level 1 as an "Egg" (waddling in a low crouch).',
         'Find another egg and play one round of Rock-Paper-Scissors.',
-        'The winner advances one stage: Egg ➔ Chicken (flapping elbows) ➔ Ape (hopping) ➔ Human (standing tall, shaking hands).',
+        'The winner advances one stage: from egg to chicken (clucks and flaps elbows), then to ape (hops), then to human (stands tall and shakes hands).',
         'The player who does not win stays on their current stage and immediately looks for another player at the same level.',
         'Humans who win their duel have completed the evolution and step to the side to cheer.'
       ]
@@ -1683,7 +1684,7 @@ export const GAMES_DATA: Game[] = [
     groupSize: { min: 6, max: 24 },
     prepLevel: 'low_prep',
     materials: {
-      de: ['Eine Schüssel', 'Zettel & Stifte', 'Timer'],
+      de: ['Eine Schüssel', 'Zettel und Stifte', 'Timer'],
       en: ['Bowl', 'Paper slips & pens', 'Timer']
     },
     durationMinutes: '25–40 Min',

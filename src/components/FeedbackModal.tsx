@@ -59,10 +59,10 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, l
   }, [isOpen]);
 
   const categories: Array<{ id: FeedbackCategory; label: string; icon: React.FC<{ className?: string }> }> = [
-    { id: 'idea', label: L('Idee & Wunsch', 'Idea & Request'), icon: Lightbulb },
+    { id: 'idea', label: L('Idee und Wunsch', 'Idea & Request'), icon: Lightbulb },
     { id: 'general', label: L('Allgemeines', 'General'), icon: MessageSquare },
     { id: 'bug', label: L('Problem melden', 'Report Issue'), icon: AlertTriangle },
-    { id: 'content', label: L('Inhalt & Zitate', 'Content & Quotes'), icon: BookOpen },
+    { id: 'content', label: L('Inhalt und Zitate', 'Content & Quotes'), icon: BookOpen },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
