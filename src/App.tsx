@@ -279,7 +279,8 @@ export const AppContent: React.FC = () => {
     } else {
       navigate(`/${tab}`);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Instant: a smooth scroll on the new page made the compact tab bar grow ~0.5 s after the tap, a second jolt.
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [navigate]);
 
   // Scroll management: record scroll positions and restore on navigation back

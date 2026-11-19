@@ -62,6 +62,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   }, [id, activeServiceProjects, activeArtsPrompts]);
 
   // Filter states parsed from URL searchParams
+  const [shownKind, setShownKind] = useState<'dienst' | 'kunst' | null>(null);
   const [query, setQuery] = useState(
     searchParams.get('q') || externalSearchQuery || '',
   );
@@ -311,8 +312,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   return (
     <div className="max-w-6xl mx-auto pb-20">
       {/* 1. Header: H1, one sentence, count on search/filter */}
-      <header className="mb-6 sm:mb-8">
-        <div className="flex items-center justify-between gap-3">
+      <header className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="min-w-0">
           <div className="flex items-baseline gap-x-3.5 gap-y-1 flex-wrap min-w-0">
             <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
               {pageTitle}
@@ -325,24 +326,30 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               </div>
             )}
           </div>
-          {fixedKind && (
+          <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
+            {pageDesc}
+          </p>
+        </div>
+        {/* Same spot as Lesen/Auswendiglernen on Zitate: right of the title on desktop, full width below on mobile. */}
+        {fixedKind && (
+          <div className="sm:w-64 sm:shrink-0">
             <SegmentedControl<'dienst' | 'kunst'>
-              className="shrink-0"
+              fullWidth
               options={[
                 { id: 'dienst', label: L('Dienst', 'Service') },
                 { id: 'kunst', label: L('Kunst', 'Arts') },
               ]}
-              value={fixedKind}
+              value={shownKind ?? fixedKind}
               onChange={(val) => {
+                if (val === (shownKind ?? fixedKind)) return;
+                // The route change remounts the page, so let the thumb finish sliding first.
+                setShownKind(val);
                 // Filter gehören zur jeweiligen Art (Bereich vs. Kunstform), deshalb ohne Parameter wechseln.
-                if (val !== fixedKind) navigate(val === 'dienst' ? '/service' : '/arts', { replace: true });
+                window.setTimeout(() => navigate(val === 'dienst' ? '/service' : '/arts', { replace: true }), 260);
               }}
             />
-          )}
-        </div>
-        <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
-          {pageDesc}
-        </p>
+          </div>
+        )}
       </header>
 
       {/* 2. Search Input + Filter Toggle Button */}
