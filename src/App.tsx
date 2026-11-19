@@ -464,7 +464,8 @@ export const AppContent: React.FC = () => {
         }
       >
         <Suspense fallback={<RouteLoading language={language} />}>
-          <div key={location.pathname} className="animate-fade-in">
+          {/* Dienst und Kunst sind eine Seite mit Umschalter: gleicher Schlüssel, damit der Wechsel nicht neu aufbaut. */}
+          <div key={/^\/(service|arts)\/?$/.test(location.pathname) ? 'projects' : location.pathname} className="animate-fade-in">
             <Routes>
             <Route
               path="/"

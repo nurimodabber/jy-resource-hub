@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, startTransition } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, X, BookOpen, Tag, HeartHandshake, Palette } from 'lucide-react';
 import { FilterToggle } from './ui/FilterToggle';
@@ -62,7 +62,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   }, [id, activeServiceProjects, activeArtsPrompts]);
 
   // Filter states parsed from URL searchParams
+  // Zeigt die angetippte Art sofort im Umschalter, während die Liste im Hintergrund wechselt.
   const [shownKind, setShownKind] = useState<'dienst' | 'kunst' | null>(null);
+  useEffect(() => setShownKind(null), [fixedKind]);
   const [query, setQuery] = useState(
     searchParams.get('q') || externalSearchQuery || '',
   );
@@ -342,10 +344,10 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               value={shownKind ?? fixedKind}
               onChange={(val) => {
                 if (val === (shownKind ?? fixedKind)) return;
-                // The route change remounts the page, so let the thumb finish sliding first.
                 setShownKind(val);
                 // Filter gehören zur jeweiligen Art (Bereich vs. Kunstform), deshalb ohne Parameter wechseln.
-                window.setTimeout(() => navigate(val === 'dienst' ? '/service' : '/arts', { replace: true }), 260);
+                // Als Transition, damit das Rendern der Liste die Pillen-Animation nicht ausbremst.
+                startTransition(() => { void navigate(val === 'dienst' ? '/service' : '/arts', { replace: true }); });
               }}
             />
           </div>
