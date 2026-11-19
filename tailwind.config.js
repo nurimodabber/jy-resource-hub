@@ -65,6 +65,7 @@ export default {
           subtle: 'rgb(var(--border-subtle-rgb) / <alpha-value>)',
         },
         line: 'rgb(var(--line-rgb) / <alpha-value>)',
+        'icon-gold': 'rgb(var(--icon-gold-rgb) / <alpha-value>)',
         accent: {
           DEFAULT: 'rgb(var(--accent-rgb) / <alpha-value>)',
           hover: 'rgb(var(--accent-hover-rgb) / <alpha-value>)',

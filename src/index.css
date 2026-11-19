@@ -155,6 +155,8 @@
   --cat-violet-fg: #66509A; --cat-violet-bg: #EFEAF7;
   --cat-rose-fg: #9A4459;   --cat-rose-bg: #F7E8EC;
   --cat-ochre-fg: #85601A;  --cat-ochre-bg: #F6EEDC;
+  /* Gold aus dem Logo für den Gegenstand in Spiel- und Projekt-Icons; hell abgedunkelt für 3:1 auf surface-2. */
+  --icon-gold: #B0731A;  --icon-gold-rgb: 176 115 26;
   /* Motion */
   --transition-fast: 120ms ease-out;
   --transition-sheet: 180ms ease-out;
@@ -310,6 +312,7 @@
   --cat-violet-fg: #BCA8E6; --cat-violet-bg: #231D33;
   --cat-rose-fg: #E5A3B3;   --cat-rose-bg: #2E1A20;
   --cat-ochre-fg: #D9B56E;  --cat-ochre-bg: #2B2314;
+  --icon-gold: #E3A33B;  --icon-gold-rgb: 227 163 59;
   /* Motion */
   --transition-fast: 120ms ease-out;
   --transition-sheet: 180ms ease-out;
