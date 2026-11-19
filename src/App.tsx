@@ -702,7 +702,7 @@ export const AppContent: React.FC = () => {
       <footer className="jy-site-footer short-content-pad border-t border-line mt-2 sm:mt-6 py-2.5 sm:py-3.5 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           {/* Desktop Footer (alles in einer Zeile angeordnet) */}
-          <div className="hidden md:flex items-center justify-between gap-4">
+          <div className="hidden lg:flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-5 h-5 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
                 <Logo className="w-3 h-3 text-accent" />
@@ -753,7 +753,7 @@ export const AppContent: React.FC = () => {
           </div>
 
           {/* Mobil: zwei Zeilen, damit der Footer über der Tab-Leiste wenig Höhe kostet. */}
-          <div className="md:hidden space-y-1.5">
+          <div className="lg:hidden space-y-1.5">
             <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-4 rounded-full bg-accent/15 flex items-center justify-center shrink-0">

@@ -385,7 +385,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         >
           {/* Header Row: Feine Typografie-Kennzeichnung & Aktionen */}
           <div className="flex items-center justify-between gap-3 border-b border-line pb-3 sm:pb-3.5">
-            <span className="text-2xs font-semibold text-text-tertiary truncate">
+            <span className="min-w-0 text-2xs font-semibold text-text-tertiary line-clamp-2">
               <span className="text-amber">{L('Zitat des Tages', 'Quote of the day')}</span>
               {quote.book[language] &&
               !/gebete?\s*(&|und|\+)?\s*andacht/i.test(quote.book[language]) &&
@@ -464,7 +464,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         <h2 id="home-tools-title" className="text-base sm:text-lg font-bold text-text tracking-tight">
           {L('Live in der Gruppe', 'Live in the group')}
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {[
             { to: '/tools/teams', Icon: Users, title: L('Gruppeneinteiler', 'Group divider') },
             { to: '/tools/timer', Icon: Timer, title: L('Timer & Intervall', 'Timer & Interval') },
