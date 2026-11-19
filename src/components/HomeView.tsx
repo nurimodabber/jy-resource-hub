@@ -308,8 +308,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           </nav>
 
           {/* Spielfinder kompakt (standardmäßig offen, per Klick auf "Spiel finden" zu schließen) */}
-          {showCompactFinder && (
-            <section id="home-quick-finder" aria-label={L('Kompakter Spielfinder', 'Compact game finder')} className="animate-in fade-in duration-200">
+          {/* Bleibt gemountet und klappt über grid-rows weich auf und zu, statt den Inhalt darunter springen zu lassen.
+              Der Abstand steckt innen (pt-3), damit geschlossen keine Lücke bleibt; invisible nimmt die Felder aus der Tab-Folge. */}
+            <section
+              id="home-quick-finder"
+              aria-label={L('Kompakter Spielfinder', 'Compact game finder')}
+              className={`!mt-0 grid transition-[grid-template-rows,opacity,visibility] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                showCompactFinder ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 invisible'
+              }`}
+            >
+              <div className="min-h-0 overflow-hidden"><div className="pt-3">
               <Panel className="space-y-4 border border-border bg-surface rounded-card p-4 sm:p-5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold text-text flex items-center gap-2">
@@ -362,8 +370,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </Panel>
+              </div></div>
             </section>
-          )}
         </div>
       </div>
 
