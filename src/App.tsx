@@ -17,14 +17,17 @@ import { SERVICE_PROJECTS_DATA } from './data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from './data/artsPrompts';
 import { recordRecentView } from './utils/recentViews';
 
-// Synchronously imported primary views (zero Skeleton flash on 404 or list routes, fast LCP & zero CLS)
+// Synchronously imported: start page and 404 (no skeleton flash on the landing view)
 import { HomeView } from './components/HomeView';
-import { GamesView } from './components/GamesView';
-import { QuotesView } from './components/QuotesView';
-import { ServiceArtsView } from './components/ServiceArtsView';
 import { NotFoundView } from './components/NotFoundView';
 
 // Lazy-loaded secondary routes
+const loadGames = () => import('./components/GamesView');
+const loadQuotes = () => import('./components/QuotesView');
+const loadServiceArts = () => import('./components/ServiceArtsView');
+const GamesView = lazy(() => loadGames().then(m => ({ default: m.GamesView })));
+const QuotesView = lazy(() => loadQuotes().then(m => ({ default: m.QuotesView })));
+const ServiceArtsView = lazy(() => loadServiceArts().then(m => ({ default: m.ServiceArtsView })));
 const ToolkitsView = lazy(() => import('./components/ToolkitsView').then(m => ({ default: m.ToolkitsView })));
 const ImpressumView = lazy(() => import('./components/ImpressumView').then(m => ({ default: m.ImpressumView })));
 const NutzungsbedingungenView = lazy(() => import('./components/NutzungsbedingungenView').then(m => ({ default: m.NutzungsbedingungenView })));
@@ -79,6 +82,19 @@ export const AppContent: React.FC = () => {
       }
     }
   }, [navigate]);
+
+  // Die Haupt-Tabs liegen in eigenen Chunks, damit die Startseite schneller lädt. Im Leerlauf vorladen,
+  // damit der erste Tab-Wechsel trotzdem ohne Lade-Platzhalter auskommt.
+  useEffect(() => {
+    const preload = () => { void loadGames(); void loadQuotes(); void loadServiceArts(); };
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(preload, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    // Safari kennt requestIdleCallback nicht.
+    const id = window.setTimeout(preload, 1500);
+    return () => window.clearTimeout(id);
+  }, []);
 
   // Derive active tab from pathname for header/rail/tabbar highlighting
   const activeTab = useMemo<NavTab>(() => {
