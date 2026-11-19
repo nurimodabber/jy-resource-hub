@@ -198,7 +198,27 @@ export const CurtainIcon = make(
   </>,
 );
 
+/** Spiegel: zwei Personen, die Hände an derselben Stelle der Spiegelfläche, gleiche Haltung seitenverkehrt. */
+export const MirrorIcon = make(
+  <>
+    <Fig x={6} arms={[{ side: 1, to: [[3.5, -4]] }, { side: -1, to: [[-1.25, 3.5]] }]} />
+    <Fig x={18} arms={[{ side: -1, to: [[-3.5, -4]] }, { side: 1, to: [[1.25, 3.5]] }]} />
+    <path d="M12 3v18" {...dash} />
+  </>,
+);
+
+/** Lebendige Skulptur: zwei Personen erstarrt auf einem Sockel, die inneren Hände treffen sich. */
+export const SculptureIcon = make(
+  <>
+    <Fig x={7} base={17.5} s={M} arms={[{ side: 1, to: [[3.75, -3.65]] }, { side: -1, to: [[-2.5, -4]] }]} />
+    <Fig x={17} base={17.5} s={M} arms={[{ side: -1, to: [[-3.75, -3.65]] }, { side: 1, to: [[2.5, -4]] }]} />
+    <rect x="4" y="19" width="16" height="2" rx=".5" {...ink} />
+  </>,
+);
+
 export const PROPOSED_GAME_ICONS: Record<string, React.FC<{ className?: string; strokeWidth?: number | string }>> = {
+  spiegel: MirrorIcon,
+  'lebendige-skulptur': SculptureIcon,
   'billy-billy-bob': ToasterIcon,
   obstsalat: FruitSaladIcon,
   namensball: NameBallIcon,

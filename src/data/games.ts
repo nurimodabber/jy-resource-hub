@@ -2651,4 +2651,150 @@ export const GAMES_DATA: Game[] = [
       en: ['Play it once everyone has heard all names, for example after a round of introductions.']
     }
   },
+  {
+    id: 'spiegel',
+    status: 'draft',
+    title: { de: 'Spiegel', en: 'Mirror' },
+    purpose: 'ruhe',
+    category: 'cooperative',
+    energyLevel: 'calm',
+    groupSize: { min: 2, max: 30 },
+    prepLevel: 'instant',
+    materials: { de: ['Keine'], en: ['None'] },
+    durationMinutes: '5–10 Min',
+    durationMin: 5,
+    durationMax: 10,
+    space: { de: 'Platz, damit Paare sich gegenüberstehen können', en: 'Room for pairs to stand facing each other' },
+    summary: {
+      de: 'Zwei stehen sich gegenüber. Eine Person bewegt sich langsam, die andere macht jede Bewegung wie ein Spiegelbild mit. Am Ende soll niemand mehr erkennen, wer führt.',
+      en: 'Two people stand facing each other. One moves slowly, the other copies every movement like a mirror image. In the end, nobody should be able to tell who is leading.'
+    },
+    idea: {
+      de: 'Übt genaues Hinschauen und Rücksicht. Wer führt, merkt schnell: Der Spiegel kommt nur mit, wenn ich langsam und deutlich bin. Gut führen heißt, auf den anderen zu achten.',
+      en: 'Practises close attention and consideration. The leader soon notices that the mirror can only follow if the movements are slow and clear. Leading well means paying attention to the other person.'
+    },
+    rules: {
+      de: [
+        'Teile die Gruppe in Paare. Die beiden stehen sich mit etwa einer Armlänge Abstand gegenüber, ohne sich zu berühren.',
+        'In jedem Paar führt zuerst eine Person. Sie bewegt Hände, Arme, Gesicht oder den ganzen Körper ganz langsam.',
+        'Die andere Person ist der Spiegel und macht jede Bewegung gleichzeitig mit. Hebt die führende Person die rechte Hand, hebt der Spiegel die linke.',
+        'Nach etwa einer Minute sagst du „Wechsel“. Jetzt führt die andere Person.',
+        'In der letzten Runde führt niemand fest. Beide versuchen, sich gemeinsam zu bewegen, ohne abzusprechen, wer anfängt.'
+      ],
+      en: [
+        'Split the group into pairs. The two stand facing each other about an arm’s length apart, without touching.',
+        'In each pair, one person leads first. They move their hands, arms, face or whole body very slowly.',
+        'The other person is the mirror and copies every movement at the same time. If the leader raises their right hand, the mirror raises their left.',
+        'After about a minute, say “Switch”. Now the other person leads.',
+        'In the last round, nobody leads on purpose. Both try to move together without agreeing who starts.'
+      ]
+    },
+    variants: {
+      de: [
+        'Gruppenspiegel: Eine Person steht vor der ganzen Gruppe, alle spiegeln sie.',
+        'Wer führt?: Zwei Paare spielen, die anderen schauen zu und raten, wer in jedem Paar führt.'
+      ],
+      en: [
+        'Group mirror: one person stands in front of the whole group, and everyone mirrors them.',
+        'Who leads?: two pairs play while the others watch and guess who is leading in each pair.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Zeig es zuerst selbst mit einer Person vor, ganz langsam.',
+        'Wird es hektisch, erinnere die Gruppe: Ziel ist nicht, den Spiegel abzuhängen, sondern zusammenzubleiben.'
+      ],
+      en: [
+        'Demonstrate it first yourself with one person, very slowly.',
+        'If it gets hectic, remind the group: the goal is not to lose the mirror but to stay together.'
+      ]
+    },
+    reflection: {
+      de: [
+        'Wann war es leicht mitzugehen, und wann schwer?',
+        'Was hat die führende Person getan, damit der Spiegel mitkommt?',
+        'Wo im Alltag hilft es, so aufeinander zu achten?'
+      ],
+      en: [
+        'When was it easy to follow, and when was it hard?',
+        'What did the leader do to help the mirror keep up?',
+        'Where in everyday life does it help to pay attention to each other like this?'
+      ]
+    }
+  },
+  {
+    id: 'lebendige-skulptur',
+    status: 'draft',
+    title: { de: 'Lebendige Skulptur', en: 'Living Sculpture' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'medium',
+    groupSize: { min: 4, max: 30 },
+    prepLevel: 'instant',
+    materials: { de: ['Keine'], en: ['None'] },
+    durationMinutes: '10–20 Min',
+    durationMin: 10,
+    durationMax: 20,
+    space: { de: 'Freie Fläche in der Mitte des Raums', en: 'Open space in the middle of the room' },
+    summary: {
+      de: 'Kleine Gruppen bauen ohne Worte ein Standbild zu einem Begriff wie Einheit, Freundschaft oder Dienst. Die anderen schauen es an und sagen, was sie sehen.',
+      en: 'Small groups build a frozen statue of a word such as unity, friendship or service, without talking. The others look at it and say what they see.'
+    },
+    idea: {
+      de: 'Macht große Begriffe greifbar. Die Gruppe muss sich ohne Worte einigen, und jede Person wird gebraucht. Gut als Brücke zu einem Zitat oder zum Thema des Treffens.',
+      en: 'Makes big ideas tangible. The group has to agree without words, and every person is needed. A good bridge to a quote or the theme of the meeting.'
+    },
+    rules: {
+      de: [
+        'Teile die Gruppe in Kleingruppen mit vier bis sechs Personen.',
+        'Nenne einen Begriff, zum Beispiel Einheit, Freundschaft, Hilfe, Gerechtigkeit oder Dienst.',
+        'Jede Kleingruppe hat zwei Minuten. Ohne zu sprechen baut sie ein Standbild: Eine Person beginnt mit einer Haltung, die nächste ergänzt sie, bis alle Teil des Bildes sind.',
+        'Auf dein Zeichen erstarren alle und halten das Bild zehn Sekunden still.',
+        'Die anderen gehen einmal um das Standbild herum und sagen, was sie sehen. Danach erzählt die Kleingruppe, was sie zeigen wollte.'
+      ],
+      en: [
+        'Split the group into small groups of four to six people.',
+        'Name a word, for example unity, friendship, help, justice or service.',
+        'Each small group has two minutes. Without talking, they build a statue: one person starts with a pose, the next adds to it, until everyone is part of the picture.',
+        'On your signal, everyone freezes and holds the picture still for ten seconds.',
+        'The others walk once around the statue and say what they see. Then the small group explains what they wanted to show.'
+      ]
+    },
+    variants: {
+      de: [
+        'Jetzt und später: Die Kleingruppe baut zuerst ein Bild davon, wie etwas heute ist, dann eines, wie es sein könnte, und geht langsam vom einen ins andere über.',
+        'Zitat-Bild: Nimm einen Satz aus dem Zitat, das die Gruppe gerade lernt, als Begriff.'
+      ],
+      en: [
+        'Now and later: the small group first builds a picture of how something is today, then one of how it could be, and moves slowly from one to the other.',
+        'Quote picture: use a sentence from the quote the group is learning as the word.'
+      ]
+    },
+    safety: {
+      de: ['Niemand muss andere berühren. Jede Person entscheidet selbst, wie nah sie anderen kommt.'],
+      en: ['Nobody has to touch anyone. Each person decides for themselves how close they come to others.']
+    },
+    animatorTips: {
+      de: [
+        'Fang mit einem einfachen Begriff wie „Freundschaft“ an, bevor schwierigere kommen.',
+        'Achte darauf, dass beim Anschauen nur beschrieben und nicht bewertet wird.'
+      ],
+      en: [
+        'Start with a simple word like “friendship” before harder ones.',
+        'Make sure people only describe what they see and do not judge it.'
+      ]
+    },
+    reflection: {
+      de: [
+        'Was war schwer daran, sich ohne Worte zu einigen?',
+        'Welches Bild hat dich überrascht?',
+        'Wie könnte Einheit in unserer Nachbarschaft aussehen?'
+      ],
+      en: [
+        'What was hard about agreeing without words?',
+        'Which picture surprised you?',
+        'What could unity look like in our neighbourhood?'
+      ]
+    }
+  },
 ];
