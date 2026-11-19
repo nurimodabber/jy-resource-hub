@@ -744,7 +744,7 @@ const FruitSalad = () => (
 
 /** Lea ruft ihren Namen und wirft; der Pfeil zeigt, zu wem. */
 const NameBall = () => (
-  <Ring accent={1} box="20 6 80 38" arms={{ 1: [{ side: 1, to: [[2, -4]] }], 4: [{ side: -1, to: [[-2, -4]] }] }}>
+  <Ring accent={1} box="20 6 80 38" arms={{ 1: [{ side: 1, to: [[0.6, -4.6]] }], 4: [{ side: -1, to: [[-2, -4]] }] }}>
     <g className={ACCENT}>
       <Bubble p={spots(6)[1]} text="Lea" />
       <path d="M31.5 22.5C44 10 78 9 89 19" {...trail} />
@@ -755,7 +755,7 @@ const NameBall = () => (
 );
 
 const Juggle = () => (
-  <Ring box="20 6 80 38" arms={{ 1: [{ side: 1, to: [[2, -4]] }], 5: [{ side: 1, to: [[0.5, -5]] }] }}>
+  <Ring box="20 6 80 38" arms={{ 1: [{ side: 1, to: [[0.6, -4.6]] }], 5: [{ side: 1, to: [[0.5, -5]] }] }}>
     <g className={BACK}>
       <path d="M31 21C42 9 70 9 76 17" {...trail} />
       <path d="M86 22C83 13 58 11 48 17" {...trail} />

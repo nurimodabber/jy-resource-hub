@@ -69,7 +69,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.remove('contrast');
 
       // Keep meta theme-color strictly in sync with theme background
-      const activeThemeColor = resolvedDark ? '#0E1522' : '#F7F9FC';
+      const activeThemeColor = resolvedDark ? '#0C0D0E' : '#F7F9FC';
       const metas = document.querySelectorAll('meta[name="theme-color"]');
       metas.forEach((meta) => {
         meta.setAttribute('content', activeThemeColor);

@@ -30,6 +30,7 @@ export interface SettingsSheetProps {
   language: Language;
   setLanguage: (lang: Language) => void;
   onOpenBahaiSongs?: () => void;
+  onOpenContact?: () => void;
 }
 
 export const SettingsSheet: React.FC<SettingsSheetProps> = ({
@@ -38,6 +39,7 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
   language,
   setLanguage,
   onOpenBahaiSongs,
+  onOpenContact,
 }) => {
   const t = UI_TRANSLATIONS[language];
   const [confirm, confirmDialog] = useConfirm();
@@ -322,6 +324,19 @@ export const SettingsSheet: React.FC<SettingsSheetProps> = ({
         <footer className="pt-4 border-t border-border/50 text-center space-y-3 select-none">
           {/* Row 1: Legal & Nav Links + Dedicated Subtle Portal Badge */}
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-text-secondary">
+            {/* Kontakt steht sonst nur im Fußbereich, und den blendet die installierte App aus. */}
+            {onOpenContact && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenContact();
+                }}
+                className="hover:text-text transition-colors py-1 min-h-[44px] inline-flex items-center cursor-pointer"
+              >
+                {t.footerContact}
+              </button>
+            )}
             <Link
               to="/impressum"
               onClick={onClose}

@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   Bookmark,
-  ChevronDown,
   Users,
   Clock,
   MapPin,
@@ -81,7 +80,6 @@ export const GamePage: React.FC<GamePageProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
-  const [isTipsOpen, setIsTipsOpen] = useState(true);
 
   const Companion = GAME_COMPANIONS[game.id];
   const Scene = getGameScene(game.id);
@@ -392,38 +390,8 @@ export const GamePage: React.FC<GamePageProps> = ({
               <GameList title={L('Varianten', 'Variations')} items={game.variants?.[language]} />
               <GameList title={L('Fragen für das Gespräch danach', 'Questions to talk about afterwards')} items={game.reflection?.[language]} />
 
-              {/* Section 4: Tipps für die Spielleitung */}
-              {game.animatorTips && game.animatorTips[language]?.length > 0 && (
-                <section className="mb-8 rounded-card border border-border bg-surface-2 p-5">
-                  <button
-                    type="button"
-                    onClick={() => setIsTipsOpen(!isTipsOpen)}
-                    className="w-full flex items-center justify-between text-left print:hidden cursor-pointer"
-                    aria-expanded={isTipsOpen}
-                  >
-                    <h2 className="text-base font-semibold text-text">
-                      {t.animatorTipsTitle}
-                    </h2>
-                    <ChevronDown
-                      className={`w-5 h-5 text-text-secondary transition-transform duration-200 ${
-                        isTipsOpen ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
-
-                  <div className="hidden print:block font-bold text-sm text-text mb-2">
-                    {t.animatorTipsTitle}
-                  </div>
-
-                  {isTipsOpen && (
-                    <ul className="list-disc pl-5 mt-3 space-y-1.5 text-sm text-text-secondary leading-relaxed">
-                      {game.animatorTips[language].map((tip, idx) => (
-                        <li key={idx}>{tip}</li>
-                      ))}
-                    </ul>
-                  )}
-                </section>
-              )}
+              {/* Section 4: Tipps für die Spielleitung, im gleichen Stil wie die übrigen Abschnitte */}
+              <GameList title={t.animatorTipsTitle} items={game.animatorTips?.[language]} />
 
               {/* Section 5: Drei ähnliche Spiele */}
               {similarGames.length > 0 && (

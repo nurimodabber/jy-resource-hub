@@ -18,3 +18,8 @@ tmp-lh*
 scratch/
 .worktrees/
 
+
+# Lokale Werkzeuge und Vorher-nachher-Bilder, nicht ins Repo
+.claude/launch.json
+.impeccable/
+.vorher-nachher/

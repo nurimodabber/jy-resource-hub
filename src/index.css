@@ -832,3 +832,12 @@ kbd { font-family: inherit; }
 .jy-quote-clamp { text-wrap: pretty; }
 .jy-quote-clamp[data-short='true'] { font-size: 1.125rem; line-height: 1.55; text-wrap: balance; }
 @media (min-width: 640px) { .jy-quote-clamp[data-short='true'] { font-size: 1.25rem; } }
+
+/* Installed app: the legal links live in Settings, so the web footer goes. Its bottom margin kept the
+   content clear of the tab bar, so on phones main takes that space over (4.5rem tab bar + 1.5rem gap). */
+@media (display-mode: standalone) {
+  .jy-site-footer { display: none; }
+}
+@media (display-mode: standalone) and (max-width: 767px) and (min-height: 501px) {
+  .jy-main { padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
+}
