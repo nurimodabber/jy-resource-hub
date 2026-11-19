@@ -376,7 +376,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           {/* Header Row: Feine Typografie-Kennzeichnung & Aktionen */}
           <div className="flex items-center justify-between gap-3 border-b border-line pb-3 sm:pb-3.5">
             <span className="text-2xs font-semibold text-text-tertiary truncate">
-              {L('Zitat des Tages', 'Quote of the day')}
+              <span className="text-amber">{L('Zitat des Tages', 'Quote of the day')}</span>
               {quote.book[language] &&
               !/gebete?\s*(&|und|\+)?\s*andacht/i.test(quote.book[language]) &&
               !/prayers?\s*(&|and|\+)?\s*devotions?/i.test(quote.book[language])

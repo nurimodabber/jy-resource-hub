@@ -231,11 +231,11 @@
   --action-contrast: var(--accent-contrast);
   --action-contrast-rgb: var(--accent-contrast-rgb);
 
-  /* Warme Akzentfarbe für Andacht, Zitate & Gebete (sanftes Gold/Amber) */
-  --amber: #F59E0B;
-  --amber-rgb: 245 158 11;
-  --amber-hover: #FBBF24;
-  --amber-hover-rgb: 251 191 36;
+  /* Warme Akzentfarbe für Andacht, Zitate & Gebete: das Gold aus dem Logo. Blau bleibt für alles Klickbare. */
+  --amber: #E5A43B;
+  --amber-rgb: 229 164 59;
+  --amber-hover: #EDB65A;
+  --amber-hover-rgb: 237 182 90;
   --amber-subtle: #2B1D08;
   --amber-subtle-rgb: 43 29 8;
   --amber-text: #FDE68A;
