@@ -12,14 +12,14 @@ import React from 'react';
  */
 type Props = { className?: string; strokeWidth?: number | string };
 
-const SW = 2;
-const LIMB = 2.25;
+export const SW = 2;
+export const LIMB = 2.25;
 const L = 1;
 const M = 0.8;
 const S = 0.6;
-const ink = { fill: 'currentColor', stroke: 'none' } as const;
+export const ink = { fill: 'currentColor', stroke: 'none' } as const;
 
-const make = (children: React.ReactNode): React.FC<Props> => {
+export const make = (children: React.ReactNode): React.FC<Props> => {
   const Icon: React.FC<Props> = ({ className }) => (
     <svg
       viewBox="0 0 24 24"
@@ -38,10 +38,10 @@ const make = (children: React.ReactNode): React.FC<Props> => {
 };
 
 type Vec = [number, number];
-type Arm = { side: -1 | 1; to: Vec[] };
+export type Arm = { side: -1 | 1; to: Vec[] };
 
 /** Stehende Figur, Füße auf `base`. Bei L: Kopf r 2,5 (oben y 3), Schultern ab y 9, Hüfte y 16. */
-const Fig: React.FC<{ x: number; base?: number; s?: number; arms?: Arm[] }> = ({ x, base = 21, s = L, arms = [] }) => {
+export const Fig: React.FC<{ x: number; base?: number; s?: number; arms?: Arm[] }> = ({ x, base = 21, s = L, arms = [] }) => {
   const hr = Math.max(2.5 * s, 1.75);
   const half = 2.5 * s;
   const top = base - 12 * s;

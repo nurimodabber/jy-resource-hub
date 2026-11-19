@@ -96,7 +96,7 @@ export const GameCard: React.FC<GameCardProps> = ({
 
   return (
     <div
-      className={`group relative overflow-hidden h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-3.5 pb-3.5 pt-3.5 sm:px-5 sm:pb-4 sm:pt-4 shadow-2xs ${
+      className={`group relative overflow-hidden h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 [@media(hover:hover)]:hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-3.5 pb-3 pt-3 sm:px-5 sm:pb-4 sm:pt-4 shadow-2xs ${
         !matchesGroup ? 'opacity-60 hover:opacity-100' : ''
       }`}
     >
@@ -125,10 +125,10 @@ export const GameCard: React.FC<GameCardProps> = ({
       {/* Main Content Area (Stretched Link for accessibility) */}
       <Link
         to={`/games/${game.id}`}
-        className="block flex-1 min-w-0 pr-10 sm:pr-12 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0 mb-4"
+        className="block flex-1 min-w-0 pr-10 sm:pr-12 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent rounded-control after:absolute after:inset-0 after:rounded-card after:z-0 mb-3 sm:mb-4"
       >
         {/* KONZEPT: große neutrale Kachel, Wirkung als Text unter dem Titel */}
-        <div className="flex items-center gap-3 mb-2.5 relative z-[1]">
+        <div className="flex items-center gap-3 mb-1.5 sm:mb-2.5 relative z-[1]">
           <IconTile icon={getGameIcon(game.id)} size="xl" />
           <div className="min-w-0">
             <h3 className="font-serif text-lg sm:text-xl font-medium text-text leading-snug line-clamp-2 group-hover:text-accent transition-colors tracking-tight">
@@ -138,14 +138,14 @@ export const GameCard: React.FC<GameCardProps> = ({
           </div>
         </div>
         {description && (
-          <p className="text-xs sm:text-sm text-text-secondary line-clamp-2 leading-relaxed relative z-[1] max-w-[60ch]">
+          <p className="text-xs sm:text-sm text-text-secondary line-clamp-1 sm:line-clamp-2 leading-relaxed relative z-[1] max-w-[60ch]">
             {description}
           </p>
         )}
       </Link>
 
       {/* Full-bleed Footer Divider with Group Size & Duration */}
-      <div className="relative z-[1] pointer-events-none -mx-3.5 -mb-3.5 px-3.5 py-3 sm:-mx-5 sm:-mb-4 sm:px-5 sm:py-3.5 border-t border-border/60 bg-surface-2/40 mt-auto flex items-center justify-between text-xs text-text-tertiary">
+      <div className="relative z-[1] pointer-events-none -mx-3.5 -mb-3 px-3.5 py-2 sm:-mx-5 sm:-mb-4 sm:px-5 sm:py-3.5 border-t border-border/60 bg-surface-2/40 mt-auto flex items-center justify-between text-xs text-text-tertiary">
         {/* Left: Group size & Duration */}
         <div className="flex items-center gap-2 truncate">
           <div
@@ -185,7 +185,7 @@ export const GameCard: React.FC<GameCardProps> = ({
             className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-2 border border-border/60 text-2xs font-medium text-text-secondary"
             title={`${t.filterEnergy}: ${energyLabel}`}
           >
-            <Flame className="w-3 h-3 text-amber-500 shrink-0" strokeWidth={2} aria-hidden="true" />
+            <Flame className="w-3 h-3 text-amber shrink-0" strokeWidth={2} aria-hidden="true" />
             <span>{energyLabel}</span>
             <EnergyDots energyLevel={game.energyLevel} className="ml-0.5" />
           </span>

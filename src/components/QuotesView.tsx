@@ -479,10 +479,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
 
   return (
     <div className="space-y-6 max-w-6xl w-full mx-auto pb-20 animate-in fade-in duration-200">
-      {/* 1. Header */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 sm:gap-4">
-          <div>
+      {/* 1. Header: Umschalter neben dem Titel; unter 360 px rutscht er in eine eigene Zeile */}
+      <div className="flex flex-wrap sm:flex-nowrap items-center sm:items-end justify-between gap-x-3 gap-y-4 sm:gap-4">
+          <div className="sm:min-w-0">
             <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
               {t.tabQuotes}
             </h1>
@@ -491,6 +490,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                 ? 'Heilige Zitate und Gebete zum Lesen, Reflektieren und Auswendiglernen.'
                 : 'Holy scripture verses and prayers for reading, reflection, and memorisation.'}
             </p>
+          </div>
+
+          {/* Handy: ohne Icons, sonst wird „Auswendiglernen“ abgeschnitten. Der Zufallsknopf passt hier nicht
+              mehr daneben und sitzt deshalb in der Suchzeile bzw. im Kopf der Übungskarte. */}
+          <div className="sm:hidden shrink-0">
+            <SegmentedControl<ViewTab>
+              options={mobileTabOptions}
+              value={viewTab}
+              onChange={handleTabChange}
+            />
           </div>
 
           {/* Desktop: SegmentedControl + Random Quote Button placed on the right next to headline */}
@@ -507,26 +516,6 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
               onClick={handleRandomQuote}
             />
           </div>
-        </div>
-
-        {/* Mobile: SegmentedControl with Random Quote Button to the right */}
-        <div className="sm:hidden flex items-center gap-2">
-          <div className="flex-1 min-w-0">
-            {/* No icons at phone width: with them "Auswendiglernen" was cut off. */}
-            <SegmentedControl<ViewTab>
-              options={mobileTabOptions}
-              value={viewTab}
-              onChange={handleTabChange}
-              fullWidth
-            />
-          </div>
-
-          <GlassIconButton
-            label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
-            icon={<Shuffle className="w-5 h-5" strokeWidth={1.9} />}
-            onClick={handleRandomQuote}
-          />
-        </div>
       </div>
 
       {/* ========================================================================= */}
@@ -550,9 +539,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                   updateParams({ q: e.target.value || null });
                 }}
                 placeholder={
-                  isDe
-                    ? 'Zitate nach Text, Thema oder Quelle durchsuchen...'
-                    : 'Search quotes by text, theme, or source...'
+                  isDe ? 'Zitate durchsuchen' : 'Search quotes'
                 }
                 aria-label={isDe ? 'Zitate durchsuchen' : 'Search quotes'}
                 className="w-full h-11 pl-10 pr-11 rounded-full bg-surface-2/60 hover:bg-surface-2/85 focus:bg-surface border border-line/80 hover:border-text-tertiary/60 focus:border-accent text-sm text-text placeholder:text-text-tertiary outline-hidden focus:ring-3 focus:ring-accent/20 transition-all shadow-2xs"
@@ -573,6 +560,12 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
             </div>
 
             <FilterToggle open={showFilters} activeCount={activeFilterCount} onToggle={() => setShowFilters((prev) => !prev)} language={language} />
+            <GlassIconButton
+              className="sm:hidden"
+              label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+              icon={<Shuffle className="w-5 h-5" strokeWidth={1.9} />}
+              onClick={handleRandomQuote}
+            />
           </div>
 
           {/* 2. Collapsible Filter Bar */}
@@ -704,6 +697,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                       {practiceQuote.book[language]}
                     </span>
                   </div>
+                  <IconButton
+                    size="sm"
+                    onClick={handleRandomQuote}
+                    label={isDe ? 'Zufälliges Zitat' : 'Random quote'}
+                    className="sm:hidden -my-2 -mr-2 text-text-secondary"
+                  >
+                    <Shuffle className="w-4 h-4" strokeWidth={1.9} />
+                  </IconButton>
                 </div>
 
                 {/* 2. Main Content: Holy text and attribution */}
@@ -880,7 +881,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     className={`relative bg-surface rounded-card border p-5 sm:p-6 transition-all duration-200 ease-out cursor-pointer flex flex-col justify-between group shadow-2xs ${
                       isCurrentToolActive
                         ? 'border-accent shadow-1 ring-1 ring-accent/30'
-                        : 'border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2'
+                        : 'border-border/80 hover:border-accent/40 [@media(hover:hover)]:hover:-translate-y-0.5 hover:shadow-2'
                     }`}
                   >
                     <div className="space-y-2">

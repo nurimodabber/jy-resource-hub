@@ -86,6 +86,8 @@
   --amber-text-rgb: 146 64 14;
   --amber-border: #FDE68A;
   --amber-border-rgb: 253 230 138;
+  /* Gold in Icons und Szenen: heller als --amber, hält aber 3:1 auf allen hellen Flächen. */
+  --icon-gold-rgb: 202 115 22;
 
   --devotion: var(--amber);
   --devotion-rgb: var(--amber-rgb);
@@ -231,17 +233,18 @@
   --action-contrast: var(--accent-contrast);
   --action-contrast-rgb: var(--accent-contrast-rgb);
 
-  /* Warme Akzentfarbe für Andacht, Zitate & Gebete (sanftes Gold/Amber) */
-  --amber: #F59E0B;
-  --amber-rgb: 245 158 11;
-  --amber-hover: #FBBF24;
-  --amber-hover-rgb: 251 191 36;
+  /* Warme Akzentfarbe für Andacht, Zitate & Gebete: das Gold aus dem Logo. Blau bleibt für alles Klickbare. */
+  --amber: #E5A43B;
+  --amber-rgb: 229 164 59;
+  --amber-hover: #EDB65A;
+  --amber-hover-rgb: 237 182 90;
   --amber-subtle: #2B1D08;
   --amber-subtle-rgb: 43 29 8;
   --amber-text: #FDE68A;
   --amber-text-rgb: 253 230 138;
   --amber-border: #4D3410;
   --amber-border-rgb: 77 52 16;
+  --icon-gold-rgb: var(--amber-rgb);
 
   --devotion: var(--amber);
   --devotion-rgb: var(--amber-rgb);
@@ -392,20 +395,18 @@
    which floated it too high. Like the iOS 26 tab bar it now overlaps the lower part of the
    safe area and stays clear of the home indicator. */
 /* One bar, two sizes. At the top of a page it is larger: wider tabs, all labels, a bit higher up.
-   Once you scroll down it shrinks to the compact iOS size and only the active label stays.
-   Registered properties so the size change animates (glisse positions its lens from --lg-tab-width). */
-@property --jy-tab-w { syntax: '<length>'; inherits: true; initial-value: 64px; }
-@property --jy-tab-h { syntax: '<length>'; inherits: true; initial-value: 48px; }
+   Once you scroll down it shrinks to the compact iOS size and only the active label stays. */
 .jy-tabbar-dock {
   --jy-tab-w: min(80px, calc((100vw - 20px) / 5));
   --jy-tab-h: 58px;
   bottom: max(14px, calc(env(safe-area-inset-bottom) - 6px));
-  transition: --jy-tab-w 280ms cubic-bezier(0.16, 1, 0.3, 1), --jy-tab-h 280ms cubic-bezier(0.16, 1, 0.3, 1), bottom 280ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: 50% 100%;
+  /* Transform only: animating the tab size relaid out the bar and re-blurred the glass every frame, which stuttered on phones. */
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .jy-tabbar-dock[data-compact] {
-  --jy-tab-w: min(64px, calc((100vw - 20px) / 5));
-  --jy-tab-h: 48px;
-  bottom: max(6px, calc(env(safe-area-inset-bottom) - 20px));
+  /* 0.82 ≈ 64/80 px wide, 48/58 px high; the shift moves it to the lower compact bottom offset. */
+  transform: translateY(calc(max(14px, calc(env(safe-area-inset-bottom) - 6px)) - max(6px, calc(env(safe-area-inset-bottom) - 20px)))) scale(0.82);
 }
 @media (prefers-reduced-motion: reduce) {
   .jy-tabbar-dock { transition: none; }
@@ -503,6 +504,8 @@
 .jy-mobile-tab-bar .lg-tab-lens {
   z-index: 1 !important;
   background-color: rgb(var(--surface-rgb) / 0.88) !important;
+  /* glisse adds a bright rim image while pressed/dragging; it snapped white→dark on every tap. */
+  background-image: none !important;
   backdrop-filter: blur(12px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
   box-shadow: 
@@ -524,7 +527,8 @@
 /* FIX: Prevent tab face icon from disappearing (turning transparent) on tab switch */
 .jy-mobile-tab-bar .lg-tab > .lg-tab-face {
   color: var(--text-secondary) !important;
-  transition: color 150ms ease;
+  /* Same length and curve as the sliding highlight, so the color changes with it, not before it. */
+  transition: color 300ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .jy-mobile-tab-bar:not([data-away]) .lg-tab[data-selected] > .lg-tab-face,
@@ -598,19 +602,59 @@
 @keyframes pageFadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(5px);
+  }
+  60% {
+    opacity: 1;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
 .animate-fade-in {
   /* `backwards`, not `both`: a kept final transform makes this wrapper the containing block for
      every position: fixed child, so full-screen views (Punktetafel, Teams) sat inside the page. */
-  animation: pageFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  /* Opacity settles before the movement, so the page is readable at once and then glides into place. */
+  animation: pageFadeIn 240ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
+
+/* Einblenden von Dialogen, Sheets, Toasts und Menüs. Die Klassen (animate-in, zoom-in-95, slide-in-from-*)
+   stammen aus tailwindcss-animate, das nie installiert war; ohne diese Regeln erschien alles schlagartig.
+   Zwei Keyframes: reines Ausblenden ohne transform, weil ein transform fixed-Kinder einfängt (Punktetafel,
+   Teams, siehe .animate-fade-in). `backwards` statt `both`, sonst blockiert die Animation das Ziehen am Sheet. */
+@keyframes jy-enter-fade {
+  from { opacity: var(--jy-enter-opacity, 0); }
+}
+@keyframes jy-enter-move {
+  from {
+    opacity: var(--jy-enter-opacity, 1);
+    transform: translate3d(var(--jy-enter-x, 0), var(--jy-enter-y, 0), 0) scale(var(--jy-enter-scale, 1));
+  }
+}
+.animate-in {
+  animation: jy-enter-fade var(--jy-enter-dur, 180ms) cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.animate-in:is(.zoom-in-95, .zoom-in-75, .sm\:zoom-in-95, .slide-in-from-bottom, .slide-in-from-bottom-2, .slide-in-from-bottom-4, .slide-in-from-right) {
+  animation-name: jy-enter-move;
+}
+.animate-in.fade-in { --jy-enter-opacity: 0; }
+.zoom-in-95 { --jy-enter-scale: 0.95; }
+.zoom-in-75 { --jy-enter-scale: 0.75; }
+.slide-in-from-bottom-2 { --jy-enter-y: 0.5rem; }
+.slide-in-from-bottom-4 { --jy-enter-y: 1rem; }
+/* Ganze Sheets brauchen etwas länger, sonst wirkt der Weg über die volle Höhe hektisch. */
+.slide-in-from-bottom { --jy-enter-y: 100%; --jy-enter-dur: 320ms; }
+.slide-in-from-right { --jy-enter-x: 100%; --jy-enter-dur: 320ms; }
+@media (min-width: 640px) {
+  .sm\:slide-in-from-bottom-0 { --jy-enter-y: 0; --jy-enter-dur: 200ms; }
+  .sm\:zoom-in-95 { --jy-enter-scale: 0.95; }
+}
+/* Schneller Wortwechsel im Blitzleser: hier zählt Tempo, nicht Weichheit. */
+.animate-in.duration-75 { --jy-enter-dur: 75ms; }
+/* Die Seite selbst blendet schon der Routen-Wrapper ein; nicht doppelt. */
+.animate-fade-in > .animate-in { animation: none; }
 
 /* Tactile button & card active spring */
 .btn-spring {

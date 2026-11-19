@@ -21,6 +21,7 @@ import { GameCard, EnergyDots } from './GameCard';
 import { ShareMenu } from './ui/ShareMenu';
 import { IconTile } from './ui/IconTile';
 import { getGameIcon } from '../data/gameIcons';
+import { getGameScene } from '../data/scenes';
 import { SegmentedControl } from './ui/SegmentedControl';
 import { tr } from './tools/common';
 
@@ -54,6 +55,18 @@ interface GamePageProps {
   onToggleFavorite: (id: string, e: React.MouseEvent) => void;
 }
 
+const GameList: React.FC<{ title: string; items?: string[] }> = ({ title, items }) =>
+  items?.length ? (
+    <section className="mb-5 sm:mb-6">
+      <h2 className="text-xs font-bold text-text-tertiary mb-1.5">{title}</h2>
+      <ul className="list-disc pl-5 space-y-1.5 text-sm sm:text-base text-text leading-relaxed">
+        {items.map((item, idx) => (
+          <li key={idx}>{item}</li>
+        ))}
+      </ul>
+    </section>
+  ) : null;
+
 export const GamePage: React.FC<GamePageProps> = ({
   game,
   language,
@@ -71,6 +84,7 @@ export const GamePage: React.FC<GamePageProps> = ({
   const [isTipsOpen, setIsTipsOpen] = useState(true);
 
   const Companion = GAME_COMPANIONS[game.id];
+  const Scene = getGameScene(game.id);
   const hasCompanion = Companion !== undefined;
 
   // View mode: 'rules' or 'play' (interactive companion)
@@ -284,6 +298,11 @@ export const GamePage: React.FC<GamePageProps> = ({
           {/* STANDARD INSTRUCTIONS VIEW (ANLEITUNG LESEN)                  */}
           {/* ============================================================= */}
           <div hidden={viewMode === 'play' && hasCompanion}>
+              {Scene && (
+                <figure className="mb-5 sm:mb-6 rounded-card bg-surface-2 px-4 py-5 sm:px-6 sm:py-6 print:hidden">
+                  <Scene language={language} />
+                </figure>
+              )}
               {/* Section 1: Idee */}
               <section className="mb-5 sm:mb-6">
                 <h2 className="text-xs font-bold text-text-tertiary mb-1.5">
@@ -307,6 +326,19 @@ export const GamePage: React.FC<GamePageProps> = ({
                   </ul>
                 </section>
               )}
+
+              {game.intro && (
+                <section className="mb-5 sm:mb-6">
+                  <h2 className="text-xs font-bold text-text-tertiary mb-1.5">
+                    {L('Zum Einstieg erzählen', 'Story to start with')}
+                  </h2>
+                  <p className="border-l-2 border-border-strong pl-4 text-sm sm:text-base text-text-secondary leading-relaxed">
+                    {game.intro[language]}
+                  </p>
+                </section>
+              )}
+
+              <GameList title={L('Sicherheit', 'Safety')} items={game.safety?.[language]} />
 
               {/* Section 3: Ablauf mit Checkboxen */}
               <section className="mb-6 sm:mb-8">
@@ -356,6 +388,9 @@ export const GamePage: React.FC<GamePageProps> = ({
                   })}
                 </ol>
               </section>
+
+              <GameList title={L('Varianten', 'Variations')} items={game.variants?.[language]} />
+              <GameList title={L('Fragen für das Gespräch danach', 'Questions to talk about afterwards')} items={game.reflection?.[language]} />
 
               {/* Section 4: Tipps für die Spielleitung */}
               {game.animatorTips && game.animatorTips[language]?.length > 0 && (

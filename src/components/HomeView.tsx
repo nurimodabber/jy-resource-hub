@@ -269,10 +269,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               onClick={() => setShowCompactFinder(!showCompactFinder)}
               aria-expanded={showCompactFinder}
               aria-controls="home-quick-finder"
-              className={`relative overflow-hidden rounded-full px-5 py-3.5 sm:py-4 active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px] ${
+              className={`relative overflow-hidden rounded-full px-5 py-3.5 sm:py-4 active:scale-[0.98] transition-transform duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px] ${
                 showCompactFinder
-                  ? 'bg-surface border border-line text-text shadow-sm hover:bg-surface-2/90'
-                  : 'bg-accent text-accent-contrast shadow-md hover:bg-accent-hover border border-white/25'
+                  ? 'bg-surface border border-line text-text shadow-sm [@media(hover:hover)]:hover:bg-surface-2/90'
+                  : 'bg-accent text-accent-contrast shadow-md [@media(hover:hover)]:hover:bg-accent-hover border border-white/25'
               }`}
             >
               <div className="min-w-0 pr-2 relative z-10">
@@ -293,7 +293,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             {/* Aktion 2: Zitate & Gebete (solide, sekundär) */}
             <Link
               to="/quotes"
-              className="relative overflow-hidden rounded-full bg-surface border border-line text-text px-5 py-3.5 sm:py-4 shadow-sm hover:bg-surface-2/90 active:scale-[0.98] transition-all duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
+              className="relative overflow-hidden rounded-full bg-surface border border-line text-text px-5 py-3.5 sm:py-4 shadow-sm [@media(hover:hover)]:hover:bg-surface-2/90 active:scale-[0.98] transition-transform duration-150 flex items-center justify-between group cursor-pointer text-left focus-visible:ring-2 focus-visible:ring-accent min-h-[52px]"
             >
               <div className="min-w-0 pr-2 relative z-10">
                 <div className="font-bold text-sm sm:text-base text-text group-hover:text-accent tracking-tight transition-colors">
@@ -308,8 +308,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           </nav>
 
           {/* Spielfinder kompakt (standardmäßig offen, per Klick auf "Spiel finden" zu schließen) */}
-          {showCompactFinder && (
-            <section id="home-quick-finder" aria-label={L('Kompakter Spielfinder', 'Compact game finder')} className="animate-in fade-in duration-200">
+          {/* Bleibt gemountet und klappt über grid-rows weich auf und zu, statt den Inhalt darunter springen zu lassen.
+              Der Abstand steckt innen (pt-3), damit geschlossen keine Lücke bleibt; invisible nimmt die Felder aus der Tab-Folge. */}
+            <section
+              id="home-quick-finder"
+              aria-label={L('Kompakter Spielfinder', 'Compact game finder')}
+              className={`!mt-0 grid transition-[grid-template-rows,opacity,visibility] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                showCompactFinder ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 invisible'
+              }`}
+            >
+              <div className="min-h-0 overflow-hidden"><div className="pt-3">
               <Panel className="space-y-4 border border-border bg-surface rounded-card p-4 sm:p-5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <h2 className="text-sm font-bold text-text flex items-center gap-2">
@@ -362,8 +370,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </Panel>
+              </div></div>
             </section>
-          )}
         </div>
       </div>
 
@@ -376,7 +384,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           {/* Header Row: Feine Typografie-Kennzeichnung & Aktionen */}
           <div className="flex items-center justify-between gap-3 border-b border-line pb-3 sm:pb-3.5">
             <span className="text-2xs font-semibold text-text-tertiary truncate">
-              {L('Zitat des Tages', 'Quote of the day')}
+              <span className="text-amber">{L('Zitat des Tages', 'Quote of the day')}</span>
               {quote.book[language] &&
               !/gebete?\s*(&|und|\+)?\s*andacht/i.test(quote.book[language]) &&
               !/prayers?\s*(&|and|\+)?\s*devotions?/i.test(quote.book[language])

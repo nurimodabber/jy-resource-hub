@@ -180,7 +180,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = ({
           onKeyDown={handleMenuKeyDown}
           className={`absolute z-50 min-w-[170px] py-1 glass-surface rounded-card border border-border shadow-2 animate-in fade-in zoom-in-95 duration-120 select-none ${
             direction === 'up' ? 'bottom-full mb-1.5' : 'top-full mt-1.5'
-          } ${align === 'right' ? 'right-0' : 'left-0'}`}
+          } ${align === 'right' ? 'right-0' : 'left-0'} ${direction === 'up' ? (align === 'right' ? 'origin-bottom-right' : 'origin-bottom-left') : align === 'right' ? 'origin-top-right' : 'origin-top-left'}`}
         >
           {canNativeShare && (
             <button

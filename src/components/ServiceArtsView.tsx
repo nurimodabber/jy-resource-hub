@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, startTransition } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, X, BookOpen, Tag, HeartHandshake, Palette } from 'lucide-react';
 import { FilterToggle } from './ui/FilterToggle';
@@ -62,6 +62,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   }, [id, activeServiceProjects, activeArtsPrompts]);
 
   // Filter states parsed from URL searchParams
+  // Zeigt die angetippte Art sofort im Umschalter, während die Liste im Hintergrund wechselt.
+  const [shownKind, setShownKind] = useState<'dienst' | 'kunst' | null>(null);
+  useEffect(() => setShownKind(null), [fixedKind]);
   const [query, setQuery] = useState(
     searchParams.get('q') || externalSearchQuery || '',
   );
@@ -311,8 +314,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   return (
     <div className="max-w-6xl mx-auto pb-20">
       {/* 1. Header: H1, one sentence, count on search/filter */}
-      <header className="mb-6 sm:mb-8">
-        <div className="flex items-center justify-between gap-3">
+      <header className="mb-6 sm:mb-8 flex flex-wrap sm:flex-nowrap items-center sm:items-end justify-between gap-x-3 gap-y-4 sm:gap-4">
+        <div className="sm:min-w-0">
           <div className="flex items-baseline gap-x-3.5 gap-y-1 flex-wrap min-w-0">
             <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
               {pageTitle}
@@ -325,24 +328,30 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
               </div>
             )}
           </div>
-          {fixedKind && (
+          <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
+            {pageDesc}
+          </p>
+        </div>
+        {/* Same spot as Lesen/Auswendiglernen on Zitate: right of the title on every width. */}
+        {fixedKind && (
+          <div className="w-40 sm:w-64 shrink-0">
             <SegmentedControl<'dienst' | 'kunst'>
-              className="shrink-0"
+              fullWidth
               options={[
                 { id: 'dienst', label: L('Dienst', 'Service') },
                 { id: 'kunst', label: L('Kunst', 'Arts') },
               ]}
-              value={fixedKind}
+              value={shownKind ?? fixedKind}
               onChange={(val) => {
+                if (val === (shownKind ?? fixedKind)) return;
+                setShownKind(val);
                 // Filter gehören zur jeweiligen Art (Bereich vs. Kunstform), deshalb ohne Parameter wechseln.
-                if (val !== fixedKind) navigate(val === 'dienst' ? '/service' : '/arts', { replace: true });
+                // Als Transition, damit das Rendern der Liste die Pillen-Animation nicht ausbremst.
+                startTransition(() => { void navigate(val === 'dienst' ? '/service' : '/arts', { replace: true }); });
               }}
             />
-          )}
-        </div>
-        <p className="hidden sm:block text-base sm:text-lg text-text-secondary mt-2 max-w-2xl font-normal leading-relaxed">
-          {pageDesc}
-        </p>
+          </div>
+        )}
       </header>
 
       {/* 2. Search Input + Filter Toggle Button */}

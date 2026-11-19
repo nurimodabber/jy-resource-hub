@@ -824,7 +824,7 @@ export const CardComparisonView: React.FC<CardComparisonViewProps> = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
             {/* Card 1: Dienst */}
-            <div className="group relative flex flex-col p-6 rounded-3xl bg-[#18181B] border border-white/[0.08] hover:border-white/20 transition-all duration-200 hover:-translate-y-0.5">
+            <div className="group relative flex flex-col p-6 rounded-3xl bg-[#18181B] border border-white/[0.08] hover:border-white/20 transition-all duration-200 [@media(hover:hover)]:hover:-translate-y-0.5">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
@@ -861,7 +861,7 @@ export const CardComparisonView: React.FC<CardComparisonViewProps> = () => {
             </div>
 
             {/* Card 2: Spiel */}
-            <div className="group relative flex flex-col p-6 rounded-3xl bg-[#18181B] border border-white/[0.08] hover:border-white/20 transition-all duration-200 hover:-translate-y-0.5">
+            <div className="group relative flex flex-col p-6 rounded-3xl bg-[#18181B] border border-white/[0.08] hover:border-white/20 transition-all duration-200 [@media(hover:hover)]:hover:-translate-y-0.5">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
@@ -898,7 +898,7 @@ export const CardComparisonView: React.FC<CardComparisonViewProps> = () => {
             </div>
 
             {/* Card 3: Kreativ */}
-            <div className="group relative flex flex-col p-6 rounded-3xl bg-[#18181B] border border-white/[0.08] hover:border-white/20 transition-all duration-200 hover:-translate-y-0.5">
+            <div className="group relative flex flex-col p-6 rounded-3xl bg-[#18181B] border border-white/[0.08] hover:border-white/20 transition-all duration-200 [@media(hover:hover)]:hover:-translate-y-0.5">
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
@@ -935,7 +935,7 @@ export const CardComparisonView: React.FC<CardComparisonViewProps> = () => {
             </div>
 
             {/* Card 4: Zitat mit Watermark Anführungszeichen */}
-            <div className="group relative overflow-hidden flex flex-col p-6 rounded-3xl bg-[#1a191f] border border-amber-500/20 hover:border-amber-500/40 transition-all duration-200 hover:-translate-y-0.5">
+            <div className="group relative overflow-hidden flex flex-col p-6 rounded-3xl bg-[#1a191f] border border-amber-500/20 hover:border-amber-500/40 transition-all duration-200 [@media(hover:hover)]:hover:-translate-y-0.5">
               {/* Subtle background quotation marks */}
               <span className="absolute -top-3 left-4 text-8xl font-serif text-white/[0.03] select-none pointer-events-none">
                 “

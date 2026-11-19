@@ -82,7 +82,7 @@ export const QuoteCard: React.FC<QuoteCardProps> = ({
   return (
     <article
       onClick={() => onSelectQuote(quote)}
-      className="break-inside-avoid group relative overflow-hidden bg-surface rounded-card border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 p-3.5 sm:p-5 mb-3.5 sm:mb-4 transition-all duration-200 ease-out cursor-pointer flex flex-col justify-between focus-within:ring-2 focus-within:ring-accent shadow-2xs"
+      className="break-inside-avoid group relative overflow-hidden bg-surface rounded-card border border-border/80 hover:border-accent/40 [@media(hover:hover)]:hover:-translate-y-0.5 hover:shadow-2 p-3.5 sm:p-5 mb-3.5 sm:mb-4 transition-all duration-200 ease-out cursor-pointer flex flex-col justify-between focus-within:ring-2 focus-within:ring-accent shadow-2xs"
       tabIndex={0}
       role="article"
       onKeyDown={(e) => {

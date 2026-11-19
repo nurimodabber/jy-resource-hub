@@ -17,14 +17,17 @@ import { SERVICE_PROJECTS_DATA } from './data/serviceProjects';
 import { ARTS_PROMPTS_DATA } from './data/artsPrompts';
 import { recordRecentView } from './utils/recentViews';
 
-// Synchronously imported primary views (zero Skeleton flash on 404 or list routes, fast LCP & zero CLS)
+// Synchronously imported: start page and 404 (no skeleton flash on the landing view)
 import { HomeView } from './components/HomeView';
-import { GamesView } from './components/GamesView';
-import { QuotesView } from './components/QuotesView';
-import { ServiceArtsView } from './components/ServiceArtsView';
 import { NotFoundView } from './components/NotFoundView';
 
 // Lazy-loaded secondary routes
+const loadGames = () => import('./components/GamesView');
+const loadQuotes = () => import('./components/QuotesView');
+const loadServiceArts = () => import('./components/ServiceArtsView');
+const GamesView = lazy(() => loadGames().then(m => ({ default: m.GamesView })));
+const QuotesView = lazy(() => loadQuotes().then(m => ({ default: m.QuotesView })));
+const ServiceArtsView = lazy(() => loadServiceArts().then(m => ({ default: m.ServiceArtsView })));
 const ToolkitsView = lazy(() => import('./components/ToolkitsView').then(m => ({ default: m.ToolkitsView })));
 const ImpressumView = lazy(() => import('./components/ImpressumView').then(m => ({ default: m.ImpressumView })));
 const NutzungsbedingungenView = lazy(() => import('./components/NutzungsbedingungenView').then(m => ({ default: m.NutzungsbedingungenView })));
@@ -38,6 +41,7 @@ const SettingsSheet = lazy(() => import('./components/SettingsSheet').then(m => 
 const CommandPalette = lazy(() => import('./components/CommandPalette').then(m => ({ default: m.CommandPalette })));
 const BahaiSongsModal = lazy(() => import('./components/BahaiSongsModal').then(m => ({ default: m.BahaiSongsModal })));
 const ContactModal = lazy(() => import('./components/ContactModal').then(m => ({ default: m.ContactModal })));
+const IconProposalView = lazy(() => import('./components/IconProposalView'));
 
 const RouteLoading: React.FC<{ language: Language }> = ({ language }) => (
   <div className="max-w-4xl mx-auto py-8 space-y-6 animate-pulse" role="status" aria-label={language === 'de' ? 'Wird geladen' : 'Loading'}>
@@ -78,6 +82,19 @@ export const AppContent: React.FC = () => {
       }
     }
   }, [navigate]);
+
+  // Die Haupt-Tabs liegen in eigenen Chunks, damit die Startseite schneller lädt. Im Leerlauf vorladen,
+  // damit der erste Tab-Wechsel trotzdem ohne Lade-Platzhalter auskommt.
+  useEffect(() => {
+    const preload = () => { void loadGames(); void loadQuotes(); void loadServiceArts(); };
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(preload, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    // Safari kennt requestIdleCallback nicht.
+    const id = window.setTimeout(preload, 1500);
+    return () => window.clearTimeout(id);
+  }, []);
 
   // Derive active tab from pathname for header/rail/tabbar highlighting
   const activeTab = useMemo<NavTab>(() => {
@@ -278,7 +295,8 @@ export const AppContent: React.FC = () => {
     } else {
       navigate(`/${tab}`);
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Instant: a smooth scroll on the new page made the compact tab bar grow ~0.5 s after the tap, a second jolt.
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [navigate]);
 
   // Scroll management: record scroll positions and restore on navigation back
@@ -442,11 +460,12 @@ export const AppContent: React.FC = () => {
         className={
           isAdminRoute
             ? 'flex-1 w-full focus:outline-hidden'
-            : 'short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8 short:py-4 pb-24 md:pb-8 focus:outline-hidden'
+            : 'short-content-pad flex-1 max-w-[1200px] w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8 short:py-4 pb-6 md:pb-8 focus:outline-hidden'
         }
       >
         <Suspense fallback={<RouteLoading language={language} />}>
-          <div key={location.pathname} className="animate-fade-in">
+          {/* Dienst und Kunst sind eine Seite mit Umschalter: gleicher Schlüssel, damit der Wechsel nicht neu aufbaut. */}
+          <div key={/^\/(service|arts)\/?$/.test(location.pathname) ? 'projects' : location.pathname} className="animate-fade-in">
             <Routes>
             <Route
               path="/"
@@ -636,6 +655,7 @@ export const AppContent: React.FC = () => {
             <Route path="/_design/vergleich" element={<CardComparisonView language={language} />} />
 
             {/* Real 404 Route */}
+            {import.meta.env.DEV && <Route path="/vorschlag/icons" element={<IconProposalView language={language} />} />}
             <Route path="*" element={<NotFoundView language={language} />} />
           </Routes>
           </div>
@@ -678,7 +698,7 @@ export const AppContent: React.FC = () => {
       )}
 
       {!isAdminRoute && (
-      <footer className="short-content-pad border-t border-line mt-4 sm:mt-6 py-3 sm:py-3.5 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
+      <footer className="short-content-pad border-t border-line mt-2 sm:mt-6 py-2.5 sm:py-3.5 text-xs text-text-secondary print:hidden mb-[calc(4.5rem+env(safe-area-inset-bottom))] short:mb-0 md:mb-0">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6">
           {/* Desktop Footer (alles in einer Zeile angeordnet) */}
           <div className="hidden md:flex items-center justify-between gap-4">
@@ -731,13 +751,9 @@ export const AppContent: React.FC = () => {
             </div>
           </div>
 
-          {/* Mobile / Vertikal Footer:
-              - Tausche Experimentell mit Cluster Rhein Neckar
-              - Verschiebe Kontakt Impressum Datenschutz nach rechts
-              - Geringerer Abstand / kompaktere Größe, alle Elemente horizontal exakt auf gleicher Höhe */}
-          <div className="md:hidden space-y-2">
-            {/* Zeile 1: Brand links, Cluster Rhein-Neckar rechts */}
-            <div className="flex items-center justify-between gap-2">
+          {/* Mobil: zwei Zeilen, damit der Footer über der Tab-Leiste wenig Höhe kostet. */}
+          <div className="md:hidden space-y-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
               <div className="flex items-center gap-1.5">
                 <div className="w-4 h-4 rounded-full bg-accent/15 flex items-center justify-center shrink-0">
                   <Logo className="w-2.5 h-2.5 text-accent" />
@@ -748,33 +764,31 @@ export const AppContent: React.FC = () => {
                 <span className="text-2xs text-text-tertiary select-none leading-none">
                   © {new Date().getFullYear()}
                 </span>
+                <span className="text-border-strong select-none leading-none">·</span>
+                <span className="text-2xs text-text-tertiary leading-none">{t.footerExperimental}</span>
               </div>
-              <span className="text-2xs text-text-tertiary font-medium shrink-0 leading-none">
+              <span className="text-2xs text-text-tertiary leading-none">
                 {t.footerCluster}
               </span>
             </div>
 
-            {/* Zeile 2: Hinweis links, Kontakt / Impressum / Datenschutz rechts */}
-            <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-2xs">
-              <span className="text-2xs text-text-tertiary leading-none">{t.footerExperimental}</span>
-              <div className="flex flex-wrap items-center justify-end gap-x-3.5 gap-y-1 ml-auto font-medium text-text">
-                <button
-                  type="button"
-                  onClick={() => setIsContactOpen(true)}
-                  className="h-[22px] min-w-[44px] flex items-center justify-center hover:text-accent transition-colors cursor-pointer leading-none"
-                >
-                  {t.footerContact}
-                </button>
-                <Link to="/impressum" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
-                  {t.footerImpressum}
-                </Link>
-                <Link to="/datenschutz" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
-                  {t.footerDatenschutz}
-                </Link>
-                <Link to="/nutzungsbedingungen" className="h-[22px] flex items-center hover:text-accent transition-colors leading-none">
-                  {t.footerTerms}
-                </Link>
-              </div>
+            <div className="flex flex-wrap items-center justify-between gap-x-3 text-2xs font-medium text-text">
+              <button
+                type="button"
+                onClick={() => setIsContactOpen(true)}
+                className="h-6 flex items-center hover:text-accent transition-colors cursor-pointer leading-none"
+              >
+                {t.footerContact}
+              </button>
+              <Link to="/impressum" className="h-6 flex items-center hover:text-accent transition-colors leading-none">
+                {t.footerImpressum}
+              </Link>
+              <Link to="/datenschutz" className="h-6 flex items-center hover:text-accent transition-colors leading-none">
+                {t.footerDatenschutz}
+              </Link>
+              <Link to="/nutzungsbedingungen" className="h-6 flex items-center hover:text-accent transition-colors leading-none">
+                {t.footerTerms}
+              </Link>
             </div>
           </div>
         </div>

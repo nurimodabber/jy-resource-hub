@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
 import { TabBar } from 'glisse';
 import { Dices, BookOpen, HeartHandshake, Wrench, Plus } from 'lucide-react';
 import { NavTab, Language } from '../types';
@@ -13,18 +12,49 @@ export interface BottomTabBarProps {
   language: Language;
 }
 
+// Navigiert wird nur über onValueChange (siehe unten). Der Link verhindert bloß das Laden durch den Browser;
+// Strg/Cmd-Klick öffnet weiter einen neuen Tab, weil glisse solche Klicks gar nicht auswählt.
 const RouterLinkAdapter = React.forwardRef<
   HTMLAnchorElement,
   React.AnchorHTMLAttributes<HTMLAnchorElement> & { href?: string }
->(({ href, children, ...rest }, ref) => (
-  <Link ref={ref} to={href || '/'} {...rest}>
+>(({ href = '/', children, onClick, ...rest }, ref) => (
+  <a
+    ref={ref}
+    href={href}
+    onClick={(e) => {
+      onClick?.(e);
+      if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) e.preventDefault();
+    }}
+    {...rest}
+  >
     {children}
-  </Link>
+  </a>
 ));
 RouterLinkAdapter.displayName = 'RouterLinkAdapter';
 
 export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectTab, language }) => {
   const t = UI_TRANSLATIONS[language];
+  // glisse bewegt die Auswahl mit einer JavaScript-Feder auf dem Haupt-Thread. Das Einhängen einer neuen Seite
+  // blockiert ihn 50–80 ms (am Handy mehr) und ließe die Feder mitten im Gleiten stocken. Deshalb erst wechseln,
+  // wenn die Auswahl angekommen ist (glisse setzt data-away/data-lensing, solange sie sich bewegt), spätestens
+  // nach 300 ms. Bei schnellem Antippen zählt nur der letzte Tab.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const pending = useRef(0);
+  const selectWhenSettled = (tab: NavTab) => {
+    const bar = wrapRef.current?.querySelector('.lg-tab-bar');
+    const token = ++pending.current;
+    const start = performance.now();
+    const go = () => {
+      if (token !== pending.current) return;
+      const moving = bar?.hasAttribute('data-away') || bar?.hasAttribute('data-lensing');
+      if (moving && performance.now() - start < 300) {
+        window.setTimeout(go, 16);
+        return;
+      }
+      onSelectTab(tab);
+    };
+    go();
+  };
   // Compact once the page is scrolled; large again at the top.
   const [compact, setCompact] = useState(false);
   useEffect(() => {
@@ -86,12 +116,12 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({ activeTab, onSelectT
       data-compact={compact ? '' : undefined}
       aria-label={language === 'de' ? 'Navigation' : 'Navigation'}
     >
-      <div className="pointer-events-auto rounded-full max-w-[calc(100vw-12px)] overflow-hidden">
+      <div ref={wrapRef} className="pointer-events-auto rounded-full max-w-[calc(100vw-12px)] overflow-hidden">
         <TabBar
           className="jy-mobile-tab-bar"
           items={items}
           value={value}
-          onValueChange={(val) => onSelectTab(val === 'projects' ? (activeTab === 'arts' ? 'arts' : 'service') : (val as NavTab))}
+          onValueChange={(val) => selectWhenSettled(val === 'projects' ? (activeTab === 'arts' ? 'arts' : 'service') : (val as NavTab))}
           link={RouterLinkAdapter}
         />
       </div>

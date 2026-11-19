@@ -32,8 +32,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Participants reach across a circle to grab random hands and must untangle themselves into an open circle without letting go.'
     },
     idea: {
-      de: 'Ein Klassiker des handlungsorientierten Teambuildings: Fördert geduldige Kommunikation und physische Flexibilität.',
-      en: 'A foundational teamwork exercise testing patience, spatial communication, and gentle physical coordination.'
+      de: 'Übt Geduld und klare Absprachen, wenn alle gleichzeitig handeln wollen.',
+      en: 'Practises patience and clear agreements when everyone wants to act at once.'
     },
     rules: {
       de: [
@@ -50,6 +50,14 @@ export const GAMES_DATA: Game[] = [
         'Hands must remain joined at all times (shifting grips is allowed, breaking contact is not).',
         'The result will either be one single large circle or two interlocked rings.'
       ]
+    },
+    safety: {
+      de: ['Wer Schmerzen im Handgelenk spürt, sagt sofort „Stopp“. Dann lockern alle kurz den Griff.'],
+      en: ['Anyone who feels pain in their wrist says "stop" at once. Then everyone loosens their grip for a moment.']
+    },
+    reflection: {
+      de: ['Was hat geholfen, als ihr festgesteckt habt?', 'Wie hat es sich angefühlt, als der Knoten aufging?'],
+      en: ['What helped when you were stuck?', 'How did it feel when the knot came undone?']
     },
     animatorTips: {
       de: [
@@ -95,8 +103,8 @@ export const GAMES_DATA: Game[] = [
       en: 'The group counts from 1 to 20 with eyes closed—no designated sequence, no signals. If two speak together: reset.'
     },
     idea: {
-      de: 'Schult tiefes gegenseitiges Zuhören, Geduld und die Fähigkeit, gemeinsame Stille auszuhalten.',
-      en: 'Builds deep active listening, communal patience, and mutual awareness without spoken words.'
+      de: 'Übt Zuhören und Geduld. Die Gruppe lernt, Stille auszuhalten.',
+      en: 'Practises listening and patience. The group learns to sit with silence.'
     },
     rules: {
       de: [
@@ -113,6 +121,10 @@ export const GAMES_DATA: Game[] = [
         'No predetermined systems (such as going clockwise) are allowed.',
         'If two people begin a number at the same moment, the round pauses: a breath together, then restart at 1.'
       ]
+    },
+    variants: {
+      de: ['Mit offenen Augen, aber alle schauen auf den Boden.', 'Ziel höher setzen, wenn 20 geklappt hat.'],
+      en: ['With eyes open, but everyone looks at the floor.', 'Raise the target once 20 has worked.']
     },
     animatorTips: {
       de: [
@@ -159,8 +171,8 @@ export const GAMES_DATA: Game[] = [
       en: 'A blindfolded participant must navigate across an obstacle field guided purely by the vocal directions of a partner.'
     },
     idea: {
-      de: 'Baut tiefes gegenseitiges Vertrauen auf und schult klare, unmissverständliche Kommunikation unter Reizüberflutung.',
-      en: 'Builds interpersonal trust and teaches concise communication amidst background noise.'
+      de: 'Übt Vertrauen und genaue Anweisungen, auch wenn es laut ist.',
+      en: 'Practises trust and precise directions, even when it is noisy.'
     },
     rules: {
       de: [
@@ -178,6 +190,14 @@ export const GAMES_DATA: Game[] = [
         'If a mine is touched, the pair takes a penalty or resets. Switch roles once crossing.'
       ]
     },
+    variants: {
+      de: ['Die blinde Person sammelt unterwegs einen bestimmten Gegenstand ein.', 'Statt Worten nur Geräusche, die das Paar vorher vereinbart.'],
+      en: ['The blindfolded person collects a certain object on the way.', 'Instead of words, only sounds the pair agreed on beforehand.']
+    },
+    reflection: {
+      de: ['Wie war es, sich ganz auf eine Stimme zu verlassen?', 'Welche Anweisungen waren am hilfreichsten?'],
+      en: ['How was it to rely completely on one voice?', 'Which instructions were most helpful?']
+    },
     animatorTips: {
       de: [
         'Sicherheit geht vor: Entfernt scharfkantige Gegenstände.',
@@ -194,7 +214,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'ein-wort-geschichte',
     title: {
-      de: 'Ein-Wort- oder Ein-Satz-Geschichte',
+      de: 'Wortgeschichte',
       en: 'One-Word or One-Sentence Story'
     },
     subtitle: {
@@ -222,8 +242,8 @@ export const GAMES_DATA: Game[] = [
       en: 'The group collaboratively weaves a narrative in the circle – either each person adds exactly one word (brisk and unpredictable) or one full sentence (richer storytelling).'
     },
     idea: {
-      de: 'Trainiert aktives Zuhören, Spontaneität und das Weiterspinnen fremder Gedanken, ohne die Kontrolle über die Handlung erzwingen zu wollen.',
-      en: 'Cultivates active listening, spontaneity, and building constructively on each other\'s ideas without forcing personal plot control.'
+      de: 'Übt Zuhören und Spontaneität. Alle bauen auf dem auf, was andere sagen, statt die Geschichte an sich zu ziehen.',
+      en: 'Practises listening and spontaneity. Everyone builds on what others say instead of taking over the story.'
     },
     rules: {
       de: [
@@ -257,7 +277,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'helium-stick',
     title: {
-      de: 'Helium Stick',
+      de: 'Der schwebende Stab',
       en: 'Helium Stick'
     },
     subtitle: {
@@ -285,8 +305,8 @@ export const GAMES_DATA: Game[] = [
       en: 'A lightweight stick rests across everyone’s index fingers. The goal is to lower it together, yet collective tension makes it rise.'
     },
     idea: {
-      de: 'Ein eindrucksvolles gruppendynamisches Phänomen: Erfolg ist nur möglich, wenn alle gemeinsam Druck abbauen und Ruhe bewahren.',
-      en: 'A powerful demonstration of group dynamics: success is only possible when all participants consciously reduce pressure.'
+      de: 'Zeigt, dass es nur klappt, wenn alle ruhig werden und sich aufeinander abstimmen.',
+      en: 'Shows that it only works when everyone calms down and moves in step.'
     },
     rules: {
       de: [
@@ -321,7 +341,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'stand-up-ruecken',
     title: {
-      de: 'Stand Up',
+      de: 'Gemeinsam aufstehen',
       en: 'Back-to-Back Stand Up'
     },
     subtitle: {
@@ -349,8 +369,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Two players sit back-to-back and stand up without using their hands. Expand to quartets, then eight, until the whole group rises as one.'
     },
     idea: {
-      de: 'Verlangt synchrone Kraftübertragung und gegenseitiges Stützen: Einer allein fällt um, gemeinsam steht man sicher.',
-      en: 'Requires balanced counter-pressure and physical synchronicity: individual effort collapses, shared commitment succeeds.'
+      de: 'Übt gegenseitiges Stützen und gleichzeitiges Handeln. Allein fällt man um, zusammen klappt es.',
+      en: 'Practises supporting each other and moving together. Alone you fall over, together it works.'
     },
     rules: {
       de: [
@@ -412,8 +432,8 @@ export const GAMES_DATA: Game[] = [
       en: 'The group must order themselves in a single line by a specific metric (e.g. birthday, house number, or shoe size) without speaking a single word.'
     },
     idea: {
-      de: 'Fördert nonverbale Kommunikation, Gestik und kollektives Mitdenken ohne Sprache.',
-      en: 'Sharpens nonverbal gesturing, empathy, and collective coordination in silence.'
+      de: 'Übt Verständigung ohne Worte, mit Gesten und Blicken.',
+      en: 'Practises communicating without words, using gestures and eye contact.'
     },
     rules: {
       de: [
@@ -428,6 +448,14 @@ export const GAMES_DATA: Game[] = [
         'Participants communicate strictly via hand gestures, finger counting, and body language.',
         'Once the line settles, players announce their numbers sequentially from front to back to verify accuracy.'
       ]
+    },
+    variants: {
+      de: ['Mit geschlossenen Augen: Ihr sortiert euch nur durch Berührung, zum Beispiel nach Körpergröße.'],
+      en: ['With eyes closed: sort yourselves by touch only, for example by height.']
+    },
+    reflection: {
+      de: ['Welche Zeichen habt ihr erfunden, und wer hat sie zuerst verstanden?'],
+      en: ['Which signs did you invent, and who understood them first?']
     },
     animatorTips: {
       de: [
@@ -471,12 +499,12 @@ export const GAMES_DATA: Game[] = [
       en: 'Room or lawn 8–10 meters wide'
     },
     summary: {
-      de: 'Die Gruppe muss einen Fluss überqueren, hat aber weniger Trittflächen als Personen. Bleibt eine Scholle unberührt, schmilzt sie weg!',
-      en: 'The group must cross an open expanse with fewer stepping platforms than people. Leave a tile empty, and it vanishes!'
+      de: 'Die Gruppe muss einen Fluss überqueren, hat aber weniger Trittflächen als Personen. Bleibt eine Scholle unberührt, schmilzt sie weg.',
+      en: 'The group must cross an open expanse with fewer stepping platforms than people. Leave a tile empty, and it vanishes.'
     },
     idea: {
-      de: 'Gemeinsames Vorankommen unter Ressourcenknappheit: Erfordert enges Zusammenrücken und vorausschauendes Weiterreichen.',
-      en: 'Collaborative movement under strict resource constraints: requires close support and foresight.'
+      de: 'Übt Planen mit wenig Mitteln und enges Zusammenarbeiten.',
+      en: 'Practises planning with few resources and working closely together.'
     },
     rules: {
       de: [
@@ -494,6 +522,18 @@ export const GAMES_DATA: Game[] = [
         'If any foot touches the open ground, the group returns to start.'
       ]
     },
+    intro: {
+      de: 'Das Eis bricht. Nur auf den Schollen kommt ihr ans rettende Ufer, und sie treiben weg, sobald niemand darauf steht.',
+      en: 'The ice is breaking. Only the floes can carry you to the safe shore, and they drift away as soon as nobody stands on them.'
+    },
+    variants: {
+      de: ['Zwei Personen dürfen nicht sprechen.', 'Eine Person hat die Augen verbunden und wird von den anderen geführt.'],
+      en: ['Two people may not speak.', 'One person is blindfolded and guided by the others.']
+    },
+    reflection: {
+      de: ['Wie habt ihr darauf geachtet, dass niemand zurückbleibt?'],
+      en: ['How did you make sure nobody was left behind?']
+    },
     animatorTips: {
       de: [
         'Die Gruppe begreift schnell, dass man Schollen nach vorne durchreichen und sich gegenseitig stützen muss.',
@@ -510,7 +550,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'lebender-balltransport',
     title: {
-      de: 'Pipelines',
+      de: 'Kugelbahn',
       en: 'Pipelines'
     },
     subtitle: {
@@ -538,8 +578,8 @@ export const GAMES_DATA: Game[] = [
       en: 'A rolling ball must travel across a long distance by players sprinting to recombine short gutter pipes.'
     },
     idea: {
-      de: 'Erfordert hohe Laufbereitschaft, nahtlose Übergaben und das Zurückstellen eigener Bequemlichkeit für das Teamziel.',
-      en: 'Requires rapid sprinting, smooth handoffs, and selflessness to keep the ball in motion.'
+      de: 'Übt saubere Übergaben und Einsatz für das gemeinsame Ziel. Alle müssen immer wieder nach vorn laufen.',
+      en: 'Practises clean handovers and effort for the shared goal. Everyone keeps running to the front.'
     },
     rules: {
       de: [
@@ -597,8 +637,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Blindfolded participants holding a loop of rope must coordinate to shape it into a geometrically precise square on the floor.'
     },
     idea: {
-      de: 'Schult räumliches Vorstellungsvermögen, Führungsübernahme ohne Dominanz und gemeinsames Abstimmen im Dunkeln.',
-      en: 'Challenges spatial visualization, egalitarian leadership, and vocal coordination in darkness.'
+      de: 'Übt Absprachen ohne Sicht. Zeigt, wer führt und wie die anderen mitgehen.',
+      en: 'Practises agreeing without sight. Shows who leads and how the others follow.'
     },
     rules: {
       de: [
@@ -615,6 +655,18 @@ export const GAMES_DATA: Game[] = [
         'Hands may slide along the rope, but contact must never be broken.',
         'Only when the group unanimously agrees they are finished do they lay the rope down and take off blindfolds.'
       ]
+    },
+    variants: {
+      de: ['Statt eines Quadrats ein Dreieck oder einen Stern legen.', 'Nur eine Person darf sprechen. Die Gruppe wählt sie vorher.'],
+      en: ['Make a triangle or a star instead of a square.', 'Only one person may speak. The group chooses them beforehand.']
+    },
+    safety: {
+      de: ['Sorge dafür, dass niemand mit verbundenen Augen rückwärts gegen Wand oder Möbel läuft.'],
+      en: ['Make sure nobody blindfolded walks backwards into a wall or furniture.']
+    },
+    reflection: {
+      de: ['Wie seid ihr zu einer Entscheidung gekommen?', 'Wer hat viel gesagt, wer wenig, und warum?'],
+      en: ['How did you reach a decision?', 'Who said a lot, who said little, and why?']
     },
     animatorTips: {
       de: [
@@ -660,8 +712,8 @@ export const GAMES_DATA: Game[] = [
       en: 'The entire group stands on a blanket and must flip it completely over to its reverse side without anyone stepping off.'
     },
     idea: {
-      de: 'Verlangt enges Zusammenrücken, gegenseitiges Festhalten und geschickte Gewichtsverlagerung auf engstem Raum.',
-      en: 'Requires close physical support, mutual balance, and strategic weight shifting in confined space.'
+      de: 'Übt Festhalten und Rücksicht auf engem Raum.',
+      en: 'Practises holding on to each other and taking care in a tight space.'
     },
     rules: {
       de: [
@@ -723,8 +775,8 @@ export const GAMES_DATA: Game[] = [
       en: 'The group keeps a ball airborne through consecutive taps until reaching a shared goal (e.g. 50 or 100 touches).'
     },
     idea: {
-      de: 'Ein dynamischer Energie- und Koordinationsbooster, der alle Blicke nach oben lenkt und gemeinsame Begeisterung weckt.',
-      en: 'A high-energy team coordination booster that unites group focus upward in shared celebration.'
+      de: 'Bringt Bewegung in die Gruppe. Alle arbeiten auf eine gemeinsame Zahl hin.',
+      en: 'Gets the group moving. Everyone works towards a shared number.'
     },
     rules: {
       de: [
@@ -782,8 +834,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Each person wears a number they cannot see, visible only to others. In silence, they must organize themselves in ascending order.'
     },
     idea: {
-      de: 'Man sieht nur das Potenzial und den Platz des anderen: Erfolg gelingt nur, indem man anderen hilft, ihren richtigen Platz zu finden.',
-      en: 'You only see others’ numbers: success comes from altruistically helping others find their correct position.'
+      de: 'Du siehst nur die Zahlen der anderen. Es klappt nur, wenn alle einander helfen, den richtigen Platz zu finden.',
+      en: 'You only see the others’ numbers. It only works if everyone helps each other find the right place.'
     },
     rules: {
       de: [
@@ -837,12 +889,12 @@ export const GAMES_DATA: Game[] = [
       en: 'Outdoor lawn or gymnasium'
     },
     summary: {
-      de: 'Die gesamte Gruppe muss ein Seil auf Brusthöhe überwinden. Untendurch ist verboten. Berührt jemand das Seil, müssen alle zurück!',
+      de: 'Die gesamte Gruppe muss ein Seil auf Brusthöhe überwinden. Untendurch ist verboten. Berührt jemand das Seil, müssen alle zurück.',
       en: 'The entire team must cross over a chest-high rope without touching it or going underneath.'
     },
     idea: {
-      de: 'Klassiker der Erlebnispädagogik: Erfordert Heben, Absichern, Vertrauen und echte Muskelkraft.',
-      en: 'Experiential team classic: requires lifting, spotting, mutual trust, and physical responsibility.'
+      de: 'Übt Vertrauen, Heben und Sichern. Alle sind für die Sicherheit der anderen verantwortlich.',
+      en: 'Practises trust, lifting and spotting. Everyone is responsible for the others’ safety.'
     },
     rules: {
       de: [
@@ -902,8 +954,8 @@ export const GAMES_DATA: Game[] = [
       en: 'An object rests inside an off-limits zone and must be recovered purely using tensioned ropes without stepping inside.'
     },
     idea: {
-      de: 'Praktische Problemlösung mit direkten physikalischen Konsequenzen: Verlangt ruhige Absprache statt Hektik.',
-      en: 'Practical problem solving with real physical stakes: requires structured planning rather than impulsive rushing.'
+      de: 'Übt gemeinsames Planen. Ruhige Absprachen bringen mehr als Hektik.',
+      en: 'Practises planning together. Calm agreement helps more than rushing.'
     },
     rules: {
       de: [
@@ -966,8 +1018,8 @@ export const GAMES_DATA: Game[] = [
       en: 'The team crosses an invisible maze on a floor grid. Wrong steps trigger a buzzer sound; the correct path is uncovered purely via collective memory.'
     },
     idea: {
-      de: 'Fördert konzentriertes Beobachten und gegenseitige Fürsorge: Die Fehler einzelner werden zur wertvollen Information für alle.',
-      en: 'Fosters active observation and collective memory: one person’s misstep provides guidance for everyone else.'
+      de: 'Übt Beobachten und Merken. Jeder Fehler zeigt allen den Weg.',
+      en: 'Practises watching and remembering. Every mistake shows everyone the way.'
     },
     rules: {
       de: [
@@ -1025,8 +1077,8 @@ export const GAMES_DATA: Game[] = [
       en: 'The entire group stands on a defined ground space that shrinks by half after each round, requiring mutual support and balance.'
     },
     idea: {
-      de: 'Physisches Teambuilding, das Berührungsängste abbaut und gegenseitige Hilfsbereitschaft auf spielerische Weise fordert.',
-      en: 'Playful physical teambuilding that dissolves hesitation and fosters mutual trust on minimal space.'
+      de: 'Übt Halten und Helfen auf engem Raum.',
+      en: 'Practises holding and helping each other in a small space.'
     },
     rules: {
       de: [
@@ -1087,8 +1139,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Everyone begins crouching on level 1, advancing through duels from egg to chicken, ape, and upright human.'
     },
     idea: {
-      de: 'Ein schneller Bewegungseisbrecher, der alle sofort in Interaktion bringt und jegliche Hemmungen abbaut.',
-      en: 'A rapid movement icebreaker that immediately gets everyone moving and breaks social hesitation.'
+      de: 'Ein schneller Einstieg mit Bewegung. Alle kommen sofort miteinander ins Spiel.',
+      en: 'A quick start with movement. Everyone plays with everyone right away.'
     },
     rules: {
       de: [
@@ -1151,8 +1203,8 @@ export const GAMES_DATA: Game[] = [
       en: 'A clapping impulse travels around the circle: two neighbors make direct eye contact and clap simultaneously.'
     },
     idea: {
-      de: 'Schult rhythmische Präzision, Blickkontakt und nonverbalen Reaktionsfluss im Bruchteil einer Sekunde.',
-      en: 'Cultivates split-second timing, eye contact, and continuous acoustic flow.'
+      de: 'Übt Blickkontakt, Rhythmus und schnelle Reaktion.',
+      en: 'Practises eye contact, rhythm and quick reactions.'
     },
     rules: {
       de: [
@@ -1213,8 +1265,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Each person wears the name of a character or object on their forehead, deducing their identity using strictly yes/no questions.'
     },
     idea: {
-      de: 'Klassisches Deduktionsspiel, das logisches Ausschließen und präzises Fragen schult.',
-      en: 'Classic deduction game training logical elimination and precise questioning.'
+      de: 'Übt genaues Fragen und logisches Ausschließen.',
+      en: 'Practises asking precise questions and ruling things out.'
     },
     rules: {
       de: [
@@ -1272,8 +1324,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Villagers work to deduce and eliminate secret werewolves lurking among them before it is too late.'
     },
     idea: {
-      de: 'Fördert überzeugende Gesprächsführung, aufmerksames Beobachten und argumentative Standhaftigkeit.',
-      en: 'Develops persuasive argumentation, keen observation, and debate discipline.'
+      de: 'Übt Beobachten und Argumentieren in der Gruppe.',
+      en: 'Practises observing and arguing in a group.'
     },
     rules: {
       de: [
@@ -1332,12 +1384,12 @@ export const GAMES_DATA: Game[] = [
       en: 'Seated circle'
     },
     summary: {
-      de: 'Alle kennen den geheimen Ort (z. B. Bibliothek, U-Boot, Flughafen) – außer dem Spion! Durch clevere Fragen muss er enttarnt werden.',
+      de: 'Alle kennen den geheimen Ort (z. B. Bibliothek, U-Boot, Flughafen), nur der Spion nicht. Durch geschickte Fragen muss er enttarnt werden.',
       en: 'Everyone knows the secret location (e.g. library, submarine, airport)—except the spy, who must bluff and deduce the location.'
     },
     idea: {
-      de: 'Trainiert sprachliche Genauigkeit, schnelles Mitdenken und subtiles Nachfragen ohne direkte Verratshinweise.',
-      en: 'Cultivates linguistic precision, deductive reasoning, and subtle questioning.'
+      de: 'Übt genaue Sprache und schnelles Mitdenken.',
+      en: 'Practises precise language and quick thinking.'
     },
     rules: {
       de: [
@@ -1393,8 +1445,8 @@ export const GAMES_DATA: Game[] = [
       en: 'An investigator leaves the room. The group agrees on a shared behavioral code that must be diagnosed through questioning.'
     },
     idea: {
-      de: 'Ein humorvolles Denkspiel, das logische Mustererkennung und Beobachtungsgabe fördert.',
-      en: 'A witty deduction activity enhancing pattern recognition and social observation.'
+      de: 'Ein lustiges Denkspiel. Übt, Muster zu erkennen und genau zu beobachten.',
+      en: 'A funny thinking game. Practises spotting patterns and observing closely.'
     },
     rules: {
       de: [
@@ -1456,8 +1508,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Each person writes down a secret identity or phrase. Players guess who submitted what, absorbing members into expanding empires.'
     },
     idea: {
-      de: 'Verbindet Beobachtungsgabe, Gedächtnis und Humor. Lässt sich durch jugendrelevante Themenkarten exzellent anpassen.',
-      en: 'Combines deduction, memory, and group wit. Enhanced by modern teen-relevant category prompts.'
+      de: 'Übt Merken und Beobachten. Mit eigenen Themenkarten lässt es sich an die Gruppe anpassen.',
+      en: 'Practises memory and observation. Your own topic cards adapt it to the group.'
     },
     rules: {
       de: [
@@ -1522,8 +1574,8 @@ export const GAMES_DATA: Game[] = [
       en: 'A secret culprit eliminates players by discreetly winking at them while a detective tries to catch them.'
     },
     idea: {
-      de: 'Schult intensive Blickkontakte, Körpersprache und ruhige Beobachtung im Raum.',
-      en: 'Develops visual acuity, subtle body language observation, and quiet tension in the room.'
+      de: 'Übt Blickkontakt, Körpersprache und ruhiges Beobachten.',
+      en: 'Practises eye contact, body language and calm observation.'
     },
     rules: {
       de: [
@@ -1584,8 +1636,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Every player who loses a duel joins as a fan behind the winner, building massive cheering trains that collide in a dramatic finale.'
     },
     idea: {
-      de: 'Verwandelt ein simples Duellspiel in ein mitreißendes Gemeinschaftserlebnis, bei dem niemand ausscheidet.',
-      en: 'Turns a basic duel into an electrifying group experience where nobody feels left out.'
+      de: 'Niemand scheidet wirklich aus. Wer verliert, feuert weiter an.',
+      en: 'Nobody is really out. Whoever loses keeps cheering.'
     },
     rules: {
       de: [
@@ -1618,7 +1670,7 @@ export const GAMES_DATA: Game[] = [
   {
     id: 'salad-bowl',
     title: {
-      de: 'Salad Bowl',
+      de: 'Begriffe-Schüssel',
       en: 'Salad Bowl'
     },
     subtitle: {
@@ -1646,8 +1698,8 @@ export const GAMES_DATA: Game[] = [
       en: 'The exact same pool of concepts is guessed across three escalating rounds: full verbal clues, a single word, and pure pantomime.'
     },
     idea: {
-      de: 'Weil die Begriffe in den späteren Runden bereits bekannt sind, steigt das Spieltempo und der Wiedererkennungswert rasant an.',
-      en: 'Because the vocabulary is familiar from round 1, rounds 2 and 3 produce lightning-fast associations and shared laughter.'
+      de: 'Die Begriffe sind ab der zweiten Runde bekannt. Darum wird es schneller und lustiger.',
+      en: 'From round two the words are known. So it gets faster and funnier.'
     },
     rules: {
       de: [
@@ -1708,12 +1760,12 @@ export const GAMES_DATA: Game[] = [
       en: 'Standing circle'
     },
     summary: {
-      de: 'Hochenergetisches Reaktionsspiel im Kreis mit festen Lauten und Schnitten. Trainiert blitzschnelle Wachheit.',
-      en: 'Fast-paced rhythmic reaction game in a circle using rapid sword-like poses and acoustic calls.'
+      de: 'Schnelles Reaktionsspiel im Kreis mit festen Lauten und Handbewegungen wie Schwerthiebe.',
+      en: 'Fast reaction game in a circle with fixed calls and hand movements like sword strokes.',
     },
     idea: {
-      de: 'Stresst das Kurzzeitgedächtnis positiv und bringt schlagartig maximale Wachheit in den Raum.',
-      en: 'Engages short-term memory and sharp reflexes, instantly lifting group alertness.'
+      de: 'Macht in kurzer Zeit wach. Übt Merken und schnelle Reaktion.',
+      en: 'Wakes everyone up quickly. Practises memory and quick reactions.'
     },
     rules: {
       de: [
@@ -1769,8 +1821,8 @@ export const GAMES_DATA: Game[] = [
       en: 'Turn-based reaction game in a circle with frozen stances. In one fluid motion, strike toward an opponent’s hand.'
     },
     idea: {
-      de: 'Ein Klassiker bei Freizeiten: Null Materialaufwand und hoher Aufforderungscharakter durch theatralische Posen.',
-      en: 'A camp classic: zero prep, highly engaging, and memorable physical coordination.'
+      de: 'Braucht kein Material. Übt Reaktion und Körperbeherrschung.',
+      en: 'Needs no materials. Practises reaction and body control.'
     },
     rules: {
       de: [
@@ -1796,6 +1848,952 @@ export const GAMES_DATA: Game[] = [
       en: [
         'Emphasize light, precise taps—the focus is agility and balance, not force.',
         'Assign eliminated players to act as line judges to keep them actively involved.'
+      ]
+    }
+  },
+  {
+    id: 'billy-billy-bob',
+    status: 'draft',
+    title: {
+      de: 'Billy Billy Bob',
+      en: 'Billy Billy Bob'
+    },
+    purpose: 'energie',
+    category: 'energizer',
+    energyLevel: 'high',
+    groupSize: { min: 8, max: 25 },
+    prepLevel: 'instant',
+    materials: {
+      de: ['Keine'],
+      en: ['None']
+    },
+    durationMinutes: '5–15 Min',
+    durationMin: 5,
+    durationMax: 15,
+    space: {
+      de: 'Platz für einen Stehkreis',
+      en: 'Room for a standing circle'
+    },
+    summary: {
+      de: 'Die Mitte ruft eine Figur und zeigt auf jemanden. Diese Person und ihre zwei Nachbarn müssen sie sofort zu dritt darstellen. Wer zu spät ist, wechselt in die Mitte.',
+      en: 'The middle calls a figure and points at someone. That person and their two neighbours have to act it out together straight away. Whoever is too late swaps into the middle.'
+    },
+    idea: {
+      de: 'Ein lustiger Energizer für Konzentration und schnelle Reaktion.',
+      en: 'A fun energizer for focus and quick reactions.'
+    },
+    rules: {
+      de: [
+        'Alle stehen im Kreis. Die Spielleitung steht zuerst in der Mitte und zeigt die Figuren vor.',
+        'Die Person in der Mitte zeigt auf jemanden im Kreis und nennt eine Figur. Die gezeigte Person (M) und ihre linke (L) und rechte Nachbarperson (R) stellen die Figur sofort dar.',
+        'Wer zu langsam ist oder einen Fehler macht, geht in die Mitte.',
+        'Toaster: L und R fassen sich an den Händen und bilden den Toaster. M ist die Scheibe Brot, geht in die Hocke und schnellt mit einem „Pling“ nach oben.',
+        'Känguru: L und R halten die Hände wie einen Beutel vor M. M beugt sich darüber und spielt, dass M übel ist.',
+        'James Bond: M posiert mit den Händen als Pistole. L und R sinken neben M auf die Knie und schauen bewundernd hoch.',
+        'Waschmaschine: L und R bilden mit den Armen ein Viereck um M, das Gehäuse. M ist die Trommel und lässt den Kopf kreisen.'
+      ],
+      en: [
+        'Everyone stands in a circle. The game leader starts in the middle and demonstrates the figures.',
+        'The person in the middle points at someone and calls a figure. That person (M) and their left (L) and right (R) neighbours act it out at once.',
+        'Whoever is too slow or makes a mistake goes to the middle.',
+        'Toaster: L and R hold hands and form the toaster. M is the slice of bread, crouches down and pops up with a "ping".',
+        'Kangaroo: L and R hold their hands like a pouch in front of M. M leans over it and acts as if feeling sick.',
+        'James Bond: M poses with their hands as a pistol. L and R sink to their knees next to M and look up in admiration.',
+        'Washing machine: L and R form a square around M with their arms, the casing. M is the drum and rolls their head in circles.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Statt zu zeigen, kannst du den Namen der Person rufen. So wird das Spiel zugleich eine Kennenlernübung.',
+        'Erst mit zwei Figuren beginnen und die übrigen nach und nach einführen.'
+      ],
+      en: [
+        'Instead of pointing, call the person by name. This turns the game into a name game as well.',
+        'Start with two figures and add the others one by one.'
+      ]
+    }
+  },
+  // =========================================================================
+  // Angeregt vom NEVEREST-Methodarium (neverest.at/methodarium), eigene Texte, Entwürfe
+  // =========================================================================
+  {
+    id: 'obstsalat',
+    status: 'draft',
+    title: { de: 'Obstsalat', en: 'Fruit Salad' },
+    purpose: 'energie',
+    category: 'energizer',
+    energyLevel: 'high',
+    groupSize: { min: 8, max: 30 },
+    prepLevel: 'low_prep',
+    materials: { de: ['Ein Stuhl pro Person, einer weniger als Mitspielende'], en: ['One chair per person, one fewer than players'] },
+    durationMinutes: '5–15 Min',
+    durationMin: 5,
+    durationMax: 15,
+    space: { de: 'Stuhlkreis', en: 'Circle of chairs' },
+    summary: {
+      de: 'Jede Person ist eine Obstsorte. Wird deine Sorte gerufen, suchst du schnell einen neuen Stuhl. Einer fehlt immer.',
+      en: 'Everyone is a type of fruit. When your fruit is called, you rush to a new chair. One chair is always missing.'
+    },
+    idea: {
+      de: 'Bringt Bewegung in den Raum und mischt die Sitzordnung durch. Gut nach einer langen Sitzphase.',
+      en: 'Gets everyone moving and mixes up who sits next to whom. Good after a long time sitting.'
+    },
+    rules: {
+      de: [
+        'Alle sitzen im Stuhlkreis. Eine Person steht ohne Stuhl in der Mitte.',
+        'Gib reihum drei oder vier Obstsorten aus, zum Beispiel Apfel, Banane, Kirsche.',
+        'Die Person in der Mitte ruft eine Sorte, zum Beispiel „Bananen“. Alle Bananen stehen auf und suchen sich einen anderen Stuhl.',
+        'Auch die Person in der Mitte versucht, einen Stuhl zu bekommen. Wer übrig bleibt, ruft als Nächstes.',
+        'Bei „Obstsalat“ tauschen alle ihren Platz.'
+      ],
+      en: [
+        'Everyone sits in a circle of chairs. One person stands in the middle without a chair.',
+        'Go round and hand out three or four fruits, for example apple, banana, cherry.',
+        'The person in the middle calls a fruit, for example "bananas". All bananas stand up and find a different chair.',
+        'The person in the middle also tries to get a chair. Whoever is left standing calls next.',
+        'On "fruit salad", everyone changes places.'
+      ]
+    },
+    variants: {
+      de: [
+        'Statt Obst ruft die Mitte Sätze wie „Alle, die Geschwister haben“. So lernt ihr euch nebenbei kennen.',
+        'Kein Platz direkt neben dem alten Stuhl.'
+      ],
+      en: [
+        'Instead of fruit, the middle calls sentences like "Everyone who has siblings". You get to know each other on the side.',
+        'No sitting in the seat right next to your old one.'
+      ]
+    },
+    safety: {
+      de: ['Sag vorher: gehen, nicht rennen, und niemanden vom Stuhl schubsen.'],
+      en: ['Say it before you start: walk, do not run, and do not push anyone off a chair.']
+    },
+    animatorTips: {
+      de: ['Wer dreimal in der Mitte war, darf sich eine Sorte für die nächste Runde aussuchen und sich dann setzen.'],
+      en: ['Anyone who has been in the middle three times picks a fruit for the next round and sits down.']
+    }
+  },
+  {
+    id: 'namensball',
+    status: 'draft',
+    title: { de: 'Namensball', en: 'Name Ball' },
+    purpose: 'kennenlernen',
+    category: 'cooperative',
+    energyLevel: 'medium',
+    groupSize: { min: 6, max: 16 },
+    prepLevel: 'low_prep',
+    materials: { de: ['Zwei bis vier weiche Bälle in verschiedenen Farben'], en: ['Two to four soft balls in different colours'] },
+    durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
+    space: { de: 'Platz für einen Stehkreis', en: 'Room for a standing circle' },
+    summary: {
+      de: 'Ein Ball fliegt durch den Kreis, und wer wirft, ruft den Namen der fangenden Person. Nach und nach kommen weitere Bälle mit eigenen Regeln dazu.',
+      en: 'A ball flies across the circle and the thrower calls the catcher’s name. More balls with their own rules join one by one.'
+    },
+    idea: {
+      de: 'Nach ein paar Minuten kennen alle die Namen, und keiner hat dafür still sitzen müssen.',
+      en: 'After a few minutes everyone knows the names, and nobody had to sit still to learn them.'
+    },
+    rules: {
+      de: [
+        'Alle stehen im Kreis. Gebt einen Ball einmal herum, und jede Person sagt dabei ihren Namen.',
+        'Ball 1: Du wirfst ihn jemandem zu und rufst dabei den Namen der Person, die fängt.',
+        'Wenn das läuft, kommt Ball 2 dazu: Vor dem Wurf Blickkontakt, und du rufst deinen eigenen Namen.',
+        'Ball 3 wird nur nach rechts weitergereicht. Dabei nennt jede Person eine Farbe, die noch nicht dran war.',
+        'Fällt ein Ball, hebt ihn jemand auf, und es geht einfach weiter.'
+      ],
+      en: [
+        'Everyone stands in a circle. Pass one ball around once, and each person says their name.',
+        'Ball 1: throw it to someone and call the catcher’s name.',
+        'Once that works, add ball 2: make eye contact first, then call your own name as you throw.',
+        'Ball 3 is only handed on to the right. Each person names a colour that has not come up yet.',
+        'If a ball drops, someone picks it up and play goes on.'
+      ]
+    },
+    variants: {
+      de: [
+        'Ein Ball wird nur mit dem Fuß gespielt.',
+        'Statt Farben zählt ihr gemeinsam weiter. Schafft ihr es bis 100?'
+      ],
+      en: [
+        'One ball may only be passed with the feet.',
+        'Instead of colours, count up together. Can you reach 100?'
+      ]
+    },
+    animatorTips: {
+      de: ['Bring einen neuen Ball erst ins Spiel, wenn der vorige sicher läuft.'],
+      en: ['Only add a new ball once the previous one runs smoothly.']
+    }
+  },
+  {
+    id: 'ball-jonglage',
+    status: 'draft',
+    title: { de: 'Gruppen-Jonglage', en: 'Group Juggling' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'medium',
+    groupSize: { min: 7, max: 16 },
+    prepLevel: 'low_prep',
+    materials: { de: ['Mehrere weiche Bälle, etwas weniger als Mitspielende'], en: ['Several soft balls, a few fewer than players'] },
+    durationMinutes: '10–20 Min',
+    durationMin: 10,
+    durationMax: 20,
+    space: { de: 'Platz für einen Stehkreis', en: 'Room for a standing circle' },
+    summary: {
+      de: 'Die Gruppe legt eine feste Wurfreihenfolge fest und hält dann immer mehr Bälle gleichzeitig in der Luft.',
+      en: 'The group sets a fixed throwing order and then keeps more and more balls in the air at once.'
+    },
+    idea: {
+      de: 'Klappt nur, wenn alle aufmerksam sind und sich gegenseitig ansehen. Jeder Fehler ist sofort wieder gutzumachen.',
+      en: 'Only works if everyone pays attention and looks at each other. Every mistake is easy to put right.'
+    },
+    rules: {
+      de: [
+        'Alle stehen im Kreis, etwa eine Armlänge auseinander, und heben eine Hand.',
+        'Der erste Ball geht quer durch den Kreis. Wer ihn gefangen hat, nimmt die Hand herunter und wirft weiter, bis alle einmal dran waren und der Ball zurück am Anfang ist.',
+        'Jede Person merkt sich nur zwei Dinge: Von wem kommt der Ball, und zu wem wirfst du ihn.',
+        'Spielt die Runde noch einmal. Dann bringst du nach und nach weitere Bälle in dieselbe Reihenfolge.',
+        'Fällt ein Ball, hebt ihn die Person auf, die ihn fangen sollte, und wirft weiter.'
+      ],
+      en: [
+        'Everyone stands in a circle, about an arm’s length apart, and raises one hand.',
+        'The first ball goes across the circle. Whoever catches it lowers their hand and throws on, until everyone has had it once and the ball is back at the start.',
+        'Each person only remembers two things: who throws to you, and who you throw to.',
+        'Play the round once more. Then add more balls one by one in the same order.',
+        'If a ball drops, the person who should have caught it picks it up and throws on.'
+      ]
+    },
+    variants: {
+      de: [
+        'Rückwärts: Auf ein Zeichen geht der Ball den Weg andersherum.',
+        'Beim ersten Durchgang sagt jede Person beim Fangen ihren Namen.'
+      ],
+      en: [
+        'Backwards: on a signal the balls travel the route in reverse.',
+        'In the first round, each person says their name when they catch.'
+      ]
+    },
+    reflection: {
+      de: [
+        'Was hat geholfen, dass weniger Bälle heruntergefallen sind?',
+        'Wo im Alltag hängt es auch davon ab, dass jede Person ihren Teil gut übergibt?'
+      ],
+      en: [
+        'What helped fewer balls drop?',
+        'Where in daily life does it also depend on everyone passing their part on well?'
+      ]
+    },
+    animatorTips: {
+      de: ['Zählt laut, wie viele Bälle gleichzeitig unterwegs sind. Das motiviert für die nächste Runde.'],
+      en: ['Count out loud how many balls are moving at once. It motivates the next round.']
+    }
+  },
+  {
+    id: 'spaghetti-turm',
+    status: 'draft',
+    title: { de: 'Spaghetti-Turm', en: 'Spaghetti Tower' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'medium',
+    groupSize: { min: 4, max: 20 },
+    prepLevel: 'materials_needed',
+    materials: {
+      de: ['Pro Team: 20 ungekochte Spaghetti, 1 m Klebeband, 1 m Schnur, ein Marshmallow', 'Maßband, Uhr'],
+      en: ['Per team: 20 dry spaghetti, 1 m of tape, 1 m of string, one marshmallow', 'Tape measure, timer']
+    },
+    durationMinutes: '20–30 Min',
+    durationMin: 20,
+    durationMax: 30,
+    space: { de: 'Ein Tisch pro Team', en: 'One table per team' },
+    summary: {
+      de: 'Kleine Teams bauen mit wenig Material einen freistehenden Turm. Ganz oben muss ein Marshmallow sitzen.',
+      en: 'Small teams build a free-standing tower from very little material. A marshmallow has to sit on top.'
+    },
+    idea: {
+      de: 'Zeigt schnell, wie ein Team plant, ausprobiert und mit einem Einsturz umgeht.',
+      en: 'Quickly shows how a team plans, tries things and deals with a collapse.'
+    },
+    rules: {
+      de: [
+        'Bildet Teams zu drei bis fünf Personen. Jedes Team bekommt dasselbe Material.',
+        'Aufgabe: einen möglichst hohen Turm bauen, der von allein steht. Das Marshmallow sitzt ganz oben.',
+        'Die Teams haben 15 Minuten. Das Material darf zerbrochen und geteilt werden.',
+        'Am Ende messt ihr vom Tisch bis zum Marshmallow. Der Turm muss beim Messen stehen bleiben.'
+      ],
+      en: [
+        'Form teams of three to five. Every team gets the same material.',
+        'Task: build the tallest tower that stands on its own. The marshmallow sits at the very top.',
+        'Teams have 15 minutes. The material may be broken and divided.',
+        'At the end, measure from the table to the marshmallow. The tower has to stay standing while you measure.'
+      ]
+    },
+    reflection: {
+      de: [
+        'Wie seid ihr gestartet: erst geplant oder gleich gebaut?',
+        'Was habt ihr gemacht, als etwas eingestürzt ist?',
+        'Wurden alle Ideen im Team gehört?'
+      ],
+      en: [
+        'How did you start: planning first or building straight away?',
+        'What did you do when something collapsed?',
+        'Were everyone’s ideas heard in your team?'
+      ]
+    },
+    animatorTips: {
+      de: ['Sag nach 10 Minuten die Restzeit an. Viele Teams setzen das Marshmallow zu spät auf und merken erst dann, wie schwer es ist.'],
+      en: ['Announce the time left after 10 minutes. Many teams put the marshmallow on too late and only then notice how heavy it is.']
+    }
+  },
+  {
+    id: 'roboterspiel',
+    status: 'draft',
+    title: { de: 'Roboter steuern', en: 'Robot Steering' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'medium',
+    groupSize: { min: 4, max: 20 },
+    prepLevel: 'instant',
+    materials: { de: ['Keine', 'Augenbinden (für die schwerere Variante)'], en: ['None', 'Blindfolds (for the harder variant)'] },
+    durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
+    space: { de: 'Freier Raum ohne Stolperfallen', en: 'Open space without trip hazards' },
+    summary: {
+      de: 'Zu zweit: Eine Person ist der Roboter, die andere lenkt ihn nur durch Antippen an Schultern und Rücken durch den Raum.',
+      en: 'In pairs: one person is the robot, the other steers them around the room only by tapping shoulders and back.'
+    },
+    idea: {
+      de: 'Übt klare Zeichen und Verantwortung für eine andere Person. Der Roboter lernt, sich anzuvertrauen.',
+      en: 'Practises clear signals and responsibility for someone else. The robot learns to trust.'
+    },
+    rules: {
+      de: [
+        'Bildet Paare. Der Roboter steht vorn, die steuernde Person dahinter.',
+        'Legt die Zeichen fest: rechte Schulter antippen heißt rechts drehen, linke Schulter links drehen, Rücken antippen losgehen, Kopf berühren stehen bleiben.',
+        'Auf dein Startsignal laufen alle Paare gleichzeitig durch den Raum. Gesprochen wird nicht.',
+        'Nach ein paar Minuten tauschen die Rollen.'
+      ],
+      en: [
+        'Form pairs. The robot stands in front, the steering person behind.',
+        'Agree on the signals: tap the right shoulder to turn right, the left shoulder to turn left, the back to walk, touch the head to stop.',
+        'On your start signal all pairs move through the room at the same time. Nobody speaks.',
+        'After a few minutes, swap roles.'
+      ]
+    },
+    variants: {
+      de: [
+        'Der Roboter schließt die Augen.',
+        'Der Raum wird mit der Zeit kleiner, zum Beispiel mit Stühlen als Grenze.',
+        'Jedes Paar erfindet eigene Zeichen.'
+      ],
+      en: [
+        'The robot closes their eyes.',
+        'The space gets smaller over time, for example with chairs as a border.',
+        'Each pair invents its own signals.'
+      ]
+    },
+    safety: {
+      de: [
+        'Antippen heißt sanft berühren, nie schlagen oder schubsen.',
+        'Die steuernde Person sorgt dafür, dass der Roboter nirgends anstößt.'
+      ],
+      en: [
+        'Tapping means a gentle touch, never hitting or pushing.',
+        'The steering person makes sure the robot does not bump into anything.'
+      ]
+    },
+    reflection: {
+      de: ['Wie war es, gesteuert zu werden?', 'Was hat es leichter gemacht, der anderen Person zu vertrauen?'],
+      en: ['How did it feel to be steered?', 'What made it easier to trust the other person?']
+    },
+    animatorTips: {
+      de: ['Frag vorher, ob alle mit Berührung an Schultern und Rücken einverstanden sind. Wer nicht möchte, steuert mit Worten.'],
+      en: ['Ask first whether everyone is fine with touch on shoulders and back. Anyone who is not steers with words instead.']
+    }
+  },
+  {
+    id: 'eierfall',
+    status: 'draft',
+    title: { de: 'Der große Eierfall', en: 'The Great Egg Drop' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'medium',
+    groupSize: { min: 6, max: 16 },
+    prepLevel: 'materials_needed',
+    materials: {
+      de: ['Ein rohes Ei pro Team', 'Draußen: Naturmaterial, etwas Schnur', 'Drinnen: etwa 30 Strohhalme und Klebeband pro Team'],
+      en: ['One raw egg per team', 'Outdoors: natural materials, some string', 'Indoors: about 30 straws and tape per team']
+    },
+    durationMinutes: '30–45 Min',
+    durationMin: 30,
+    durationMax: 45,
+    space: { de: 'Draußen oder drinnen, eine Stelle zum Fallenlassen', en: 'Outdoors or indoors, a spot to drop from' },
+    summary: {
+      de: 'Teams bauen eine Hülle, die ein rohes Ei bei einem Sturz schützt. Runde für Runde geht es höher.',
+      en: 'Teams build a casing that protects a raw egg from a fall. Round by round the drop gets higher.'
+    },
+    idea: {
+      de: 'Ein Bauauftrag mit echtem Risiko: Alle sind gespannt, und jede Idee im Team zählt.',
+      en: 'A building task with real stakes: everyone is excited, and every idea in the team counts.'
+    },
+    intro: {
+      de: 'Dieses Ei ist das letzte einer seltenen Vogelart. Es muss heil unten ankommen. Ihr seid das Rettungsteam.',
+      en: 'This egg is the last of a rare bird species. It has to arrive safely. You are the rescue team.'
+    },
+    rules: {
+      de: [
+        'Bildet Teams zu zwei bis vier Personen. Jedes Team bekommt ein rohes Ei.',
+        'In 25 Minuten baut jedes Team eine Konstruktion, die das Ei schützt. Draußen sammelt ihr dafür Material, aber nur Totholz und Abgefallenes.',
+        'Dann lässt je eine Person pro Team die Konstruktion aus derselben Höhe fallen.',
+        'Teams mit heilem Ei kommen in die nächste Runde, und die Höhe steigt.'
+      ],
+      en: [
+        'Form teams of two to four. Each team gets a raw egg.',
+        'In 25 minutes, each team builds something that protects the egg. Outdoors you collect material, but only dead wood and fallen things.',
+        'Then one person per team drops the construction from the same height.',
+        'Teams with an unbroken egg go on to the next round, and the height goes up.'
+      ]
+    },
+    reflection: {
+      de: [
+        'Wie habt ihr euch auf eine Idee geeinigt?',
+        'Was konnte jede Person beitragen?',
+        'Wie seid ihr damit umgegangen, wenn etwas nicht geklappt hat?'
+      ],
+      en: [
+        'How did you agree on one idea?',
+        'What could each person contribute?',
+        'How did you deal with it when something did not work?'
+      ]
+    },
+    animatorTips: {
+      de: ['Leg eine Zeitung oder Plane unter die Fallstelle. Das erspart das Putzen.'],
+      en: ['Put newspaper or a tarp under the drop zone. It saves cleaning up.']
+    }
+  },
+  {
+    id: 'delfin-training',
+    status: 'draft',
+    title: { de: 'Delfin-Training', en: 'Dolphin Training' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'calm',
+    groupSize: { min: 5, max: 30 },
+    prepLevel: 'instant',
+    materials: { de: ['Keine'], en: ['None'] },
+    durationMinutes: '15–30 Min',
+    durationMin: 15,
+    durationMax: 30,
+    space: { de: 'Ein Raum mit einer Tür', en: 'A room with a door' },
+    summary: {
+      de: 'Eine Person soll eine geheime Aufgabe finden. Die Gruppe hilft nur mit Klatschen, wenn es in die richtige Richtung geht.',
+      en: 'One person has to find a secret task. The group only helps by clapping when they move in the right direction.'
+    },
+    idea: {
+      de: 'Zeigt, wie stark Ermutigung wirkt, und dass Umwege zum Ziel dazugehören.',
+      en: 'Shows how powerful encouragement is, and that detours are part of reaching a goal.'
+    },
+    rules: {
+      de: [
+        'Eine freiwillige Person geht kurz vor die Tür.',
+        'Die Gruppe legt eine Aufgabe fest, zum Beispiel: zum Fenster gehen und die linke Hand heben.',
+        'Die Person kommt zurück und probiert einfach Dinge aus. Geht es in die richtige Richtung, klatscht die Gruppe. Sonst bleibt sie still.',
+        'Ist die Aufgabe geschafft, gibt es großen Applaus. Dann ist die nächste Person dran.'
+      ],
+      en: [
+        'One volunteer steps outside for a moment.',
+        'The group picks a task, for example: walk to the window and raise the left hand.',
+        'The person comes back and simply tries things. When they move in the right direction, the group claps. Otherwise it stays quiet.',
+        'When the task is done, there is big applause. Then it is the next person’s turn.'
+      ]
+    },
+    reflection: {
+      de: [
+        'Wie hat es sich angefühlt, wenn lange kein Klatschen kam?',
+        'Wem in eurem Umfeld könntet ihr öfter ein „Klatschen“ schenken?'
+      ],
+      en: [
+        'How did it feel when there was no clapping for a long time?',
+        'Who around you could use more "clapping" from you?'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Sag der ratenden Person: Hauptsache, du tust etwas. Falsch gibt es nicht.',
+        'Bitte die Gruppe, schon bei kleinen Schritten in die richtige Richtung zu klatschen.'
+      ],
+      en: [
+        'Tell the guessing person: just keep doing something. There is no wrong.',
+        'Ask the group to clap even for small steps in the right direction.'
+      ]
+    }
+  },
+  {
+    id: 'hexenhaus',
+    status: 'draft',
+    title: { de: 'Das Seilhaus', en: 'Rope House' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'medium',
+    groupSize: { min: 8, max: 16 },
+    prepLevel: 'low_prep',
+    materials: { de: ['Ein langes Seil (etwa 15 bis 20 m)'], en: ['One long rope (about 15 to 20 m)'] },
+    durationMinutes: '15–20 Min',
+    durationMin: 15,
+    durationMax: 20,
+    space: { de: 'Freie Fläche', en: 'Open floor space' },
+    summary: {
+      de: 'Alle halten ein langes Seil und legen damit gemeinsam das Haus vom Nikolaus, ohne loszulassen.',
+      en: 'Everyone holds one long rope and together they lay out the classic "house in one stroke" drawing without letting go.'
+    },
+    idea: {
+      de: 'Nur mit Plan und guter Absprache klappt die Form. Gut zu beobachten, wer führt und wer mitzieht.',
+      en: 'The shape only works with a plan and good communication. You can see who leads and who follows.'
+    },
+    rules: {
+      de: [
+        'Zeig kurz die Figur: ein Haus mit Dach und Kreuz im Viereck, in einem Zug gezeichnet.',
+        'Alle fassen das Seil an einer festen Stelle. Die Hände dürfen nicht verrutschen oder loslassen.',
+        'Die Gruppe hat zuerst ein paar Minuten zum Planen.',
+        'Dann legt sie das Haus mit dem Seil auf den Boden.'
+      ],
+      en: [
+        'Briefly show the figure: a house with a roof and a cross inside the square, drawn in one stroke.',
+        'Everyone holds the rope at a fixed point. Hands may not slide or let go.',
+        'The group first gets a few minutes to plan.',
+        'Then it lays the house on the floor with the rope.'
+      ]
+    },
+    variants: {
+      de: ['Wer in der Figur angekommen ist, darf nicht mehr sprechen.', 'Die Hälfte der Gruppe hat die Augen geschlossen.'],
+      en: ['Once you are in place in the figure, you may no longer speak.', 'Half of the group keeps their eyes closed.']
+    },
+    reflection: {
+      de: ['Wer hat geführt, und wie kam es dazu?', 'Hatten alle das gleiche Bild im Kopf?'],
+      en: ['Who led, and how did that happen?', 'Did everyone have the same picture in mind?']
+    },
+    animatorTips: {
+      de: ['Gib die Regeln einmal klar vor und beantworte danach keine Fragen mehr zum Lösungsweg.'],
+      en: ['State the rules clearly once, then answer no more questions about how to solve it.']
+    }
+  },
+  {
+    id: 'stuehle-balancieren',
+    status: 'draft',
+    title: { de: 'Stühle balancieren', en: 'Balancing Chairs' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'medium',
+    groupSize: { min: 6, max: 25 },
+    prepLevel: 'low_prep',
+    materials: { de: ['Ein Stuhl pro Person'], en: ['One chair per person'] },
+    durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
+    space: { de: 'Platz für einen großen Kreis', en: 'Room for a large circle' },
+    summary: {
+      de: 'Alle kippen ihren Stuhl auf zwei Beine und laufen einmal im Kreis, ohne dass ein Stuhl umfällt.',
+      en: 'Everyone tips their chair onto two legs and the group walks around the circle without any chair falling.'
+    },
+    idea: {
+      de: 'Ein kurzer Bewegungsauftrag, den nur die ganze Gruppe zusammen schafft.',
+      en: 'A short movement challenge that only the whole group can manage together.'
+    },
+    rules: {
+      de: [
+        'Alle stehen im Kreis, jede Person hinter einem Stuhl.',
+        'Fasse die Lehne mit einer Hand und kippe den Stuhl so, dass er auf zwei Beinen balanciert.',
+        'Auf ein Zeichen lassen alle los und gehen einen Platz weiter, um den nächsten Stuhl zu fangen.',
+        'Ziel ist eine ganze Runde. Fällt ein Stuhl oder kommt eine zweite Hand dazu, beginnt ihr neu.'
+      ],
+      en: [
+        'Everyone stands in a circle, each behind a chair.',
+        'Hold the backrest with one hand and tip the chair so it balances on two legs.',
+        'On a signal, everyone lets go and moves one place on to catch the next chair.',
+        'The goal is one full round. If a chair falls or a second hand is used, start again.'
+      ]
+    },
+    safety: {
+      de: ['Nur stabile Stühle ohne Rollen nehmen und Taschen aus dem Weg räumen.'],
+      en: ['Only use sturdy chairs without wheels and clear bags out of the way.']
+    },
+    animatorTips: {
+      de: ['Klappt es zu schnell, vergrößert die Abstände zwischen den Stühlen.', 'Lass alle dieselbe Hand benutzen. So siehst du leichter, ob jemand schummelt.'],
+      en: ['If it works too fast, increase the gaps between the chairs.', 'Have everyone use the same hand. It makes cheating easier to spot.']
+    }
+  },
+  {
+    id: 'stift-an-schnueren',
+    status: 'draft',
+    title: { de: 'Ein Stift, vier Schnüre', en: 'One Pen, Four Strings' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'calm',
+    groupSize: { min: 4, max: 24 },
+    prepLevel: 'materials_needed',
+    materials: {
+      de: ['Pro Vierergruppe: ein dicker Stift mit vier angeknoteten Schnüren (je etwa 1 m)', 'Großes Papier mit einer aufgezeichneten Strecke oder Form'],
+      en: ['Per group of four: a thick marker with four strings tied to it (about 1 m each)', 'Large paper with a path or shape drawn on it']
+    },
+    durationMinutes: '20–30 Min',
+    durationMin: 20,
+    durationMax: 30,
+    space: { de: 'Ein Tisch oder Boden pro Gruppe', en: 'A table or floor space per group' },
+    summary: {
+      de: 'Vier Personen führen gemeinsam einen Stift, nur über Schnüre, und zeichnen damit eine Strecke nach.',
+      en: 'Four people steer one pen together, only by its strings, and trace a path with it.'
+    },
+    idea: {
+      de: 'Jede Person zieht in ihre Richtung. Nur wer aufeinander achtet, bekommt eine saubere Linie hin.',
+      en: 'Each person pulls in their own direction. Only by paying attention to each other do you get a clean line.'
+    },
+    rules: {
+      de: [
+        'Bildet Vierergruppen. Jede Person hält das Ende einer Schnur.',
+        'Den Stift selbst darf niemand anfassen.',
+        'Zeichnet die Strecke auf dem Papier nach. Du stoppst die Zeit.',
+        'Danach plant jede Gruppe kurz und versucht es ein zweites Mal.'
+      ],
+      en: [
+        'Form groups of four. Each person holds the end of one string.',
+        'Nobody may touch the pen itself.',
+        'Trace the path on the paper. You time it.',
+        'Then each group plans briefly and tries a second time.'
+      ]
+    },
+    variants: {
+      de: ['Statt einer Strecke malt ihr ein Motiv, zum Beispiel ein Haus oder euren Gruppennamen.', 'Beim zweiten Mal wird nicht gesprochen.'],
+      en: ['Instead of a path, draw a picture, for example a house or your group’s name.', 'In the second round nobody speaks.']
+    },
+    reflection: {
+      de: ['Was hat sich zwischen dem ersten und dem zweiten Versuch verändert?'],
+      en: ['What changed between the first and second attempt?']
+    },
+    animatorTips: {
+      de: ['Die Bilder eignen sich gut als Erinnerung an der Wand.'],
+      en: ['The drawings make a nice reminder on the wall.']
+    }
+  },
+  {
+    id: 'namens-akrostichon',
+    status: 'draft',
+    title: { de: 'Namensgedicht', en: 'Name Poem' },
+    purpose: 'kennenlernen',
+    category: 'cooperative',
+    energyLevel: 'calm',
+    groupSize: { min: 3, max: 25 },
+    prepLevel: 'low_prep',
+    materials: { de: ['Papier', 'Stifte'], en: ['Paper', 'Pens'] },
+    durationMinutes: '15–20 Min',
+    durationMin: 15,
+    durationMax: 20,
+    space: { de: 'Sitzplätze mit Schreibunterlage', en: 'Seats with something to write on' },
+    summary: {
+      de: 'Alle schreiben ihren Vornamen senkrecht auf und finden zu jedem Buchstaben etwas, das zu ihnen passt.',
+      en: 'Everyone writes their first name vertically and finds something that fits them for each letter.'
+    },
+    idea: {
+      de: 'Eine ruhige Vorstellungsrunde, bei der auch Stillere etwas von sich zeigen können.',
+      en: 'A calm introduction round where quieter members can share something about themselves too.'
+    },
+    rules: {
+      de: [
+        'Alle schreiben ihren Vornamen in großen Buchstaben untereinander.',
+        'Zu jedem Buchstaben kommt ein Wort oder kurzer Satz über dich: was du gern machst, was dich ausmacht, was dir wichtig ist.',
+        'Danach stellen sich alle mit ihrem Blatt vor.',
+        'Hängt die Blätter auf, damit sie bei den nächsten Treffen sichtbar bleiben.'
+      ],
+      en: [
+        'Everyone writes their first name in large letters, one below the other.',
+        'For each letter, add a word or short sentence about yourself: what you like doing, what makes you you, what matters to you.',
+        'Then everyone introduces themselves with their sheet.',
+        'Hang the sheets up so they stay visible at your next meetings.'
+      ]
+    },
+    variants: {
+      de: ['Wenn ihr euch schon kennt, zieht jede Person einen anderen Namen und schreibt Gutes über diese Person.'],
+      en: ['If you already know each other, each person draws someone else’s name and writes good things about that person.']
+    },
+    animatorTips: {
+      de: ['Mach selbst mit und zeig dein Blatt als Erstes. Das nimmt die Scheu.'],
+      en: ['Join in yourself and show your sheet first. It takes away the shyness.']
+    }
+  },
+  {
+    id: 'geraeusche-raten',
+    status: 'draft',
+    title: { de: 'Geräusche raten', en: 'Guess the Sound' },
+    purpose: 'raten',
+    category: 'energizer',
+    energyLevel: 'calm',
+    groupSize: { min: 3, max: 25 },
+    prepLevel: 'low_prep',
+    materials: { de: ['Ein Sichtschutz, zum Beispiel ein Tuch über Stühlen', 'Alltagsgegenstände, die Geräusche machen'], en: ['A screen, for example a cloth over chairs', 'Everyday objects that make sounds'] },
+    durationMinutes: '5–15 Min',
+    durationMin: 5,
+    durationMax: 15,
+    space: { de: 'Beliebig', en: 'Anywhere' },
+    summary: {
+      de: 'Hinter einem Sichtschutz macht jemand ein Geräusch. Die anderen raten, was es war.',
+      en: 'Behind a screen, someone makes a sound. The others guess what it was.'
+    },
+    idea: {
+      de: 'Holt die Gruppe zur Ruhe, weil alle ganz still sein müssen, um gut zu hören.',
+      en: 'Calms the group down, because everyone has to be very quiet to listen well.'
+    },
+    rules: {
+      de: [
+        'Eine Person geht hinter den Sichtschutz und macht ein Geräusch, zum Beispiel Papier reißen, Wasser eingießen, Stift klicken.',
+        'Alle anderen sind still und hören zu.',
+        'Wer eine Idee hat, meldet sich. Wer richtig rät, macht das nächste Geräusch.'
+      ],
+      en: [
+        'One person goes behind the screen and makes a sound, for example tearing paper, pouring water, clicking a pen.',
+        'Everyone else is quiet and listens.',
+        'Whoever has an idea raises a hand. Whoever guesses right makes the next sound.'
+      ]
+    },
+    variants: {
+      de: ['Draußen: Alle schließen eine Minute die Augen und zählen danach auf, was sie gehört haben.'],
+      en: ['Outdoors: everyone closes their eyes for a minute, then lists everything they heard.']
+    },
+    animatorTips: {
+      de: ['Leg ein paar Gegenstände bereit, damit niemand lange überlegen muss.'],
+      en: ['Have a few objects ready so nobody has to think for long.']
+    }
+  },
+  {
+    id: 'atem-zaehlen',
+    status: 'draft',
+    title: { de: 'Atem beobachten', en: 'Watching the Breath' },
+    purpose: 'ruhe',
+    category: 'cooperative',
+    energyLevel: 'calm',
+    groupSize: { min: 1, max: 30 },
+    prepLevel: 'instant',
+    materials: { de: ['Keine'], en: ['None'] },
+    durationMinutes: '3–5 Min',
+    durationMin: 3,
+    durationMax: 5,
+    space: { de: 'Sitzplätze', en: 'Seats' },
+    summary: {
+      de: 'Ein paar Minuten nur dem eigenen Atem folgen. Gedanken dürfen kommen und wieder gehen.',
+      en: 'A few minutes of simply following your own breath. Thoughts may come and go.'
+    },
+    idea: {
+      de: 'Hilft nach einem wilden Spiel, wieder ruhig zu werden, zum Beispiel vor einer Andacht oder dem Lernen eines Zitats.',
+      en: 'Helps the group settle after a wild game, for example before a devotional or learning a quote.'
+    },
+    rules: {
+      de: [
+        'Alle sitzen bequem, die Füße auf dem Boden. Wer mag, schließt die Augen.',
+        'Beim Einatmen denkst du still „ein“, beim Ausatmen „aus“.',
+        'Merkst du, dass du an etwas anderes denkst, kehrst du ohne Ärger zum Atem zurück.',
+        'Nach drei bis fünf Minuten beendest du die Übung mit einem leisen Zeichen.'
+      ],
+      en: [
+        'Everyone sits comfortably, feet on the floor. Close your eyes if you like.',
+        'As you breathe in, silently think "in", as you breathe out, "out".',
+        'When you notice you are thinking of something else, return to the breath without getting annoyed.',
+        'After three to five minutes, end the exercise with a quiet signal.'
+      ]
+    },
+    animatorTips: {
+      de: ['Fang mit einer Minute an. Juniorjugendliche brauchen etwas Übung, bis längere Stille angenehm wird.'],
+      en: ['Start with one minute. Junior youth need some practice before longer silence feels comfortable.']
+    }
+  },
+  {
+    id: 'vorhang-faellt',
+    status: 'draft',
+    title: { de: 'Vorhang fällt', en: 'Drop the Curtain' },
+    purpose: 'kennenlernen',
+    category: 'competitive',
+    energyLevel: 'medium',
+    groupSize: { min: 8, max: 30 },
+    prepLevel: 'low_prep',
+    materials: { de: ['Eine große Decke oder ein Tuch als Sichtschutz'], en: ['A large blanket or sheet as a screen'] },
+    durationMinutes: '10–15 Min',
+    durationMin: 10,
+    durationMax: 15,
+    space: { de: 'Platz für zwei Gruppen und den Sichtschutz in der Mitte', en: 'Room for two groups with the screen in the middle' },
+    summary: {
+      de: 'Zwei Gruppen sitzen getrennt hinter einem Sichtschutz. Aus jeder Gruppe geht eine Person nach vorn. Auf drei fällt der Sichtschutz, und wer zuerst den Namen des Gegenübers ruft, gewinnt.',
+      en: 'Two groups sit apart behind a screen. One person from each group steps forward. On three, the screen drops, and whoever calls out the other person’s name first wins.'
+    },
+    idea: {
+      de: 'Übt Namen auf spielerische Weise. Nach ein paar Runden kennen alle die Namen der anderen Gruppe.',
+      en: 'Practises names in a playful way. After a few rounds everyone knows the names of the other group.'
+    },
+    rules: {
+      de: [
+        'Teile die Gruppe in zwei Hälften. Zwei Personen halten die Decke als Sichtschutz zwischen ihnen hoch.',
+        'Jede Gruppe schickt leise eine Person direkt vor den Sichtschutz.',
+        'Die Spielleitung zählt bis drei und lässt den Sichtschutz fallen.',
+        'Wer zuerst den Namen der Person gegenüber ruft, gewinnt die Runde. Die andere Person wechselt in die Gruppe der Gewinnerin oder des Gewinners.',
+        'Das Spiel endet, wenn eine Gruppe leer ist oder die Zeit um ist.'
+      ],
+      en: [
+        'Split the group in half. Two people hold up the blanket as a screen between them.',
+        'Each group quietly sends one person to stand right in front of the screen.',
+        'The game leader counts to three and drops the screen.',
+        'Whoever calls out the name of the person opposite first wins the round. The other person joins the winner’s group.',
+        'The game ends when one group is empty or time is up.'
+      ]
+    },
+    variants: {
+      de: ['Rücken an Rücken: Die beiden vorn stehen mit dem Rücken zum Sichtschutz. Ihre Gruppe beschreibt die Person gegenüber, ohne den Namen zu sagen.'],
+      en: ['Back to back: the two at the front stand with their backs to the screen. Their group describes the person opposite without saying the name.']
+    },
+    animatorTips: {
+      de: ['Spiel es erst, wenn alle die Namen einmal gehört haben, zum Beispiel nach einer Vorstellungsrunde.'],
+      en: ['Play it once everyone has heard all names, for example after a round of introductions.']
+    }
+  },
+  {
+    id: 'spiegel',
+    status: 'draft',
+    title: { de: 'Spiegel', en: 'Mirror' },
+    purpose: 'ruhe',
+    category: 'cooperative',
+    energyLevel: 'calm',
+    groupSize: { min: 2, max: 30 },
+    prepLevel: 'instant',
+    materials: { de: ['Keine'], en: ['None'] },
+    durationMinutes: '5–10 Min',
+    durationMin: 5,
+    durationMax: 10,
+    space: { de: 'Platz, damit Paare sich gegenüberstehen können', en: 'Room for pairs to stand facing each other' },
+    summary: {
+      de: 'Zwei stehen sich gegenüber. Eine Person bewegt sich langsam, die andere macht jede Bewegung wie ein Spiegelbild mit. Am Ende soll niemand mehr erkennen, wer führt.',
+      en: 'Two people stand facing each other. One moves slowly, the other copies every movement like a mirror image. In the end, nobody should be able to tell who is leading.'
+    },
+    idea: {
+      de: 'Übt genaues Hinschauen und Rücksicht. Wer führt, merkt schnell: Der Spiegel kommt nur mit, wenn ich langsam und deutlich bin. Gut führen heißt, auf den anderen zu achten.',
+      en: 'Practises close attention and consideration. The leader soon notices that the mirror can only follow if the movements are slow and clear. Leading well means paying attention to the other person.'
+    },
+    rules: {
+      de: [
+        'Teile die Gruppe in Paare. Die beiden stehen sich mit etwa einer Armlänge Abstand gegenüber, ohne sich zu berühren.',
+        'In jedem Paar führt zuerst eine Person. Sie bewegt Hände, Arme, Gesicht oder den ganzen Körper ganz langsam.',
+        'Die andere Person ist der Spiegel und macht jede Bewegung gleichzeitig mit. Hebt die führende Person die rechte Hand, hebt der Spiegel die linke.',
+        'Nach etwa einer Minute sagst du „Wechsel“. Jetzt führt die andere Person.',
+        'In der letzten Runde führt niemand fest. Beide versuchen, sich gemeinsam zu bewegen, ohne abzusprechen, wer anfängt.'
+      ],
+      en: [
+        'Split the group into pairs. The two stand facing each other about an arm’s length apart, without touching.',
+        'In each pair, one person leads first. They move their hands, arms, face or whole body very slowly.',
+        'The other person is the mirror and copies every movement at the same time. If the leader raises their right hand, the mirror raises their left.',
+        'After about a minute, say “Switch”. Now the other person leads.',
+        'In the last round, nobody leads on purpose. Both try to move together without agreeing who starts.'
+      ]
+    },
+    variants: {
+      de: [
+        'Gruppenspiegel: Eine Person steht vor der ganzen Gruppe, alle spiegeln sie.',
+        'Wer führt?: Zwei Paare spielen, die anderen schauen zu und raten, wer in jedem Paar führt.'
+      ],
+      en: [
+        'Group mirror: one person stands in front of the whole group, and everyone mirrors them.',
+        'Who leads?: two pairs play while the others watch and guess who is leading in each pair.'
+      ]
+    },
+    animatorTips: {
+      de: [
+        'Zeig es zuerst selbst mit einer Person vor, ganz langsam.',
+        'Wird es hektisch, erinnere die Gruppe: Ziel ist nicht, den Spiegel abzuhängen, sondern zusammenzubleiben.'
+      ],
+      en: [
+        'Demonstrate it first yourself with one person, very slowly.',
+        'If it gets hectic, remind the group: the goal is not to lose the mirror but to stay together.'
+      ]
+    },
+    reflection: {
+      de: [
+        'Wann war es leicht mitzugehen, und wann schwer?',
+        'Was hat die führende Person getan, damit der Spiegel mitkommt?',
+        'Wo im Alltag hilft es, so aufeinander zu achten?'
+      ],
+      en: [
+        'When was it easy to follow, and when was it hard?',
+        'What did the leader do to help the mirror keep up?',
+        'Where in everyday life does it help to pay attention to each other like this?'
+      ]
+    }
+  },
+  {
+    id: 'lebendige-skulptur',
+    status: 'draft',
+    title: { de: 'Lebendige Skulptur', en: 'Living Sculpture' },
+    purpose: 'zusammenarbeit',
+    category: 'cooperative',
+    energyLevel: 'medium',
+    groupSize: { min: 4, max: 30 },
+    prepLevel: 'instant',
+    materials: { de: ['Keine'], en: ['None'] },
+    durationMinutes: '10–20 Min',
+    durationMin: 10,
+    durationMax: 20,
+    space: { de: 'Freie Fläche in der Mitte des Raums', en: 'Open space in the middle of the room' },
+    summary: {
+      de: 'Kleine Gruppen bauen ohne Worte ein Standbild zu einem Begriff wie Einheit, Freundschaft oder Dienst. Die anderen schauen es an und sagen, was sie sehen.',
+      en: 'Small groups build a frozen statue of a word such as unity, friendship or service, without talking. The others look at it and say what they see.'
+    },
+    idea: {
+      de: 'Macht große Begriffe greifbar. Die Gruppe muss sich ohne Worte einigen, und jede Person wird gebraucht. Gut als Brücke zu einem Zitat oder zum Thema des Treffens.',
+      en: 'Makes big ideas tangible. The group has to agree without words, and every person is needed. A good bridge to a quote or the theme of the meeting.'
+    },
+    rules: {
+      de: [
+        'Teile die Gruppe in Kleingruppen mit vier bis sechs Personen.',
+        'Nenne einen Begriff, zum Beispiel Einheit, Freundschaft, Hilfe, Gerechtigkeit oder Dienst.',
+        'Jede Kleingruppe hat zwei Minuten. Ohne zu sprechen baut sie ein Standbild: Eine Person beginnt mit einer Haltung, die nächste ergänzt sie, bis alle Teil des Bildes sind.',
+        'Auf dein Zeichen erstarren alle und halten das Bild zehn Sekunden still.',
+        'Die anderen gehen einmal um das Standbild herum und sagen, was sie sehen. Danach erzählt die Kleingruppe, was sie zeigen wollte.'
+      ],
+      en: [
+        'Split the group into small groups of four to six people.',
+        'Name a word, for example unity, friendship, help, justice or service.',
+        'Each small group has two minutes. Without talking, they build a statue: one person starts with a pose, the next adds to it, until everyone is part of the picture.',
+        'On your signal, everyone freezes and holds the picture still for ten seconds.',
+        'The others walk once around the statue and say what they see. Then the small group explains what they wanted to show.'
+      ]
+    },
+    variants: {
+      de: [
+        'Jetzt und später: Die Kleingruppe baut zuerst ein Bild davon, wie etwas heute ist, dann eines, wie es sein könnte, und geht langsam vom einen ins andere über.',
+        'Zitat-Bild: Nimm einen Satz aus dem Zitat, das die Gruppe gerade lernt, als Begriff.'
+      ],
+      en: [
+        'Now and later: the small group first builds a picture of how something is today, then one of how it could be, and moves slowly from one to the other.',
+        'Quote picture: use a sentence from the quote the group is learning as the word.'
+      ]
+    },
+    safety: {
+      de: ['Niemand muss andere berühren. Jede Person entscheidet selbst, wie nah sie anderen kommt.'],
+      en: ['Nobody has to touch anyone. Each person decides for themselves how close they come to others.']
+    },
+    animatorTips: {
+      de: [
+        'Fang mit einem einfachen Begriff wie „Freundschaft“ an, bevor schwierigere kommen.',
+        'Achte darauf, dass beim Anschauen nur beschrieben und nicht bewertet wird.'
+      ],
+      en: [
+        'Start with a simple word like “friendship” before harder ones.',
+        'Make sure people only describe what they see and do not judge it.'
+      ]
+    },
+    reflection: {
+      de: [
+        'Was war schwer daran, sich ohne Worte zu einigen?',
+        'Welches Bild hat dich überrascht?',
+        'Wie könnte Einheit in unserer Nachbarschaft aussehen?'
+      ],
+      en: [
+        'What was hard about agreeing without words?',
+        'Which picture surprised you?',
+        'What could unity look like in our neighbourhood?'
       ]
     }
   },
