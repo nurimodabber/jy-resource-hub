@@ -881,7 +881,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({
                     className={`relative bg-surface rounded-card border p-5 sm:p-6 transition-all duration-200 ease-out cursor-pointer flex flex-col justify-between group shadow-2xs ${
                       isCurrentToolActive
                         ? 'border-accent shadow-1 ring-1 ring-accent/30'
-                        : 'border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2'
+                        : 'border-border/80 hover:border-accent/40 [@media(hover:hover)]:hover:-translate-y-0.5 hover:shadow-2'
                     }`}
                   >
                     <div className="space-y-2">

@@ -96,7 +96,7 @@ export const GameCard: React.FC<GameCardProps> = ({
 
   return (
     <div
-      className={`group relative overflow-hidden h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-3.5 pb-3 pt-3 sm:px-5 sm:pb-4 sm:pt-4 shadow-2xs ${
+      className={`group relative overflow-hidden h-full flex flex-col justify-between bg-surface border border-border/80 rounded-card hover:border-accent/40 [@media(hover:hover)]:hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out px-3.5 pb-3 pt-3 sm:px-5 sm:pb-4 sm:pt-4 shadow-2xs ${
         !matchesGroup ? 'opacity-60 hover:opacity-100' : ''
       }`}
     >

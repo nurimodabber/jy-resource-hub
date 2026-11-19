@@ -47,7 +47,7 @@ export const ServiceArtsCard: React.FC<ServiceArtsCardProps> = ({
 
   return (
     <div
-      className="group relative overflow-hidden flex flex-col justify-between rounded-card bg-surface border border-border/80 hover:border-accent/40 hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out shadow-2xs h-full px-3.5 pb-3.5 pt-3.5 sm:px-5 sm:pb-4 sm:pt-4"
+      className="group relative overflow-hidden flex flex-col justify-between rounded-card bg-surface border border-border/80 hover:border-accent/40 [@media(hover:hover)]:hover:-translate-y-0.5 hover:shadow-2 transition-all duration-200 ease-out shadow-2xs h-full px-3.5 pb-3.5 pt-3.5 sm:px-5 sm:pb-4 sm:pt-4"
     >
       {/* Subtle Top-Right Ambient Glow in Blue / Accent */}
       <div
