@@ -312,8 +312,8 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
   return (
     <div className="max-w-6xl mx-auto pb-20">
       {/* 1. Header: H1, one sentence, count on search/filter */}
-      <header className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div className="min-w-0">
+      <header className="mb-6 sm:mb-8 flex flex-wrap sm:flex-nowrap items-center sm:items-end justify-between gap-x-3 gap-y-4 sm:gap-4">
+        <div className="sm:min-w-0">
           <div className="flex items-baseline gap-x-3.5 gap-y-1 flex-wrap min-w-0">
             <h1 className="font-serif text-[32px] sm:text-4xl lg:text-5xl font-medium tracking-tight text-text leading-[1.15] sm:leading-[1.12]">
               {pageTitle}
@@ -330,9 +330,9 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
             {pageDesc}
           </p>
         </div>
-        {/* Same spot as Lesen/Auswendiglernen on Zitate: right of the title on desktop, full width below on mobile. */}
+        {/* Same spot as Lesen/Auswendiglernen on Zitate: right of the title on every width. */}
         {fixedKind && (
-          <div className="sm:w-64 sm:shrink-0">
+          <div className="w-40 sm:w-64 shrink-0">
             <SegmentedControl<'dienst' | 'kunst'>
               fullWidth
               options={[
