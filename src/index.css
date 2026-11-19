@@ -86,6 +86,8 @@
   --amber-text-rgb: 146 64 14;
   --amber-border: #FDE68A;
   --amber-border-rgb: 253 230 138;
+  /* Gold in Icons und Szenen: heller als --amber, hält aber 3:1 auf allen hellen Flächen. */
+  --icon-gold-rgb: 202 115 22;
 
   --devotion: var(--amber);
   --devotion-rgb: var(--amber-rgb);
@@ -242,6 +244,7 @@
   --amber-text-rgb: 253 230 138;
   --amber-border: #4D3410;
   --amber-border-rgb: 77 52 16;
+  --icon-gold-rgb: var(--amber-rgb);
 
   --devotion: var(--amber);
   --devotion-rgb: var(--amber-rgb);

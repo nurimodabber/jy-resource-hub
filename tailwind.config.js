@@ -80,6 +80,7 @@ export default {
           text: 'rgb(var(--amber-text-rgb) / <alpha-value>)',
           border: 'rgb(var(--amber-border-rgb) / <alpha-value>)',
         },
+        'icon-gold': 'rgb(var(--icon-gold-rgb) / <alpha-value>)',
         devotion: {
           DEFAULT: 'rgb(var(--amber-rgb) / <alpha-value>)',
           hover: 'rgb(var(--amber-hover-rgb) / <alpha-value>)',

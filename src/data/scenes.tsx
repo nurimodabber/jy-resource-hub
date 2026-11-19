@@ -15,7 +15,7 @@ import { ink, LIMB, SW, type Arm } from './pictograms';
  */
 
 const BACK = 'text-text-tertiary';
-const ACCENT = 'text-amber';
+const ACCENT = 'text-icon-gold';
 const floor = { strokeWidth: 0.75, strokeDasharray: '2 2' } as const;
 
 // Logo-Figur der Szenen: Maße pro Größe s. Höhe 12 · s wie bisher, damit alle Aufstellungen passen.

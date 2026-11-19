@@ -9,7 +9,7 @@ import React from 'react';
 type Props = { className?: string; strokeWidth?: number | string };
 
 // Logo-Gold = die warme Akzentfarbe --amber (dunkel exakt Logo-Gold, hell #B45309 für Kontrast).
-const GOLD = 'text-amber';
+const GOLD = 'text-icon-gold';
 const ink = { fill: 'currentColor', stroke: 'none' } as const;
 const ARM = 2.4;
 const dash = { strokeWidth: 1.5, strokeDasharray: '1.5 2' } as const;
