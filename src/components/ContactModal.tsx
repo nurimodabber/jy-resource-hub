@@ -104,7 +104,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={L('Kontakt & Rückmeldung', 'Contact & Feedback')}
+      title={L('Kontakt und Rückmeldung', 'Contact & Feedback')}
       maxWidth="lg"
     >
       <div className="space-y-6 text-sm text-text">
@@ -164,7 +164,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, lan
           <div className="flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-accent" />
             <h3 className="text-sm font-bold text-text">
-              {L('E-Mail hinterlegen & Nachricht vorbereiten', 'Leave your email & compose message')}
+              {L('E-Mail hinterlegen und Nachricht vorbereiten', 'Leave your email & compose message')}
             </h3>
           </div>
 

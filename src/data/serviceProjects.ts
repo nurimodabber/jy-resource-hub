@@ -4,9 +4,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'trash-audit-cleanup',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Stadtteil-Putz & Müll-Audit',
-      en: 'Neighborhood Clean-up & Trash Audit'
+      de: 'Müll sammeln im Viertel',
+      en: 'Picking up litter in the neighborhood'
     },
     category: 'environmental',
     scope: 'quick',
@@ -24,14 +25,14 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       en: ['Work gloves', 'Trash bags (color-coded for recycling)', 'Litter pickers (if available)', 'Clipboard and tally sheet']
     },
     objective: {
-      de: 'Den eigenen Sozialraum konkret von Müll befreien und durch ein systematisches Audit verstehen, welche Konsummuster den Stadtteil belasten.',
-      en: 'Physically beautify the immediate neighborhood while systematically auditing discarded waste to understand local consumption patterns.'
+      de: 'Die Gruppe sammelt auf einer festen Strecke Müll und zählt dabei, was am häufigsten herumliegt. So sieht sie, woher der Müll kommt.',
+      en: 'The group picks up litter along a set route and counts what turns up most often. That shows where the litter comes from.'
     },
     steps: {
       de: [
         'Besprechung und Zuteilung: Zweierteams bilden, jeweils einer sammelt mit Handschuhen, einer führt die Strichliste (Zigarettenfilter, Plastikflaschen, Einwegverpackungen).',
         'Sammelphase (45–60 Min): Eine festgelegte Route (z.B. Park, Spielplatz oder Fußweg zur Schule) gründlich ablaufen.',
-        'Sortierung & Wiegen: Am Treffpunkt den Müll nach Wertstoffen trennen und das Gesamtgewicht bzw. die Säcke zählen.',
+        'Sortierung und Wiegen: Am Treffpunkt den Müll nach Wertstoffen trennen und das Gesamtgewicht bzw. die Säcke zählen.',
         'Gemeinsame Reflexion: Welche Funde haben uns überrascht? Welcher Müll hätte vermieden werden können?'
       ],
       en: [
@@ -67,9 +68,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'gratitude-letters-workers',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Dankbarkeits-Briefe für Alltagshelden',
-      en: 'Gratitude Letters for Everyday Unsung Heroes'
+      de: 'Dankesbriefe schreiben',
+      en: 'Writing thank-you letters'
     },
     category: 'neighborhood',
     scope: 'quick',
@@ -83,12 +85,12 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'drinnen',
     occasion: 'treffen',
     materials: {
-      de: ['Hochwertiges Bastelpapier & Umschläge', 'Kalligrafie- und Buntstifte', 'Klebestifte & Deko-Material', 'Ggf. kleine Blumengrüße oder Teebeutel'],
+      de: ['Hochwertiges Bastelpapier und Umschläge', 'Kalligrafie- und Buntstifte', 'Klebestifte und Deko-Material', 'Ggf. kleine Blumengrüße oder Teebeutel'],
       en: ['Quality cardstock and envelopes', 'Calligraphy & colored pens', 'Stickers / decorative paper', 'Optional fresh flowers or artisanal tea bags']
     },
     objective: {
-      de: 'Menschen wertschätzen, deren tägliche Arbeit oft unsichtbar bleibt (Busfahrer, Reinigungskräfte, Postboten, Pflegepersonal).',
-      en: 'Affirm and uplift individuals whose daily service often goes unnoticed (bus drivers, custodians, postal carriers, care aides).'
+      de: 'Die Gruppe schreibt Briefe an Menschen, deren Arbeit oft niemand sieht: Busfahrer, Reinigungskräfte, Postboten, Pflegepersonal.',
+      en: 'The group writes letters to people whose work often goes unseen: bus drivers, cleaners, postal workers, care staff.'
     },
     steps: {
       de: [
@@ -130,14 +132,15 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'elderly-wisdom-interviews',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Lebensweisheit-Interviews & Seniorenbesuch',
-      en: 'Intergenerational Wisdom Interviews'
+      de: 'Ältere Menschen besuchen und befragen',
+      en: 'Visiting and interviewing older people'
     },
     category: 'intergenerational',
     scope: 'medium',
     duration: {
-      de: '2 Treffen (1x Vorbereitung, 1x Besuch & Auswertung)',
+      de: '2 Treffen (1x Vorbereitung, 1x Besuch und Auswertung)',
       en: '2 Sessions (1x prep, 1x visit & synthesis)'
     },
     durationMin: 90,
@@ -150,8 +153,8 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       en: ['Clipboard with interview prompts', 'Voice recorder / phone (with explicit permission)', 'Homemade baked goods', 'Camera for commemorative portrait']
     },
     objective: {
-      de: 'Brücken zwischen den Generationen bauen, Einsamkeit lindern und die Schätze gelebter Lebenserfahrung erfassen.',
-      en: 'Bridge the generational divide, alleviate social isolation among elders, and document the treasures of lived experience.'
+      de: 'Die Gruppe besucht ältere Menschen, hört ihnen zu und schreibt auf, was sie aus ihrem Leben erzählen.',
+      en: 'The group visits older people, listens to them and writes down what they tell about their lives.'
     },
     steps: {
       de: [
@@ -193,9 +196,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'seed-bombs-wildflowers',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Samenbomben für städtische Bienenweiden',
-      en: 'Wildflower Seed Bombs for Urban Biodiversity'
+      de: 'Samenkugeln für Wildblumen',
+      en: 'Wildflower seed balls'
     },
     category: 'environmental',
     scope: 'quick',
@@ -209,12 +213,12 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'beides',
     occasion: 'beides',
     materials: {
-      de: ['Heimisches Wildblumensaatgut (ungebeizt)', 'Tonmehl oder Lehmpulver', 'Torffreie Pflanzerde', 'Wasser & Rührschüsseln', 'Eierkartons zum Trocknen'],
+      de: ['Heimisches Wildblumensaatgut (ungebeizt)', 'Tonmehl oder Lehmpulver', 'Torffreie Pflanzerde', 'Wasser und Rührschüsseln', 'Eierkartons zum Trocknen'],
       en: ['Native wildflower seeds (non-GMO)', 'Clay powder or bentonite', 'Peat-free potting soil', 'Water & mixing basins', 'Egg cartons for drying']
     },
     objective: {
-      de: 'Karge urbane Randstreifen in blühende Oasen für Bestäuber verwandeln und das Bewusstsein für Biodiversität schärfen.',
-      en: 'Transform barren roadside strips into vibrant pollinator havens while deepening awareness of ecological balance.'
+      de: 'Die Gruppe formt Kugeln aus Erde, Ton und Wildblumensamen und legt sie auf kahle Grünstreifen. Dort wächst später Futter für Bienen.',
+      en: 'The group rolls balls of soil, clay and wildflower seeds and places them on bare verges. Later they grow into food for bees.'
     },
     steps: {
       de: [
@@ -254,9 +258,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'children-storytelling-festival',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Kinder-Geschichtenstunde & Spielefest',
-      en: 'Children\'s Storytelling & Games Festival'
+      de: 'Geschichten und Spiele für Kinder',
+      en: 'Stories and games for children'
     },
     category: 'children',
     scope: 'medium',
@@ -274,8 +279,8 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       en: ['Illustrated storybooks featuring virtues', 'Puppet or shadow-play props', 'Crafting supplies (colored paper, safety scissors, glue)', 'Healthy snack platters']
     },
     objective: {
-      de: 'Juniorjugendliche übernehmen Vorbildfunktion für jüngere Kinder und vermitteln Werte durch interaktives Erzählen und Spiele.',
-      en: 'Junior youth step up as inspiring older mentors for younger children, fostering virtue development through narrative and play.'
+      de: 'Die Juniorjugendlichen gestalten einen Nachmittag für jüngere Kinder, mit Geschichten und Spielen über Tugenden.',
+      en: 'The junior youth run an afternoon for younger children, with stories and games about virtues.'
     },
     steps: {
       de: [
@@ -313,9 +318,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'sidewalk-chalk-kindness',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Gehweg-Kreide: Lichtbotschaften im öffentlichen Raum',
-      en: 'Sidewalk Chalk: Uplifting Words in Public Space'
+      de: 'Kreidebilder auf dem Gehweg',
+      en: 'Chalk drawings on the sidewalk'
     },
     category: 'creative',
     scope: 'quick',
@@ -333,12 +339,12 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       en: ['Jumbo sidewalk chalk in vibrant colors', 'Lettering stencils (optional)', 'Quote reference cards', 'Damp sponges for touch-ups']
     },
     objective: {
-      de: 'Den öffentlichen Raum mit inspirierenden Zitaten, aufmunternden Gedanken und farbenfrohen Kunstwerken für Fußgänger erhellen.',
-      en: 'Brighten pedestrian footpaths with uplifting scripture passages, inspiring reflections, and joyful street art.'
+      de: 'Die Gruppe malt mit Kreide Bilder auf Gehwege, an denen viele vorbeikommen, und schreibt Zitate und freundliche Sätze dazu.',
+      en: 'The group draws pictures in chalk on busy sidewalks and adds quotes and kind words.'
     },
     steps: {
       de: [
-        'Zitate & Sprüche auswählen: Aus den gelernten Zitaten 3–4 prägnante Verse auswählen (z.B. über Einheit, Hoffnung, Freundlichkeit).',
+        'Zitate und Sprüche auswählen: Aus den gelernten Zitaten 3–4 prägnante Verse auswählen (z.B. über Einheit, Hoffnung, Freundlichkeit).',
         'Platzwahl: Einen viel frequentierten, sicheren Gehweg (z.B. vor dem Gemeindezentrum, Parkeingang oder Schulweg) wählen.',
         'Gestaltung: Mit kalligrafischen Schriftzügen, floralen Ornamenten und Farbverläufen die Worte auf den Asphalt zaubern.',
         'Reaktionen beobachten: Passanten beim Lesen beobachten und das gemeinsame Werk fotografieren.'
@@ -372,9 +378,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'community-book-box',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Offener Bücherschrank & Leseecke-Patenschaft',
-      en: 'Community Book Box Curation & Stewardship'
+      de: 'Einen Bücherschrank pflegen',
+      en: 'Looking after a public bookcase'
     },
     category: 'neighborhood',
     scope: 'medium',
@@ -388,16 +395,16 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'beides',
     occasion: 'camp',
     materials: {
-      de: ['Ausgemusterte wetterfeste Box oder bestehender Bücherschrank', 'Buchspenden (vorsortiert)', 'Reinigungsmittel & Pinsel', 'Lesezeichen mit ermutigenden Zitaten'],
+      de: ['Ausgemusterte wetterfeste Box oder bestehender Bücherschrank', 'Buchspenden (vorsortiert)', 'Reinigungsmittel und Pinsel', 'Lesezeichen mit ermutigenden Zitaten'],
       en: ['Weatherproof cabinet or existing public book box', 'Curated donated books', 'Cleaning rags and brushes', 'Handmade bookmarks with quotes']
     },
     objective: {
-      de: 'Einen bestehenden offenen Bücherschrank pflegen, säubern, mit inspirierender Literatur bestücken und handgemachte Lesezeichen beilegen.',
-      en: 'Adopt, restore, and replenish an existing public mini-library, leaving inspirational bookmarks inside quality literature.'
+      de: 'Die Gruppe kümmert sich um einen offenen Bücherschrank: putzen, sortieren, gute Bücher hineinstellen und selbst gemachte Lesezeichen beilegen.',
+      en: 'The group looks after a public bookcase: cleaning, sorting, adding good books and slipping in handmade bookmarks.'
     },
     steps: {
       de: [
-        'Bestandsaufnahme & Reinigung: Den Bücherschrank von kaputten oder unpassenden Büchern befreien, Scheiben putzen und Scharniere ölen.',
+        'Bestandsaufnahme und Reinigung: Den Bücherschrank von kaputten oder unpassenden Büchern befreien, Scheiben putzen und Scharniere ölen.',
         'Bücher-Sammelaktion: Im Freundeskreis und bei Nachbarn nach spannenden Jugend- und Kinderbüchern fragen.',
         'Lesezeichen-Werkstatt: 50 kunstvolle Lesezeichen mit Zitaten über Wissen und Charakter anfertigen und in die Bücher einlegen.',
         'Regelmäßige Patenschaft: Einmal im Monat nach dem Rechten sehen.'
@@ -431,14 +438,15 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'food-bank-hygiene-drive',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Wärme-Pakete für die örtliche Tafel / Notschlafstelle',
-      en: 'Care & Hygiene Kits for Local Shelters'
+      de: 'Pakete für die Tafel oder Notunterkunft',
+      en: 'Care packs for a food bank or shelter'
     },
     category: 'institutional',
     scope: 'medium',
     duration: {
-      de: '2 Treffen (Sammeln & Packen)',
+      de: '2 Treffen (Sammeln und Packen)',
       en: '2 Sessions (Collection & Packing)'
     },
     durationMin: 90,
@@ -451,8 +459,8 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       en: ['Cloth tote bags or boxes', 'Essential toiletries (toothbrushes, soap, warm socks, lip balm)', 'Handwritten notes of care', 'Donation collection bins']
     },
     objective: {
-      de: 'Menschen in Notlagen mit dringend benötigten Hygieneartikeln versorgen und ihnen durch persönliche Worte Wärme und Würde schenken.',
-      en: 'Equip vulnerable individuals experiencing homelessness or hardship with dignity essentials and heartfelt personal messages.'
+      de: 'Die Gruppe packt Hygieneartikel in Tüten und legt jeder Tüte einen handgeschriebenen Gruß bei.',
+      en: 'The group packs bags of toiletries and adds a handwritten note to each one.'
     },
     steps: {
       de: [
@@ -492,9 +500,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'bike-repair-neighborhood',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Fahrrad-Check & Aufpump-Station für Nachbarn',
-      en: 'Neighborhood Bicycle Safety & Pump Clinic'
+      de: 'Fahrradhilfe für Nachbarn',
+      en: 'Bike help for neighbors'
     },
     category: 'neighborhood',
     scope: 'medium',
@@ -508,17 +517,17 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'draussen',
     occasion: 'treffen',
     materials: {
-      de: ['Stand-Luftpumpe mit Manometer', 'Kettenöl & Lappen', 'Inbusschlüssel-Set & Schraubenschlüssel', 'Reifenflickzeug & Eimer mit Wasser', 'Hinweisschild'],
+      de: ['Stand-Luftpumpe mit Manometer', 'Kettenöl und Lappen', 'Inbusschlüssel-Set und Schraubenschlüssel', 'Reifenflickzeug und Eimer mit Wasser', 'Hinweisschild'],
       en: ['Floor bike pump with pressure gauge', 'Chain lubricant & rags', 'Hex key set & basic wrenches', 'Tire patch kit & water basin', 'Welcoming sidewalk sign']
     },
     objective: {
-      de: 'Nachbarn helfen, ihre Fahrräder verkehrssicher zu machen: Reifen aufpumpen, Ketten ölen, Bremsen prüfen und kleine Pannen flicken.',
-      en: 'Assist neighborhood residents in tuning up their bicycles: pumping tires, cleaning and lubricating chains, and inspecting brakes.'
+      de: 'Die Gruppe hilft Nachbarn, ihre Fahrräder verkehrssicher zu machen: Reifen aufpumpen, Ketten ölen, Bremsen prüfen und kleine Pannen flicken.',
+      en: 'The group helps neighbors make their bikes safe: pumping tires, oiling chains, checking brakes and fixing small faults.'
     },
     steps: {
       de: [
         'Vorbereitung: Die Jugendlichen lernen vorab an ihren eigenen Rädern die Basics: Reifendruck, Kette ölen, Schrauben nachziehen.',
-        'Station aufbauen: An einem gut sichtbaren Platz (Hof, Gehweg) ein Schild aufstellen: „Kostenloser Fahrrad-Check durch die Jugendgruppe“.',
+        'Station aufbauen: An einem gut sichtbaren Platz (Hof, Gehweg) ein Schild aufstellen: „Kostenlose Fahrradhilfe von der Jugendgruppe“.',
         'Service leisten: Nachbarn begrüßen, Luftdruck prüfen, Kette schmieren, Reflektoren säubern.',
         'Gemeinschaft pflegen: Mit den Nachbarn ins Gespräch kommen und ein Glas Wasser anbieten.'
       ],
@@ -541,7 +550,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     },
     animatorTips: {
       de: [
-        'Einen sachkundigen Erwachsenen oder älteren Jugendlichen als Supervisor für Bremsen-Checks dazuholen.',
+        'Einen sachkundigen Erwachsenen oder älteren Jugendlichen dazuholen, der beim Prüfen der Bremsen hilft.',
         'Immer Schutzhandschuhe gegen Kettenfett bereitstellen.'
       ],
       en: [
@@ -553,9 +562,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'digital-helpdesk-seniors',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Smartphone & Digital-Sprechstunde für Ältere',
-      en: 'Smartphone & Digital Clinic for Seniors'
+      de: 'Handy-Sprechstunde für Ältere',
+      en: 'Phone help for older people'
     },
     category: 'intergenerational',
     scope: 'medium',
@@ -569,17 +579,17 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'drinnen',
     occasion: 'treffen',
     materials: {
-      de: ['Tische und bequeme Stühle', 'WLAN-Zugang', 'Notizblöcke & Stifte für Schritt-für-Schritt-Anleitungen', 'Kaffee, Tee & Gebäck'],
+      de: ['Tische und bequeme Stühle', 'WLAN-Zugang', 'Notizblöcke und Stifte für Schritt-für-Schritt-Anleitungen', 'Kaffee, Tee und Gebäck'],
       en: ['Tables and comfortable chairs', 'Stable Wi-Fi access', 'Note pads & pens for custom instructions', 'Coffee, tea & pastries']
     },
     objective: {
-      de: 'Digitale Barrieren abbauen: Älteren Menschen in 1-zu-1-Tandems geduldig erklären, wie sie Fotos versenden, Schriftgrößen anpassen oder Videoanrufe mit Enkeln führen.',
-      en: 'Dismantle digital isolation: Patiently tutor seniors in 1-on-1 pairs on sending family photos, adjusting font sizes, or video calling grandchildren.'
+      de: 'Je ein Juniorjugendlicher setzt sich mit einer älteren Person zusammen und zeigt geduldig, wie man Fotos verschickt, die Schrift größer stellt oder mit den Enkeln per Video spricht.',
+      en: 'Each junior youth sits with one older person and patiently shows how to send photos, make the text bigger or video-call the grandchildren.'
     },
     steps: {
       de: [
         'Haltungs-Schulung: Den Jugendlichen vermitteln: Nicht selbst tippen, sondern den Senior die Handgriffe selbst ausführen lassen; absolute Geduld.',
-        'Einladung & Empfang: Senioren im Gemeindehaus oder Seniorenclub mit Tee und Wärme willkommen heißen.',
+        'Einladung und Empfang: Senioren im Gemeindehaus oder Seniorenclub mit Tee und Wärme willkommen heißen.',
         '1-zu-1-Betreuung: Jeder Jugendliche setzt sich zu einem Senior und widmet sich dessen konkreten Fragen.',
         'Schriftliche Merkhilfe: Die Jugendlichen schreiben verständliche, bebilderte Spickzettel für zu Hause auf.'
       ],
@@ -612,9 +622,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'birdhouse-wildlife-nesting',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Nistkasten- & Insektenhotel-Bau',
-      en: 'Nesting Boxes & Insect Hotel Crafting'
+      de: 'Nistkästen und Insektenhotels bauen',
+      en: 'Building nest boxes and insect hotels'
     },
     category: 'environmental',
     scope: 'deep',
@@ -628,16 +639,16 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'beides',
     occasion: 'camp',
     materials: {
-      de: ['Unbehandeltes Holz (Fichte/Tanne)', 'Holzbohrer, Schrauben & Akkuschrauber', 'Schilfrohr, Bambusstäbe, Tannenzapfen', 'Aufhänge-Draht'],
+      de: ['Unbehandeltes Holz (Fichte/Tanne)', 'Holzbohrer, Schrauben und Akkuschrauber', 'Schilfrohr, Bambusstäbe, Tannenzapfen', 'Aufhänge-Draht'],
       en: ['Untreated timber planks', 'Drill bits, wood screws & cordless drill', 'Hollow bamboo canes, pinecones, bark', 'Mounting wire']
     },
     objective: {
-      de: 'Lokalen Singvögeln und nützlichen Wildbienen geschützte Brut- und Überwinterungsplätze im Stadtteil schenken.',
-      en: 'Provide vital nesting sanctuaries and wintering shelters for native songbirds and solitary wild bees.'
+      de: 'Die Gruppe baut Nistkästen für Vögel und Unterschlupfe für Wildbienen und hängt sie im Viertel auf.',
+      en: 'The group builds nest boxes for birds and shelters for wild bees and puts them up in the neighborhood.'
     },
     steps: {
       de: [
-        'Zuschnitt & Montage: Die Holzteile nach erprobten Bauplänen (NABU/BUND) verschrauben. Auf korrekten Einflugloch-Durchmesser achten.',
+        'Zuschnitt und Montage: Die Holzteile nach erprobten Bauplänen (NABU/BUND) verschrauben. Auf korrekten Einflugloch-Durchmesser achten.',
         'Insektenhotel befüllen: Schilfhalme sauber entgraten und bündeln; Hartholzblöcke mit verschiedenen Bohrerdurchmessern (3–8 mm) versehen.',
         'Installation: Die Nistkästen an geeigneten Bäumen (in 2–3 m Höhe, geschützt vor Katzen und direkter Mittagssonne) anbringen.',
         'Patenschaft: Die Kästen im Herbst säubern und protokollieren, wer eingezogen ist.'
@@ -671,9 +682,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'flowerbed-revitalization',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Gemeindebeet- & Parkbank-Verschönerung',
-      en: 'Community Garden Revitalization & Park Bench Polish'
+      de: 'Ein Beet und eine Bank verschönern',
+      en: 'Sprucing up a flowerbed and a bench'
     },
     category: 'environmental',
     scope: 'medium',
@@ -687,12 +699,12 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'draussen',
     occasion: 'beides',
     materials: {
-      de: ['Gartenschaufeln & Harken', 'Mulch & Bio-Blumenerde', 'Mehrjährige Stauden & Sträucher', 'Schleifpapier & Holzöl für Parkbänke', 'Gießkannen'],
+      de: ['Gartenschaufeln und Harken', 'Mulch und Bio-Blumenerde', 'Mehrjährige Stauden und Sträucher', 'Schleifpapier und Holzöl für Parkbänke', 'Gießkannen'],
       en: ['Trowels, rakes & garden shears', 'Organic mulch & topsoil', 'Perennial shrubs & pollinator flowers', 'Sandpaper & non-toxic wood oil', 'Watering cans']
     },
     objective: {
-      de: 'Ein vernachlässigtes öffentliches Beet oder den Außenbereich eines Gemeindezentrums in einen einladenden Ort der Begegnung verwandeln.',
-      en: 'Transform an overgrown public flowerbed or community center courtyard into an inviting oasis of beauty and gathering.'
+      de: 'Die Gruppe bringt ein vernachlässigtes Beet oder den Hof eines Gemeindezentrums in Ordnung, damit Menschen dort gern sitzen.',
+      en: 'The group tidies up a neglected flowerbed or community center yard so that people like to sit there.'
     },
     steps: {
       de: [
@@ -730,9 +742,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'hospital-care-cards',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Mutmach-Karten für Kinderkrankenhaus / Reha',
-      en: 'Encouragement Art for Pediatric Wards'
+      de: 'Mutmach-Karten für kranke Kinder',
+      en: 'Get-well cards for children in hospital'
     },
     category: 'creative',
     scope: 'quick',
@@ -746,12 +759,12 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'drinnen',
     occasion: 'treffen',
     materials: {
-      de: ['Aquarellfarben & dickes Papier', 'Wachsmalstifte & Fineliner', 'Hoffnungsvolle Gedichte & Zitate', 'Schleifenbänder'],
+      de: ['Aquarellfarben und dickes Papier', 'Wachsmalstifte und Fineliner', 'Hoffnungsvolle Gedichte und Zitate', 'Schleifenbänder'],
       en: ['Watercolor palettes & heavy paper', 'Wax pastels & fine ink pens', 'Uplifting poetic verses', 'Ribbon ties']
     },
     objective: {
-      de: 'Kindern und Jugendlichen, die längere Zeit im Krankenhaus verbringen müssen, handgemalte Farbtupfer und mutmachende Verse ans Krankenbett senden.',
-      en: 'Channel empathy and warmth to children enduring long hospital stays through vibrant hand-painted artwork and resilient verses.'
+      de: 'Die Gruppe malt Karten mit Bildern und kurzen, ermutigenden Worten für Kinder, die lange im Krankenhaus oder in der Reha sind.',
+      en: 'The group paints cards with pictures and a few encouraging words for children who spend a long time in hospital or rehab.'
     },
     steps: {
       de: [
@@ -789,14 +802,15 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'anti-bullying-peace-poster',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Respekt-Kampagne & Schulfoyer-Ausstellung',
-      en: 'Kindness & Inclusion School Poster Campaign'
+      de: 'Plakate gegen Ausgrenzung',
+      en: 'Posters against exclusion'
     },
     category: 'institutional',
     scope: 'medium',
     duration: {
-      de: '2 Treffen (Konzeption & Plakatgestaltung)',
+      de: '2 Treffen (Konzeption und Plakatgestaltung)',
       en: '2 Sessions (Conceptualization & Poster Atelier)'
     },
     durationMin: 90,
@@ -809,8 +823,8 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
       en: ['Large heavy poster boards (A2)', 'Acrylic paint pens & wide markers', 'Photo prints / collage media', 'Mounting tape']
     },
     objective: {
-      de: 'Ein starkes Zeichen gegen Ausgrenzung, Lästern und Mobbing setzen, indem die Gruppe die Schönheit von Vielfalt und Einheit sichtbar macht.',
-      en: 'Take a courageous stand against social exclusion, gossip, and cyberbullying by visualizing the power of diversity and unity.'
+      de: 'Die Gruppe gestaltet Plakate gegen Lästern, Ausgrenzung und Mobbing und stellt sie aus, zum Beispiel in der Schule.',
+      en: 'The group designs posters against gossip, exclusion and bullying and puts them up, for example at school.'
     },
     steps: {
       de: [
@@ -838,7 +852,7 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     },
     animatorTips: {
       de: [
-        'Fokussiere auf positive, kraftvolle Werte statt auf schockierende Verbotsschilder; Schönheit überzeugt mehr als Vorwürfe.'
+        'Zeig, was gut ist, statt mit Verboten zu schocken. Schönes überzeugt mehr als Vorwürfe.'
       ],
       en: [
         'Anchor in radiant affirmative values rather than scolding prohibitions; beauty inspires transformation faster than guilt.'
@@ -848,9 +862,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'first-aid-care-pack',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Erste-Hilfe-Auffrischung & Notfall-Kits',
-      en: 'First Aid Readiness & Household Safety Kits'
+      de: 'Erste Hilfe üben und Notfalltaschen packen',
+      en: 'Practicing first aid and packing emergency pouches'
     },
     category: 'neighborhood',
     scope: 'quick',
@@ -864,18 +879,18 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'drinnen',
     occasion: 'beides',
     materials: {
-      de: ['Verbandskästen zum Üben (abgelaufen für Training)', 'Mullbinden, Pflaster, Dreiecktücher', 'Ziploc-Beutel für Mini-Kits', 'Notrufnummern-Kärtchen'],
+      de: ['Verbandskästen zum Üben (abgelaufen für Training)', 'Mullbinden, Pflaster, Dreiecktücher', 'Zipp-Beutel für die Notfalltaschen', 'Notrufnummern-Kärtchen'],
       en: ['Practice first aid kits', 'Bandages, plasters, triangular slings', 'Ziploc pouches for pocket kits', 'Emergency contact wallet cards']
     },
     objective: {
-      de: 'Grundlegende Erste-Hilfe-Fähigkeiten (stabile Seitenlage, Verbände) erlernen und kleine Taschen-Notfallsets für Familien und Nachbarn zusammenstellen.',
-      en: 'Equip junior youth with foundational emergency skills (recovery position, pressure wraps) while compiling portable mini-first-aid pouches for homes.'
+      de: 'Die Gruppe übt einfache Erste Hilfe wie die stabile Seitenlage und einen Verband und packt kleine Notfalltaschen für Familien und Nachbarn.',
+      en: 'The group practices simple first aid such as the recovery position and bandaging, and packs small emergency pouches for families and neighbors.'
     },
     steps: {
       de: [
         'Praxistraining (45 Min): Druckverband anlegen, stabile Seitenlage üben, Notruf 112 simulieren (5 W-Fragen).',
-        'Kit-Zusammenstellung (30 Min): Kompakte Notfallbeutel mit Pflastern, Wundreinigungstüchern und handbeschriebenen Notruf-Kärtchen packen.',
-        'Verteilung: Jedes Gruppenmitglied nimmt ein Kit für die eigene Familie oder einen Nachbarn mit.'
+        'Taschen packen (30 Min): In kleine Beutel kommen Pflaster, Wundreinigungstücher und ein handgeschriebenes Kärtchen mit den Notrufnummern.',
+        'Verteilung: Jedes Gruppenmitglied nimmt eine Tasche für die eigene Familie oder einen Nachbarn mit.'
       ],
       en: [
         'Practical Training (45 min): Master pressure bandages, recovery positioning, and roleplay an emergency dispatch call.',
@@ -905,9 +920,10 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
   {
     id: 'community-blessing-podcast',
     kind: 'dienst',
+    status: 'draft',
     title: {
-      de: 'Vorbilder vor Ort: Audio-Interviews & Mini-Podcast',
-      en: 'Local Pillars: Audio Portraits & Mini-Podcast'
+      de: 'Hörporträts von Menschen im Viertel',
+      en: 'Audio portraits of people in the neighborhood'
     },
     category: 'creative',
     scope: 'deep',
@@ -921,12 +937,12 @@ export const SERVICE_PROJECTS_DATA: ServiceProject[] = [
     setting: 'drinnen',
     occasion: 'camp',
     materials: {
-      de: ['Smartphone mit Diktier-App & externem Mikrofon', 'Frageleitfaden', 'Laptop für einfachen Schnitt (z.B. Audacity)', 'Kopfhörer'],
+      de: ['Smartphone mit Diktier-App und externem Mikrofon', 'Frageleitfaden', 'Laptop für einfachen Schnitt (z.B. Audacity)', 'Kopfhörer'],
       en: ['Smartphone audio recorder with lavalier mic', 'Interview script', 'Laptop for basic audio editing (e.g. Audacity)', 'Headphones']
     },
     objective: {
-      de: 'Engagierte Menschen im Viertel interviewen (z.B. Bibliothekar, Sanitäter, Nachbarschafts-Initiator) und inspirierende 3-Minuten-Hörstücke für Eltern und Freunde produzieren.',
-      en: 'Interview dedicated local figures (librarians, community organizers, teachers) to produce 3-minute audio portraits celebrating service.'
+      de: 'Die Gruppe befragt Menschen, die sich im Viertel einsetzen, etwa einen Bibliothekar oder eine Sanitäterin, und macht daraus kurze Hörstücke von drei Minuten.',
+      en: 'The group interviews people who help out in the neighborhood, such as a librarian or a paramedic, and turns the talks into three-minute audio pieces.'
     },
     steps: {
       de: [

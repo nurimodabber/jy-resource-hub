@@ -262,7 +262,7 @@ const SpyGame: React.FC<{ language: Language; names: string[] }> = ({ language, 
           disabled={revealed}
           className={`${secondaryBtn} flex-1`}
         >
-          {L('Spion & Ort auflösen', 'Reveal')}
+          {L('Spion und Ort auflösen', 'Reveal')}
         </button>
         <button
           type="button"
@@ -581,7 +581,7 @@ const WerewolfGame: React.FC<{ language: Language; names: string[] }> = ({ langu
         onClick={() => setPhase('setup')}
         className="text-xs text-text-tertiary hover:text-text underline block mx-auto pt-2"
       >
-        {L('Runde beenden & zurück', 'End game and return')}
+        {L('Runde beenden und zurück', 'End game and return')}
       </button>
     </div>
   );

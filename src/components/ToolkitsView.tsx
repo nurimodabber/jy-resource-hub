@@ -63,7 +63,7 @@ const TOOLS: ToolDef[] = [
   {
     id: 'timer',
     icon: Timer,
-    title: ['Timer & Intervall', 'Timer & Interval'],
+    title: ['Timer und Intervall', 'Timer & Interval'],
     short: ['Runden mit Signalton', 'Rounds with a chime'],
     desc: ['Große Anzeige mit Signalton und Runden.', 'Large display with chime and rounds.'],
     group: 'run',

@@ -205,7 +205,7 @@ export const ServiceArtsView: React.FC<ServiceArtsViewProps> = ({
             ? L('Alle Dienst-Bereiche', 'All service areas')
             : fixedKind === 'kunst'
             ? L('Alle Kunstformen', 'All art forms')
-            : L('Alle Bereiche & Formen', 'All areas & forms'),
+            : L('Alle Bereiche und Formen', 'All areas & forms'),
       },
     ];
 

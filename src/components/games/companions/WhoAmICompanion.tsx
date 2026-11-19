@@ -121,7 +121,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
             {/* Level 1: Leicht */}
             <div className="space-y-1.5">
               <span className="text-2xs font-bold text-accent block px-0.5">
-                {L('Stufe 1: Leicht & Bekannt', 'Level 1: Easy & Familiar')}
+                {L('Stufe 1: Leicht und Bekannt', 'Level 1: Easy & Familiar')}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {allPacks.filter((p) => p.difficulty === 1).map((pack) => {
@@ -150,7 +150,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
             {/* Level 2: Mittel & Herausfordernd */}
             <div className="space-y-1.5 pt-1">
               <span className="text-2xs font-bold text-text-tertiary block px-0.5">
-                {L('Stufe 2: Knifflig & Inspirierend', 'Level 2: Challenging & Thoughtful')}
+                {L('Stufe 2: Knifflig und Inspirierend', 'Level 2: Challenging & Thoughtful')}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {allPacks.filter((p) => p.difficulty >= 2).map((pack) => {
@@ -242,7 +242,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
           {/* Rules Reminder Card */}
           <Panel className="space-y-2">
             <h4 className="text-xs font-bold text-text">
-              {L('Regeln & Ablauf:', 'Rules & Flow:')}
+              {L('Regeln und Ablauf:', 'Rules & Flow:')}
             </h4>
             <ul className="text-xs text-text-secondary space-y-1.5 pl-4 list-disc">
               <li>
@@ -270,7 +270,7 @@ export const WhoAmICompanion: React.FC<WhoAmICompanionProps> = ({ language }) =>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-text">
-                {L('Übersicht & Fortschritt', 'Overview & Progress')}
+                {L('Übersicht und Fortschritt', 'Overview & Progress')}
               </span>
               <button
                 type="button"

@@ -134,7 +134,7 @@ export const PassAround: React.FC<Props> = ({
                 className="w-full px-5 py-3.5 rounded-control bg-accent text-accent-contrast hover:bg-accent-hover font-bold text-sm flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer min-h-[52px]"
               >
                 <EyeOff className="w-5 h-5" />
-                <span>{isLast ? doneLabel : L('Verbergen & weitergeben', 'Hide and pass on')}</span>
+                <span>{isLast ? doneLabel : L('Verbergen und weitergeben', 'Hide and pass on')}</span>
               </button>
             </div>
           </div>

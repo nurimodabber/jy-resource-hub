@@ -177,7 +177,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Tatkraft & Jugend',
+      de: 'Tatkraft und Jugend',
       en: 'Youth & Agency',
     },
   },
@@ -216,7 +216,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Werte & Charakter',
+      de: 'Werte und Charakter',
       en: 'Values & Character',
     },
   },
@@ -255,7 +255,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Freundschaft & Einheit',
+      de: 'Freundschaft und Einheit',
       en: 'Noble Friendship',
     },
   },
@@ -294,14 +294,14 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Wahrhaftigkeit & Sprache',
+      de: 'Wahrhaftigkeit und Sprache',
       en: 'Pure Speech',
     },
   },
   {
     id: 'overcoming-prejudice',
     title: {
-      de: 'Schönheit der Vielfalt & Abbau von Vorurteilen',
+      de: 'Schönheit der Vielfalt und Abbau von Vorurteilen',
       en: 'Harmony of Diversity & Overcoming Prejudice',
     },
     quoteSnippet: {
@@ -373,7 +373,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Liebe & Menschheit',
+      de: 'Liebe und Menschheit',
       en: 'Love & Humanity',
     },
   },
@@ -413,7 +413,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Dienst & Sinn',
+      de: 'Dienst und Sinn',
       en: 'Purpose & Service',
     },
   },
@@ -453,7 +453,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Wahrhaftigkeit & Fundament',
+      de: 'Wahrhaftigkeit und Fundament',
       en: 'Truthfulness & Foundation',
     },
   },
@@ -493,7 +493,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Geistige Worte & Kraft',
+      de: 'Geistige Worte und Kraft',
       en: 'The Creative Word',
     },
   },
@@ -533,7 +533,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Potenziale & Edelsteine',
+      de: 'Potenziale und Edelsteine',
       en: 'Human Nobility',
     },
   },
@@ -573,7 +573,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Wachstum & Vortrefflichkeit',
+      de: 'Wachstum und Vortrefflichkeit',
       en: 'Excellence & Growth',
     },
   },
@@ -612,7 +612,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Frieden & Gedankenkraft',
+      de: 'Frieden und Gedankenkraft',
       en: 'Peace & Mindful Thought',
     },
     status: 'draft',
@@ -652,7 +652,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Nachsicht & Vergebung',
+      de: 'Nachsicht und Vergebung',
       en: 'Forgiveness & Seeing Good',
     },
     status: 'draft',
@@ -692,7 +692,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Freude & Hoffnung',
+      de: 'Freude und Hoffnung',
       en: 'Joy & Inner Light',
     },
     status: 'draft',
@@ -732,7 +732,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Erkenntnis & Vernunft',
+      de: 'Erkenntnis und Vernunft',
       en: 'Intellect & Perception',
     },
     status: 'draft',
@@ -772,7 +772,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Aufrichtigkeit & Herz',
+      de: 'Aufrichtigkeit und Herz',
       en: 'Purity & Sincerity',
     },
     status: 'draft',
@@ -812,7 +812,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Worte & Verantwortung',
+      de: 'Worte und Verantwortung',
       en: 'The Power of Speech',
     },
     status: 'draft',
@@ -852,7 +852,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Würde & Vertrauen',
+      de: 'Würde und Vertrauen',
       en: 'Trust & Backbiting',
     },
     status: 'draft',
@@ -892,7 +892,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Wachstum & Reife',
+      de: 'Wachstum und Reife',
       en: 'Excellence of Character',
     },
     status: 'draft',
@@ -928,7 +928,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Resilienz & Fehlerkultur',
+      de: 'Resilienz und Fehlerkultur',
       en: 'Resilience & Renewal',
     },
     status: 'draft',
@@ -964,7 +964,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Bildung & Echtes Verstehen',
+      de: 'Bildung und echtes Verstehen',
       en: 'Lifelong Learning & Discernment',
     },
     status: 'draft',
@@ -1000,7 +1000,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Geduld & Beharrlichkeit',
+      de: 'Geduld und Beharrlichkeit',
       en: 'Patience & Perseverance',
     },
     status: 'draft',
@@ -1036,7 +1036,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Anfangen & Mut',
+      de: 'Anfangen und Mut',
       en: 'Beginning with Courage',
     },
     status: 'draft',
@@ -1072,7 +1072,7 @@ export const DISCUSSION_CARDS: DiscussionCard[] = [
       ],
     },
     theme: {
-      de: 'Identität & Freiheit',
+      de: 'Identität und Freiheit',
       en: 'Roots and Wings',
     },
     status: 'draft',
@@ -1087,7 +1087,7 @@ export const CAMP_BEST_PRACTICES: CampBestPractice[] = [
       en: 'The Mentor’s Posture',
     },
     area: {
-      de: 'Haltung & Vorbild',
+      de: 'Haltung und Vorbild',
       en: 'Posture & Modeling',
     },
     quoteOrMotto: {

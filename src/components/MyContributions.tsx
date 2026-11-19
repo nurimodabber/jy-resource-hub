@@ -39,7 +39,7 @@ const typeLabel = (type: ContributionType, L: ReturnType<typeof tr>): string =>
     : type === 'dienst'
     ? L('Dienstprojekt', 'Service project')
     : type === 'kunst'
-    ? L('Kunst & Ausdruck', 'Arts & expression')
+    ? L('Kunst und Ausdruck', 'Arts & expression')
     : L('Rückmeldung', 'Feedback');
 
 const StatusLine: React.FC<{ entry: MySubmission; L: ReturnType<typeof tr>; formatDate: (t: number) => string }> = ({

@@ -17,7 +17,7 @@ const TOOL_META: Record<string, { de: [string, string]; en: [string, string] }> 
     en: ['Group divider', 'Split fairly at random without repeating the same pairs.'],
   },
   timer: {
-    de: ['Timer & Intervall', 'Große Anzeige mit Signalton und Runden für die Gruppe.'],
+    de: ['Timer und Intervall', 'Große Anzeige mit Signalton und Runden für die Gruppe.'],
     en: ['Timer & Interval', 'Large display with chime and rounds for the group.'],
   },
   scoreboard: {
@@ -121,7 +121,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         ? 'Kanonische Bahá\'í-Zitate und Gebete nach Jugendbuch und Thema mit interaktiven Lernmethoden.'
         : 'Canonical Bahá\'í quotes and prayers by book and topic with interactive memorisation tools.';
       ogParams.set('type', 'section');
-      ogParams.set('title', isDe ? 'Heilige Zitate & Gebete' : 'Sacred Quotes & Prayers');
+      ogParams.set('title', isDe ? 'Heilige Zitate und Gebete' : 'Sacred Quotes & Prayers');
       ogParams.set('subtitle', description);
     } else if (pathname.startsWith('/quotes/')) {
       const quoteId = pathname.replace('/quotes/', '').split('/')[0];
@@ -211,12 +211,12 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         title = isDe ? 'Kunst-Impuls nicht gefunden — Juju Hub' : 'Creative art prompt not found — Juju Hub';
       }
     } else if (pathname === '/service-arts') {
-      title = isDe ? 'Dienst & Kunst — Juju Hub' : 'Service & Arts — Juju Hub';
+      title = isDe ? 'Dienst und Kunst — Juju Hub' : 'Service & Arts — Juju Hub';
       description = isDe
         ? 'Gemeindedienst-Projekte und kreative Ausdrucks-Impulse für Juniorjugendgruppen und Camps.'
         : 'Community service projects and creative arts prompts for junior youth groups and camps.';
       ogParams.set('type', 'section');
-      ogParams.set('title', isDe ? 'Dienst & Kunst' : 'Service & Arts');
+      ogParams.set('title', isDe ? 'Dienst und Kunst' : 'Service & Arts');
       ogParams.set('subtitle', description);
     } else if (pathname.startsWith('/service-arts/')) {
       const actId = pathname.replace('/service-arts/', '').split('/')[0];
@@ -227,7 +227,7 @@ export const DocumentHead: React.FC<DocumentHeadProps> = ({ language }) => {
         const kindLabel =
           activity.kind === 'dienst'
             ? isDe ? 'Dienstprojekt' : 'Service Project'
-            : isDe ? 'Kunst & Ausdruck' : 'Arts & Drama';
+            : isDe ? 'Kunst und Ausdruck' : 'Arts & Drama';
         const sizeStr = `${activity.groupSize.min}–${activity.groupSize.max} ${isDe ? 'Pers.' : 'ppl'}`;
         title = `${aTitle} – ${kindLabel} (${sizeStr}) | Juju Hub`;
         description = activity.kind === 'dienst' ? activity.objective[language] : activity.description[language];

@@ -42,7 +42,7 @@ async function run() {
     roles: ['Rollenverteiler', 'Geheime Rollen für Spion, Wer bin ich, Werwölfe und Mörder auf einem Handy verteilen.'],
     scoreboard: ['Punktetafel', 'Punkte für Stationen oder Quizrunden ohne Beschämung erfassen.'],
     teams: ['Gruppeneinteiler', 'Zufällig und fair einteilen, ohne dieselben Paare zu wiederholen.'],
-    timer: ['Timer & Intervall', 'Große Anzeige mit Signalton und Runden für die Gruppe.'],
+    timer: ['Timer und Intervall', 'Große Anzeige mit Signalton und Runden für die Gruppe.'],
     finder: ['Spielfinder', 'Gruppengröße und Zeit eingeben und sofort passende Spiele erhalten.'],
     ideas: ['Spontane Impulse', 'Sortierkriterien, Geschichtenanfänge und Psychiater-Regeln für die Gruppe.'],
     cards: ['Gesprächskarten', 'Fragen und heilige Zitate für das vertiefende Gespräch im Kreis.'],
@@ -120,7 +120,7 @@ async function run() {
     {
       path: '/service-arts',
       priority: '0.7',
-      title: 'Dienst & Kunst — Juju Hub',
+      title: 'Dienst und Kunst — Juju Hub',
       description:
         'Gemeindedienst-Projekte und kreative Ausdrucks-Impulse für Juniorjugendgruppen und Camps.',
       ogType: 'website',
@@ -254,7 +254,7 @@ async function run() {
 
   for (const act of [...SERVICE_PROJECTS_DATA, ...ARTS_PROMPTS_DATA]) {
     const isService = act.kind === 'dienst';
-    const kindLabel = isService ? 'Dienstprojekt' : 'Kunst & Ausdruck';
+    const kindLabel = isService ? 'Dienstprojekt' : 'Kunst und Ausdruck';
     const sizeStr = `${act.groupSize.min}–${act.groupSize.max} Pers.`;
     const desc = isService ? act.objective.de : act.description.de;
     const q = new URLSearchParams({
@@ -345,7 +345,7 @@ ${routes
         : null;
       const cleanHeading = r.title
         .replace(/\s*[—|]\s*Juju Hub.*$/, '')
-        .replace(/\s*–\s*(Spiel|Zitat|Dienstprojekt|Kunst & Ausdruck|Werkzeug).*$/, '');
+        .replace(/\s*–\s*(Spiel|Zitat|Dienstprojekt|Kunst und Ausdruck|Werkzeug).*$/, '');
       const leadText = `${r.description} Entwickelt für Animatoren von Bahá’í-Juniorjugendgruppen (11 bis 15 Jahre) zur Vorbereitung am Laptop und für den unmittelbaren Live-Einsatz auf dem Smartphone in der Gruppe – inklusive Offline-Unterstützung, Filterung nach Gruppengröße und Energielevel sowie interaktiven Werkzeuge für Treffen und Camps.`;
       return `<div id="root"><div class="jy-static-shell min-h-screen bg-bg text-text flex flex-col"><header class="sticky top-0 z-40 h-16 bg-surface border-b border-border flex items-center px-4 sm:px-6"><span class="font-bold text-base text-text">Juju Hub</span></header><main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 pb-28">${body ?? `<div class="max-w-4xl mx-auto space-y-6"><section class="space-y-3"><h1 class="text-2xl sm:text-3xl font-bold text-text tracking-tight">${escapeHtml(cleanHeading)}</h1><p class="text-base sm:text-lg text-text leading-relaxed">${escapeHtml(leadText)}</p></section></div>`}</main><footer class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-8 flex gap-4 text-sm"><a href="/impressum" class="text-text-secondary">Impressum</a><a href="/privacy" rel="privacy-policy" class="text-text-secondary">Datenschutz · Privacy</a><a href="/terms" rel="terms-of-service" class="text-text-secondary">Nutzungsbedingungen · Terms</a></footer></div></div>`;
     };

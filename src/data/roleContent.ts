@@ -1835,7 +1835,7 @@ export const SPY_PACKS: SpyPack[] = [
       {
         id: 'places-freizeitpark',
         name: {
-          de: 'Erlebnispark & Achterbahn',
+          de: 'Erlebnispark und Achterbahn',
           en: 'Amusement park',
         },
         roles: [
@@ -1983,7 +1983,7 @@ export const SPY_PACKS: SpyPack[] = [
       {
         id: 'places-konzerthalle',
         name: {
-          de: 'Philharmonie & Konzerthalle',
+          de: 'Philharmonie und Konzerthalle',
           en: 'Concert hall',
         },
         roles: [
@@ -2059,7 +2059,7 @@ export const SPY_PACKS: SpyPack[] = [
   {
     id: 'travel-world',
     name: {
-      de: 'Länder & Weltstädte',
+      de: 'Länder und Weltstädte',
       en: 'Countries & Cities',
     },
     status: 'draft',
@@ -2252,7 +2252,7 @@ export const SPY_PACKS: SpyPack[] = [
       {
         id: 'travel-rio',
         name: {
-          de: 'Rio de Janeiro & Copacabana (Brasilien)',
+          de: 'Rio de Janeiro und Copacabana (Brasilien)',
           en: 'Rio de Janeiro (Brazil)',
         },
         roles: [
@@ -2289,7 +2289,7 @@ export const SPY_PACKS: SpyPack[] = [
       {
         id: 'travel-hawaii',
         name: {
-          de: 'Hawaii Strände & Vulkane',
+          de: 'Hawaii Strände und Vulkane',
           en: 'Hawaii Islands',
         },
         roles: [
@@ -2365,7 +2365,7 @@ export const SPY_PACKS: SpyPack[] = [
   {
     id: 'movies',
     name: {
-      de: 'Filme & Serien',
+      de: 'Filme und Serien',
       en: 'Movies & TV',
     },
     status: 'draft',
@@ -2674,7 +2674,7 @@ export const WHO_AM_I_PACKS: WhoAmIPack[] = [
   {
     id: 'popkultur',
     name: {
-      de: 'Fiktive & Popkultur-Helden',
+      de: 'Fiktive und Popkultur-Helden',
       en: 'Pop Culture & Fiction',
     },
     difficulty: 1,
@@ -3653,7 +3653,7 @@ export const WEREWOLF_NARRATOR: NarratorStep[] = [
     id: 'day-diskussion',
     phase: 'day',
     title: {
-      de: 'Diskussion & Bürgermeister',
+      de: 'Diskussion und Bürgermeister',
       en: 'Discussion & Mayor',
     },
     script: {
