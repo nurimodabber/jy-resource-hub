@@ -3,13 +3,13 @@
 Dieses Projekt ist eine Webseite für Animatoren von Bahá'í-Juniorjugendgruppen: Spiele, heilige Zitate, Dienst- und Kunstprojekte, Treffen-Planung und Werkzeuge für live in der Gruppe. Nutzung: auf dem Handy live, am Laptop zur Vorbereitung, per Beamer in der Gruppe.
 
 ## Stack und Befehle
-React 18, TypeScript, Vite 6, Tailwind CSS v3, react-router-dom 7, lucide-react. Server nur als Vercel-Funktionen in `api/` (`sync.ts` Admin + Katalog, `submit.ts` Vorschläge, `og.ts` Vorschaubilder). Vercel veröffentlicht `main` automatisch, Domain `juju-hub.vercel.app`.
+React 18, TypeScript, Vite 6, Tailwind CSS v3, react-router-dom 7, lucide-react. Server nur als Vercel-Funktionen in `api/` (`sync.ts` Admin + Katalog, `submit.ts` Vorschläge, `og.ts` Vorschaubilder). Domain `juju-hub.vercel.app` (Vercel-Projekt `juju-hub`). Produktion wird von Hand veröffentlicht, nicht durch einen Push: vor jeder Veröffentlichung prüfen, welchen Commit die Produktion gerade zeigt (er kann vor `redesign-v2` liegen), diesen zuerst einmischen, dann ausdrücklich nach Produktion veröffentlichen. `origin/main` ist veraltet und ungenutzt.
 
-- Vor jedem Commit: `npm run check` und `npm run build` müssen fehlerfrei laufen. Wer `api/` oder die Admin-Anmeldung ändert, lässt zusätzlich `npm run test:api` laufen (Sicherheitstests mit nachgebautem GitHub, ohne echte Daten).
-- Branch `redesign-v2`, ein Commit pro Phase, Pull Request für die Vorschau-Adresse. Nie direkt auf `main`.
+- Vor jedem Commit: `npm run check`. `npm run build` vor jedem Pull Request und jeder Veröffentlichung, und immer bei Änderungen an Oberfläche oder Stilen. Wer `api/` oder die Admin-Anmeldung ändert, lässt zusätzlich `npm run test:api` laufen (Sicherheitstests mit nachgebautem GitHub, ohne echte Daten).
+- Eigener Branch pro Aufgabe (von `redesign-v2`), Pull Request nach `redesign-v2` für die Vorschau-Adresse. Ein Merge dort ist nur eine Vorschau, keine Veröffentlichung.
 
 ## Harte Regeln
-1. **Heilige Texte:** `src/data/quotes.ts` (QUOTES_DATA) wird nie bearbeitet, gekürzt, umformuliert oder automatisch ergänzt. Zitate werden ehrfürchtig dargestellt: Serifenschrift (Lora), ruhiger Hintergrund, keine Farbcodierung, keine Emojis, keine Spielelemente direkt am Text.
+1. **Heilige Texte:** `src/data/quotes.ts` (QUOTES_DATA) wird nur auf ausdrücklichen Wunsch des Inhabers bearbeitet, nie von selbst gekürzt, umformuliert oder automatisch ergänzt. Zitate werden ehrfürchtig dargestellt: Serifenschrift (Lora), ruhiger Hintergrund, keine Farbcodierung, keine Emojis, keine Spielelemente direkt am Text.
 2. **Entwürfe:** Alles Inhaltliche, was du neu schreibst, bekommt `status: 'draft'` und wird in der Abschlussmeldung aufgelistet. Nichts davon gilt als freigegeben.
 3. **Stabile IDs:** Bestehende `id`-Werte (Spiele, Zitate, Projekte) nie umbenennen. Nutzer haben sie in `jy_favorites` und `jy_plans` gespeichert.
 4. **Sprache:** Deutsch zuerst, Englisch muss weiter funktionieren. Alle UI-Texte kommen entweder aus `src/data/translations.ts` (typisiert: `de` ist die Quelle, `en` ist `Record<TKey,string>`, fehlende Schlüssel sind Compile-Fehler) oder aus dem Helfer `tr(language)(de, en)` in `src/components/tools/common.tsx`. Nie nur eine Sprache.
@@ -51,24 +51,14 @@ Die Kürzung der Treffen-Themen und der „Wer bin ich?“-Pakete in `redesign-v
 3. **Chirurgische Änderungen.** Nur anfassen, was zur Aufgabe gehört. Kein Umformatieren, kein Aufräumen nebenbei. Jede geänderte Zeile muss sich auf den Auftrag zurückführen lassen.
 4. **Zielgetrieben.** Vorher festlegen, woran man „fertig“ erkennt (Test, Befehl, Screenshot), und das am Ende wirklich prüfen. „Sollte gehen“ gilt nicht.
 
-- Lies zuerst `prompts/README.md` und arbeite die Phasen in der dort genannten Reihenfolge ab.
-- Prüfe jede Phase im Browser bei 390, 768 und 1280 px, hell und dunkel, Deutsch und Englisch, und mache Screenshots.
+- Für die Redesign-Phasen: `docs/v2/prompts/README.md` gibt die Reihenfolge vor.
+- Sichtbare Änderungen im Browser prüfen, mit Screenshot: die betroffene Ansicht bei 390 und 1280 px. Die volle Runde (390, 768, 1280 px, hell und dunkel, Deutsch und Englisch) nur vor einer Veröffentlichung oder bei Änderungen am Designsystem.
 - Ändere nichts außerhalb des Auftrags der jeweiligen Phase. Wenn etwas unklar ist, frage, statt zu raten.
 
-## Admin-Sicherheit (seit 2026-10, nicht zurückbauen)
-Vorher war `/api/sync` ohne Anmeldung nutzbar: Jeder konnte alle Passwort-Hashes lesen, das Inhaber-Konto übernehmen und Katalog-Einträge veröffentlichen oder löschen. Deshalb gilt:
-- **Der Server entscheidet.** Konten, Passwörter und Rechte gibt es nur in `api/sync.ts`. Der Browser speichert keine Konten und keine Hashes und lädt sie nie hoch. Rechte im Browser (`getEffectivePermissions`) blenden nur Bedienelemente ein oder aus.
-- **Sitzungen (seit 2026-11-09 als Cookie):** `login` setzt ein signiertes Token (HMAC, 12 h) als Cookie `jy_admin_session` (`HttpOnly; Secure; SameSite=Strict; Path=/api/sync`). JavaScript sieht das Token nie, im Browser liegt nur das Konto zur Anzeige (`sessionStorage`). Abmelden ruft `logout` auf, der Server löscht den Cookie. Jede Admin-Aktion wird auf dem Server gegen Rolle, Status und Passwort-Version geprüft. Neue Admin-Aktionen immer über `requireSession`/`requireOwner` bauen, nie ohne. Das Token nie wieder in die JSON-Antwort legen (`npm run test:api` prüft das).
-- **Inhaber** ist nur das Konto mit genau der Adresse aus `OWNER_USERNAME`. Keine Namensvergleiche („nuri“, „modabber“).
-- **Passwörter:** PBKDF2-SHA256 auf dem Server. Alte SHA-256-Hashes ohne `hashAlgo` waren öffentlich lesbar und werden abgelehnt („Neues Passwort nötig“); der Inhaber setzt sie neu.
-- **Inhaber-Einrichtung/Notfall:** `ADMIN_SETUP_TOKEN` in Vercel setzen, unter `/admin` → „Inhaber-Einrichtung“ das Passwort festlegen, danach die Variable wieder löschen.
-- **Admin-Speicher (Gist):** `saveState` liest vor jedem Schreiben die aktuelle Fassung über die API und schreibt nie über eine neuere; Speichern läuft pro Server-Instanz nacheinander (sonst gehen parallele Speicherungen verloren); bei Konflikt (auch GitHub-409) wiederholt der Server die Aktion bis zu viermal mit kurzer Zufallspause, danach Antwort 409. Jeder Aufruf an GitHub/Resend hat 8 s Frist (`upstream`). Unverschlüsselter Inhalt wird abgelehnt. Neue Aktionen speichern immer vor E-Mails oder GitHub-Aufrufen, sonst laufen diese bei der Wiederholung doppelt.
-- **Portal statt Admin (2026-11-07):** Der Redaktionsbereich liegt unter `/portal`. `/admin` gibt seit 2026-11-10 die normale 404-Seite (keine Weiterleitung mehr), damit Scanner und Neugierige dort keine Seite finden.
-- **Meine Beiträge (2026-11-07):** Beitragende haben kein Konto, „meine“ Beiträge sind die von diesem Gerät (`jy_my_submissions`). Jeder neue Vorschlag bekommt einen Bearbeitungscode; im öffentlichen Issue steht nur sein SHA-256 (`jy-edit`-Kommentar), der Code selbst kommt seit 2026-11-10 nur als httpOnly-Cookie `jy_edit_<Nummer>` (`Path=/api/submit`, 1 Jahr) und nie in die JSON-Antwort. Ein Code im Body zählt nicht (der alte Weg über `jy_submission_tokens` wurde am 2026-11-10 entfernt, als kein offener Beitrag mehr einen hatte). Überarbeiten (`/api/submit`, `action: 'update'`) geht nur mit Code und nur, solange das Issue das Label `änderung-nötig` trägt. Status liefert `GET /api/sync?issues=…` (nicht `/api/submit`, dort begrenzt die Firewall auf 5 pro Minute). Die Notiz der Redaktion ist öffentlich im Issue.
-- **GitHub-Token** nur als `GITHUB_TOKEN` in Vercel. Kein Token im Browser, kein Token in Sicherungen.
-- **Kontaktdaten** aus Vorschlägen stehen nie im öffentlichen Issue, nur verschlüsselt (`jy-contact`-Kommentar), lesbar nur für Prüfende.
-- **Vercel-Variablen:** `GITHUB_TOKEN`, `GITHUB_REPO`, `ADMIN_STATE_GIST_ID`, `OWNER_USERNAME`, `ADMIN_SESSION_SECRET` (mind. 32 Zeichen, zufällig), `ADMIN_STATE_KEY` (empfohlen; sonst wird der GitHub-Token als Datenschlüssel benutzt), `RESEND_API_KEY`, `EMAIL_FROM`, `OWNER_NOTIFY_EMAIL`, `SITE_URL`. Fehlt `GITHUB_TOKEN` oder `ADMIN_SESSION_SECRET`, antwortet der Admin-Teil mit 503 (bewusst).
-- **CSP** in `vercel.json` erlaubt das Inline-Skript in `index.html` (Dunkelmodus vor dem ersten Bild) per SHA-256. `npm run build` berechnet den Hash selbst und schreibt ihn in `vercel.json`; diese Änderung mitcommitten. Das Skript muss `jy_theme = 'system'` wie „Gerät folgen“ behandeln, sonst blitzt beim Neuladen der helle Modus auf.
-- **Vorgerenderter Platzhalter** (`.jy-static-shell`): für Suchmaschinen und Besucher ohne JavaScript. Mit JavaScript ist er unsichtbar und erscheint erst nach 4 s, falls die App nicht startet (`src/index.css`).
-- **CSP für Stile:** kein `'unsafe-inline'`. Erlaubt sind per Hash nur das eingebettete Haupt-CSS und das `<style>` von glisse. `npm run build` (`scripts/prerender-meta.mjs`) schreibt die Hashes selbst in `vercel.json`; diese Änderung mitcommitten. Auf Vercel bricht der Build ab, wenn die Hashes veraltet sind. Keine `style="…"`-Attribute in HTML oder per `setAttribute` (React-`style={}` ist erlaubt).
-- **Gotcha:** In `AdminView` nie von `adminData` (neues Objekt nach jedem Refresh) in Sync-Effekten abhängen, nur von `adminData.refresh`. Sonst entsteht eine Endlosschleife von `/api/sync`-Aufrufen.
+## Admin-Sicherheit (nicht zurückbauen)
+**Vor jeder Änderung an `api/`, Anmeldung, Portal (`/portal`), „Meine Beiträge“, CSP, `index.html`-Inline-Skript oder `vercel.json` zuerst `docs/admin-security.md` ganz lesen.** Kurzfassung:
+- Der Server entscheidet: Konten, Passwörter und Rechte nur in `api/sync.ts`; neue Admin-Aktionen immer über `requireSession`/`requireOwner`.
+- Tokens und Bearbeitungscodes nur als httpOnly-Cookie, nie in JSON-Antworten, im Browser oder in Sicherungen.
+- `npm run build` schreibt CSP-Hashes in `vercel.json`; diese Änderung mitcommitten. Keine `style="…"`-Attribute.
+- In `AdminView` nur von `adminData.refresh` abhängen, nie von `adminData` (sonst Endlosschleife).
+- Nach Änderungen: `npm run test:api`.
