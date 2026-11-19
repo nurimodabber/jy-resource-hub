@@ -14,6 +14,7 @@ interface FadedIconTileProps {
 
 // One tile shape for "Projekte & mehr", Werkzeuge and the Beitragen choices: a flat rectangle,
 // the title bottom-left, a large icon faded into the top-right corner so the text runs over it.
+// On phones the tiles are narrow: the icon is smaller and callers keep the tile tall enough that the title starts below it.
 // No icon frame, no category pill: the icon is decoration, the title carries the meaning.
 export const FadedIconTile: React.FC<FadedIconTileProps> = ({ title, sub, Icon, to, onClick, selected, className = '' }) => {
   const cls = `group relative overflow-hidden flex flex-col justify-end text-left p-3.5 sm:p-4 min-h-[84px] sm:min-h-[96px] rounded-card bg-surface border transition-all duration-200 motion-reduce:transform-none [@media(hover:hover)]:hover:-translate-y-0.5 hover:shadow-1 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent cursor-pointer ${
@@ -22,7 +23,7 @@ export const FadedIconTile: React.FC<FadedIconTileProps> = ({ title, sub, Icon, 
   const body = (
     <>
       <Icon
-        className={`absolute top-1 right-1 w-14 h-14 sm:w-[72px] sm:h-[72px] transition-colors ${
+        className={`absolute top-1 right-1 w-11 h-11 sm:w-[72px] sm:h-[72px] transition-colors ${
           selected ? 'text-accent/25' : 'text-text-tertiary/40 group-hover:text-accent/40'
         }`}
         strokeWidth={1.5}

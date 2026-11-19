@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { quoteAuthor } from '../utils/quoteAuthor';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Compass,
   ArrowRight,
   Bookmark,
   ChevronRight,
@@ -16,7 +15,6 @@ import {
   Users,
   Timer,
   Tally5,
-  Dices,
   MessageSquareQuote,
   Share2,
   Share,
@@ -32,7 +30,8 @@ import { loadRecentViews } from '../utils/recentViews';
 import { loadGroupTitle } from '../utils/groupNames';
 import { getBadiDate } from '../utils/badiCalendar';
 import { FadedIconTile } from './ui/FadedIconTile';
-import { tr, Panel, Label, Stepper, ChoiceChips, primaryBtn } from './tools/common';
+import { getGameIcon } from '../data/gameIcons';
+import { tr, Label, Stepper, ChoiceChips, primaryBtn } from './tools/common';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -275,7 +274,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
         </header>
 
         {/* Rechte Spalte: Die zwei CTAs als edle Pill-Buttons */}
-        <div className="lg:col-span-5 space-y-3">
+        <div className="lg:col-span-5 lg:row-span-2 space-y-3">
           <nav
             aria-label={L('Haupteinstiege', 'Main navigation')}
             className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-2.5 sm:gap-3"
@@ -336,21 +335,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
               }`}
             >
               <div className="min-h-0 overflow-hidden"><div className="pt-3">
-              <Panel className="space-y-4 border border-border bg-surface rounded-card p-4 sm:p-5 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-bold text-text flex items-center gap-2">
-                    <Compass className="w-4 h-4 text-accent" />
-                    <span>{L('Schneller Spielfinder', 'Quick game finder')}</span>
-                  </h2>
-                  <button
-                    type="button"
-                    onClick={() => setShowCompactFinder(false)}
-                    aria-label={L('Spielfinder schließen', 'Close game finder')}
-                    className="text-text-tertiary hover:text-text min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-accent"
-                  >
-                    <X className="w-4 h-4" aria-hidden="true" />
-                  </button>
-                </div>
+              <div className="space-y-4 border border-border bg-surface rounded-card p-4 sm:p-5 shadow-xs">
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -387,17 +372,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                   <span>{L('Passende Spiele anzeigen', 'Show matching games')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
-              </Panel>
+              </div>
               </div></div>
             </section>
         </div>
-      </div>
 
       {/* 3. Zitat des Tages: Raum für das heilige Wort */}
       {quote && (
         <section
           aria-label={L('Zitat des Tages', 'Quote of the day')}
-          className="px-6 pb-6 pt-3.5 sm:px-8 sm:pb-8 sm:pt-3.5 rounded-card bg-surface border border-border/70 shadow-xs hover:shadow-1 transition-all duration-200 space-y-4 group"
+          className="mt-2 lg:mt-0 lg:col-span-7 px-6 pb-6 pt-3.5 sm:px-8 sm:pb-8 sm:pt-3.5 rounded-card bg-surface border border-border/70 shadow-xs hover:shadow-1 transition-all duration-200 space-y-4 group"
         >
           {/* Header Row: Feine Typografie-Kennzeichnung & Aktionen */}
           <div className="flex items-center justify-between gap-3 border-b border-line pb-3 sm:pb-3.5">
@@ -471,6 +455,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
           </Link>
         </section>
       )}
+      </div>
 
       {/* Live in der Gruppe: direkte Wege zu den Werkzeugen, die man mitten im Treffen braucht.
           Dienst, Kunst und Beitragen stehen in der Tab-Leiste und werden hier nicht wiederholt.
@@ -486,7 +471,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
             { to: '/tools/scoreboard', Icon: Tally5, title: L('Punktetafel', 'Scoreboard') },
             { to: '/tools/cards', Icon: MessageSquareQuote, title: L('Gesprächskarten', 'Conversation cards') },
           ].map(({ to, Icon, title }) => (
-            <FadedIconTile key={to} to={to} Icon={Icon} title={title} className="min-h-[76px] sm:min-h-[112px] lg:min-h-[150px]" />
+            <FadedIconTile key={to} to={to} Icon={Icon} title={title} className="min-h-[88px] sm:min-h-[112px] lg:min-h-[150px]" />
           ))}
         </div>
       </section>
@@ -506,9 +491,9 @@ export const HomeView: React.FC<HomeViewProps> = ({ language, favorites, onToggl
                 to={item.path}
                 className="flex items-center gap-2.5 p-3 rounded-card bg-surface border border-border hover:bg-surface-2 transition-colors group min-h-[52px] focus-visible:ring-2 focus-visible:ring-accent shadow-1"
               >
-                <div className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors flex items-center justify-center shrink-0">
+                <div className={`${item.type === 'game' ? 'w-7 h-7 text-text-secondary' : 'w-5 h-5 text-text-tertiary'} group-hover:text-accent transition-colors flex items-center justify-center shrink-0`}>
                   {item.type === 'game' ? (
-                    <Dices className="w-4 h-4" />
+                    React.createElement(getGameIcon(item.id), { className: 'w-7 h-7' })
                   ) : item.type === 'quote' ? (
                     <BookOpen className="w-4 h-4" />
                   ) : item.type === 'service' ? (
