@@ -3,12 +3,13 @@ import React from 'react';
 /**
  * Spiel-Icons im Stil des Logos (Entscheidung des Inhabers, 2026-11-19).
  * - Figur wie im Logo: runder Kopf über einem gefüllten Bogen-Körper mit kleiner Beinkerbe. Keine dünnen Strichfiguren.
- * - Eine Idee pro Icon. Figuren in der neutralen Kachelfarbe, nur der Gegenstand, um den es geht, in Logo-Gold (`text-icon-gold`).
+ * - Eine Idee pro Icon. Figuren in der neutralen Kachelfarbe, nur der Gegenstand, um den es geht, in Logo-Gold (`text-amber`).
  * - 24er-Raster, 2 px Rand, Füße auf y 21. Arme 2,4 px, Gegenstände 1,5–2 px, nichts unter 1,5 px.
  */
 type Props = { className?: string; strokeWidth?: number | string };
 
-const GOLD = 'text-icon-gold';
+// Logo-Gold = die warme Akzentfarbe --amber (dunkel exakt Logo-Gold, hell #B45309 für Kontrast).
+const GOLD = 'text-amber';
 const ink = { fill: 'currentColor', stroke: 'none' } as const;
 const ARM = 2.4;
 const dash = { strokeWidth: 1.5, strokeDasharray: '1.5 2' } as const;
